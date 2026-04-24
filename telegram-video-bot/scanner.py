@@ -18,7 +18,7 @@ from telethon.tl.types import (
 
 import config
 from database import Database
-from tagger import classify_resolution, extract_tags
+from tagger import classify_aspect_ratio, classify_resolution, extract_tags
 
 logger = logging.getLogger(__name__)
 
@@ -186,6 +186,7 @@ class Scanner:
                     "file_name":    record.file_name,
                     "file_size":    record.file_size,
                     "resolution":   record.resolution,
+                    "aspect_ratio": classify_aspect_ratio(record.width, record.height),
                     "width":        record.width,
                     "height":       record.height,
                     "duration":     record.duration,
@@ -200,6 +201,8 @@ class Scanner:
                 file_name=record.file_name,
                 resolution=record.resolution,
                 duration=record.duration,
+                width=record.width,
+                height=record.height,
             )
             record.tags = tags
             self.db.add_tags(db_id, tags)

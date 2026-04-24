@@ -3,16 +3,17 @@ Telegram bot command handlers (Telethon bot client).
 
 Commands
 --------
-/start          – Welcome message + quick help
-/scan [limit]   – Scan all joined channels/groups for HD videos
-/stop           – Abort an active scan
-/status         – Live download queue status
-/list [page]    – Browse discovered videos (paginated, 8 per page)
-/search <tag>   – Filter videos by tag
-/tags           – Top-50 tags with counts
-/download <id>  – Queue a video for download by its DB id
-/stats          – Overall counts and storage figures
-/help           – Command reference
+/start              – Welcome message + quick help
+/scan [limit]       – Scan all joined channels/groups for HD videos
+/stop               – Abort an active scan
+/status             – Live download queue status
+/list [tokens…]     – Browse videos with optional filters (see /help)
+/filter <type> …    – Custom duration-range or aspect-ratio filter
+/search <tag>       – Filter videos by tag
+/tags               – Top-50 tags with counts
+/download <id>      – Queue a video for download by its DB id
+/stats              – Overall counts and storage figures
+/help               – Command reference
 """
 
 import asyncio
@@ -26,11 +27,54 @@ import config
 from database import Database
 from downloader import Downloader, DownloadJob, _fmt_size, _fmt_duration
 from scanner import Scanner, ScanStats, VideoRecord
+from tagger import ASPECT_LABELS, _DUR_SHORT, _DUR_MEDIUM
 
 logger = logging.getLogger(__name__)
 
-# Width of the page for /list
 PAGE_SIZE = 8
+
+# Named duration buckets → (min_sec, max_sec or None)
+_DURATION_BUCKETS: dict[str, tuple[int | None, int | None]] = {
+    "short":  (None, _DUR_SHORT),
+    "medium": (_DUR_SHORT, _DUR_MEDIUM),
+    "long":   (_DUR_MEDIUM, None),
+}
+
+# All keyword tokens /list understands
+_RESOLUTION_MAP = {"4k": "4K", "1080p": "1080p", "1080": "1080p", "hd": "1080p"}
+_ASPECT_SET     = set(ASPECT_LABELS)          # portrait square standard widescreen ultrawide
+_DURATION_SET   = set(_DURATION_BUCKETS)      # short medium long
+
+
+def _parse_list_tokens(raw: str) -> dict:
+    """
+    Parse the free-form argument string for /list into a filter dict.
+    Accepts any combination of:
+      resolution  — 4k | 1080p | hd
+      aspect      — portrait | square | standard | widescreen | ultrawide
+      duration    — short | medium | long
+      page        — bare integer (default 1)
+    Order is irrelevant; unknown tokens are silently ignored.
+    """
+    result: dict = {
+        "resolution": None,
+        "aspect_ratio": None,
+        "duration_min": None,
+        "duration_max": None,
+        "page": 1,
+    }
+    for tok in raw.lower().split():
+        if tok in _RESOLUTION_MAP:
+            result["resolution"] = _RESOLUTION_MAP[tok]
+        elif tok in _ASPECT_SET:
+            result["aspect_ratio"] = tok
+        elif tok in _DURATION_SET:
+            dmin, dmax = _DURATION_BUCKETS[tok]
+            result["duration_min"] = dmin
+            result["duration_max"] = dmax
+        elif tok.isdigit():
+            result["page"] = max(1, int(tok))
+    return result
 
 
 def register_handlers(
@@ -68,6 +112,8 @@ def register_handlers(
             "Quick commands:\n"
             "  /scan — discover HD videos in all joined chats\n"
             "  /list — browse discovered videos\n"
+            "  /list 4k portrait short — combine filters freely\n"
+            "  /filter duration 5 20 — custom duration range (minutes)\n"
             "  /tags — explore tags\n"
             "  /search <tag> — filter by tag\n"
             "  /stats — overall summary\n"
@@ -80,14 +126,28 @@ def register_handlers(
             return await _deny(event)
         await event.respond(
             "**Commands**\n\n"
-            "`/scan [limit]` — scan all channels (optional msg limit per channel)\n"
+            "`/scan [limit]` — scan all channels (optional per-channel message limit)\n"
             "`/stop` — stop an active scan\n"
-            "`/status` — download queue status\n"
-            "`/list [page]` — browse videos (page starts at 1)\n"
-            "`/list 4k` or `/list 1080p` — filter by resolution\n"
-            "`/search <tag>` — filter by tag\n"
-            "`/tags` — top tags with counts\n"
-            "`/download <id>` — queue video #id for download\n"
+            "`/status` — live download queue\n\n"
+            "**Browse & filter** (mix any tokens freely):\n"
+            "`/list` — all videos, page 1\n"
+            "`/list 4k` / `/list 1080p` — by resolution\n"
+            "`/list portrait` — vertical / phone-shot videos (9:16)\n"
+            "`/list square` — ~1:1 ratio\n"
+            "`/list standard` — 4:3 and similar\n"
+            "`/list widescreen` — 16:9 and similar\n"
+            "`/list ultrawide` — 21:9 and wider (cinema)\n"
+            "`/list short` — under 2 minutes\n"
+            "`/list medium` — 2–20 minutes\n"
+            "`/list long` — over 20 minutes\n"
+            "`/list 4k widescreen long 2` — combine + page 2\n\n"
+            "**Custom duration range:**\n"
+            "`/filter duration 5 30` — videos between 5 and 30 minutes\n"
+            "`/filter duration 60` — videos over 60 minutes\n\n"
+            "**Other:**\n"
+            "`/search <tag>` — filter by any tag\n"
+            "`/tags` — top-50 tags with counts\n"
+            "`/download <id>` — queue video for download\n"
             "`/stats` — database summary\n"
         )
 
@@ -198,53 +258,172 @@ def register_handlers(
     async def cmd_list(event):
         if not _authorised(event):
             return await _deny(event)
-        arg = (event.pattern_match.group(1) or "1").strip().lower()
+        raw = (event.pattern_match.group(1) or "").strip()
+        f   = _parse_list_tokens(raw)
+        page = f["page"]
 
-        # Resolve resolution filter and page
-        resolution = None
-        page = 1
-
-        if arg in ("4k", "4K"):
-            resolution = "4K"
-        elif arg in ("1080p", "1080", "hd"):
-            resolution = "1080p"
-        elif arg.isdigit():
-            page = max(1, int(arg))
-
-        videos = db.get_videos(page=page - 1, per_page=PAGE_SIZE, resolution=resolution)
-        total  = db.count_videos(resolution=resolution)
-        pages  = max(1, -(-total // PAGE_SIZE))  # ceiling division
+        videos = db.get_videos(
+            page=page - 1,
+            per_page=PAGE_SIZE,
+            resolution=f["resolution"],
+            aspect_ratio=f["aspect_ratio"],
+            duration_min=f["duration_min"],
+            duration_max=f["duration_max"],
+        )
+        total = db.count_videos(
+            resolution=f["resolution"],
+            aspect_ratio=f["aspect_ratio"],
+            duration_min=f["duration_min"],
+            duration_max=f["duration_max"],
+        )
+        pages = max(1, -(-total // PAGE_SIZE))
 
         if not videos:
-            await event.respond("No videos found. Run /scan first.")
+            await event.respond("No videos match those filters. Try /list or /scan first.")
             return
 
-        lines = [f"**Videos** (page {page}/{pages}  •  {total} total)\n"]
+        # Build a human-readable description of the active filters
+        active = []
+        if f["resolution"]:
+            active.append(f["resolution"])
+        if f["aspect_ratio"]:
+            active.append(f["aspect_ratio"])
+        if f["duration_min"] is not None or f["duration_max"] is not None:
+            dmin = f["duration_min"] or 0
+            dmax = f["duration_max"]
+            active.append(
+                f">{dmin//60}min" if dmax is None else
+                f"<{dmax//60}min" if dmin == 0 else
+                f"{dmin//60}-{dmax//60}min"
+            )
+        filter_label = "  ".join(active) or "all"
+
+        lines = [f"**Videos** [{filter_label}]  page {page}/{pages}  •  {total} total\n"]
         for v in videos:
             dl_icon = "✓" if v["downloaded"] else "·"
-            dur = _fmt_duration(v["duration"] or 0)
+            dur  = _fmt_duration(v["duration"] or 0)
             size = _fmt_size(v["file_size"] or 0)
+            ar   = v.get("aspect_ratio") or "?"
             tags_preview = (v["tags"] or "")[:60]
             lines.append(
                 f"{dl_icon} **#{v['id']}** `{v['file_name'][:35]}`\n"
-                f"   {v['resolution']} • {v['width']}x{v['height']} • {dur} • {size}\n"
+                f"   {v['resolution']} • {ar} • {v['width']}x{v['height']} • {dur} • {size}\n"
                 f"   {v['channel_name']}\n"
                 f"   Tags: {tags_preview}\n"
                 f"   /download {v['id']}"
             )
-            if len(v.get("caption") or "") > 0:
+            if v.get("caption"):
                 lines.append(f"   _{v['caption'][:80]}_")
             lines.append("")
 
+        # Navigation — preserve the filter tokens in the nav links
+        filter_tokens = " ".join(
+            t for t in [
+                raw.replace(str(page), "").strip() if raw.strip().isdigit() else
+                " ".join(tok for tok in raw.split() if not tok.isdigit())
+            ] if t
+        ).strip()
+
         nav = []
         if page > 1:
-            nav.append(f"/list {page-1}")
+            nav.append(f"/list {filter_tokens} {page-1}".strip())
         if page < pages:
-            nav.append(f"/list {page+1}")
+            nav.append(f"/list {filter_tokens} {page+1}".strip())
         if nav:
             lines.append("  ".join(nav))
 
         await event.respond("\n".join(lines))
+
+    # ------------------------------------------------------------------ #
+    # /filter
+    # ------------------------------------------------------------------ #
+
+    @bot.on(events.NewMessage(pattern=r"^/filter\s+(.+)$"))
+    async def cmd_filter(event):
+        if not _authorised(event):
+            return await _deny(event)
+        parts = event.pattern_match.group(1).strip().lower().split()
+
+        if not parts:
+            await event.respond("Usage: `/filter duration 5 30` or `/filter aspect portrait`")
+            return
+
+        kind = parts[0]
+
+        # /filter duration MIN [MAX]  (minutes)
+        if kind == "duration":
+            nums = [p for p in parts[1:] if p.isdigit()]
+            if not nums:
+                await event.respond(
+                    "Usage: `/filter duration MIN [MAX]` (in minutes)\n"
+                    "Example: `/filter duration 5 30` — 5 to 30 min\n"
+                    "Example: `/filter duration 60` — over 60 min"
+                )
+                return
+            dmin_s = int(nums[0]) * 60
+            dmax_s = int(nums[1]) * 60 if len(nums) >= 2 else None
+
+            videos = db.get_videos(
+                duration_min=dmin_s,
+                duration_max=dmax_s,
+                per_page=PAGE_SIZE,
+            )
+            total = db.count_videos(duration_min=dmin_s, duration_max=dmax_s)
+
+            if not videos:
+                label = (
+                    f"{nums[0]}–{nums[1]} min" if len(nums) >= 2
+                    else f">{nums[0]} min"
+                )
+                await event.respond(f"No videos found for duration {label}.")
+                return
+
+            label = f"{nums[0]}–{nums[1]} min" if len(nums) >= 2 else f">{nums[0]} min"
+            lines = [f"**Videos** [duration: {label}]  {total} total\n"]
+            for v in videos:
+                dur  = _fmt_duration(v["duration"] or 0)
+                size = _fmt_size(v["file_size"] or 0)
+                ar   = v.get("aspect_ratio") or "?"
+                lines.append(
+                    f"**#{v['id']}** `{v['file_name'][:35]}`\n"
+                    f"   {v['resolution']} • {ar} • {dur} • {size}\n"
+                    f"   {v['channel_name']}\n"
+                    f"   /download {v['id']}\n"
+                )
+            await event.respond("\n".join(lines))
+            return
+
+        # /filter aspect <label>
+        if kind in ("aspect", "ratio", "ar"):
+            if len(parts) < 2 or parts[1] not in _ASPECT_SET:
+                await event.respond(
+                    "Usage: `/filter aspect <label>`\n"
+                    "Labels: `portrait`  `square`  `standard`  `widescreen`  `ultrawide`"
+                )
+                return
+            ar_filter = parts[1]
+            videos = db.get_videos(aspect_ratio=ar_filter, per_page=PAGE_SIZE)
+            total  = db.count_videos(aspect_ratio=ar_filter)
+            if not videos:
+                await event.respond(f"No `{ar_filter}` videos found.")
+                return
+            lines = [f"**Videos** [aspect: {ar_filter}]  {total} total\n"]
+            for v in videos:
+                dur  = _fmt_duration(v["duration"] or 0)
+                size = _fmt_size(v["file_size"] or 0)
+                lines.append(
+                    f"**#{v['id']}** `{v['file_name'][:35]}`\n"
+                    f"   {v['resolution']} • {v['width']}x{v['height']} • {dur} • {size}\n"
+                    f"   {v['channel_name']}\n"
+                    f"   /download {v['id']}\n"
+                )
+            await event.respond("\n".join(lines))
+            return
+
+        await event.respond(
+            "Unknown filter type.\n"
+            "Try `/filter duration 5 30` or `/filter aspect portrait`."
+        )
 
     # ------------------------------------------------------------------ #
     # /search
@@ -351,7 +530,17 @@ def register_handlers(
             f"  — 4K             : {s['count_4k'] or 0}",
             f"  — 1080p          : {s['count_1080p'] or 0}",
             f"Downloaded         : {s['downloaded'] or 0}",
-            f"Indexed file size  : {_fmt_size(total_bytes)}",
+            f"Indexed size       : {_fmt_size(total_bytes)}",
+            f"\n**Aspect ratio**",
+            f"  portrait         : {s['ar_portrait'] or 0}",
+            f"  square           : {s['ar_square'] or 0}",
+            f"  standard (4:3)   : {s['ar_standard'] or 0}",
+            f"  widescreen (16:9): {s['ar_widescreen'] or 0}",
+            f"  ultrawide (21:9+): {s['ar_ultrawide'] or 0}",
+            f"\n**Duration**",
+            f"  short  (<2 min)  : {s['dur_short'] or 0}",
+            f"  medium (2-20 min): {s['dur_medium'] or 0}",
+            f"  long   (>20 min) : {s['dur_long'] or 0}",
             f"\nChannels scanned   : {len(scanned)}",
         ]
         await event.respond("\n".join(lines))

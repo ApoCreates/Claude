@@ -58,12 +58,58 @@ def classify_resolution(width: int, height: int) -> str | None:
     return None
 
 
+# Aspect ratio labels stored in the DB and used as filter tokens.
+ASPECT_LABELS = ("portrait", "square", "standard", "widescreen", "ultrawide")
+
+
+def classify_aspect_ratio(width: int, height: int) -> str | None:
+    """
+    Classify the frame geometry into one of five named buckets:
+
+      portrait   — height > width  (9:16, vertical video)
+      square     — ratio ≈ 1:1     (Instagram-style)
+      standard   — ratio 1.1–1.6   (4:3, 3:2, 5:4 …)
+      widescreen — ratio 1.6–2.1   (16:9, 16:10 …)
+      ultrawide  — ratio > 2.1     (21:9, 2.35:1 cinema …)
+
+    Returns None when either dimension is 0.
+    """
+    if not width or not height:
+        return None
+    ratio = width / height
+    if ratio < 0.95:
+        return "portrait"
+    if ratio <= 1.15:
+        return "square"
+    if ratio <= 1.60:
+        return "standard"
+    if ratio <= 2.10:
+        return "widescreen"
+    return "ultrawide"
+
+
+# Duration bucket boundaries in seconds
+_DUR_SHORT  = 120    # < 2 min
+_DUR_MEDIUM = 1200   # < 20 min
+
+
+def classify_duration(seconds: int) -> str:
+    """Return 'short', 'medium', or 'long'."""
+    if seconds < _DUR_SHORT:
+        return "short"
+    if seconds < _DUR_MEDIUM:
+        return "medium"
+    return "long"
+
+
 def extract_tags(
     caption: str = "",
     channel_name: str = "",
     file_name: str = "",
     resolution: str = "",
     duration: int = 0,
+    width: int = 0,
+    height: int = 0,
 ) -> list[str]:
     """
     Build a de-duplicated, sorted tag list from all available context.
@@ -77,14 +123,14 @@ def extract_tags(
 
     # 2. Duration bucket
     if duration:
-        if duration < 60:
-            tags.add("short_clip")
-        elif duration < 600:
-            tags.add("medium_length")
-        else:
-            tags.add("long_video")
+        tags.add(classify_duration(duration))
 
-    # 3. Channel / group name
+    # 3. Aspect ratio
+    ar = classify_aspect_ratio(width, height)
+    if ar:
+        tags.add(ar)
+
+    # 4. Channel / group name
     if channel_name:
         slug = _slugify(channel_name)
         if slug:
@@ -92,7 +138,7 @@ def extract_tags(
         # also add individual words from channel name
         tags.update(_keywords_from(channel_name, max_words=5))
 
-    # 4. Caption text
+    # 5. Caption text
     if caption:
         # Explicit hashtags carry the author's own intent — high value
         for ht in _HASHTAG_RE.findall(caption):
@@ -101,7 +147,7 @@ def extract_tags(
                 tags.add(clean)
         tags.update(_keywords_from(caption, max_words=30, bigrams=True))
 
-    # 5. File name (stem only)
+    # 6. File name (stem only)
     if file_name:
         stem = Path(file_name).stem
         tags.update(_keywords_from(stem, max_words=15))

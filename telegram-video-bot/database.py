@@ -31,6 +31,7 @@ class Database:
                     file_name     TEXT,
                     file_size     INTEGER,
                     resolution    TEXT,        -- '4K' | '1080p'
+                    aspect_ratio  TEXT,        -- portrait|square|standard|widescreen|ultrawide
                     width         INTEGER,
                     height        INTEGER,
                     duration      INTEGER,     -- seconds
@@ -58,27 +59,35 @@ class Database:
                 CREATE INDEX IF NOT EXISTS idx_tags_tag ON tags(tag);
                 CREATE INDEX IF NOT EXISTS idx_videos_channel ON videos(channel_id);
                 CREATE INDEX IF NOT EXISTS idx_videos_resolution ON videos(resolution);
+                CREATE INDEX IF NOT EXISTS idx_videos_aspect ON videos(aspect_ratio);
+                CREATE INDEX IF NOT EXISTS idx_videos_duration ON videos(duration);
             """)
+            # Safe migration for databases created before aspect_ratio was added
+            try:
+                conn.execute("ALTER TABLE videos ADD COLUMN aspect_ratio TEXT")
+            except sqlite3.OperationalError:
+                pass  # column already exists
 
     # ------------------------------------------------------------------
     # Video operations
     # ------------------------------------------------------------------
 
     def upsert_video(self, data: dict[str, Any]) -> int:
-        """Insert a new video row; update channel_name/resolution on conflict.
+        """Insert a new video row; update channel_name/resolution/aspect_ratio on conflict.
         Returns the video's primary key id."""
         with self._connect() as conn:
             cur = conn.execute(
                 """
                 INSERT INTO videos
                     (message_id, channel_id, channel_name, file_id, file_name,
-                     file_size, resolution, width, height, duration, caption)
+                     file_size, resolution, aspect_ratio, width, height, duration, caption)
                 VALUES
                     (:message_id, :channel_id, :channel_name, :file_id, :file_name,
-                     :file_size, :resolution, :width, :height, :duration, :caption)
+                     :file_size, :resolution, :aspect_ratio, :width, :height, :duration, :caption)
                 ON CONFLICT(message_id, channel_id) DO UPDATE SET
                     channel_name = excluded.channel_name,
-                    resolution   = excluded.resolution
+                    resolution   = excluded.resolution,
+                    aspect_ratio = excluded.aspect_ratio
                 RETURNING id
                 """,
                 data,
@@ -119,6 +128,9 @@ class Database:
         per_page: int = 8,
         tag: str | None = None,
         resolution: str | None = None,
+        aspect_ratio: str | None = None,
+        duration_min: int | None = None,   # seconds
+        duration_max: int | None = None,   # seconds
         downloaded_only: bool = False,
     ) -> list[dict]:
         filters = []
@@ -130,6 +142,15 @@ class Database:
         if resolution:
             filters.append("v.resolution = ?")
             params.append(resolution)
+        if aspect_ratio:
+            filters.append("v.aspect_ratio = ?")
+            params.append(aspect_ratio)
+        if duration_min is not None:
+            filters.append("v.duration >= ?")
+            params.append(duration_min)
+        if duration_max is not None:
+            filters.append("v.duration < ?")
+            params.append(duration_max)
         if downloaded_only:
             filters.append("v.downloaded = 1")
 
@@ -151,7 +172,14 @@ class Database:
             ).fetchall()
             return [dict(r) for r in rows]
 
-    def count_videos(self, tag: str | None = None, resolution: str | None = None) -> int:
+    def count_videos(
+        self,
+        tag: str | None = None,
+        resolution: str | None = None,
+        aspect_ratio: str | None = None,
+        duration_min: int | None = None,
+        duration_max: int | None = None,
+    ) -> int:
         filters = []
         params: list[Any] = []
         if tag:
@@ -160,6 +188,15 @@ class Database:
         if resolution:
             filters.append("resolution = ?")
             params.append(resolution)
+        if aspect_ratio:
+            filters.append("aspect_ratio = ?")
+            params.append(aspect_ratio)
+        if duration_min is not None:
+            filters.append("duration >= ?")
+            params.append(duration_min)
+        if duration_max is not None:
+            filters.append("duration < ?")
+            params.append(duration_max)
         where = ("WHERE " + " AND ".join(filters)) if filters else ""
         with self._connect() as conn:
             return conn.execute(f"SELECT COUNT(*) FROM videos {where}", params).fetchone()[0]
@@ -216,11 +253,19 @@ class Database:
             row = conn.execute(
                 """
                 SELECT
-                    COUNT(*)                                              AS total,
-                    SUM(downloaded)                                       AS downloaded,
-                    SUM(CASE WHEN resolution='4K'    THEN 1 ELSE 0 END)  AS count_4k,
-                    SUM(CASE WHEN resolution='1080p' THEN 1 ELSE 0 END)  AS count_1080p,
-                    SUM(file_size)                                        AS total_bytes
+                    COUNT(*)                                                        AS total,
+                    SUM(downloaded)                                                 AS downloaded,
+                    SUM(CASE WHEN resolution='4K'        THEN 1 ELSE 0 END)        AS count_4k,
+                    SUM(CASE WHEN resolution='1080p'     THEN 1 ELSE 0 END)        AS count_1080p,
+                    SUM(CASE WHEN aspect_ratio='portrait'   THEN 1 ELSE 0 END)     AS ar_portrait,
+                    SUM(CASE WHEN aspect_ratio='square'     THEN 1 ELSE 0 END)     AS ar_square,
+                    SUM(CASE WHEN aspect_ratio='standard'   THEN 1 ELSE 0 END)     AS ar_standard,
+                    SUM(CASE WHEN aspect_ratio='widescreen' THEN 1 ELSE 0 END)     AS ar_widescreen,
+                    SUM(CASE WHEN aspect_ratio='ultrawide'  THEN 1 ELSE 0 END)     AS ar_ultrawide,
+                    SUM(CASE WHEN duration < 120           THEN 1 ELSE 0 END)      AS dur_short,
+                    SUM(CASE WHEN duration BETWEEN 120 AND 1199 THEN 1 ELSE 0 END) AS dur_medium,
+                    SUM(CASE WHEN duration >= 1200         THEN 1 ELSE 0 END)      AS dur_long,
+                    SUM(file_size)                                                  AS total_bytes
                 FROM videos
                 """
             ).fetchone()
