@@ -2,8 +2,9 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import Chat from "@/components/ai/Chat";
 import { hasLiveAI } from "@/lib/ai/client";
 
-export default function AnalystPage() {
+export default function AnalystPage({ searchParams }: { searchParams: { q?: string } }) {
   const live = hasLiveAI();
+  const initial = typeof searchParams?.q === "string" ? searchParams.q : "";
   return (
     <div className="space-y-4">
       <div>
@@ -16,7 +17,7 @@ export default function AnalystPage() {
       </div>
       <Card>
         <CardHeader title="Chat" action={<span className={`chip ${live ? "chip-good" : "chip-warn"}`}>{live ? "Live" : "Canned"}</span>} />
-        <CardBody><Chat /></CardBody>
+        <CardBody><Chat initialQuestion={initial} /></CardBody>
       </Card>
     </div>
   );
