@@ -16,7 +16,8 @@
   <rect x="0" y="0" width="1123" height="62" fill="url(#hdr)"/>
   <text x="36" y="29" fill="#ffffff" font-size="20" font-weight="bold">Unified Sales Intelligence Platform — Reference Architecture</text>
   <text x="36" y="50" fill="#ffd7dd" font-size="12.5">Source systems  »  secure ingestion  »  unified, governed data model  »  AI &amp; analytics  »  executive dashboard</text>
-  <text x="1087" y="38" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="end">The Aigency</text>
+  <text x="1087" y="34" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="end">The Aigency</text>
+  <text x="1087" y="50" fill="#ffd7dd" font-size="10" text-anchor="end">Prepared for [Client]</text>
 
   <!-- column headers -->
   <g font-size="12.5" font-weight="bold" fill="#14202e" text-anchor="middle">
@@ -236,5 +237,5 @@
   <!-- footer -->
   <line x1="36" y1="754" x2="1087" y2="754" stroke="#d7dde5"/>
   <text x="36" y="774" font-size="9.5" fill="#8a97a6">The Aigency · lab@ai-gency.ai — Confidential reference architecture. Indicative; final technology choices confirmed after discovery.</text>
-  <text x="1087" y="774" font-size="9.5" fill="#8a97a6" text-anchor="end">v1 · [Date]</text>
+  <text x="1087" y="774" font-size="9.5" fill="#8a97a6" text-anchor="end">Prepared for [Client] · [Date]</text>
 </svg>

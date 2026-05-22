@@ -4,6 +4,10 @@ const SVGtoPDF = require("svg-to-pdfkit");
 
 const OUT = "/home/user/Claude/deliverables";
 
+// Per-engagement fill-ins — change these two per project.
+const CLIENT = "Al Safadi Restaurant";
+const DOC_DATE = "22 May 2026";
+
 const RED = "#c8102e";
 const INK = "#14202e";
 const SLATE = "#41506a";
@@ -15,7 +19,8 @@ const TEALTINT = "#eaf5f6";
 
 /* ----------------------------- Architecture PDF ----------------------------- */
 function buildArchitecture() {
-  const svg = fs.readFileSync(`${OUT}/architecture.svg`, "utf8");
+  let svg = fs.readFileSync(`${OUT}/architecture.svg`, "utf8");
+  svg = svg.replace(/\[Client\]/g, CLIENT).replace(/\[Date\]/g, DOC_DATE);
   const doc = new PDFDocument({ size: "A4", layout: "landscape", margin: 0 });
   const stream = fs.createWriteStream(`${OUT}/architecture.pdf`);
   doc.pipe(stream);
@@ -32,7 +37,7 @@ const META = {
   title: "Unified Sales Intelligence Platform",
   subtitle:
     "System-level technical deep dive & suggested approaches — Business Central, LS Retail, Squirrel, Bayan and the unified data layer.",
-  meta: "Prepared for: [Client]    |    The Aigency · lab@ai-gency.ai    |    Date: [Date]",
+  meta: `Prepared for: ${CLIENT}    |    The Aigency · lab@ai-gency.ai    |    Date: ${DOC_DATE}`,
   intro:
     "We've deliberately skipped the obvious. The questions below are the ones that genuinely shape the architecture, the data fidelity and the timeline — the places where these specific systems tend to bite. Where we're already confident in the right pattern, we've included our suggested approach so you can see how we'd solve it, not just what we'd ask. Treat the suggested approaches as our opening recommendation, to be confirmed against your environment.",
 };
