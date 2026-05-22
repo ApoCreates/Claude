@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Technical Discovery — Unified Sales Intelligence Platform</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  body { font-family: "Liberation Sans", Arial, sans-serif; color: #1c2430; font-size: 10.5pt; line-height: 1.5; margin: 0; }
+  .cover { padding: 0 0 6pt 0; border-bottom: 3px solid #c8102e; margin-bottom: 14pt; }
+  .brandrow { color: #c8102e; font-weight: bold; letter-spacing: 1px; font-size: 9pt; text-transform: uppercase; }
+  h1 { font-size: 20pt; margin: 6pt 0 2pt 0; color: #14202e; }
+  .sub { color: #41506a; }
+  .meta { color: #5b6b7d; font-size: 9.5pt; margin-top: 4pt; }
+  .intro { background: #f3f5f8; border-left: 4px solid #c8102e; padding: 10pt 12pt; margin: 12pt 0 16pt 0; font-size: 10pt; }
+  h2 { font-size: 13pt; color: #14202e; margin: 18pt 0 2pt 0; padding-bottom: 3pt; border-bottom: 1px solid #d7dde5; page-break-after: avoid; }
+  .secwhy { color: #5b6b7d; font-style: italic; font-size: 9.5pt; margin: 2pt 0 8pt 0; }
+  .q { margin: 0 0 9pt 0; page-break-inside: avoid; }
+  .qhead { font-weight: bold; color: #14202e; }
+  .qnum { display: inline-block; min-width: 22pt; color: #c8102e; font-weight: bold; }
+  .badge { display: inline-block; background: #c8102e; color: #fff; font-size: 7.5pt; font-weight: bold; letter-spacing: .5px; padding: 1pt 5pt; border-radius: 3pt; vertical-align: middle; margin-left: 6pt; text-transform: uppercase; }
+  .why { color: #41506a; font-size: 9.5pt; margin: 2pt 0 0 22pt; }
+  .why b { color: #14202e; }
+  .footer { margin-top: 20pt; padding-top: 8pt; border-top: 1px solid #d7dde5; color: #5b6b7d; font-size: 9pt; }
+  .legend { font-size: 9pt; color: #5b6b7d; margin: 4pt 0 0 0; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="brandrow">Technical Discovery &middot; Confidential</div>
+  <h1>Unified Sales Intelligence Platform</h1>
+  <div class="sub">Full question set &amp; rationale for connecting Business Central, LS Retail, Squirrel, Bayan and adjacent systems into a single AI-powered executive dashboard.</div>
+  <div class="meta">Prepared for: [Client] &nbsp;|&nbsp; Prepared by: [Your Company] &nbsp;|&nbsp; Date: [Date]</div>
+</div>
+
+<div class="intro">
+  Our objective is a single, trusted view of sales and revenue across every channel &mdash; retail, hospitality and finance &mdash; feeding an AI layer that gives leadership answers, not just charts. We treat your existing systems as the source of truth and build a clean, governed, scalable pipeline on top of them. The questions below are how we de-risk the build before any integration is written. You don't need polished answers to all of them today &mdash; rough notes, or simply naming the right person per system, lets us move quickly. Items marked <span class="badge">Priority</span> are the twelve we've raised in the accompanying email; the rest complete the picture.
+</div>
+
+<h2>1. Foundations — access, environments &amp; ownership</h2>
+<div class="secwhy">Integration timelines are decided here, not in the code. How each system is hosted and who owns it tells us whether we connect via clean cloud APIs or need network/VPN work — and who we'll partner with on each side.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">1.</span>For each system (Business Central, LS Retail, Squirrel, Bayan), is it cloud-hosted (SaaS), vendor-hosted, or on-premise — and which version/edition are you on?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> Cloud editions usually expose modern APIs we can consume securely over the internet; on-prem deployments need a connectivity layer. This single answer shapes the architecture and the timeline.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">2.</span>Who is the implementation partner or internal owner/administrator for each system?</div>
+<div class="why"><b>Why:</b> We'll want a named technical counterpart per system. Naming them now prevents the most common cause of delay — waiting on access nobody is empowered to grant.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">3.</span>Do you have non-production environments (sandbox/test) for each system that we can integrate against first?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> We never develop against live financial or POS systems. A sandbox lets us validate data and build safely with zero risk to your operations.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">4.</span>Are there existing integrations or a current BI/reporting setup (Power BI, Excel exports, a data warehouse) we should be aware of?</div>
+<div class="why"><b>Why:</b> Understanding what's already in place lets us reuse your investments, avoid duplicating pipelines, and see exactly where today's reporting falls short.</div></div>
+
+<h2>2. Microsoft Dynamics 365 Business Central — the finance backbone</h2>
+<div class="secwhy">Business Central is almost certainly your system of record for revenue — where channel sales reconcile to the general ledger. It anchors the "truth" in the dashboard.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">5.</span>Is this Business Central SaaS (online) or on-prem/hosted, and which API surface is available — standard REST/OData v4 APIs, custom AL extensions, or the Microsoft Fabric / Dataverse link?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> Modern BC online offers first-class APIs and a native Fabric data link — the most scalable path. This lets us choose the right, supported integration method rather than a brittle one.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">6.</span>Which entities are in scope — posted sales invoices, sales orders, GL entries, items, customers — and how frequently is sales data posted (real-time, hourly, end-of-day)?</div>
+<div class="why"><b>Why:</b> This defines what we pull and how "live" the finance view can realistically be, so we set the right expectation for leadership up front.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">7.</span>How is your Chart of Accounts and, critically, your Dimension structure set up (Department, Cost Center, Brand, Region, Outlet)?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> Dimensions are how we classify revenue by source and business unit without guesswork. A clean dimension strategy is the difference between a dashboard that slices cleanly and one needing constant manual mapping.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">8.</span>Are you running multiple companies/legal entities, and what reporting and transactional currencies are in play?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> Multi-entity and multi-currency (common in the UAE) must be designed for from day one — consolidating after the fact is painful. Asking now means we model it correctly.</div></div>
+
+<h2>3. LS Retail — the retail point of sale</h2>
+<div class="secwhy">LS is where retail transactions are born. How and when they flow to finance determines the granularity and freshness of retail revenue in the dashboard.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">9.</span>Are you on LS Central (embedded in Business Central) or an older LS Nav/LS Retail deployment, and does transaction data reside inside BC or in a separate store/head-office database?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> If it's LS Central, retail sales may already live inside BC — which simplifies everything. If separate, we plan for store-to-HO replication. This stops us assuming one architecture and finding another.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">10.</span>At what grain and cadence are retail sales available — line-item per transaction in real time, or aggregated via statement/Z-report posting at end of day?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> This determines whether the dashboard shows live retail sales or daily settled figures. Both are valid; leadership just needs to know which, and why.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">11.</span>How is your item/product hierarchy structured (categories, brands, variants), and do you capture loyalty or customer identifiers at the till?</div>
+<div class="why"><b>Why:</b> Product hierarchy drives category-level analytics; customer identifiers unlock basket and retention insight. We map your existing structure rather than impose a new one.</div></div>
+
+<h2>4. Squirrel — the hospitality / F&amp;B point of sale</h2>
+<div class="secwhy">Squirrel runs a different channel with a different rhythm (checks, covers, voids, discounts). We understand it on its own terms, then harmonize it with retail and finance.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">12.</span>Is Squirrel cloud or on-prem, and what data access does it offer — a reporting API, scheduled data exports, or direct database access?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> This sets the integration method for hospitality sales. A documented API is ideal; if exports are the only route, we design a reliable ingestion schedule around them.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">13.</span>What sales grain is available (check/ticket level, item level, by venue/terminal/daypart), and how are discounts, voids, comps and tips handled?</div>
+<div class="why"><b>Why:</b> Hospitality revenue is nuanced — net vs gross matters enormously. Getting these definitions right prevents the dashboard ever disagreeing with the operators on the floor.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">14.</span>How do Squirrel sales currently reconcile into Business Central — automatically, via a nightly journal, or manually?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> POS totals must tie out to the GL. Understanding today's reconciliation lets the dashboard show numbers leadership already trusts, rather than a conflicting fourth version.</div></div>
+
+<h2>5. Bayan — HR &amp; payroll</h2>
+<div class="secwhy">HR data turns raw revenue into productivity — revenue per head, labor cost as a percentage of sales. It's also the most sensitive data in the stack, so we approach it with deliberate minimalism.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">15.</span>What HR metrics do you want reflected (headcount, labor cost, productivity by outlet/department), and can Bayan expose these via API or scheduled export?</div>
+<div class="why"><b>Why:</b> We only want the aggregates that make the sales picture richer — not the full HR record. Defining this narrowly keeps the integration lean and respectful of sensitivity.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">16.</span>How are employees mapped to cost centers, outlets, or the same dimensions used in Business Central?</div>
+<div class="why"><b>Why:</b> Aligning HR to the same outlet/cost-center keys as finance and POS is what lets us compute labor-to-sales ratios automatically. Without a shared key, this becomes manual.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">17.</span>What is your policy on personally identifiable and payroll data — what may leave Bayan, and in what aggregated form?</div>
+<div class="why"><b>Why:</b> We design to data-minimization principles: pull the least sensitive data needed. Confirming your policy now keeps us compliant and builds trust with your HR stakeholders.</div></div>
+
+<h2>6. Unifying the data — master data &amp; classification</h2>
+<div class="secwhy">This is the real engineering challenge. Four systems each have their own idea of an "outlet," a "product" and a "day." Stitching them into one classified, reconcilable model is where most projects quietly fail — and where we make our difference.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">18.</span>Is there a single, consistent identifier for each outlet/store/venue across Business Central, LS Retail and Squirrel — or do they use different codes?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> A shared outlet key lets us roll every channel up to the same location cleanly. If codes differ, we build a mapping layer early rather than discovering the mismatch mid-project.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">19.</span>Likewise for products and customers — is there a common SKU/customer reference across systems, or system-specific codes?</div>
+<div class="why"><b>Why:</b> This determines whether cross-channel product and customer analytics are immediate or require an entity-resolution step. Either is fine; we just need to plan for it.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">20.</span>Which system is the authoritative source for "sales" when POS and finance differ — and what is your fiscal calendar (week definitions, period close)?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> Defining the source of truth and the calendar up front means the dashboard never produces two numbers for the same thing — the fastest way to lose executive confidence.</div></div>
+
+<h2>7. "Live" data, latency &amp; scale</h2>
+<div class="secwhy">"Live" means different things to different people, and over-engineering for real time where it isn't needed wastes money. We size the architecture to your actual rhythm and growth.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">21.</span>When you say "live sales data," what refresh truly serves the decision — near-real-time (minutes), hourly, or start-of-day?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> Real-time streaming and daily batch are very different builds and price points. Matching freshness to the actual decision keeps this cost-effective and scalable.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">22.</span>What are the rough data volumes — transactions per day across channels, number of outlets/terminals, and peak/seasonal spikes (Ramadan, holidays)?</div>
+<div class="why"><b>Why:</b> Volume and peak shape the pipeline's sizing. Designing for your peaks now means the platform doesn't buckle during your most important trading periods.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">23.</span>How much history exists in each system, and how far back do you want to analyze and train AI on?</div>
+<div class="why"><b>Why:</b> Trends and AI forecasting are only as good as the history behind them. Knowing the depth available sets realistic expectations for predictive features.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">24.</span>What growth is on the horizon — new outlets, brands, markets or systems in the next 12–24 months?</div>
+<div class="why"><b>Why:</b> We build the architecture to absorb growth without re-platforming. Asking now is the difference between scaling smoothly and rebuilding in a year.</div></div>
+
+<h2>8. Security, identity &amp; UAE data residency</h2>
+<div class="secwhy">This is a leadership-grade platform touching financial and HR data in the UAE. Security and compliance aren't a final checklist item — they're a design input.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">25.</span>Do you use Microsoft Entra ID (Azure AD) for identity, and should the dashboard enforce single sign-on with role-based access?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> In a Microsoft-centric environment, SSO via Entra ID is the natural, secure path — and lets us enforce who sees what (e.g., a regional manager sees only their region) using your existing identities.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">26.</span>Are there data residency requirements — must data remain within the UAE (e.g., Azure UAE North/Central), and are any entities under DIFC/ADGM or sector-specific rules?<span class="badge">Priority</span></div>
+<div class="why"><b>Why:</b> UAE PDPL and free-zone regimes can require in-country hosting. This dictates where we deploy, so we design compliant from day one rather than retrofitting.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">27.</span>Who should have access to what, and at what granularity — by brand, region, outlet or role?</div>
+<div class="why"><b>Why:</b> Defining the access model early lets us bake row-level security into the data layer itself, which is far more robust than hiding things in the UI.</div></div>
+
+<h2>9. AI scope, governance &amp; the decisions it serves</h2>
+<div class="secwhy">The AI is the point of difference, and where expectations must be set with care. We want it driving real decisions, with guardrails your leadership and auditors are comfortable with.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">28.</span>What are the three or four executive questions this dashboard must answer brilliantly on day one?</div>
+<div class="why"><b>Why:</b> Anchoring the AI to real decisions — not generic "insights" — is how we deliver value fast and avoid building features nobody uses.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">29.</span>What is your comfort level with AI processing your data — is cloud AI acceptable (within your residency rules), and is any data off-limits for AI processing?</div>
+<div class="why"><b>Why:</b> This sets the boundary between automated analysis and sensitive data. We can architect so sensitive figures are aggregated or anonymized before any AI sees them.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">30.</span>For AI-generated recommendations and forecasts, do you want a human-in-the-loop review step before they reach leadership?</div>
+<div class="why"><b>Why:</b> Executives reject confidently-wrong AI fast. A lightweight review step protects credibility — we recommend it, and want your view on where it fits.</div></div>
+
+<h2>10. The wider ecosystem &amp; roadmap</h2>
+<div class="secwhy">A complete map lets us design connectors that extend naturally to the next source, so each new system is an add-on, not a re-architecture.</div>
+
+<div class="q"><div class="qhead"><span class="qnum">31.</span>You mentioned "many other systems" — can you share the full inventory (e-commerce, CRM, supply chain, banking) and which feed sales or revenue?</div>
+<div class="why"><b>Why:</b> A complete map lets us design connectors that extend naturally, so each new system is an add-on rather than a re-architecture.</div></div>
+
+<div class="q"><div class="qhead"><span class="qnum">32.</span>Are any of these systems scheduled for upgrade, migration or replacement in the near term?</div>
+<div class="why"><b>Why:</b> We don't want to build a tight integration to something you're about to retire. Knowing your roadmap means our platform ages with your stack, not against it.</div></div>
+
+<div class="footer">
+  [Your Company] &mdash; Confidential. This document is intended to accelerate a shared technical understanding; it is not a fixed requirements specification. We will refine scope collaboratively based on your answers.
+</div>
+
+</body>
+</html>

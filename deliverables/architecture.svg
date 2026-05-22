@@ -1,0 +1,240 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1123" height="794" viewBox="0 0 1123 794" font-family="Liberation Sans, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#9aa7b6"/>
+    </marker>
+    <linearGradient id="hdr" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c8102e"/>
+      <stop offset="1" stop-color="#7a0a1d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="1123" height="794" fill="#ffffff"/>
+
+  <!-- header band -->
+  <rect x="0" y="0" width="1123" height="62" fill="url(#hdr)"/>
+  <text x="36" y="29" fill="#ffffff" font-size="20" font-weight="bold">Unified Sales Intelligence Platform — Reference Architecture</text>
+  <text x="36" y="50" fill="#ffd7dd" font-size="12.5">Source systems  »  secure ingestion  »  unified, governed data model  »  AI &amp; analytics  »  executive dashboard</text>
+  <text x="1087" y="38" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="end">[Your Company]</text>
+
+  <!-- column headers -->
+  <g font-size="12.5" font-weight="bold" fill="#14202e" text-anchor="middle">
+    <text x="135" y="96">1 · Source Systems</text>
+    <text x="355" y="96">2 · Ingestion</text>
+    <text x="590" y="96">3 · Unified Data Platform</text>
+    <text x="820" y="96">4 · AI &amp; Analytics</text>
+    <text x="1010" y="96">5 · Consumption</text>
+  </g>
+
+  <!-- ===== Column 1: Sources ===== -->
+  <g>
+    <!-- box style: rounded rects -->
+    <g>
+      <rect x="36" y="112" width="198" height="56" rx="8" fill="#eef3fb" stroke="#2f5f9e" stroke-width="1.5"/>
+      <text x="135" y="136" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#14202e">Business Central</text>
+      <text x="135" y="153" text-anchor="middle" font-size="10" fill="#5b6b7d">ERP · Finance / GL</text>
+    </g>
+    <g>
+      <rect x="36" y="180" width="198" height="56" rx="8" fill="#eefaf2" stroke="#1f9d57" stroke-width="1.5"/>
+      <text x="135" y="204" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#14202e">LS Retail</text>
+      <text x="135" y="221" text-anchor="middle" font-size="10" fill="#5b6b7d">Retail POS</text>
+    </g>
+    <g>
+      <rect x="36" y="248" width="198" height="56" rx="8" fill="#fff4e8" stroke="#d98313" stroke-width="1.5"/>
+      <text x="135" y="272" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#14202e">Squirrel</text>
+      <text x="135" y="289" text-anchor="middle" font-size="10" fill="#5b6b7d">Hospitality / F&amp;B POS</text>
+    </g>
+    <g>
+      <rect x="36" y="316" width="198" height="56" rx="8" fill="#f5eefb" stroke="#7d3cb5" stroke-width="1.5"/>
+      <text x="135" y="340" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#14202e">Bayan</text>
+      <text x="135" y="357" text-anchor="middle" font-size="10" fill="#5b6b7d">HR &amp; Payroll (aggregated)</text>
+    </g>
+    <g>
+      <rect x="36" y="384" width="198" height="56" rx="8" fill="#eef1f4" stroke="#7a8aa0" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text x="135" y="408" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#14202e">Other Systems</text>
+      <text x="135" y="425" text-anchor="middle" font-size="10" fill="#5b6b7d">e-com · CRM · supply · bank</text>
+    </g>
+  </g>
+
+  <!-- arrows col1 -> col2 -->
+  <g stroke="#9aa7b6" stroke-width="2" fill="none">
+    <path d="M234 140 H300"/>
+    <path d="M234 208 H300"/>
+    <path d="M234 276 H300"/>
+    <path d="M234 344 H300"/>
+    <path d="M234 412 H300"/>
+  </g>
+
+  <!-- ===== Column 2: Ingestion ===== -->
+  <g>
+    <rect x="300" y="112" width="172" height="328" rx="10" fill="#f7f9fc" stroke="#c5cedb" stroke-width="1.5"/>
+    <text x="386" y="135" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14202e">Connectors &amp; Gateway</text>
+
+    <rect x="316" y="150" width="140" height="44" rx="6" fill="#ffffff" stroke="#c5cedb"/>
+    <text x="386" y="168" text-anchor="middle" font-size="10.5" fill="#14202e">API / OData / Fabric</text>
+    <text x="386" y="183" text-anchor="middle" font-size="9" fill="#5b6b7d">real-time &amp; scheduled</text>
+
+    <rect x="316" y="204" width="140" height="44" rx="6" fill="#ffffff" stroke="#c5cedb"/>
+    <text x="386" y="222" text-anchor="middle" font-size="10.5" fill="#14202e">Batch / File Import</text>
+    <text x="386" y="237" text-anchor="middle" font-size="9" fill="#5b6b7d">for export-only sources</text>
+
+    <rect x="316" y="258" width="140" height="44" rx="6" fill="#ffffff" stroke="#c5cedb"/>
+    <text x="386" y="276" text-anchor="middle" font-size="10.5" fill="#14202e">Secure VPN / Gateway</text>
+    <text x="386" y="291" text-anchor="middle" font-size="9" fill="#5b6b7d">for on-prem systems</text>
+
+    <rect x="316" y="312" width="140" height="44" rx="6" fill="#ffffff" stroke="#c5cedb"/>
+    <text x="386" y="330" text-anchor="middle" font-size="10.5" fill="#14202e">Validation &amp; Retry</text>
+    <text x="386" y="345" text-anchor="middle" font-size="9" fill="#5b6b7d">quality + reconciliation</text>
+
+    <rect x="316" y="366" width="140" height="58" rx="6" fill="#fef6f7" stroke="#e3a9b1"/>
+    <text x="386" y="389" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#c8102e">Idempotent &amp;</text>
+    <text x="386" y="405" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#c8102e">incremental loads</text>
+    <text x="386" y="419" text-anchor="middle" font-size="9" fill="#5b6b7d">no double-counting</text>
+  </g>
+
+  <!-- arrow col2 -> col3 -->
+  <g stroke="#9aa7b6" stroke-width="2.5" fill="none">
+    <path d="M472 276 H505"/>
+  </g>
+
+  <!-- ===== Column 3: Unified Data Platform ===== -->
+  <g>
+    <rect x="505" y="112" width="200" height="328" rx="10" fill="#f3f7f2" stroke="#bcd2bc" stroke-width="1.5"/>
+    <text x="605" y="135" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14202e">Governed Lakehouse</text>
+
+    <rect x="521" y="148" width="168" height="40" rx="6" fill="#ffffff" stroke="#bcd2bc"/>
+    <text x="605" y="166" text-anchor="middle" font-size="10.5" fill="#14202e">Landing (raw, by source)</text>
+    <text x="605" y="180" text-anchor="middle" font-size="9" fill="#5b6b7d">immutable history</text>
+
+    <rect x="521" y="196" width="168" height="40" rx="6" fill="#ffffff" stroke="#bcd2bc"/>
+    <text x="605" y="214" text-anchor="middle" font-size="10.5" fill="#14202e">Cleansed &amp; conformed</text>
+    <text x="605" y="228" text-anchor="middle" font-size="9" fill="#5b6b7d">standard types, currency</text>
+
+    <rect x="521" y="244" width="168" height="58" rx="6" fill="#eaf3ea" stroke="#1f9d57" stroke-width="1.5"/>
+    <text x="605" y="266" text-anchor="middle" font-size="11" font-weight="bold" fill="#14202e">Unified Sales Model</text>
+    <text x="605" y="282" text-anchor="middle" font-size="9.5" fill="#41506a">single source of truth</text>
+    <text x="605" y="295" text-anchor="middle" font-size="9.5" fill="#41506a">revenue classified by source</text>
+
+    <rect x="521" y="310" width="168" height="62" rx="6" fill="#ffffff" stroke="#bcd2bc"/>
+    <text x="605" y="329" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#14202e">Master Data / Keys</text>
+    <text x="605" y="344" text-anchor="middle" font-size="9" fill="#5b6b7d">outlet · product · customer</text>
+    <text x="605" y="357" text-anchor="middle" font-size="9" fill="#5b6b7d">calendar · entity resolution</text>
+    <text x="605" y="369" text-anchor="middle" font-size="9" fill="#5b6b7d">POS-to-GL reconciliation</text>
+
+    <rect x="521" y="384" width="168" height="40" rx="6" fill="#ffffff" stroke="#bcd2bc"/>
+    <text x="605" y="402" text-anchor="middle" font-size="10.5" fill="#14202e">Semantic / metrics layer</text>
+    <text x="605" y="416" text-anchor="middle" font-size="9" fill="#5b6b7d">one definition per KPI</text>
+  </g>
+
+  <!-- arrow col3 -> col4 -->
+  <g stroke="#9aa7b6" stroke-width="2.5" fill="none">
+    <path d="M705 276 H738"/>
+  </g>
+
+  <!-- ===== Column 4: AI & Analytics ===== -->
+  <g>
+    <rect x="738" y="112" width="172" height="328" rx="10" fill="#eef6fb" stroke="#a8cfe6" stroke-width="1.5"/>
+    <text x="824" y="135" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14202e">Intelligence Layer</text>
+
+    <rect x="754" y="150" width="140" height="46" rx="6" fill="#ffffff" stroke="#a8cfe6"/>
+    <text x="824" y="169" text-anchor="middle" font-size="10.5" fill="#14202e">AI Data Analyst</text>
+    <text x="824" y="184" text-anchor="middle" font-size="9" fill="#5b6b7d">ask-anything, grounded</text>
+
+    <rect x="754" y="206" width="140" height="46" rx="6" fill="#ffffff" stroke="#a8cfe6"/>
+    <text x="824" y="225" text-anchor="middle" font-size="10.5" fill="#14202e">Forecasting</text>
+    <text x="824" y="240" text-anchor="middle" font-size="9" fill="#5b6b7d">predictive scenarios</text>
+
+    <rect x="754" y="262" width="140" height="46" rx="6" fill="#ffffff" stroke="#a8cfe6"/>
+    <text x="824" y="281" text-anchor="middle" font-size="10.5" fill="#14202e">Competitive &amp; advisory</text>
+    <text x="824" y="296" text-anchor="middle" font-size="9" fill="#5b6b7d">C-level recommendations</text>
+
+    <rect x="754" y="318" width="140" height="46" rx="6" fill="#ffffff" stroke="#a8cfe6"/>
+    <text x="824" y="337" text-anchor="middle" font-size="10.5" fill="#14202e">Morning content machine</text>
+    <text x="824" y="352" text-anchor="middle" font-size="9" fill="#5b6b7d">daily auto-brief</text>
+
+    <rect x="754" y="374" width="140" height="50" rx="6" fill="#fef6f7" stroke="#e3a9b1"/>
+    <text x="824" y="393" text-anchor="middle" font-size="10" font-weight="bold" fill="#c8102e">Human-in-the-loop</text>
+    <text x="824" y="408" text-anchor="middle" font-size="9" fill="#5b6b7d">review before exec</text>
+    <text x="824" y="420" text-anchor="middle" font-size="9" fill="#5b6b7d">PII minimized to AI</text>
+  </g>
+
+  <!-- arrow col4 -> col5 -->
+  <g stroke="#9aa7b6" stroke-width="2.5" fill="none">
+    <path d="M910 276 H943"/>
+  </g>
+
+  <!-- ===== Column 5: Consumption ===== -->
+  <g>
+    <rect x="943" y="112" width="146" height="328" rx="10" fill="#fff7f8" stroke="#e3a9b1" stroke-width="1.5"/>
+    <text x="1016" y="135" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#14202e">Executive App</text>
+
+    <rect x="957" y="150" width="118" height="58" rx="6" fill="#ffffff" stroke="#e3a9b1"/>
+    <text x="1016" y="174" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#14202e">Dashboard</text>
+    <text x="1016" y="190" text-anchor="middle" font-size="9" fill="#5b6b7d">web · mobile</text>
+
+    <rect x="957" y="218" width="118" height="50" rx="6" fill="#ffffff" stroke="#e3a9b1"/>
+    <text x="1016" y="240" text-anchor="middle" font-size="10" fill="#14202e">Role-based views</text>
+    <text x="1016" y="255" text-anchor="middle" font-size="9" fill="#5b6b7d">brand / region / outlet</text>
+
+    <rect x="957" y="278" width="118" height="50" rx="6" fill="#ffffff" stroke="#e3a9b1"/>
+    <text x="1016" y="300" text-anchor="middle" font-size="10" fill="#14202e">Alerts &amp; briefs</text>
+    <text x="1016" y="315" text-anchor="middle" font-size="9" fill="#5b6b7d">push / email</text>
+
+    <rect x="957" y="338" width="118" height="50" rx="6" fill="#ffffff" stroke="#e3a9b1"/>
+    <text x="1016" y="360" text-anchor="middle" font-size="10" fill="#14202e">Export / share</text>
+    <text x="1016" y="375" text-anchor="middle" font-size="9" fill="#5b6b7d">board packs</text>
+  </g>
+
+  <!-- arrowhead polygons (explicit for renderer compatibility) -->
+  <g fill="#9aa7b6">
+    <polygon points="300,140 290,135 290,145"/>
+    <polygon points="300,208 290,203 290,213"/>
+    <polygon points="300,276 290,271 290,281"/>
+    <polygon points="300,344 290,339 290,349"/>
+    <polygon points="300,412 290,407 290,417"/>
+    <polygon points="505,276 495,271 495,281"/>
+    <polygon points="738,276 728,271 728,281"/>
+    <polygon points="943,276 933,271 933,281"/>
+  </g>
+
+  <!-- ===== Governance band ===== -->
+  <g>
+    <rect x="36" y="470" width="1053" height="86" rx="10" fill="#14202e"/>
+    <text x="60" y="497" font-size="13" font-weight="bold" fill="#ffffff">Governance, Security &amp; Compliance — by design, across every layer</text>
+    <g font-size="10.5" fill="#dbe3ec">
+      <text x="60"  y="524">• Entra ID (Azure AD) SSO</text>
+      <text x="260" y="524">• Role &amp; row-level security</text>
+      <text x="500" y="524">• UAE data residency (Azure UAE)</text>
+      <text x="800" y="524">• PDPL / DIFC / ADGM aware</text>
+      <text x="60"  y="545">• Encryption in transit &amp; at rest</text>
+      <text x="320" y="545">• Full audit trail &amp; lineage</text>
+      <text x="600" y="545">• Secrets vault, no creds in code</text>
+      <text x="870" y="545">• Data minimization to AI</text>
+    </g>
+  </g>
+
+  <!-- ===== Scalability band ===== -->
+  <g>
+    <rect x="36" y="568" width="1053" height="64" rx="10" fill="#f3f5f8" stroke="#d7dde5"/>
+    <text x="60" y="592" font-size="12.5" font-weight="bold" fill="#14202e">Built to scale</text>
+    <g font-size="10.5" fill="#41506a">
+      <text x="60"  y="613">• Add a new source = add a connector, not a re-build</text>
+      <text x="470" y="613">• Latency tuned per decision (real-time to daily)</text>
+      <text x="850" y="613">• Sized for seasonal peaks</text>
+      <text x="60"  y="628">• One KPI definition reused everywhere (no conflicting numbers)</text>
+      <text x="560" y="628">• Cloud-elastic compute &amp; storage; pay for what you use</text>
+    </g>
+  </g>
+
+  <!-- legend / flow note -->
+  <g>
+    <text x="36" y="664" font-size="11" font-weight="bold" fill="#14202e">Data flow</text>
+    <text x="120" y="664" font-size="10.5" fill="#5b6b7d">Source systems remain the system of record. We read from them (never write back), reconcile POS to finance, classify revenue by source, and serve a single governed truth to the AI and the dashboard.</text>
+  </g>
+
+  <!-- footer -->
+  <line x1="36" y1="754" x2="1087" y2="754" stroke="#d7dde5"/>
+  <text x="36" y="774" font-size="9.5" fill="#8a97a6">[Your Company] — Confidential reference architecture. Indicative; final technology choices confirmed after discovery.</text>
+  <text x="1087" y="774" font-size="9.5" fill="#8a97a6" text-anchor="end">v1 · [Date]</text>
+</svg>
