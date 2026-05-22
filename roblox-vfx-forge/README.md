@@ -21,15 +21,32 @@ So the honest, winning claim is: **the repetitive 90% — VFX authoring and item
 
 ## Run it
 
-It's a static site, but ES modules need to be served over http (not `file://`):
+Three ways, easiest first:
+
+**1. No install — `standalone.html`**
+Open `standalone.html` directly (double-click, or drag into a browser). It's a
+single self-contained file; Three.js loads from a CDN, so it needs internet the
+first time. Best for handing the tool to someone non-technical.
+
+**2. Hosted link (share with anyone, incl. phone)**
+It's a static site, so GitHub Pages / Netlify / itch.io serve it as-is. With
+this repo's root redirect, the Pages URL opens the app directly.
+
+**3. Local dev server** (uses the modular source, best for editing)
+ES modules must be served over http (not `file://`):
 
 ```bash
 cd roblox-vfx-forge
-python3 -m http.server 8080
-# open http://localhost:8080
+python3 -m http.server 8080      # open http://localhost:8080
 ```
 
-(or any static host — GitHub Pages, Netlify, itch.io). Three.js loads from a CDN.
+### Rebuilding the standalone
+`standalone.html` is generated from the modular source. After editing anything
+in `js/`, regenerate it:
+
+```bash
+node tools/build-standalone.mjs
+```
 
 ---
 

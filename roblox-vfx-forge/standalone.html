@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roblox VFX Forge — standalone</title>
+  <style>
+:root {
+  --bg: #0a0d12;
+  --panel: #11161d;
+  --panel2: #161c25;
+  --border: #232c38;
+  --text: #e6edf3;
+  --muted: #8b97a7;
+  --accent: #22d3ee;
+  --brand: #7c5cff;
+  --good: #22c55e;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+.topbar {
+  display: flex; align-items: center; gap: 24px;
+  height: 52px; padding: 0 18px;
+  background: var(--panel); border-bottom: 1px solid var(--border);
+}
+.brand { font-size: 16px; letter-spacing: 0.3px; }
+.brand b { color: var(--brand); }
+.tabs { display: flex; gap: 6px; }
+.tabs button, .loadbtn {
+  background: var(--panel2); color: var(--muted); border: 1px solid var(--border);
+  padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 13px;
+}
+.tabs button.active { color: #fff; border-color: var(--brand); background: #1d1830; }
+.tabs button:hover, .loadbtn:hover { color: #fff; }
+.topbar-right { margin-left: auto; }
+.loadbtn { display: inline-block; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr 380px;
+  height: calc(100% - 52px);
+}
+
+.panel, .export {
+  background: var(--panel); overflow-y: auto; padding: 14px;
+}
+.panel { border-right: 1px solid var(--border); }
+.export { border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+
+.viewport { position: relative; background: radial-gradient(circle at 50% 35%, #131a24, #07090d 70%); }
+#stage { width: 100%; height: 100%; display: block; }
+.hint {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  color: var(--muted); font-size: 11px; background: rgba(0,0,0,0.4);
+  padding: 4px 10px; border-radius: 20px; pointer-events: none;
+}
+
+.section { margin-bottom: 16px; }
+.section h3 {
+  margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--accent);
+}
+.row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.row.col { flex-direction: column; align-items: stretch; }
+.row > label { width: 110px; color: var(--muted); flex-shrink: 0; font-size: 12px; }
+.row.col > label { width: auto; margin-bottom: 6px; }
+
+.slider { display: flex; align-items: center; gap: 8px; flex: 1; }
+input[type="range"] { flex: 1; accent-color: var(--brand); }
+.val { width: 46px; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; font-size: 11px; }
+.range { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.vec-group { display: flex; gap: 6px; flex: 1; }
+.vec { width: 100%; }
+input[type="number"], select {
+  background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 7px; font-size: 12px; flex: 1; min-width: 0;
+}
+input[type="color"] {
+  width: 44px; height: 26px; padding: 0; border: 1px solid var(--border);
+  border-radius: 6px; background: none; cursor: pointer;
+}
+select { width: 100%; }
+
+.seq { display: flex; flex-direction: column; gap: 6px; }
+.seq-row { display: flex; gap: 6px; align-items: center; }
+.seq-t, .seq-v { width: 64px; }
+.mini {
+  background: var(--panel2); color: var(--muted); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 11px;
+}
+.mini:hover { color: #fff; }
+.mini.add { align-self: flex-start; margin-top: 4px; color: var(--accent); }
+
+.export-head { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+.export-head h3 { margin: 0; font-size: 13px; }
+.etabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.etab {
+  background: var(--panel2); color: var(--muted); border: 1px solid var(--border);
+  padding: 5px 9px; border-radius: 6px; cursor: pointer; font-size: 11px;
+}
+.etab.active { color: #fff; border-color: var(--accent); }
+.code {
+  flex: 1; background: #0b0e13; border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; overflow: auto; font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px; line-height: 1.5; white-space: pre; color: #cde3ff; margin: 0;
+}
+.export-actions { display: flex; gap: 8px; margin: 10px 0; }
+.export-actions button {
+  flex: 1; padding: 9px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--panel2); color: var(--text); cursor: pointer; font-size: 13px;
+}
+.export-actions .primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.export-actions button:hover { filter: brightness(1.15); }
+.tip { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.tip b { color: var(--text); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #2a3340; border-radius: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">⚡ Roblox <b>VFX Forge</b></div>
+    <nav class="tabs">
+      <button data-tab="particles" class="active">Particle Studio</button>
+      <button data-tab="weapon">Weapon Forge</button>
+    </nav>
+    <div class="topbar-right">
+      <label class="loadbtn">Load JSON
+        <input type="file" id="loadFile" accept="application/json" hidden />
+      </label>
+    </div>
+  </header>
+  <main class="layout">
+    <aside class="panel" id="controls"></aside>
+    <section class="viewport">
+      <canvas id="stage"></canvas>
+      <div class="hint">drag to orbit · scroll to zoom</div>
+    </section>
+    <aside class="export">
+      <div class="export-head">
+        <h3>Export to Roblox</h3>
+        <div class="etabs" id="exportTabs"></div>
+      </div>
+      <pre id="exportCode" class="code"></pre>
+      <div class="export-actions">
+        <button id="copyBtn" class="primary">Copy</button>
+        <button id="downloadBtn">Download</button>
+      </div>
+      <p class="tip">Paste <b>Luau (paste &amp; run)</b> into Studio's Command Bar with a Part selected — or load the JSON with the included plugin.</p>
+    </aside>
+  </main>
+  <script>
+(function(){
+if (typeof THREE === "undefined") {
+  document.body.innerHTML = '<div style="color:#e6edf3;font-family:sans-serif;padding:40px;max-width:560px;margin:auto"><h2>Couldn\'t load three.js</h2><p>This standalone file pulls three.js from a CDN, so it needs an internet connection the first time. Check your connection and reload — or use the local-server method from the README.</p></div>';
+  throw new Error("three.js missing");
+}
+
+// ===== js/particles/sequences.js =====
+// Faithful re-implementation of Roblox's NumberSequence / ColorSequence sampling.
+// Roblox interpolates LINEARLY between adjacent keypoints, by normalized time t in [0,1].
+// First keypoint MUST be at t=0, last at t=1. Times strictly increasing.
+//
+// A keypoint also carries an "envelope" (random +/- spread). We expose it so the
+// preview can jitter values exactly like the engine does.
+
+/** Clamp helper. */
+const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+
+/**
+ * Sample a NumberSequence-style array of {t, v, e?} keypoints at time t in [0,1].
+ * Returns the interpolated value. If withEnvelope is true, applies a random
+ * jitter within +/- envelope (matching Roblox's runtime behaviour).
+ */
+function sampleNumber(keypoints, t, withEnvelope = false) {
+  t = clamp(t, 0, 1);
+  if (keypoints.length === 1) return jitter(keypoints[0], withEnvelope);
+
+  for (let i = 0; i < keypoints.length - 1; i++) {
+    const a = keypoints[i];
+    const b = keypoints[i + 1];
+    if (t >= a.t && t <= b.t) {
+      const span = b.t - a.t || 1e-6;
+      const f = (t - a.t) / span;
+      const v = lerp(a.v, b.v, f);
+      const e = lerp(a.e ?? 0, b.e ?? 0, f);
+      return withEnvelope ? v + (Math.random() * 2 - 1) * e : v;
+    }
+  }
+  return jitter(keypoints[keypoints.length - 1], withEnvelope);
+}
+
+function jitter(kp, withEnvelope) {
+  const e = kp.e ?? 0;
+  return withEnvelope ? kp.v + (Math.random() * 2 - 1) * e : kp.v;
+}
+
+/**
+ * Sample a ColorSequence-style array of {t, c:[r,g,b]} (0-255) at time t in [0,1].
+ * Returns [r,g,b] floats in 0-255. Linear RGB interpolation, matching Roblox.
+ */
+function sampleColor(keypoints, t) {
+  t = clamp(t, 0, 1);
+  if (keypoints.length === 1) return keypoints[0].c.slice();
+
+  for (let i = 0; i < keypoints.length - 1; i++) {
+    const a = keypoints[i];
+    const b = keypoints[i + 1];
+    if (t >= a.t && t <= b.t) {
+      const span = b.t - a.t || 1e-6;
+      const f = (t - a.t) / span;
+      return [
+        lerp(a.c[0], b.c[0], f),
+        lerp(a.c[1], b.c[1], f),
+        lerp(a.c[2], b.c[2], f),
+      ];
+    }
+  }
+  return keypoints[keypoints.length - 1].c.slice();
+}
+
+/** NumberRange random pick (uniform), e.g. Lifetime / Speed / Rotation. */
+function pickRange([min, max]) {
+  return min + Math.random() * (max - min);
+}
+
+
+// ===== js/particles/presets.js =====
+// Particle preset library. Every field maps 1:1 to a Roblox ParticleEmitter
+// property, so a preset IS the source of truth for both the live preview and
+// the generated Luau. See README for the property map.
+//
+// Sequence formats:
+//   color: [{t, c:[r,g,b]}]            -> ColorSequence
+//   size / transparency / squash: [{t, v, e?}] -> NumberSequence (e = envelope)
+//   lifetime/speed/rotation/rotSpeed: [min, max] -> NumberRange
+//   spreadAngle: [x, y]                -> Vector2 (degrees)
+//   acceleration: [x, y, z]            -> Vector3 (studs/s^2)
+
+// Built-in Roblox particle textures (no upload needed). 'blank' = solid sprite.
+const TEXTURES = {
+  blank:    "rbxasset://textures/particles/sparkles_main.dds",
+  sparkle:  "rbxassetid://6880496307",
+  smoke:    "rbxasset://textures/particles/smoke_main.dds",
+  fire:     "rbxasset://textures/particles/fire_main.dds",
+  glow:     "rbxassetid://243660364",
+  circle:   "rbxassetid://241650934",
+  star:     "rbxassetid://6333823","slash": "rbxassetid://5860390988",
+};
+
+function defaultConfig() {
+  return {
+    name: "Custom",
+    texture: TEXTURES.glow,
+    blend: "additive",                 // preview hint: additive | normal
+    rate: 40,
+    lifetime: [0.6, 1.0],
+    speed: [4, 7],
+    spreadAngle: [12, 12],
+    rotation: [0, 360],
+    rotSpeed: [-45, 45],
+    acceleration: [0, 0, 0],
+    drag: 0,
+    lightEmission: 0.5,
+    lightInfluence: 0,
+    brightness: 1,
+    zOffset: 0,
+    timeScale: 1,
+    emissionDirection: "Top",          // Enum.NormalId
+    orientation: "FacingCamera",       // Enum.ParticleOrientation
+    enabled: true,
+    color: [
+      { t: 0, c: [255, 255, 255] },
+      { t: 1, c: [180, 180, 255] },
+    ],
+    size: [
+      { t: 0, v: 0.0 },
+      { t: 0.3, v: 1.0 },
+      { t: 1, v: 0.0 },
+    ],
+    transparency: [
+      { t: 0, v: 1 },
+      { t: 0.2, v: 0 },
+      { t: 1, v: 1 },
+    ],
+  };
+}
+
+const PRESETS = {
+  fire: {
+    name: "Fire",
+    texture: TEXTURES.fire,
+    blend: "additive",
+    rate: 60,
+    lifetime: [0.5, 0.9],
+    speed: [3, 6],
+    spreadAngle: [18, 18],
+    rotation: [0, 360],
+    rotSpeed: [-90, 90],
+    acceleration: [0, 14, 0],
+    drag: 1.5,
+    lightEmission: 0.85,
+    lightInfluence: 0,
+    brightness: 2,
+    zOffset: 0,
+    timeScale: 1,
+    emissionDirection: "Top",
+    orientation: "FacingCamera",
+    enabled: true,
+    color: [
+      { t: 0, c: [255, 232, 120] },
+      { t: 0.4, c: [255, 130, 30] },
+      { t: 1, c: [120, 20, 0] },
+    ],
+    size: [
+      { t: 0, v: 0.3, e: 0.1 },
+      { t: 0.35, v: 1.5 },
+      { t: 1, v: 0.1 },
+    ],
+    transparency: [
+      { t: 0, v: 0.6 },
+      { t: 0.2, v: 0.1 },
+      { t: 1, v: 1 },
+    ],
+  },
+
+  ice: {
+    name: "Ice / Frost",
+    texture: TEXTURES.sparkle,
+    blend: "additive",
+    rate: 35,
+    lifetime: [0.8, 1.4],
+    speed: [2, 4],
+    spreadAngle: [25, 25],
+    rotation: [0, 360],
+    rotSpeed: [-30, 30],
+    acceleration: [0, -3, 0],
+    drag: 2,
+    lightEmission: 0.6,
+    lightInfluence: 0.2,
+    brightness: 1.4,
+    zOffset: 0,
+    timeScale: 1,
+    emissionDirection: "Top",
+    orientation: "FacingCamera",
+    enabled: true,
+    color: [
+      { t: 0, c: [220, 245, 255] },
+      { t: 0.5, c: [120, 200, 255] },
+      { t: 1, c: [80, 130, 230] },
+    ],
+    size: [
+      { t: 0, v: 0.0 },
+      { t: 0.25, v: 0.8, e: 0.2 },
+      { t: 1, v: 0.0 },
+    ],
+    transparency: [
+      { t: 0, v: 1 },
+      { t: 0.2, v: 0.15 },
+      { t: 1, v: 1 },
+    ],
+  },
+
+  magic: {
+    name: "Magic Aura",
+    texture: TEXTURES.glow,
+    blend: "additive",
+    rate: 50,
+    lifetime: [0.9, 1.6],
+    speed: [1, 3],
+    spreadAngle: [40, 40],
+    rotation: [0, 360],
+    rotSpeed: [-120, 120],
+    acceleration: [0, 4, 0],
+    drag: 1,
+    lightEmission: 0.9,
+    lightInfluence: 0,
+    brightness: 2.2,
+    zOffset: 0,
+    timeScale: 1,
+    emissionDirection: "Top",
+    orientation: "FacingCamera",
+    enabled: true,
+    color: [
+      { t: 0, c: [200, 120, 255] },
+      { t: 0.5, c: [120, 90, 255] },
+      { t: 1, c: [60, 200, 255] },
+    ],
+    size: [
+      { t: 0, v: 0.0 },
+      { t: 0.4, v: 0.7, e: 0.25 },
+      { t: 1, v: 0.0 },
+    ],
+    transparency: [
+      { t: 0, v: 1 },
+      { t: 0.25, v: 0.1 },
+      { t: 1, v: 1 },
+    ],
+  },
+
+  smoke: {
+    name: "Smoke",
+    texture: TEXTURES.smoke,
+    blend: "normal",
+    rate: 18,
+    lifetime: [1.5, 2.6],
+    speed: [1.5, 3],
+    spreadAngle: [22, 22],
+    rotation: [0, 360],
+    rotSpeed: [-20, 20],
+    acceleration: [0, 5, 0],
+    drag: 2.5,
+    lightEmission: 0,
+    lightInfluence: 1,
+    brightness: 1,
+    zOffset: 0,
+    timeScale: 1,
+    emissionDirection: "Top",
+    orientation: "FacingCamera",
+    enabled: true,
+    color: [
+      { t: 0, c: [90, 90, 95] },
+      { t: 1, c: [40, 40, 45] },
+    ],
+    size: [
+      { t: 0, v: 0.4 },
+      { t: 1, v: 3.0, e: 0.4 },
+    ],
+    transparency: [
+      { t: 0, v: 1 },
+      { t: 0.2, v: 0.45 },
+      { t: 1, v: 1 },
+    ],
+  },
+
+  electric: {
+    name: "Electric",
+    texture: TEXTURES.star,
+    blend: "additive",
+    rate: 80,
+    lifetime: [0.2, 0.45],
+    speed: [6, 12],
+    spreadAngle: [60, 60],
+    rotation: [0, 360],
+    rotSpeed: [-200, 200],
+    acceleration: [0, 0, 0],
+    drag: 0,
+    lightEmission: 1,
+    lightInfluence: 0,
+    brightness: 3,
+    zOffset: 0,
+    timeScale: 1,
+    emissionDirection: "Top",
+    orientation: "FacingCamera",
+    enabled: true,
+    color: [
+      { t: 0, c: [180, 240, 255] },
+      { t: 0.5, c: [90, 170, 255] },
+      { t: 1, c: [40, 80, 255] },
+    ],
+    size: [
+      { t: 0, v: 0.5 },
+      { t: 0.5, v: 0.15 },
+      { t: 1, v: 0.0 },
+    ],
+    transparency: [
+      { t: 0, v: 0 },
+      { t: 1, v: 1 },
+    ],
+  },
+
+  heal: {
+    name: "Healing",
+    texture: TEXTURES.circle,
+    blend: "additive",
+    rate: 30,
+    lifetime: [1.0, 1.6],
+    speed: [3, 5],
+    spreadAngle: [15, 15],
+    rotation: [0, 360],
+    rotSpeed: [-40, 40],
+    acceleration: [0, 8, 0],
+    drag: 1,
+    lightEmission: 0.8,
+    lightInfluence: 0,
+    brightness: 1.8,
+    zOffset: 0,
+    timeScale: 1,
+    emissionDirection: "Top",
+    orientation: "FacingCamera",
+    enabled: true,
+    color: [
+      { t: 0, c: [200, 255, 180] },
+      { t: 0.5, c: [120, 255, 140] },
+      { t: 1, c: [60, 220, 120] },
+    ],
+    size: [
+      { t: 0, v: 0.0 },
+      { t: 0.3, v: 0.6 },
+      { t: 1, v: 0.0 },
+    ],
+    transparency: [
+      { t: 0, v: 1 },
+      { t: 0.2, v: 0.1 },
+      { t: 1, v: 1 },
+    ],
+  },
+
+  trail: {
+    name: "Sword Trail",
+    texture: TEXTURES.slash,
+    blend: "additive",
+    rate: 120,
+    lifetime: [0.25, 0.4],
+    speed: [0, 0],
+    spreadAngle: [0, 0],
+    rotation: [0, 0],
+    rotSpeed: [0, 0],
+    acceleration: [0, 0, 0],
+    drag: 0,
+    lightEmission: 0.9,
+    lightInfluence: 0,
+    brightness: 2.5,
+    zOffset: 0,
+    timeScale: 1,
+    emissionDirection: "Front",
+    orientation: "VelocityParallel",
+    enabled: true,
+    color: [
+      { t: 0, c: [255, 255, 255] },
+      { t: 1, c: [120, 180, 255] },
+    ],
+    size: [
+      { t: 0, v: 2.5 },
+      { t: 1, v: 0.0 },
+    ],
+    transparency: [
+      { t: 0, v: 0.1 },
+      { t: 1, v: 1 },
+    ],
+  },
+};
+
+
+// ===== js/particles/luau-export.js =====
+// Converts a particle config into EXACT Roblox Luau.
+// The output is valid to paste into the Studio Command Bar, a Script, or to
+// feed the companion plugin. Property names + value types match the Roblox
+// ParticleEmitter API exactly.
+
+function num(n) {
+  // Trim float noise but keep precision Roblox cares about.
+  return Number.isInteger(n) ? String(n) : String(Math.round(n * 1000) / 1000);
+}
+
+function colorSequence(kps) {
+  const parts = kps.map(
+    (k) =>
+      `\t\tColorSequenceKeypoint.new(${num(k.t)}, Color3.fromRGB(${Math.round(
+        k.c[0]
+      )}, ${Math.round(k.c[1])}, ${Math.round(k.c[2])}))`
+  );
+  return `ColorSequence.new({\n${parts.join(",\n")}\n\t})`;
+}
+
+function numberSequence(kps) {
+  const parts = kps.map((k) => {
+    const env = k.e ? `, ${num(k.e)}` : "";
+    return `\t\tNumberSequenceKeypoint.new(${num(k.t)}, ${num(k.v)}${env})`;
+  });
+  return `NumberSequence.new({\n${parts.join(",\n")}\n\t})`;
+}
+
+/**
+ * Build the body of property assignments (shared by snippet + plugin + module).
+ * `v` is the local variable name the emitter is bound to.
+ */
+function emitterAssignments(cfg, v = "emitter") {
+  const L = [];
+  L.push(`${v}.Texture = "${cfg.texture}"`);
+  L.push(`${v}.Rate = ${num(cfg.rate)}`);
+  L.push(`${v}.Lifetime = NumberRange.new(${num(cfg.lifetime[0])}, ${num(cfg.lifetime[1])})`);
+  L.push(`${v}.Speed = NumberRange.new(${num(cfg.speed[0])}, ${num(cfg.speed[1])})`);
+  L.push(`${v}.SpreadAngle = Vector2.new(${num(cfg.spreadAngle[0])}, ${num(cfg.spreadAngle[1])})`);
+  L.push(`${v}.Rotation = NumberRange.new(${num(cfg.rotation[0])}, ${num(cfg.rotation[1])})`);
+  L.push(`${v}.RotSpeed = NumberRange.new(${num(cfg.rotSpeed[0])}, ${num(cfg.rotSpeed[1])})`);
+  L.push(`${v}.Acceleration = Vector3.new(${num(cfg.acceleration[0])}, ${num(cfg.acceleration[1])}, ${num(cfg.acceleration[2])})`);
+  L.push(`${v}.Drag = ${num(cfg.drag)}`);
+  L.push(`${v}.LightEmission = ${num(cfg.lightEmission)}`);
+  L.push(`${v}.LightInfluence = ${num(cfg.lightInfluence)}`);
+  L.push(`${v}.Brightness = ${num(cfg.brightness)}`);
+  L.push(`${v}.ZOffset = ${num(cfg.zOffset)}`);
+  L.push(`${v}.TimeScale = ${num(cfg.timeScale)}`);
+  L.push(`${v}.EmissionDirection = Enum.NormalId.${cfg.emissionDirection}`);
+  L.push(`${v}.Orientation = Enum.ParticleOrientation.${cfg.orientation}`);
+  L.push(`${v}.Enabled = ${cfg.enabled ? "true" : "false"}`);
+  L.push(`${v}.Color = ${colorSequence(cfg.color)}`);
+  L.push(`${v}.Size = ${numberSequence(cfg.size)}`);
+  L.push(`${v}.Transparency = ${numberSequence(cfg.transparency)}`);
+  return L.map((line) => "\t" + line).join("\n");
+}
+
+/**
+ * Full paste-and-run snippet. Applies the emitter to the current Studio
+ * Selection (or workspace if nothing selected). Drop into the Command Bar.
+ */
+function toLuauSnippet(cfg) {
+  const fnName = "applyVFX";
+  return `-- ${cfg.name} VFX -- generated by Roblox VFX Forge
+-- Paste into the Studio Command Bar, then it attaches to your selected Part(s).
+local Selection = game:GetService("Selection")
+
+local function ${fnName}(parent)
+\tlocal emitter = Instance.new("ParticleEmitter")
+${emitterAssignments(cfg, "emitter")}
+\temitter.Parent = parent
+\treturn emitter
+end
+
+local targets = Selection:Get()
+if #targets == 0 then
+\twarn("[VFX Forge] Nothing selected -- select a Part/Attachment first.")
+else
+\tfor _, target in ipairs(targets) do
+\t\t${fnName}(target)
+\tend
+\tprint("[VFX Forge] Applied '" .. "${cfg.name}" .. "' to " .. #targets .. " object(s).")
+end`;
+}
+
+/**
+ * ModuleScript form: returns a builder function. Good for committing to a
+ * game's source so emitters can be spawned at runtime.
+ */
+function toLuauModule(cfg) {
+  return `--!strict
+-- ${cfg.name} VFX module -- generated by Roblox VFX Forge
+-- Usage: require(this)(somePart)
+return function(parent: Instance): ParticleEmitter
+\tlocal emitter = Instance.new("ParticleEmitter")
+${emitterAssignments(cfg, "emitter")}
+\temitter.Parent = parent
+\treturn emitter
+end`;
+}
+
+
+// ===== js/ui.js =====
+// Lightweight DOM control factory. No framework — keeps the app a static,
+// double-clickable site your brother can host on GitHub Pages or itch.io.
+
+function el(tag, props = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") node.className = v;
+    else if (k === "html") node.innerHTML = v;
+    else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
+    else if (v !== undefined && v !== null) node.setAttribute(k, v);
+  }
+  for (const c of [].concat(children)) {
+    if (c == null) continue;
+    node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  }
+  return node;
+}
+
+function row(label, control) {
+  return el("div", { class: "row" }, [el("label", {}, label), control]);
+}
+
+function slider(label, value, min, max, step, onInput) {
+  const out = el("span", { class: "val" }, fmt(value));
+  const input = el("input", {
+    type: "range", min, max, step, value,
+    oninput: (e) => {
+      const v = parseFloat(e.target.value);
+      out.textContent = fmt(v);
+      onInput(v);
+    },
+  });
+  const wrap = el("div", { class: "slider" }, [input, out]);
+  return row(label, wrap);
+}
+
+function rangeControl(label, value, min, max, step, onChange) {
+  const [lo, hi] = value;
+  const outLo = el("span", { class: "val" }, fmt(lo));
+  const outHi = el("span", { class: "val" }, fmt(hi));
+  const sLo = el("input", { type: "range", min, max, step, value: lo, oninput: (e) => { const v = parseFloat(e.target.value); value[0] = v; outLo.textContent = fmt(v); onChange(value); } });
+  const sHi = el("input", { type: "range", min, max, step, value: hi, oninput: (e) => { const v = parseFloat(e.target.value); value[1] = v; outHi.textContent = fmt(v); onChange(value); } });
+  return row(label, el("div", { class: "range" }, [
+    el("div", { class: "slider" }, [sLo, outLo]),
+    el("div", { class: "slider" }, [sHi, outHi]),
+  ]));
+}
+
+function selectControl(label, value, options, onChange) {
+  const sel = el("select", { onchange: (e) => onChange(e.target.value) },
+    options.map((o) => el("option", { value: o, selected: o === value ? "selected" : null }, o)));
+  return row(label, sel);
+}
+
+function checkbox(label, value, onChange) {
+  const cb = el("input", { type: "checkbox", onchange: (e) => onChange(e.target.checked) });
+  cb.checked = value;
+  return row(label, cb);
+}
+
+function vectorControl(label, value, min, max, step, onChange) {
+  const inputs = value.map((v, i) =>
+    el("input", { type: "number", value: v, min, max, step, class: "vec",
+      oninput: (e) => { value[i] = parseFloat(e.target.value) || 0; onChange(value); } }));
+  return row(label, el("div", { class: "vec-group" }, inputs));
+}
+
+function colorField(label, rgb, onChange) {
+  const input = el("input", { type: "color", value: rgbToHex(rgb),
+    oninput: (e) => { const c = hexToRgb(e.target.value); rgb[0] = c[0]; rgb[1] = c[1]; rgb[2] = c[2]; onChange(rgb); } });
+  return row(label, input);
+}
+
+// Editable ColorSequence: each stop = time + color, with add/remove.
+function colorSequenceEditor(label, stops, onChange) {
+  const list = el("div", { class: "seq" });
+  function rebuild() {
+    list.innerHTML = "";
+    stops.forEach((s, i) => {
+      const time = el("input", { type: "number", min: 0, max: 1, step: 0.01, value: s.t, class: "seq-t",
+        oninput: (e) => { s.t = clamp01(parseFloat(e.target.value)); onChange(); } });
+      const color = el("input", { type: "color", value: rgbToHex(s.c),
+        oninput: (e) => { const c = hexToRgb(e.target.value); s.c = c; onChange(); } });
+      const del = el("button", { class: "mini", title: "remove",
+        onclick: () => { if (stops.length > 2) { stops.splice(i, 1); rebuild(); onChange(); } } }, "x");
+      list.appendChild(el("div", { class: "seq-row" }, [time, color, del]));
+    });
+  }
+  const add = el("button", { class: "mini add",
+    onclick: () => { stops.push({ t: 0.5, c: stops[stops.length - 1].c.slice() }); stops.sort((a, b) => a.t - b.t); rebuild(); onChange(); } }, "+ stop");
+  rebuild();
+  return el("div", { class: "row col" }, [el("label", {}, label), list, add]);
+}
+
+// Editable NumberSequence: each keypoint = time + value (+ optional envelope).
+function numberSequenceEditor(label, kps, max, onChange) {
+  const list = el("div", { class: "seq" });
+  function rebuild() {
+    list.innerHTML = "";
+    kps.forEach((k, i) => {
+      const time = el("input", { type: "number", min: 0, max: 1, step: 0.01, value: k.t, class: "seq-t",
+        oninput: (e) => { k.t = clamp01(parseFloat(e.target.value)); onChange(); } });
+      const val = el("input", { type: "number", min: 0, max, step: 0.01, value: k.v, class: "seq-v",
+        oninput: (e) => { k.v = parseFloat(e.target.value) || 0; onChange(); } });
+      const del = el("button", { class: "mini", title: "remove",
+        onclick: () => { if (kps.length > 2) { kps.splice(i, 1); rebuild(); onChange(); } } }, "x");
+      list.appendChild(el("div", { class: "seq-row" }, [time, val, del]));
+    });
+  }
+  const add = el("button", { class: "mini add",
+    onclick: () => { kps.push({ t: 0.5, v: kps[kps.length - 1].v }); kps.sort((a, b) => a.t - b.t); rebuild(); onChange(); } }, "+ key");
+  rebuild();
+  return el("div", { class: "row col" }, [el("label", {}, label), list, add]);
+}
+
+function section(title, controls) {
+  return el("div", { class: "section" }, [el("h3", {}, title), ...controls]);
+}
+
+// --- helpers ---
+function fmt(v) { return (Math.round(v * 100) / 100).toString(); }
+function clamp01(v) { return Math.max(0, Math.min(1, isNaN(v) ? 0 : v)); }
+function rgbToHex(rgb) {
+  return "#" + rgb.map((x) => Math.round(x).toString(16).padStart(2, "0")).join("");
+}
+function hexToRgb(hex) {
+  const m = hex.replace("#", "");
+  return [parseInt(m.slice(0, 2), 16), parseInt(m.slice(2, 4), 16), parseInt(m.slice(4, 6), 16)];
+}
+
+
+// minimal orbit controls (replaces three/addons OrbitControls for standalone)
+class OrbitControls {
+  constructor(camera, dom) {
+    this.camera = camera; this.dom = dom;
+    this.target = new THREE.Vector3();
+    this.enableDamping = false; this.dampingFactor = 0.08;
+    this._s = new THREE.Spherical(); this._t = new THREE.Spherical();
+    const off = new THREE.Vector3().subVectors(camera.position, this.target);
+    this._s.setFromVector3(off); this._t.copy(this._s);
+    let drag = false, px = 0, py = 0;
+    dom.addEventListener("pointerdown", (e) => { drag = true; px = e.clientX; py = e.clientY; });
+    window.addEventListener("pointerup", () => { drag = false; });
+    window.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      this._t.theta -= (e.clientX - px) * 0.005;
+      this._t.phi -= (e.clientY - py) * 0.005;
+      this._t.phi = Math.max(0.05, Math.min(Math.PI - 0.05, this._t.phi));
+      px = e.clientX; py = e.clientY;
+    });
+    dom.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      this._t.radius *= 1 + Math.sign(e.deltaY) * 0.1;
+      this._t.radius = Math.max(1.5, Math.min(80, this._t.radius));
+    }, { passive: false });
+  }
+  update() {
+    const k = this.enableDamping ? this.dampingFactor : 1;
+    this._s.theta += (this._t.theta - this._s.theta) * k;
+    this._s.phi += (this._t.phi - this._s.phi) * k;
+    this._s.radius += (this._t.radius - this._s.radius) * k;
+    this.camera.position.copy(this.target).add(new THREE.Vector3().setFromSpherical(this._s));
+    this.camera.lookAt(this.target);
+  }
+}
+
+
+// ===== js/three-setup.js =====
+
+class Stage {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0x0a0d12);
+
+    this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    this.camera.position.set(6, 4, 8);
+
+    this.controls = new OrbitControls(this.camera, canvas);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.08;
+    this.controls.target.set(0, 1, 0);
+
+    // lighting
+    const hemi = new THREE.HemisphereLight(0x9bb8ff, 0x202028, 0.7);
+    this.scene.add(hemi);
+    const key = new THREE.DirectionalLight(0xffffff, 1.6);
+    key.position.set(5, 8, 6);
+    this.scene.add(key);
+    const rim = new THREE.DirectionalLight(0x66aaff, 0.8);
+    rim.position.set(-6, 3, -5);
+    this.scene.add(rim);
+
+    // grid floor
+    this.grid = new THREE.GridHelper(20, 20, 0x2a3340, 0x161c24);
+    this.grid.position.y = -2;
+    this.scene.add(this.grid);
+
+    // emitter reference part (for particle module)
+    this.emitterPart = new THREE.Mesh(
+      new THREE.BoxGeometry(1.4, 1.4, 1.4),
+      new THREE.MeshStandardMaterial({
+        color: 0x2b3a4a, roughness: 0.5, metalness: 0.2,
+        transparent: true, opacity: 0.25,
+      })
+    );
+    this.scene.add(this.emitterPart);
+
+    this.weaponHolder = new THREE.Group();
+    this.scene.add(this.weaponHolder);
+
+    this._onResize();
+    window.addEventListener("resize", () => this._onResize());
+  }
+
+  focalPx() {
+    const h = this.canvas.clientHeight || 1;
+    return h / (2 * Math.tan((this.camera.fov * Math.PI) / 360));
+  }
+
+  _onResize() {
+    const w = this.canvas.clientWidth || 1;
+    const h = this.canvas.clientHeight || 1;
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+  }
+
+  setMode(mode) {
+    const particles = mode === "particles";
+    this.emitterPart.visible = particles;
+    this.weaponHolder.visible = !particles;
+    this.controls.target.set(0, particles ? 1 : 0, 0);
+  }
+
+  setWeapon(group) {
+    this.weaponHolder.clear();
+    this.weaponHolder.add(group);
+  }
+
+  render() {
+    this.controls.update();
+    this.renderer.render(this.scene, this.camera);
+  }
+}
+
+
+// ===== js/particles/simulator.js =====
+
+// Maps Enum.NormalId -> base emission direction (Roblox: Front = -Z).
+const NORMAL_DIR = {
+  Top: [0, 1, 0],
+  Bottom: [0, -1, 0],
+  Front: [0, 0, -1],
+  Back: [0, 0, 1],
+  Right: [1, 0, 0],
+  Left: [-1, 0, 0],
+};
+
+const MAX_PARTICLES = 6000;
+
+// --- procedural sprite textures (browser can't load rbxassetid://) -----------
+function makeSprite(kind) {
+  const s = 128;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = s;
+  const ctx = cv.getContext("2d");
+  const cx = s / 2;
+
+  if (kind === "smoke") {
+    const g = ctx.createRadialGradient(cx, cx, 4, cx, cx, cx);
+    g.addColorStop(0, "rgba(255,255,255,0.9)");
+    g.addColorStop(0.5, "rgba(255,255,255,0.35)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, s, s);
+  } else if (kind === "star") {
+    const g = ctx.createRadialGradient(cx, cx, 0, cx, cx, cx);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, s, s);
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.lineWidth = 6;
+    for (let i = 0; i < 4; i++) {
+      ctx.save();
+      ctx.translate(cx, cx);
+      ctx.rotate((i * Math.PI) / 4);
+      ctx.beginPath();
+      ctx.moveTo(0, -cx);
+      ctx.lineTo(0, cx);
+      ctx.stroke();
+      ctx.restore();
+    }
+  } else if (kind === "slash") {
+    const g = ctx.createLinearGradient(0, 0, s, 0);
+    g.addColorStop(0, "rgba(255,255,255,0)");
+    g.addColorStop(0.5, "rgba(255,255,255,1)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, s * 0.35, s, s * 0.3);
+  } else {
+    // glow / circle / default soft disc
+    const g = ctx.createRadialGradient(cx, cx, 0, cx, cx, cx);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(0.35, "rgba(255,255,255,0.8)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, s, s);
+  }
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function spriteKindFor(texture) {
+  if (texture.includes("smoke")) return "smoke";
+  if (texture.includes("5860390988")) return "slash";
+  if (texture.includes("6333823")) return "star";
+  return "glow";
+}
+
+const VERT = `
+attribute float aSize;
+attribute float aAlpha;
+attribute float aRot;
+attribute vec3 aColor;
+varying float vAlpha;
+varying float vRot;
+varying vec3 vColor;
+uniform float uFocal;
+void main() {
+  vColor = aColor;
+  vAlpha = aAlpha;
+  vRot = aRot;
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mv;
+  float dist = max(-mv.z, 0.001);
+  gl_PointSize = aSize * uFocal / dist;
+}`;
+
+const FRAG = `
+precision mediump float;
+varying float vAlpha;
+varying float vRot;
+varying vec3 vColor;
+uniform sampler2D uTex;
+void main() {
+  vec2 uv = gl_PointCoord - 0.5;
+  float c = cos(vRot), s = sin(vRot);
+  uv = vec2(c * uv.x - s * uv.y, s * uv.x + c * uv.y) + 0.5;
+  vec4 t = texture2D(uTex, uv);
+  gl_FragColor = vec4(vColor * t.rgb, t.a * vAlpha);
+  if (gl_FragColor.a < 0.003) discard;
+}`;
+
+class ParticleSim {
+  constructor() {
+    this.cfg = null;
+    this.emitAccumulator = 0;
+    this.t = 0;
+    this.emitterSize = [1.4, 1.4, 1.4]; // preview emitter volume (studs)
+
+    const geo = new THREE.BufferGeometry();
+    const n = MAX_PARTICLES;
+    this.pos = new Float32Array(n * 3);
+    this.col = new Float32Array(n * 3);
+    this.size = new Float32Array(n);
+    this.alpha = new Float32Array(n);
+    this.rot = new Float32Array(n);
+    geo.setAttribute("position", new THREE.BufferAttribute(this.pos, 3));
+    geo.setAttribute("aColor", new THREE.BufferAttribute(this.col, 3));
+    geo.setAttribute("aSize", new THREE.BufferAttribute(this.size, 1));
+    geo.setAttribute("aAlpha", new THREE.BufferAttribute(this.alpha, 1));
+    geo.setAttribute("aRot", new THREE.BufferAttribute(this.rot, 1));
+    this.geo = geo;
+
+    // per-particle CPU state
+    this.life = new Float32Array(n);   // total lifetime
+    this.age = new Float32Array(n);    // current age
+    this.vel = new Float32Array(n * 3);
+    this.rotSpeed = new Float32Array(n);
+    this.seedSize = new Float32Array(n); // for size envelope jitter
+    this.active = new Uint8Array(n);
+    this.cursor = 0;
+
+    this.material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTex: { value: makeSprite("glow") },
+        uFocal: { value: 600 },
+      },
+      vertexShader: VERT,
+      fragmentShader: FRAG,
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.AdditiveBlending,
+    });
+
+    this.points = new THREE.Points(geo, this.material);
+    this.points.frustumCulled = false;
+  }
+
+  addTo(scene) {
+    scene.add(this.points);
+  }
+
+  setFocal(focalPx) {
+    this.material.uniforms.uFocal.value = focalPx;
+  }
+
+  setConfig(cfg) {
+    this.cfg = cfg;
+    this.material.uniforms.uTex.value = makeSprite(spriteKindFor(cfg.texture));
+    this.material.blending =
+      cfg.blend === "normal" ? THREE.NormalBlending : THREE.AdditiveBlending;
+    this.material.needsUpdate = true;
+  }
+
+  reset() {
+    this.active.fill(0);
+    this.size.fill(0);
+    this.alpha.fill(0);
+  }
+
+  _spawn() {
+    const cfg = this.cfg;
+    const i = this.cursor;
+    this.cursor = (this.cursor + 1) % MAX_PARTICLES;
+
+    // start position within emitter volume
+    const [ex, ey, ez] = this.emitterSize;
+    this.pos[i * 3] = (Math.random() - 0.5) * ex;
+    this.pos[i * 3 + 1] = (Math.random() - 0.5) * ey;
+    this.pos[i * 3 + 2] = (Math.random() - 0.5) * ez;
+
+    // direction = emission normal, perturbed by spread cone
+    const base = NORMAL_DIR[cfg.emissionDirection] || NORMAL_DIR.Top;
+    const dir = new THREE.Vector3(base[0], base[1], base[2]);
+    const ax = ((Math.random() * 2 - 1) * cfg.spreadAngle[0] * Math.PI) / 180;
+    const ay = ((Math.random() * 2 - 1) * cfg.spreadAngle[1] * Math.PI) / 180;
+    // build two perpendicular axes
+    const up = Math.abs(dir.y) > 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+    const right = new THREE.Vector3().crossVectors(dir, up).normalize();
+    const realUp = new THREE.Vector3().crossVectors(right, dir).normalize();
+    dir.applyAxisAngle(realUp, ax).applyAxisAngle(right, ay).normalize();
+
+    const speed = pickRange(cfg.speed);
+    this.vel[i * 3] = dir.x * speed;
+    this.vel[i * 3 + 1] = dir.y * speed;
+    this.vel[i * 3 + 2] = dir.z * speed;
+
+    this.life[i] = pickRange(cfg.lifetime);
+    this.age[i] = 0;
+    this.rot[i] = (pickRange(cfg.rotation) * Math.PI) / 180;
+    this.rotSpeed[i] = (pickRange(cfg.rotSpeed) * Math.PI) / 180;
+    this.seedSize[i] = Math.random() * 2 - 1;
+    this.active[i] = 1;
+  }
+
+  update(dt) {
+    const cfg = this.cfg;
+    if (!cfg) return;
+    dt = Math.min(dt, 0.05) * cfg.timeScale;
+    this.t += dt;
+
+    // emission
+    if (cfg.enabled && cfg.rate > 0) {
+      this.emitAccumulator += cfg.rate * dt;
+      let toSpawn = Math.floor(this.emitAccumulator);
+      this.emitAccumulator -= toSpawn;
+      while (toSpawn-- > 0) this._spawn();
+    }
+
+    const acc = cfg.acceleration;
+    const dragF = Math.max(0, 1 - cfg.drag * dt);
+    const glowFactor =
+      cfg.blend === "normal" ? 1 : 1 + cfg.brightness * 0.5 + cfg.lightEmission * 0.6;
+
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+      if (!this.active[i]) {
+        this.size[i] = 0;
+        this.alpha[i] = 0;
+        continue;
+      }
+      this.age[i] += dt;
+      const a01 = this.age[i] / this.life[i];
+      if (a01 >= 1) {
+        this.active[i] = 0;
+        this.size[i] = 0;
+        this.alpha[i] = 0;
+        continue;
+      }
+
+      // integrate velocity
+      this.vel[i * 3] = (this.vel[i * 3] + acc[0] * dt) * dragF;
+      this.vel[i * 3 + 1] = (this.vel[i * 3 + 1] + acc[1] * dt) * dragF;
+      this.vel[i * 3 + 2] = (this.vel[i * 3 + 2] + acc[2] * dt) * dragF;
+      this.pos[i * 3] += this.vel[i * 3] * dt;
+      this.pos[i * 3 + 1] += this.vel[i * 3 + 1] * dt;
+      this.pos[i * 3 + 2] += this.vel[i * 3 + 2] * dt;
+
+      this.rot[i] += this.rotSpeed[i] * dt;
+
+      // sample sequences
+      let sz = sampleNumber(cfg.size, a01, false);
+      // apply envelope deterministically per particle
+      const szEnv = envelopeAt(cfg.size, a01);
+      sz = Math.max(0, sz + this.seedSize[i] * szEnv);
+      this.size[i] = sz;
+
+      const transp = sampleNumber(cfg.transparency, a01, false);
+      this.alpha[i] = clamp(1 - transp, 0, 1);
+
+      const rgb = sampleColor(cfg.color, a01);
+      this.col[i * 3] = (rgb[0] / 255) * glowFactor;
+      this.col[i * 3 + 1] = (rgb[1] / 255) * glowFactor;
+      this.col[i * 3 + 2] = (rgb[2] / 255) * glowFactor;
+    }
+
+    this.geo.attributes.position.needsUpdate = true;
+    this.geo.attributes.aColor.needsUpdate = true;
+    this.geo.attributes.aSize.needsUpdate = true;
+    this.geo.attributes.aAlpha.needsUpdate = true;
+    this.geo.attributes.aRot.needsUpdate = true;
+  }
+}
+
+// envelope magnitude at normalized time (interpolated like the value).
+function envelopeAt(kps, t) {
+  t = clamp(t, 0, 1);
+  for (let i = 0; i < kps.length - 1; i++) {
+    const a = kps[i], b = kps[i + 1];
+    if (t >= a.t && t <= b.t) {
+      const span = b.t - a.t || 1e-6;
+      const f = (t - a.t) / span;
+      return (a.e ?? 0) + ((b.e ?? 0) - (a.e ?? 0)) * f;
+    }
+  }
+  return kps[kps.length - 1].e ?? 0;
+}
+
+
+// ===== js/weapon/forge.js =====
+
+// Parametric weapon generator. A weapon is a pure function of these params, so
+// it can be generated, mutated, and randomized. Preview is built from Three.js
+// meshes; export builds a NATIVE Roblox Model out of welded BaseParts (no asset
+// upload required), which is exactly how many sellable Roblox weapons ship.
+
+function defaultWeapon() {
+  return {
+    style: "Longsword",
+    bladeLength: 4.5,
+    bladeWidth: 0.55,
+    bladeThickness: 0.14,
+    bladeTaper: 0.5,        // tip width as fraction of base (0..1)
+    fuller: true,           // center groove
+    guardWidth: 1.4,
+    guardDepth: 0.4,
+    guardThickness: 0.22,
+    gripLength: 1.1,
+    gripRadius: 0.16,
+    pommelSize: 0.35,
+    bladeColor: [220, 226, 235],
+    bladeMaterial: "Metal",
+    guardColor: [196, 160, 60],
+    gripColor: [70, 45, 30],
+    pommelColor: [196, 160, 60],
+    glowColor: [120, 180, 255],
+  };
+}
+
+const WEAPON_STYLES = {
+  Longsword: {},
+  Dagger: { bladeLength: 1.8, bladeWidth: 0.42, guardWidth: 0.9, gripLength: 0.7 },
+  Greatsword: {
+    bladeLength: 7.0, bladeWidth: 0.85, bladeThickness: 0.2,
+    guardWidth: 2.2, guardThickness: 0.3, gripLength: 1.8, pommelSize: 0.5,
+  },
+  Katana: {
+    bladeLength: 5.2, bladeWidth: 0.5, bladeThickness: 0.12, bladeTaper: 0.8,
+    guardWidth: 0.8, guardDepth: 0.8, guardThickness: 0.12, gripLength: 1.4,
+    bladeColor: [235, 240, 245], guardColor: [40, 40, 45], gripColor: [120, 20, 30],
+    pommelColor: [40, 40, 45],
+  },
+  "Neon Blade": {
+    bladeMaterial: "Neon", bladeColor: [120, 200, 255],
+    guardColor: [30, 40, 60], gripColor: [20, 25, 40], pommelColor: [120, 200, 255],
+  },
+};
+
+function applyStyle(params, styleName) {
+  return { ...defaultWeapon(), ...WEAPON_STYLES[styleName], style: styleName, ...params };
+}
+
+// --- preview geometry --------------------------------------------------------
+function pbrMaterial(rgb, materialType) {
+  const color = new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255);
+  if (materialType === "Neon") {
+    return new THREE.MeshStandardMaterial({
+      color, emissive: color, emissiveIntensity: 1.4, roughness: 0.4, metalness: 0,
+    });
+  }
+  if (materialType === "Metal") {
+    return new THREE.MeshStandardMaterial({ color, roughness: 0.28, metalness: 0.95 });
+  }
+  return new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.05 });
+}
+
+// tapered blade body: a box whose top face is narrower (BufferGeometry).
+function taperedBladeGeo(w, len, thick, tipFrac) {
+  const hw = w / 2, ht = thick / 2, tw = (w * tipFrac) / 2, tt = (thick * tipFrac) / 2;
+  // 8 corners: bottom (y=0) full, top (y=len) tapered
+  const v = [
+    [-hw, 0, -ht], [hw, 0, -ht], [hw, 0, ht], [-hw, 0, ht],        // bottom 0-3
+    [-tw, len, -tt], [tw, len, -tt], [tw, len, tt], [-tw, len, tt], // top 4-7
+  ];
+  const faces = [
+    [0, 1, 2], [0, 2, 3],   // bottom
+    [4, 6, 5], [4, 7, 6],   // top
+    [0, 4, 5], [0, 5, 1],   // -z
+    [1, 5, 6], [1, 6, 2],   // +x
+    [2, 6, 7], [2, 7, 3],   // +z
+    [3, 7, 4], [3, 4, 0],   // -x
+  ];
+  const pos = [];
+  for (const f of faces) for (const idx of f) pos.push(...v[idx]);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
+}
+
+function buildWeaponGroup(params) {
+  const p = params;
+  const group = new THREE.Group();
+
+  const bodyLen = p.bladeLength * 0.82;
+  const tipLen = p.bladeLength * 0.18;
+  const gripTop = p.gripLength;
+  const guardY = gripTop + p.guardThickness / 2;
+  const bladeBaseY = gripTop + p.guardThickness;
+
+  // grip
+  const grip = new THREE.Mesh(
+    new THREE.CylinderGeometry(p.gripRadius, p.gripRadius * 1.05, p.gripLength, 16),
+    pbrMaterial(p.gripColor, "Wood")
+  );
+  grip.position.y = p.gripLength / 2;
+  group.add(grip);
+
+  // pommel
+  const pommel = new THREE.Mesh(
+    new THREE.SphereGeometry(p.pommelSize / 2, 18, 14),
+    pbrMaterial(p.pommelColor, "Metal")
+  );
+  pommel.position.y = -p.pommelSize / 4;
+  group.add(pommel);
+
+  // guard
+  const guard = new THREE.Mesh(
+    new THREE.BoxGeometry(p.guardWidth, p.guardThickness, p.guardDepth),
+    pbrMaterial(p.guardColor, "Metal")
+  );
+  guard.position.y = guardY;
+  group.add(guard);
+
+  // blade body (tapered) + tip
+  const blade = new THREE.Mesh(
+    taperedBladeGeo(p.bladeWidth, bodyLen, p.bladeThickness, 1),
+    pbrMaterial(p.bladeColor, p.bladeMaterial)
+  );
+  blade.position.y = bladeBaseY;
+  group.add(blade);
+
+  const tip = new THREE.Mesh(
+    taperedBladeGeo(p.bladeWidth, tipLen, p.bladeThickness, p.bladeTaper * 0.15),
+    pbrMaterial(p.bladeColor, p.bladeMaterial)
+  );
+  tip.position.y = bladeBaseY + bodyLen;
+  group.add(tip);
+
+  if (p.fuller) {
+    const fuller = new THREE.Mesh(
+      new THREE.BoxGeometry(p.bladeWidth * 0.18, bodyLen * 0.85, p.bladeThickness * 1.05),
+      pbrMaterial(p.glowColor, p.bladeMaterial === "Neon" ? "Neon" : "Metal")
+    );
+    fuller.position.y = bladeBaseY + bodyLen * 0.45;
+    group.add(fuller);
+  }
+
+  // center the whole weapon vertically for nicer framing
+  group.position.y = -(bladeBaseY + bodyLen) / 2;
+  return group;
+}
+
+// --- Roblox Luau export (native welded Model) --------------------------------
+function n(x) { return Number.isInteger(x) ? String(x) : String(Math.round(x * 1000) / 1000); }
+function c3(rgb) { return `Color3.fromRGB(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`; }
+
+function toLuauWeapon(params) {
+  const p = params;
+  const bodyLen = p.bladeLength * 0.82;
+  const tipLen = p.bladeLength * 0.18;
+  const gripTop = p.gripLength;
+  const guardY = gripTop + p.guardThickness / 2;
+  const bladeBaseY = gripTop + p.guardThickness;
+
+  // each part: {name, size:[x,y,z], pos:[x,y,z], color, material, shape}
+  const parts = [
+    { name: "Grip", size: [p.gripRadius * 2, p.gripLength, p.gripRadius * 2], pos: [0, p.gripLength / 2, 0], color: p.gripColor, material: "Wood", shape: "Cylinder" },
+    { name: "Pommel", size: [p.pommelSize, p.pommelSize, p.pommelSize], pos: [0, -p.pommelSize / 4, 0], color: p.pommelColor, material: "Metal", shape: "Ball" },
+    { name: "Guard", size: [p.guardWidth, p.guardThickness, p.guardDepth], pos: [0, guardY, 0], color: p.guardColor, material: "Metal", shape: "Block" },
+    { name: "BladeBody", size: [p.bladeWidth, bodyLen, p.bladeThickness], pos: [0, bladeBaseY + bodyLen / 2, 0], color: p.bladeColor, material: p.bladeMaterial, shape: "Block" },
+    { name: "BladeTip", size: [p.bladeWidth, tipLen, p.bladeThickness], pos: [0, bladeBaseY + bodyLen + tipLen / 2, 0], color: p.bladeColor, material: p.bladeMaterial, shape: "Wedge" },
+  ];
+  if (p.fuller) {
+    parts.push({ name: "Fuller", size: [p.bladeWidth * 0.18, bodyLen * 0.85, p.bladeThickness * 1.05], pos: [0, bladeBaseY + bodyLen * 0.45, 0], color: p.glowColor, material: p.bladeMaterial === "Neon" ? "Neon" : "Metal", shape: "Block" });
+  }
+
+  const lines = [];
+  lines.push(`-- ${p.style} -- generated by Roblox VFX Forge (Weapon Forge)`);
+  lines.push(`-- Paste into the Studio Command Bar to spawn a welded Model in Workspace.`);
+  lines.push(`local model = Instance.new("Model")`);
+  lines.push(`model.Name = "${p.style}"`);
+  lines.push(``);
+  lines.push(`local function makePart(name, shape, size, pos, color, material)`);
+  lines.push(`\tlocal class = shape == "Wedge" and "WedgePart" or "Part"`);
+  lines.push(`\tlocal part = Instance.new(class)`);
+  lines.push(`\tpart.Name = name`);
+  lines.push(`\tpart.Anchored = false`);
+  lines.push(`\tpart.CanCollide = false`);
+  lines.push(`\tpart.Size = size`);
+  lines.push(`\tpart.CFrame = CFrame.new(pos)`);
+  lines.push(`\tpart.Color = color`);
+  lines.push(`\tpart.Material = material`);
+  lines.push(`\tif shape == "Ball" then part.Shape = Enum.PartType.Ball end`);
+  lines.push(`\tif shape == "Cylinder" then part.Shape = Enum.PartType.Cylinder; part.CFrame = part.CFrame * CFrame.Angles(0, 0, math.rad(90)) end`);
+  lines.push(`\tpart.Parent = model`);
+  lines.push(`\treturn part`);
+  lines.push(`end`);
+  lines.push(``);
+  for (const pt of parts) {
+    lines.push(
+      `makePart("${pt.name}", "${pt.shape}", Vector3.new(${n(pt.size[0])}, ${n(pt.size[1])}, ${n(pt.size[2])}), Vector3.new(${n(pt.pos[0])}, ${n(pt.pos[1])}, ${n(pt.pos[2])}), ${c3(pt.color)}, Enum.Material.${pt.material})`
+    );
+  }
+  lines.push(``);
+  lines.push(`-- weld everything to the Grip so the model is one rigid object`);
+  lines.push(`local primary = model:FindFirstChild("Grip")`);
+  lines.push(`model.PrimaryPart = primary`);
+  lines.push(`primary.Anchored = true -- keeps the spawned model in place; unanchor when welding into a Tool`);
+  lines.push(`for _, part in ipairs(model:GetChildren()) do`);
+  lines.push(`\tif part ~= primary and part:IsA("BasePart") then`);
+  lines.push(`\t\tlocal weld = Instance.new("WeldConstraint")`);
+  lines.push(`\t\tweld.Part0 = primary`);
+  lines.push(`\t\tweld.Part1 = part`);
+  lines.push(`\t\tweld.Parent = primary`);
+  lines.push(`\tend`);
+  lines.push(`end`);
+  lines.push(``);
+  lines.push(`model.Parent = workspace`);
+  lines.push(`print("[VFX Forge] Spawned ${p.style} (" .. #model:GetChildren() .. " instances).")`);
+  return lines.join("\n");
+}
+
+
+const UI = { el, row, slider, rangeControl, selectControl, checkbox,
+  vectorControl, colorField, colorSequenceEditor, numberSequenceEditor, section };
+
+
+// ===== js/app.js =====
+
+const clone = (o) => JSON.parse(JSON.stringify(o));
+
+const stage = new Stage(document.getElementById("stage"));
+const sim = new ParticleSim();
+sim.addTo(stage.scene);
+
+const state = {
+  mode: "particles",
+  cfg: { ...defaultConfig(), ...clone(PRESETS.fire) },
+  weapon: defaultWeapon(),
+  exportFormat: "snippet",
+};
+
+const controlsEl = document.getElementById("controls");
+const exportEl = document.getElementById("exportCode");
+const exportTabs = document.getElementById("exportTabs");
+
+// ---------- particle controls ----------
+function buildParticleControls() {
+  const c = state.cfg;
+  const refresh = () => { sim.setConfig(c); refreshExport(); };
+
+  const presetSel = UI.selectControl("Preset", "—", ["—", ...Object.keys(PRESETS)], (key) => {
+    if (key === "—") return;
+    state.cfg = { ...defaultConfig(), ...clone(PRESETS[key]) };
+    sim.setConfig(state.cfg);
+    sim.reset();
+    render();
+  });
+
+  const texOptions = Object.values(TEXTURES);
+  controlsEl.innerHTML = "";
+  controlsEl.append(
+    UI.section("Preset", [presetSel]),
+    UI.section("Emission", [
+      UI.slider("Rate (particles/s)", c.rate, 0, 300, 1, (v) => { c.rate = v; refresh(); }),
+      UI.rangeControl("Lifetime (s)", c.lifetime, 0, 5, 0.05, refresh),
+      UI.rangeControl("Speed (studs/s)", c.speed, 0, 40, 0.1, refresh),
+      UI.vectorControl("Spread Angle (°)", c.spreadAngle, 0, 180, 1, refresh),
+      UI.selectControl("Emission Direction", c.emissionDirection,
+        ["Top", "Bottom", "Front", "Back", "Left", "Right"], (v) => { c.emissionDirection = v; refresh(); }),
+      UI.checkbox("Enabled", c.enabled, (v) => { c.enabled = v; refresh(); }),
+    ]),
+    UI.section("Motion", [
+      UI.vectorControl("Acceleration (studs/s²)", c.acceleration, -50, 50, 0.5, refresh),
+      UI.slider("Drag", c.drag, 0, 10, 0.1, (v) => { c.drag = v; refresh(); }),
+      UI.rangeControl("Rotation (°)", c.rotation, 0, 360, 1, refresh),
+      UI.rangeControl("Rot Speed (°/s)", c.rotSpeed, -360, 360, 1, refresh),
+    ]),
+    UI.section("Appearance", [
+      UI.selectControl("Texture", c.texture, texOptions, (v) => { c.texture = v; refresh(); }),
+      UI.selectControl("Blend (preview)", c.blend, ["additive", "normal"], (v) => { c.blend = v; refresh(); }),
+      UI.slider("Light Emission", c.lightEmission, 0, 1, 0.01, (v) => { c.lightEmission = v; refresh(); }),
+      UI.slider("Light Influence", c.lightInfluence, 0, 1, 0.01, (v) => { c.lightInfluence = v; refresh(); }),
+      UI.slider("Brightness", c.brightness, 0, 5, 0.05, (v) => { c.brightness = v; refresh(); }),
+      UI.slider("Z Offset", c.zOffset, -5, 5, 0.1, (v) => { c.zOffset = v; refresh(); }),
+      UI.slider("Time Scale", c.timeScale, 0, 3, 0.05, (v) => { c.timeScale = v; refresh(); }),
+    ]),
+    UI.section("Color over life", [UI.colorSequenceEditor("ColorSequence", c.color, refresh)]),
+    UI.section("Size over life", [UI.numberSequenceEditor("Size (studs)", c.size, 10, refresh)]),
+    UI.section("Transparency over life", [UI.numberSequenceEditor("Transparency (0=opaque)", c.transparency, 1, refresh)]),
+  );
+}
+
+// ---------- weapon controls ----------
+function buildWeaponControls() {
+  const w = state.weapon;
+  const refresh = () => { stage.setWeapon(buildWeaponGroup(w)); refreshExport(); };
+
+  const styleSel = UI.selectControl("Style", w.style, Object.keys(WEAPON_STYLES), (v) => {
+    state.weapon = applyStyle({}, v);
+    render();
+  });
+
+  controlsEl.innerHTML = "";
+  controlsEl.append(
+    UI.section("Style", [styleSel,
+      UI.el("button", { class: "mini add", onclick: randomizeWeapon }, "🎲 Randomize")]),
+    UI.section("Blade", [
+      UI.slider("Length", w.bladeLength, 0.5, 10, 0.1, (v) => { w.bladeLength = v; refresh(); }),
+      UI.slider("Width", w.bladeWidth, 0.1, 2, 0.01, (v) => { w.bladeWidth = v; refresh(); }),
+      UI.slider("Thickness", w.bladeThickness, 0.05, 0.6, 0.01, (v) => { w.bladeThickness = v; refresh(); }),
+      UI.slider("Tip Taper", w.bladeTaper, 0.05, 1, 0.01, (v) => { w.bladeTaper = v; refresh(); }),
+      UI.checkbox("Fuller (groove)", w.fuller, (v) => { w.fuller = v; refresh(); }),
+      UI.selectControl("Blade Material", w.bladeMaterial, ["Metal", "Neon", "Glass", "Marble", "SmoothPlastic"], (v) => { w.bladeMaterial = v; refresh(); }),
+      UI.colorField("Blade Color", w.bladeColor, refresh),
+      UI.colorField("Glow / Fuller Color", w.glowColor, refresh),
+    ]),
+    UI.section("Guard", [
+      UI.slider("Guard Width", w.guardWidth, 0.3, 3, 0.05, (v) => { w.guardWidth = v; refresh(); }),
+      UI.slider("Guard Depth", w.guardDepth, 0.1, 1.5, 0.05, (v) => { w.guardDepth = v; refresh(); }),
+      UI.slider("Guard Thickness", w.guardThickness, 0.05, 0.6, 0.01, (v) => { w.guardThickness = v; refresh(); }),
+      UI.colorField("Guard Color", w.guardColor, refresh),
+    ]),
+    UI.section("Grip & Pommel", [
+      UI.slider("Grip Length", w.gripLength, 0.4, 3, 0.05, (v) => { w.gripLength = v; refresh(); }),
+      UI.slider("Grip Radius", w.gripRadius, 0.05, 0.4, 0.01, (v) => { w.gripRadius = v; refresh(); }),
+      UI.slider("Pommel Size", w.pommelSize, 0.1, 1, 0.01, (v) => { w.pommelSize = v; refresh(); }),
+      UI.colorField("Grip Color", w.gripColor, refresh),
+      UI.colorField("Pommel Color", w.pommelColor, refresh),
+    ]),
+  );
+}
+
+function randomizeWeapon() {
+  const styles = Object.keys(WEAPON_STYLES);
+  const base = applyStyle({}, styles[Math.floor(Math.random() * styles.length)]);
+  const j = (v, amt) => Math.max(0.05, v * (1 + (Math.random() * 2 - 1) * amt));
+  base.bladeLength = j(base.bladeLength, 0.3);
+  base.bladeWidth = j(base.bladeWidth, 0.3);
+  base.bladeTaper = Math.random() * 0.9 + 0.1;
+  base.fuller = Math.random() > 0.4;
+  const rndColor = () => [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
+  base.glowColor = rndColor();
+  if (Math.random() > 0.6) { base.bladeMaterial = "Neon"; base.bladeColor = rndColor(); }
+  state.weapon = base;
+  render();
+}
+
+// ---------- export ----------
+function refreshExport() {
+  let code = "";
+  if (state.mode === "particles") {
+    if (state.exportFormat === "snippet") code = toLuauSnippet(state.cfg);
+    else if (state.exportFormat === "module") code = toLuauModule(state.cfg);
+    else code = JSON.stringify(state.cfg, null, 2);
+  } else {
+    if (state.exportFormat === "json") code = JSON.stringify(state.weapon, null, 2);
+    else code = toLuauWeapon(state.weapon);
+  }
+  exportEl.textContent = code;
+}
+
+function buildExportTabs() {
+  exportTabs.innerHTML = "";
+  const formats = state.mode === "particles"
+    ? [["snippet", "Luau (paste & run)"], ["module", "ModuleScript"], ["json", "JSON config"]]
+    : [["luau", "Luau (welded Model)"], ["json", "JSON config"]];
+  if (!formats.find((f) => f[0] === state.exportFormat)) state.exportFormat = formats[0][0];
+  for (const [key, label] of formats) {
+    exportTabs.appendChild(UI.el("button", {
+      class: "etab" + (key === state.exportFormat ? " active" : ""),
+      onclick: () => { state.exportFormat = key; buildExportTabs(); refreshExport(); },
+    }, label));
+  }
+}
+
+// ---------- mode / render ----------
+function render() {
+  stage.setMode(state.mode);
+  if (state.mode === "particles") {
+    sim.setConfig(state.cfg);
+    buildParticleControls();
+  } else {
+    stage.setWeapon(buildWeaponGroup(state.weapon));
+    buildWeaponControls();
+  }
+  buildExportTabs();
+  refreshExport();
+}
+
+document.querySelectorAll("[data-tab]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    state.mode = btn.dataset.tab;
+    document.querySelectorAll("[data-tab]").forEach((b) => b.classList.toggle("active", b === btn));
+    render();
+  });
+});
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  await navigator.clipboard.writeText(exportEl.textContent);
+  flash(document.getElementById("copyBtn"), "Copied!");
+});
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const isJson = state.exportFormat === "json";
+  const ext = isJson ? "json" : "lua";
+  const name = (state.mode === "particles" ? state.cfg.name : state.weapon.style).replace(/\s+/g, "_");
+  download(`${name}.${ext}`, exportEl.textContent);
+});
+
+document.getElementById("loadFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const obj = JSON.parse(reader.result);
+      if (state.mode === "particles") state.cfg = { ...defaultConfig(), ...obj };
+      else state.weapon = { ...defaultWeapon(), ...obj };
+      sim.reset();
+      render();
+    } catch (err) { alert("Invalid JSON config: " + err.message); }
+  };
+  reader.readAsText(file);
+});
+
+function flash(btn, text) {
+  const old = btn.textContent;
+  btn.textContent = text;
+  setTimeout(() => (btn.textContent = old), 1200);
+}
+function download(filename, text) {
+  const a = UI.el("a", { href: "data:text/plain;charset=utf-8," + encodeURIComponent(text), download: filename });
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// ---------- loop ----------
+let last = performance.now();
+function loop(now) {
+  const dt = (now - last) / 1000;
+  last = now;
+  sim.setFocal(stage.focalPx());
+  if (state.mode === "particles") sim.update(dt);
+  stage.render();
+  requestAnimationFrame(loop);
+}
+
+render();
+requestAnimationFrame(loop);
+
+
+})();
+  </script>
+</body>
+</html>

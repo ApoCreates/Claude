@@ -8,3 +8,6 @@ out
 .vercel
 tsconfig.tsbuildinfo
 *.tsbuildinfo
+
+# VFX Forge standalone build artifact
+roblox-vfx-forge/tools/_bundle.check.js
