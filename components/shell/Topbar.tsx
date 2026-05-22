@@ -2,8 +2,9 @@ import Link from "next/link";
 import { clearSession } from "@/lib/auth";
 import type { DemoUser } from "@/lib/data/users";
 import { redirect } from "next/navigation";
-import { Search, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { hasLiveAI } from "@/lib/ai/client";
+import AskBox from "@/components/ai/AskBox";
 
 export default function Topbar({ user }: { user: DemoUser }) {
   async function logout() {
@@ -14,12 +15,8 @@ export default function Topbar({ user }: { user: DemoUser }) {
   const live = hasLiveAI();
   return (
     <header className="h-14 border-b border-border bg-panel/60 backdrop-blur sticky top-0 z-10 flex items-center px-4 gap-4">
-      <div className="relative flex-1 max-w-xl">
-        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-        <input
-          placeholder="Ask Pulse anything — try “Why is Mountain region down this week?”"
-          className="input pl-9"
-        />
+      <div className="flex-1 max-w-xl">
+        <AskBox variant="bar" placeholder="Ask Pulse anything — try “Why is Mountain region down this week?”" />
       </div>
       <div className="flex items-center gap-3">
         <span className={`chip ${live ? "chip-good" : "chip-warn"}`}>

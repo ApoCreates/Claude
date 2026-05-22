@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Send, Loader2, Bot, User } from "lucide-react";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -11,11 +11,20 @@ const SUGGESTIONS = [
   "If we cut Verde Apple Crisp by 5% in supermarkets, what's the likely volume lift?",
 ];
 
-export default function Chat() {
+export default function Chat({ initialQuestion = "" }: { initialQuestion?: string }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const autoSent = useRef(false);
+
+  useEffect(() => {
+    if (initialQuestion.trim() && !autoSent.current) {
+      autoSent.current = true;
+      send(initialQuestion);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuestion]);
 
   async function send(text?: string) {
     const content = (text ?? input).trim();

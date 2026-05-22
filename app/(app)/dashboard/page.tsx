@@ -10,6 +10,7 @@ import { latestBrief } from "@/lib/data/briefs";
 import { fmtCompact, fmtCurrency, pctDelta } from "@/lib/utils";
 import { COMPETITORS } from "@/lib/data/competition";
 import Link from "next/link";
+import AskBox from "@/components/ai/AskBox";
 import { ArrowRight, TrendingUp, AlertTriangle, Sparkles } from "lucide-react";
 
 export default function DashboardPage() {
@@ -36,6 +37,8 @@ export default function DashboardPage() {
         </div>
         <Link href="/morning-brief" className="btn btn-primary"><Sparkles className="w-4 h-4" /> Open today's brief</Link>
       </div>
+
+      <AskBox defaultValue="Why is Mountain region down this week?" placeholder="Ask Pulse anything about the business…" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Kpi label="Revenue (30d)"     value={fmtCurrency(recent)} delta={pctDelta(recent, prior)} sub="vs prior 30d" />
