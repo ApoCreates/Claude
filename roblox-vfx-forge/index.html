@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roblox VFX Forge — particle & weapon generator</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">⚡ Roblox <b>VFX Forge</b></div>
+    <nav class="tabs">
+      <button data-tab="particles" class="active">Particle Studio</button>
+      <button data-tab="weapon">Weapon Forge</button>
+    </nav>
+    <div class="topbar-right">
+      <label class="loadbtn">Load JSON
+        <input type="file" id="loadFile" accept="application/json" hidden />
+      </label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel" id="controls"></aside>
+
+    <section class="viewport">
+      <canvas id="stage"></canvas>
+      <div class="hint">drag to orbit · scroll to zoom</div>
+    </section>
+
+    <aside class="export">
+      <div class="export-head">
+        <h3>Export to Roblox</h3>
+        <div class="etabs" id="exportTabs"></div>
+      </div>
+      <pre id="exportCode" class="code"></pre>
+      <div class="export-actions">
+        <button id="copyBtn" class="primary">Copy</button>
+        <button id="downloadBtn">Download</button>
+      </div>
+      <p class="tip">Paste <b>Luau (paste &amp; run)</b> into Studio's Command Bar with a Part selected — or load the JSON with the included plugin.</p>
+    </aside>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
