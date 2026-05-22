@@ -47,28 +47,43 @@ export class Stage {
     this.weaponHolder = new THREE.Group();
     this.scene.add(this.weaponHolder);
 
-    this._onResize();
-    window.addEventListener("resize", () => this._onResize());
+    this.sceneHolder = new THREE.Group();
+    this.scene.add(this.sceneHolder);
+
+    // measure the container (not the canvas) so sizing never depends on the
+    // canvas's own resolved height; canvas is absolutely positioned in CSS.
+    this.viewport = canvas.parentElement || canvas;
+    this._lastW = 0;
+    this._lastH = 0;
+    this.resize();
+    window.addEventListener("resize", () => this.resize());
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(() => this.resize()).observe(this.viewport);
+    }
   }
 
   focalPx() {
-    const h = this.canvas.clientHeight || 1;
+    const h = this.viewport.clientHeight || this.canvas.clientHeight || 1;
     return h / (2 * Math.tan((this.camera.fov * Math.PI) / 360));
   }
 
-  _onResize() {
-    const w = this.canvas.clientWidth || 1;
-    const h = this.canvas.clientHeight || 1;
-    this.renderer.setSize(w, h, false);
+  // Called every frame; only does work when the container size actually changed.
+  resize() {
+    const w = this.viewport.clientWidth | 0;
+    const h = this.viewport.clientHeight | 0;
+    if (w === 0 || h === 0 || (w === this._lastW && h === this._lastH)) return;
+    this._lastW = w;
+    this._lastH = h;
+    this.renderer.setSize(w, h, true);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
   }
 
   setMode(mode) {
-    const particles = mode === "particles";
-    this.emitterPart.visible = particles;
-    this.weaponHolder.visible = !particles;
-    this.controls.target.set(0, particles ? 1 : 0, 0);
+    this.emitterPart.visible = mode === "particles";
+    this.weaponHolder.visible = mode === "weapon" || mode === "generate";
+    this.sceneHolder.visible = mode === "scene";
+    this.controls.target.set(0, mode === "particles" ? 1 : 0, 0);
   }
 
   setWeapon(group) {
@@ -76,7 +91,13 @@ export class Stage {
     this.weaponHolder.add(group);
   }
 
+  setScene(group) {
+    this.sceneHolder.clear();
+    if (group) this.sceneHolder.add(group);
+  }
+
   render() {
+    this.resize();
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }

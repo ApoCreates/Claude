@@ -24,6 +24,9 @@ const FILES = [
   "js/three-setup.js",
   "js/particles/simulator.js",
   "js/weapon/forge.js",
+  "js/scene/rbxmx.js",
+  "js/scene/scene-build.js",
+  "js/generate/prompt-forge.js",
   "__UINS__",
   "js/app.js",
 ];
@@ -111,6 +114,8 @@ ${css}
     <nav class="tabs">
       <button data-tab="particles" class="active">Particle Studio</button>
       <button data-tab="weapon">Weapon Forge</button>
+      <button data-tab="generate">Prompt Forge</button>
+      <button data-tab="scene">Scene</button>
     </nav>
     <div class="topbar-right">
       <label class="loadbtn">Load JSON

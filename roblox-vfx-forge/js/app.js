@@ -3,6 +3,9 @@ import { ParticleSim } from "./particles/simulator.js";
 import { PRESETS, defaultConfig, TEXTURES } from "./particles/presets.js";
 import { toLuauSnippet, toLuauModule } from "./particles/luau-export.js";
 import { defaultWeapon, WEAPON_STYLES, applyStyle, buildWeaponGroup, toLuauWeapon } from "./weapon/forge.js";
+import { parseRbxmx, flatten } from "./scene/rbxmx.js";
+import { buildSceneGroup, exportSceneLuau } from "./scene/scene-build.js";
+import { parsePrompt, makeVariations } from "./generate/prompt-forge.js";
 import * as UI from "./ui.js";
 
 const clone = (o) => JSON.parse(JSON.stringify(o));
@@ -16,6 +19,8 @@ const state = {
   cfg: { ...defaultConfig(), ...clone(PRESETS.fire) },
   weapon: defaultWeapon(),
   exportFormat: "snippet",
+  scene: { instances: null, info: null, fileName: "" },
+  gen: { prompt: "", enhanced: "", detected: null, base: null, variations: [], active: -1 },
 };
 
 const controlsEl = document.getElementById("controls");
@@ -124,6 +129,165 @@ function randomizeWeapon() {
   render();
 }
 
+// ---------- prompt forge (point 3) ----------
+function swatch(spec) {
+  const [r, g, b] = spec.glowColor || spec.bladeColor;
+  return UI.el("span", { class: "swatch", style: `background: rgb(${r},${g},${b})` });
+}
+
+function loadGenSpec(spec, activeIdx) {
+  state.gen.active = activeIdx;
+  state.weapon = clone(spec);
+  stage.setWeapon(buildWeaponGroup(state.weapon));
+  buildGenerateControls();
+  refreshExport();
+}
+
+function buildGenerateControls() {
+  const g = state.gen;
+  controlsEl.innerHTML = "";
+
+  const box = UI.el("textarea", {
+    class: "prompt-box",
+    placeholder: 'e.g. "huge glowing cyberpunk katana, neon cyan and purple"',
+  });
+  box.value = g.prompt;
+
+  const generate = () => {
+    g.prompt = box.value.trim();
+    if (!g.prompt) return;
+    const { spec, enhancedPrompt, detected } = parsePrompt(g.prompt);
+    g.base = spec;
+    g.enhanced = enhancedPrompt;
+    g.detected = detected;
+    g.variations = makeVariations(spec, g.prompt, 6);
+    loadGenSpec(spec, -1);
+  };
+
+  controlsEl.append(
+    UI.section("Describe your item", [
+      box,
+      UI.el("div", { class: "gen-row" }, [
+        UI.el("button", { onclick: generate }, "Generate"),
+        UI.el("button", { class: "ghost", onclick: () => { box.value = ""; } }, "Clear"),
+      ]),
+      UI.el("p", { class: "tip" }, "Trend-informed original generation — no copying of creator assets. Try words like neon, frost, golden, anime, shadow, huge, tiny."),
+    ])
+  );
+
+  if (g.enhanced) {
+    const tags = [];
+    if (g.detected.trend) tags.push(g.detected.trend);
+    if (g.detected.type) tags.push(g.detected.type);
+    if (g.detected.material) tags.push(g.detected.material);
+    g.detected.colors.forEach((c) => tags.push(c));
+
+    controlsEl.append(
+      UI.section("Enhanced prompt", [
+        UI.el("div", { class: "enhanced" }, [
+          UI.el("span", { class: "lbl" }, "expanded internally, then generated"),
+          g.enhanced,
+          tags.length ? UI.el("div", { class: "chips" }, tags.map((t) => UI.el("span", { class: "tag" }, t))) : null,
+        ]),
+      ])
+    );
+
+    const grid = UI.el("div", { class: "variations" });
+    grid.append(
+      UI.el("button", { class: g.active === -1 ? "active" : "", onclick: () => loadGenSpec(g.base, -1) },
+        [swatch(g.base), "Base"])
+    );
+    g.variations.forEach((v, i) => {
+      grid.append(
+        UI.el("button", { class: g.active === i ? "active" : "", onclick: () => loadGenSpec(v, i) },
+          [swatch(v), "V" + (i + 1)])
+      );
+    });
+    controlsEl.append(UI.section("Variations", [grid]));
+
+    controlsEl.append(
+      UI.section("Refine", [
+        UI.el("div", { class: "gen-row" }, [
+          UI.el("button", {
+            onclick: () => { g.variations = makeVariations(g.base, g.prompt + "#" + Date.now(), 6); buildGenerateControls(); },
+          }, "Recreate variations"),
+          UI.el("button", {
+            class: "ghost",
+            onclick: () => { state.mode = "weapon"; setActiveTab("weapon"); render(); },
+          }, "Edit in Forge"),
+        ]),
+      ])
+    );
+  }
+}
+
+// ---------- scene (point 1) ----------
+function buildSceneControls() {
+  const s = state.scene;
+  controlsEl.innerHTML = "";
+
+  const fileInput = UI.el("input", { type: "file", accept: ".rbxmx,.xml", style: "display:none" });
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const instances = parseRbxmx(reader.result);
+        const { group, partCount, emitters } = buildSceneGroup(instances);
+        s.instances = instances;
+        s.info = { partCount, emitters };
+        s.fileName = file.name;
+        stage.setScene(group);
+        buildSceneControls();
+        refreshExport();
+      } catch (err) {
+        alert("Couldn't read .rbxmx: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  controlsEl.append(
+    UI.section("Import Roblox model", [
+      UI.el("div", { class: "gen-row" }, [
+        UI.el("button", { onclick: () => fileInput.click() }, "Import .rbxmx file"),
+      ]),
+      fileInput,
+      UI.el("p", { class: "tip" }, "In Studio: right-click a model → Save to File → choose .rbxmx (not binary .rbxm). The parts render here and round-trip back to Luau."),
+    ])
+  );
+
+  if (s.info) {
+    controlsEl.append(
+      UI.section("Loaded: " + s.fileName, [
+        UI.el("div", { class: "chips" }, [
+          UI.el("span", { class: "tag" }, s.info.partCount + " parts"),
+          UI.el("span", { class: "tag" }, s.info.emitters.length + " emitters"),
+        ]),
+      ])
+    );
+
+    const rows = flatten(s.instances).slice(0, 80).map(({ instance, depth }) =>
+      UI.el("div", { class: "row" }, [
+        UI.el("span", { class: "tip", style: "padding-left:" + depth * 12 + "px" }, instance.className + " · " + instance.name),
+      ])
+    );
+    controlsEl.append(UI.section("Instances", rows));
+
+    controlsEl.append(
+      UI.section("Scene", [
+        UI.el("div", { class: "gen-row" }, [
+          UI.el("button", {
+            class: "ghost",
+            onclick: () => { s.instances = null; s.info = null; s.fileName = ""; stage.setScene(null); buildSceneControls(); refreshExport(); },
+          }, "Clear scene"),
+        ]),
+      ])
+    );
+  }
+}
+
 // ---------- export ----------
 function refreshExport() {
   let code = "";
@@ -131,7 +295,12 @@ function refreshExport() {
     if (state.exportFormat === "snippet") code = toLuauSnippet(state.cfg);
     else if (state.exportFormat === "module") code = toLuauModule(state.cfg);
     else code = JSON.stringify(state.cfg, null, 2);
+  } else if (state.mode === "scene") {
+    if (!state.scene.instances) code = "-- Import a .rbxmx file to generate scene code.";
+    else if (state.exportFormat === "json") code = JSON.stringify(state.scene.instances, null, 2);
+    else code = exportSceneLuau(state.scene.instances);
   } else {
+    // weapon + generate share the Weapon Forge spec
     if (state.exportFormat === "json") code = JSON.stringify(state.weapon, null, 2);
     else code = toLuauWeapon(state.weapon);
   }
@@ -142,6 +311,8 @@ function buildExportTabs() {
   exportTabs.innerHTML = "";
   const formats = state.mode === "particles"
     ? [["snippet", "Luau (paste & run)"], ["module", "ModuleScript"], ["json", "JSON config"]]
+    : state.mode === "scene"
+    ? [["luau", "Luau (rebuild scene)"], ["json", "JSON tree"]]
     : [["luau", "Luau (welded Model)"], ["json", "JSON config"]];
   if (!formats.find((f) => f[0] === state.exportFormat)) state.exportFormat = formats[0][0];
   for (const [key, label] of formats) {
@@ -155,21 +326,31 @@ function buildExportTabs() {
 // ---------- mode / render ----------
 function render() {
   stage.setMode(state.mode);
+  sim.points.visible = state.mode === "particles";
   if (state.mode === "particles") {
     sim.setConfig(state.cfg);
     buildParticleControls();
-  } else {
+  } else if (state.mode === "weapon") {
     stage.setWeapon(buildWeaponGroup(state.weapon));
     buildWeaponControls();
+  } else if (state.mode === "generate") {
+    stage.setWeapon(buildWeaponGroup(state.weapon));
+    buildGenerateControls();
+  } else if (state.mode === "scene") {
+    buildSceneControls();
   }
   buildExportTabs();
   refreshExport();
 }
 
+function setActiveTab(mode) {
+  document.querySelectorAll("[data-tab]").forEach((b) => b.classList.toggle("active", b.dataset.tab === mode));
+}
+
 document.querySelectorAll("[data-tab]").forEach((btn) => {
   btn.addEventListener("click", () => {
     state.mode = btn.dataset.tab;
-    document.querySelectorAll("[data-tab]").forEach((b) => b.classList.toggle("active", b === btn));
+    setActiveTab(state.mode);
     render();
   });
 });
@@ -182,7 +363,9 @@ document.getElementById("copyBtn").addEventListener("click", async () => {
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const isJson = state.exportFormat === "json";
   const ext = isJson ? "json" : "lua";
-  const name = (state.mode === "particles" ? state.cfg.name : state.weapon.style).replace(/\s+/g, "_");
+  const name = (state.mode === "particles" ? state.cfg.name
+    : state.mode === "scene" ? "ImportedScene"
+    : state.weapon.style).replace(/\s+/g, "_");
   download(`${name}.${ext}`, exportEl.textContent);
 });
 
@@ -194,7 +377,8 @@ document.getElementById("loadFile").addEventListener("change", (e) => {
     try {
       const obj = JSON.parse(reader.result);
       if (state.mode === "particles") state.cfg = { ...defaultConfig(), ...obj };
-      else state.weapon = { ...defaultWeapon(), ...obj };
+      else if (state.mode === "weapon" || state.mode === "generate") state.weapon = { ...defaultWeapon(), ...obj };
+      else { alert("Switch to Particle/Weapon/Prompt tab to load a JSON config."); return; }
       sim.reset();
       render();
     } catch (err) { alert("Invalid JSON config: " + err.message); }

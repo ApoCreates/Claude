@@ -4,6 +4,8 @@ A web-based generator that **automates two of the most time-consuming jobs in Ro
 
 1. **Particle Studio** — design `ParticleEmitter` effects (fire, ice, magic, smoke, electric, heal, sword trails…) with a **live 3D preview**, then export **exact Roblox Luau** or a JSON config.
 2. **Weapon Forge** — a **parametric** sword/item generator. Tweak sliders (or hit Randomize) and export a **native, welded Roblox Model** built from real `BaseParts` — no asset upload, fully editable in Studio.
+3. **Prompt Forge** — type a description ("huge glowing cyberpunk katana, neon cyan and purple"); it interprets the prompt against a curated **trend library**, shows the **enhanced prompt**, generates the model, and lets you browse **variations**, **edit in the Forge**, and **recreate**. Trend-*informed* original generation — it does not copy creator assets or scrape any site.
+4. **Scene** — import a Roblox `.rbxmx` model file; it parses the instance tree, renders every part (with exact CFrames/colors/materials) in the viewport, and round-trips the whole scene back to Luau. (Binary `.rbxm` is not supported yet — in Studio choose *Save to File → .rbxmx*.)
 
 The whole thing is a static site (HTML + JS + Three.js). No build step, no server, no account.
 
@@ -113,6 +115,23 @@ roblox-vfx-forge/
 ├─ plugin/VFXForgePlugin.server.lua   Studio plugin (JSON → emitter on selection)
 └─ samples/                     ready-to-load JSON configs
 ```
+
+## Prompt Forge — how the "AI" works (honestly)
+
+There is no hidden neural mesh model. The pipeline is deterministic and runs
+fully client-side (works on the static Pages site, no API key):
+
+1. **Interpret** — the prompt is tokenized; item type, trend, colors, material,
+   and size adjectives are matched against rule tables (`js/generate/prompt-forge.js`).
+2. **Enhance** — the understood attributes are expanded into a richer prompt
+   string, shown to the user.
+3. **Generate** — attributes become a Weapon Forge spec, built by the existing
+   parametric generator.
+4. **Vary / edit / recreate** — variations are seeded (reproducible) jitters of
+   the spec; "Edit in Forge" hands the spec to the slider UI; "Recreate" re-rolls.
+
+This is the legitimate "steal like an artist" reading: generate *original*
+models informed by current trends, never copies of a specific creator's asset.
 
 ## Roadmap (next, if useful)
 - More item types in the Forge (shield, staff, axe, bow).

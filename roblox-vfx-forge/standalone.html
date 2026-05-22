@@ -55,8 +55,8 @@ body {
 .panel { border-right: 1px solid var(--border); }
 .export { border-left: 1px solid var(--border); display: flex; flex-direction: column; }
 
-.viewport { position: relative; background: radial-gradient(circle at 50% 35%, #131a24, #07090d 70%); }
-#stage { width: 100%; height: 100%; display: block; }
+.viewport { position: relative; min-height: 0; background: radial-gradient(circle at 50% 35%, #131a24, #07090d 70%); }
+#stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .hint {
   position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
   color: var(--muted); font-size: 11px; background: rgba(0,0,0,0.4);
@@ -122,6 +122,44 @@ select { width: 100%; }
 .tip { color: var(--muted); font-size: 11px; line-height: 1.5; }
 .tip b { color: var(--text); }
 
+/* prompt generator */
+.prompt-box {
+  width: 100%; min-height: 84px; resize: vertical;
+  background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px; font-size: 13px; line-height: 1.5; font-family: inherit;
+}
+.gen-row { display: flex; gap: 8px; margin: 10px 0; }
+.gen-row button {
+  flex: 1; padding: 9px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--brand); color: #fff; cursor: pointer; font-size: 13px; font-weight: 600;
+}
+.gen-row button.ghost { background: var(--panel2); color: var(--text); font-weight: 400; }
+.gen-row button:hover { filter: brightness(1.12); }
+.enhanced {
+  background: #0b0e13; border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: 8px; padding: 10px; font-size: 12px; line-height: 1.55; color: #b9d6ef; margin-bottom: 12px;
+}
+.enhanced .lbl { color: var(--accent); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.tag { background: #1d1830; color: #c9b6ff; border: 1px solid #2c2447; border-radius: 20px; padding: 3px 9px; font-size: 11px; }
+.variations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.variations button {
+  background: var(--panel2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 6px; cursor: pointer; color: var(--muted); font-size: 11px; text-align: center;
+}
+.variations button.active { border-color: var(--brand); color: #fff; background: #1d1830; }
+.variations button:hover { color: #fff; }
+.swatch { display: inline-block; width: 100%; height: 14px; border-radius: 4px; margin-bottom: 6px; }
+
+/* responsive: stack on narrow screens so the preview stays usable on phones */
+@media (max-width: 1000px) {
+  body { overflow: auto; }
+  .layout { grid-template-columns: 1fr; height: auto; }
+  .panel, .export { border: none; border-bottom: 1px solid var(--border); max-height: 50vh; }
+  .viewport { height: 60vh; min-height: 320px; order: -1; }
+  .topbar { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 12px; }
+}
+
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #2a3340; border-radius: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -135,6 +173,8 @@ select { width: 100%; }
     <nav class="tabs">
       <button data-tab="particles" class="active">Particle Studio</button>
       <button data-tab="weapon">Weapon Forge</button>
+      <button data-tab="generate">Prompt Forge</button>
+      <button data-tab="scene">Scene</button>
     </nav>
     <div class="topbar-right">
       <label class="loadbtn">Load JSON
@@ -874,28 +914,43 @@ class Stage {
     this.weaponHolder = new THREE.Group();
     this.scene.add(this.weaponHolder);
 
-    this._onResize();
-    window.addEventListener("resize", () => this._onResize());
+    this.sceneHolder = new THREE.Group();
+    this.scene.add(this.sceneHolder);
+
+    // measure the container (not the canvas) so sizing never depends on the
+    // canvas's own resolved height; canvas is absolutely positioned in CSS.
+    this.viewport = canvas.parentElement || canvas;
+    this._lastW = 0;
+    this._lastH = 0;
+    this.resize();
+    window.addEventListener("resize", () => this.resize());
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(() => this.resize()).observe(this.viewport);
+    }
   }
 
   focalPx() {
-    const h = this.canvas.clientHeight || 1;
+    const h = this.viewport.clientHeight || this.canvas.clientHeight || 1;
     return h / (2 * Math.tan((this.camera.fov * Math.PI) / 360));
   }
 
-  _onResize() {
-    const w = this.canvas.clientWidth || 1;
-    const h = this.canvas.clientHeight || 1;
-    this.renderer.setSize(w, h, false);
+  // Called every frame; only does work when the container size actually changed.
+  resize() {
+    const w = this.viewport.clientWidth | 0;
+    const h = this.viewport.clientHeight | 0;
+    if (w === 0 || h === 0 || (w === this._lastW && h === this._lastH)) return;
+    this._lastW = w;
+    this._lastH = h;
+    this.renderer.setSize(w, h, true);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
   }
 
   setMode(mode) {
-    const particles = mode === "particles";
-    this.emitterPart.visible = particles;
-    this.weaponHolder.visible = !particles;
-    this.controls.target.set(0, particles ? 1 : 0, 0);
+    this.emitterPart.visible = mode === "particles";
+    this.weaponHolder.visible = mode === "weapon" || mode === "generate";
+    this.sceneHolder.visible = mode === "scene";
+    this.controls.target.set(0, mode === "particles" ? 1 : 0, 0);
   }
 
   setWeapon(group) {
@@ -903,7 +958,13 @@ class Stage {
     this.weaponHolder.add(group);
   }
 
+  setScene(group) {
+    this.sceneHolder.clear();
+    if (group) this.sceneHolder.add(group);
+  }
+
   render() {
+    this.resize();
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
@@ -1431,6 +1492,504 @@ function toLuauWeapon(params) {
 }
 
 
+// ===== js/scene/rbxmx.js =====
+// Parser for Roblox .rbxmx (XML) model files.
+// Produces a plain instance tree: { className, name, props, children }.
+// Binary .rbxm is intentionally out of scope here (LZ4 + chunked binary).
+//
+// Pure helpers (decodeColor3uint8 / tokenToMaterial / partTypeToShape) are
+// exported separately so they can be unit-tested without a DOM.
+
+// Enum.Material numeric tokens -> name (common subset; default Plastic).
+const MATERIAL_TOKENS = {
+  256: "Plastic", 272: "SmoothPlastic", 288: "Neon",
+  512: "Wood", 528: "WoodPlanks",
+  784: "Marble", 800: "Slate", 816: "Concrete", 832: "Granite",
+  848: "Brick", 864: "Pebble", 880: "Cobblestone",
+  1040: "CorrodedMetal", 1056: "DiamondPlate", 1072: "Foil", 1088: "Metal",
+  1280: "Grass", 1296: "Sand", 1312: "Fabric",
+  1536: "Ice", 1568: "Glass", 1584: "ForceField",
+};
+
+function tokenToMaterial(token) {
+  return MATERIAL_TOKENS[token] || "Plastic";
+}
+
+// Enum.PartType: Ball=0, Block=1, Cylinder=2.
+function partTypeToShape(token) {
+  return token === 0 ? "Ball" : token === 2 ? "Cylinder" : "Block";
+}
+
+// Color3uint8 is a 32-bit uint (0xAARRGGBB). Return [r,g,b] 0-255.
+function decodeColor3uint8(v) {
+  v = Number(v) >>> 0;
+  return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+}
+
+const BASEPART_CLASSES = new Set([
+  "Part", "WedgePart", "CornerWedgePart", "TrussPart", "MeshPart",
+  "SpawnLocation", "Seat", "VehicleSeat", "UnionOperation",
+]);
+
+function isBasePart(className) {
+  return BASEPART_CLASSES.has(className);
+}
+
+function childText(el, tag) {
+  for (const c of el.children) if (c.tagName === tag) return c.textContent;
+  return null;
+}
+function readNum(el, tag) {
+  const t = childText(el, tag);
+  return t == null ? 0 : parseFloat(t);
+}
+
+function parseValue(propEl) {
+  const tag = propEl.tagName;
+  switch (tag) {
+    case "Vector3":
+      return { __t: "v3", x: readNum(propEl, "X"), y: readNum(propEl, "Y"), z: readNum(propEl, "Z") };
+    case "CoordinateFrame":
+      return {
+        __t: "cf",
+        pos: [readNum(propEl, "X"), readNum(propEl, "Y"), readNum(propEl, "Z")],
+        rot: [
+          readNum(propEl, "R00"), readNum(propEl, "R01"), readNum(propEl, "R02"),
+          readNum(propEl, "R10"), readNum(propEl, "R11"), readNum(propEl, "R12"),
+          readNum(propEl, "R20"), readNum(propEl, "R21"), readNum(propEl, "R22"),
+        ],
+      };
+    case "Color3uint8":
+      return { __t: "color", rgb: decodeColor3uint8(propEl.textContent) };
+    case "Color3": {
+      // floats 0..1
+      const r = readNum(propEl, "R"), g = readNum(propEl, "G"), b = readNum(propEl, "B");
+      return { __t: "color", rgb: [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)] };
+    }
+    case "token":
+    case "int":
+    case "int64":
+    case "float":
+    case "double":
+      return parseFloat(propEl.textContent);
+    case "bool":
+      return propEl.textContent.trim() === "true";
+    default:
+      return propEl.textContent;
+  }
+}
+
+function readItem(itemEl) {
+  const className = itemEl.getAttribute("class");
+  const props = {};
+  for (const c of itemEl.children) {
+    if (c.tagName === "Properties") {
+      for (const p of c.children) {
+        const name = p.getAttribute("name");
+        if (name) props[name] = parseValue(p);
+      }
+    }
+  }
+  const children = [];
+  for (const c of itemEl.children) {
+    if (c.tagName === "Item") children.push(readItem(c));
+  }
+  return { className, name: props.Name || className, props, children };
+}
+
+/** Parse an .rbxmx XML string into a flat array of top-level instances. */
+function parseRbxmx(xmlString) {
+  if (typeof DOMParser === "undefined") throw new Error("parseRbxmx needs a browser DOM");
+  const doc = new DOMParser().parseFromString(xmlString, "application/xml");
+  const err = doc.querySelector("parsererror");
+  if (err) throw new Error("Malformed XML: " + err.textContent.slice(0, 120));
+  const root = doc.documentElement; // <roblox>
+  if (!root || root.tagName !== "roblox") throw new Error("Not a Roblox .rbxmx file");
+  const items = [];
+  for (const c of root.children) if (c.tagName === "Item") items.push(readItem(c));
+  return items;
+}
+
+/** Walk the tree, returning a flat list of {instance, parentName, depth}. */
+function flatten(instances, parentName = null, depth = 0, out = []) {
+  for (const inst of instances) {
+    out.push({ instance: inst, parentName, depth });
+    flatten(inst.children, inst.name, depth + 1, out);
+  }
+  return out;
+}
+
+
+// ===== js/scene/scene-build.js =====
+
+// Read a property by any of several possible names (rbxmx casing varies).
+function P(props, ...names) {
+  for (const n of names) if (props[n] !== undefined) return props[n];
+  return undefined;
+}
+const v3 = (p, d = 1) => (p && p.__t === "v3" ? [p.x, p.y, p.z] : [d, d, d]);
+const rgbOf = (p, d = [160, 160, 165]) => (p && p.__t === "color" ? p.rgb : d);
+
+function materialFor(matName, rgb, transparency) {
+  const color = new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255);
+  let m;
+  if (matName === "Neon") {
+    m = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 1.2, roughness: 0.4 });
+  } else if (["Metal", "DiamondPlate", "Foil", "CorrodedMetal"].includes(matName)) {
+    m = new THREE.MeshStandardMaterial({ color, metalness: 0.9, roughness: 0.32 });
+  } else if (["Glass", "ForceField", "Ice"].includes(matName)) {
+    m = new THREE.MeshStandardMaterial({ color, metalness: 0.1, roughness: 0.1, transparent: true, opacity: 0.4 });
+  } else if (["Wood", "WoodPlanks"].includes(matName)) {
+    m = new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0.05 });
+  } else {
+    m = new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.05 });
+  }
+  if (transparency && transparency > 0) {
+    m.transparent = true;
+    m.opacity = Math.max(0, 1 - transparency);
+  }
+  return m;
+}
+
+function wedgeGeometry(sx, sy, sz) {
+  const hx = sx / 2, hy = sy / 2, hz = sz / 2;
+  // ramp rising toward -Z; triangular cross-section in Y-Z, extruded along X
+  const v = [
+    [-hx, -hy, -hz], [hx, -hy, -hz], [hx, -hy, hz], [-hx, -hy, hz], // bottom 0-3
+    [-hx, hy, -hz], [hx, hy, -hz],                                   // top edge 4-5 (at -z)
+  ];
+  const faces = [
+    [0, 1, 2], [0, 2, 3],       // bottom
+    [0, 4, 5], [0, 5, 1],       // back (-z)
+    [3, 2, 5], [3, 5, 4],       // slope
+    [0, 3, 4],                  // left cap
+    [1, 5, 2],                  // right cap
+  ];
+  const pos = [];
+  for (const f of faces) for (const i of f) pos.push(...v[i]);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
+}
+
+function geometryFor(inst, size) {
+  const [sx, sy, sz] = size;
+  if (inst.className === "WedgePart" || inst.className === "CornerWedgePart") {
+    return wedgeGeometry(sx, sy, sz);
+  }
+  if (inst.className === "Part") {
+    const shapeTok = P(inst.props, "Shape", "shape");
+    const shape = typeof shapeTok === "number" ? partTypeToShape(shapeTok) : "Block";
+    if (shape === "Ball") return new THREE.SphereGeometry(Math.min(sx, sy, sz) / 2, 24, 18);
+    if (shape === "Cylinder") {
+      const r = sy / 2;
+      const g = new THREE.CylinderGeometry(r, r, sx, 24);
+      g.rotateZ(Math.PI / 2); // Roblox cylinder axis is X
+      return g;
+    }
+  }
+  // MeshPart / Union / TrussPart / default -> bounding box placeholder
+  return new THREE.BoxGeometry(sx, sy, sz);
+}
+
+function applyCFrame(obj, cf) {
+  if (!cf || cf.__t !== "cf") return;
+  const [px, py, pz] = cf.pos;
+  const r = cf.rot;
+  const m = new THREE.Matrix4();
+  m.set(
+    r[0], r[1], r[2], px,
+    r[3], r[4], r[5], py,
+    r[6], r[7], r[8], pz,
+    0, 0, 0, 1
+  );
+  const pos = new THREE.Vector3(), quat = new THREE.Quaternion(), scl = new THREE.Vector3();
+  m.decompose(pos, quat, scl);
+  obj.position.copy(pos);
+  obj.quaternion.copy(quat);
+}
+
+/**
+ * Build a THREE.Group from a parsed instance tree.
+ * Returns { group, partCount, emitters:[{name, parentName, pos:[x,y,z]}] }.
+ * BaseParts store WORLD CFrames in Roblox, so nesting needs no transform stacking.
+ */
+function buildSceneGroup(instances) {
+  const group = new THREE.Group();
+  const emitters = [];
+  let partCount = 0;
+
+  function walk(list, nearestPartPos) {
+    for (const inst of list) {
+      let partPos = nearestPartPos;
+      if (isBasePart(inst.className)) {
+        const size = v3(P(inst.props, "size", "Size"), 1);
+        const rgb = rgbOf(P(inst.props, "Color3uint8", "Color", "Color3"));
+        const matName = tokenToMaterial(P(inst.props, "Material"));
+        const transp = P(inst.props, "Transparency") || 0;
+        const mesh = new THREE.Mesh(geometryFor(inst, size), materialFor(matName, rgb, transp));
+        applyCFrame(mesh, P(inst.props, "CFrame", "cframe"));
+        mesh.userData.robloxName = inst.name;
+        group.add(mesh);
+        partCount++;
+        partPos = mesh.position.clone();
+      } else if (inst.className === "ParticleEmitter" && nearestPartPos) {
+        emitters.push({ name: inst.name, parentName: "", pos: nearestPartPos.toArray() });
+        // visual marker so VFX presence is visible in the scene
+        const marker = new THREE.Mesh(
+          new THREE.SphereGeometry(0.25, 10, 8),
+          new THREE.MeshStandardMaterial({ color: 0x66ccff, emissive: 0x3399ff, emissiveIntensity: 1.5 })
+        );
+        marker.position.copy(nearestPartPos);
+        marker.userData.isEmitterMarker = true;
+        group.add(marker);
+      }
+      if (inst.children.length) walk(inst.children, partPos);
+    }
+  }
+  walk(instances, null);
+
+  // recenter group on its bounding box so imports frame nicely
+  const box = new THREE.Box3().setFromObject(group);
+  if (!box.isEmpty()) {
+    const center = box.getCenter(new THREE.Vector3());
+    group.position.sub(center);
+  }
+  return { group, partCount, emitters };
+}
+
+// --- export the whole scene back to Roblox Luau (faithful CFrames) ----------
+function fmtNum(x) { return Number.isInteger(x) ? String(x) : String(Math.round(x * 1000) / 1000); }
+
+function exportSceneLuau(instances) {
+  const baseParts = [];
+  (function collect(list) {
+    for (const inst of list) {
+      if (isBasePart(inst.className)) baseParts.push(inst);
+      collect(inst.children);
+    }
+  })(instances);
+
+  const lines = [];
+  lines.push(`-- Scene rebuild -- generated by Roblox VFX Forge (Scene tab)`);
+  lines.push(`-- Paste into the Studio Command Bar to recreate ${baseParts.length} part(s).`);
+  lines.push(`local model = Instance.new("Model")`);
+  lines.push(`model.Name = "ImportedScene"`);
+  lines.push(``);
+  lines.push(`local function makePart(class, name, size, cf, rgb, material, transparency)`);
+  lines.push(`\tlocal ok, part = pcall(Instance.new, class)`);
+  lines.push(`\tif not ok then part = Instance.new("Part") end`);
+  lines.push(`\tpart.Name = name`);
+  lines.push(`\tpart.Anchored = true`);
+  lines.push(`\tpart.Size = size`);
+  lines.push(`\tpart.CFrame = cf`);
+  lines.push(`\tpart.Color = rgb`);
+  lines.push(`\tpart.Transparency = transparency`);
+  lines.push(`\tpcall(function() part.Material = material end)`);
+  lines.push(`\tpart.Parent = model`);
+  lines.push(`\treturn part`);
+  lines.push(`end`);
+  lines.push(``);
+
+  for (const inst of baseParts) {
+    const size = v3(P(inst.props, "size", "Size"), 1);
+    const rgb = rgbOf(P(inst.props, "Color3uint8", "Color", "Color3"));
+    const matName = tokenToMaterial(P(inst.props, "Material"));
+    const transp = P(inst.props, "Transparency") || 0;
+    const cf = P(inst.props, "CFrame", "cframe");
+    const cls = inst.className === "WedgePart" ? "WedgePart" : "Part";
+    let cfStr;
+    if (cf && cf.__t === "cf") {
+      const a = [...cf.pos, ...cf.rot].map(fmtNum).join(", ");
+      cfStr = `CFrame.new(${a})`;
+    } else {
+      cfStr = `CFrame.new()`;
+    }
+    lines.push(
+      `makePart("${cls}", ${JSON.stringify(inst.name)}, Vector3.new(${fmtNum(size[0])}, ${fmtNum(size[1])}, ${fmtNum(size[2])}), ${cfStr}, Color3.fromRGB(${rgb[0]}, ${rgb[1]}, ${rgb[2]}), Enum.Material.${matName}, ${fmtNum(transp)})`
+    );
+  }
+
+  lines.push(``);
+  lines.push(`model.Parent = workspace`);
+  lines.push(`print("[VFX Forge] Rebuilt scene with " .. #model:GetChildren() .. " parts.")`);
+  return lines.join("\n");
+}
+
+
+// ===== js/generate/prompt-forge.js =====
+// Prompt-driven parametric model generator.
+//
+// Honest design ("steal like an artist" = trend-INFORMED original generation,
+// not copying anyone's assets): a free-text prompt is interpreted into a
+// structured weapon spec using a curated trend library + keyword rules. The
+// same prompt is expanded into a richer "enhanced prompt" shown to the user.
+// Deterministic + seedable, so variations / recreate are reproducible.
+//
+// Pure module (no THREE / no DOM) so it is fully unit-testable. The produced
+// spec is a Weapon Forge params object, reused by the existing generator.
+
+
+// Seedable RNG (mulberry32) so a (prompt, seed) pair is reproducible.
+function rng(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hashString(s) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+// Curated current-Roblox style trends. Each contributes palette + material +
+// proportion/glow nudges. This is the maintained, compliant alternative to
+// scraping creator accounts.
+const TRENDS = {
+  anime:      { keywords: ["anime", "demon", "slayer", "ronin", "samurai"], style: "Katana", blade: [235, 240, 245], glow: [255, 70, 90], material: "Metal", grip: [120, 20, 30] },
+  cyberpunk:  { keywords: ["cyber", "cyberpunk", "neon", "tron", "hologram", "techno"], style: "Neon Blade", blade: [120, 200, 255], glow: [0, 255, 200], material: "Neon", grip: [20, 25, 40] },
+  fantasy:    { keywords: ["fantasy", "magic", "enchanted", "elven", "rune", "wizard", "mythic"], style: "Longsword", blade: [210, 225, 255], glow: [150, 110, 255], material: "Metal", grip: [60, 40, 80] },
+  fire:       { keywords: ["fire", "flame", "lava", "infernal", "ember", "magma", "hell"], style: "Greatsword", blade: [255, 180, 90], glow: [255, 80, 20], material: "Neon", grip: [40, 20, 10] },
+  ice:        { keywords: ["ice", "frost", "frozen", "glacial", "winter", "crystal"], style: "Longsword", blade: [200, 240, 255], glow: [120, 200, 255], material: "Glass", grip: [40, 70, 110] },
+  gold:       { keywords: ["gold", "golden", "royal", "luxury", "king", "divine", "holy"], style: "Longsword", blade: [255, 215, 120], glow: [255, 240, 160], material: "Metal", grip: [90, 60, 20] },
+  shadow:     { keywords: ["shadow", "void", "dark", "cursed", "death", "reaper", "demonic"], style: "Greatsword", blade: [60, 60, 75], glow: [150, 40, 200], material: "Metal", grip: [20, 20, 25] },
+  pastel:     { keywords: ["pastel", "kawaii", "cute", "candy", "pink", "soft"], style: "Dagger", blade: [255, 200, 230], glow: [255, 150, 200], material: "SmoothPlastic", grip: [200, 160, 220] },
+};
+
+// item type -> Weapon Forge style
+const TYPE_TO_STYLE = {
+  katana: "Katana", dagger: "Dagger", knife: "Dagger", shortsword: "Dagger",
+  greatsword: "Greatsword", claymore: "Greatsword", broadsword: "Greatsword",
+  longsword: "Longsword", sword: "Longsword", blade: "Longsword", saber: "Katana",
+};
+
+const COLOR_WORDS = {
+  red: [230, 50, 50], crimson: [200, 30, 40], blue: [60, 120, 255], cyan: [40, 220, 255],
+  green: [60, 220, 110], lime: [160, 255, 80], purple: [160, 80, 255], violet: [150, 90, 255],
+  pink: [255, 120, 200], orange: [255, 150, 40], yellow: [255, 230, 70], gold: [255, 215, 120],
+  white: [240, 245, 255], black: [40, 40, 48], silver: [200, 205, 215], teal: [40, 200, 190],
+};
+
+const MATERIAL_WORDS = {
+  neon: "Neon", glowing: "Neon", glow: "Neon", energy: "Neon",
+  glass: "Glass", crystal: "Glass", ice: "Glass",
+  metal: "Metal", steel: "Metal", iron: "Metal", chrome: "Metal", gold: "Metal",
+  plastic: "SmoothPlastic", marble: "Marble",
+};
+
+const SIZE_WORDS = {
+  huge: 1.5, giant: 1.6, massive: 1.7, big: 1.25, large: 1.3, long: 1.25,
+  small: 0.7, tiny: 0.55, short: 0.75, slim: 0.85, thin: 0.8, broad: 1.2, wide: 1.2,
+};
+
+function tokenize(text) {
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+}
+
+/**
+ * Interpret a prompt into { spec, enhancedPrompt, detected }.
+ * `spec` is a Weapon Forge params object.
+ */
+function parsePrompt(prompt) {
+  const words = tokenize(prompt);
+  const wordSet = new Set(words);
+  const detected = { type: null, trend: null, colors: [], material: null, sizeMul: 1 };
+
+  // trend (first matching)
+  for (const [name, t] of Object.entries(TRENDS)) {
+    if (t.keywords.some((k) => wordSet.has(k))) { detected.trend = name; break; }
+  }
+  // type
+  for (const w of words) if (TYPE_TO_STYLE[w]) { detected.type = w; break; }
+  // colors
+  for (const w of words) if (COLOR_WORDS[w]) detected.colors.push(w);
+  // material
+  for (const w of words) if (MATERIAL_WORDS[w]) { detected.material = w; break; }
+  // size multiplier (product of size words, clamped)
+  for (const w of words) if (SIZE_WORDS[w]) detected.sizeMul *= SIZE_WORDS[w];
+  detected.sizeMul = Math.max(0.5, Math.min(2, detected.sizeMul));
+
+  // resolve style: explicit type wins, else trend's style, else Longsword
+  const trend = detected.trend ? TRENDS[detected.trend] : null;
+  const style = detected.type ? TYPE_TO_STYLE[detected.type] : trend ? trend.style : "Longsword";
+
+  let spec = applyStyle({}, style);
+
+  // apply trend palette/material as a base
+  if (trend) {
+    spec.bladeColor = trend.blade.slice();
+    spec.glowColor = trend.glow.slice();
+    spec.gripColor = trend.grip.slice();
+    spec.bladeMaterial = trend.material;
+  }
+  // explicit material overrides
+  if (detected.material) spec.bladeMaterial = MATERIAL_WORDS[detected.material];
+  // explicit colors: 1st -> blade, 2nd -> glow
+  if (detected.colors[0]) spec.bladeColor = COLOR_WORDS[detected.colors[0]].slice();
+  if (detected.colors[1]) spec.glowColor = COLOR_WORDS[detected.colors[1]].slice();
+  // size
+  spec.bladeLength = round2(spec.bladeLength * detected.sizeMul);
+  if (detected.sizeMul > 1.1) spec.bladeWidth = round2(spec.bladeWidth * (1 + (detected.sizeMul - 1) * 0.5));
+
+  spec.style = style;
+  spec.prompt = prompt;
+
+  return { spec, enhancedPrompt: enhancePrompt(prompt, detected, style, spec), detected };
+}
+
+// Build a richer prompt string from what we understood (shown to the user).
+function enhancePrompt(prompt, detected, style, spec) {
+  const bits = [];
+  bits.push(`A game-ready ${style.toLowerCase()}`);
+  if (detected.trend) bits.push(`${detected.trend} aesthetic`);
+  const matWord = { Neon: "glowing neon", Glass: "translucent crystal", Metal: "polished metal", SmoothPlastic: "smooth", Marble: "marble" }[spec.bladeMaterial] || spec.bladeMaterial.toLowerCase();
+  bits.push(`forged from ${matWord} material`);
+  bits.push(`blade tinted rgb(${spec.bladeColor.join(",")}) with rgb(${spec.glowColor.join(",")}) energy accents`);
+  if (detected.sizeMul > 1.1) bits.push("oversized, heavy proportions");
+  else if (detected.sizeMul < 0.9) bits.push("compact, lightweight proportions");
+  else bits.push("balanced proportions");
+  bits.push("clean stylized silhouette suited to Roblox, single welded model");
+  return bits.join(", ") + ".";
+}
+
+/**
+ * Generate N reproducible variations of a base spec. Each variation jitters
+ * proportions / hue / material within tasteful bounds.
+ */
+function makeVariations(baseSpec, prompt, count = 6) {
+  const out = [];
+  const baseSeed = hashString(prompt || baseSpec.style || "x");
+  for (let i = 0; i < count; i++) {
+    const r = rng(baseSeed + i * 7919);
+    const v = JSON.parse(JSON.stringify(baseSpec));
+    const jl = 0.8 + r() * 0.5;        // 0.8 .. 1.3
+    const jw = 0.85 + r() * 0.4;
+    v.bladeLength = round2(clampNum(v.bladeLength * jl, 1, 9));
+    v.bladeWidth = round2(clampNum(v.bladeWidth * jw, 0.2, 1.6));
+    v.bladeTaper = round2(clampNum(0.2 + r() * 0.7, 0.1, 1));
+    v.fuller = r() > 0.4;
+    v.bladeColor = jitterColor(v.bladeColor, r, 18);
+    v.glowColor = jitterColor(v.glowColor, r, 30);
+    if (r() > 0.75) v.bladeMaterial = r() > 0.5 ? "Neon" : "Metal";
+    v.guardWidth = round2(clampNum(v.guardWidth * (0.85 + r() * 0.4), 0.4, 2.6));
+    v.variation = i + 1;
+    out.push(v);
+  }
+  return out;
+}
+
+function jitterColor(rgb, r, amt) {
+  return rgb.map((c) => Math.max(0, Math.min(255, Math.round(c + (r() * 2 - 1) * amt))));
+}
+function clampNum(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+function round2(x) { return Math.round(x * 100) / 100; }
+
+
 const UI = { el, row, slider, rangeControl, selectControl, checkbox,
   vectorControl, colorField, colorSequenceEditor, numberSequenceEditor, section };
 
@@ -1448,6 +2007,8 @@ const state = {
   cfg: { ...defaultConfig(), ...clone(PRESETS.fire) },
   weapon: defaultWeapon(),
   exportFormat: "snippet",
+  scene: { instances: null, info: null, fileName: "" },
+  gen: { prompt: "", enhanced: "", detected: null, base: null, variations: [], active: -1 },
 };
 
 const controlsEl = document.getElementById("controls");
@@ -1556,6 +2117,165 @@ function randomizeWeapon() {
   render();
 }
 
+// ---------- prompt forge (point 3) ----------
+function swatch(spec) {
+  const [r, g, b] = spec.glowColor || spec.bladeColor;
+  return UI.el("span", { class: "swatch", style: `background: rgb(${r},${g},${b})` });
+}
+
+function loadGenSpec(spec, activeIdx) {
+  state.gen.active = activeIdx;
+  state.weapon = clone(spec);
+  stage.setWeapon(buildWeaponGroup(state.weapon));
+  buildGenerateControls();
+  refreshExport();
+}
+
+function buildGenerateControls() {
+  const g = state.gen;
+  controlsEl.innerHTML = "";
+
+  const box = UI.el("textarea", {
+    class: "prompt-box",
+    placeholder: 'e.g. "huge glowing cyberpunk katana, neon cyan and purple"',
+  });
+  box.value = g.prompt;
+
+  const generate = () => {
+    g.prompt = box.value.trim();
+    if (!g.prompt) return;
+    const { spec, enhancedPrompt, detected } = parsePrompt(g.prompt);
+    g.base = spec;
+    g.enhanced = enhancedPrompt;
+    g.detected = detected;
+    g.variations = makeVariations(spec, g.prompt, 6);
+    loadGenSpec(spec, -1);
+  };
+
+  controlsEl.append(
+    UI.section("Describe your item", [
+      box,
+      UI.el("div", { class: "gen-row" }, [
+        UI.el("button", { onclick: generate }, "Generate"),
+        UI.el("button", { class: "ghost", onclick: () => { box.value = ""; } }, "Clear"),
+      ]),
+      UI.el("p", { class: "tip" }, "Trend-informed original generation — no copying of creator assets. Try words like neon, frost, golden, anime, shadow, huge, tiny."),
+    ])
+  );
+
+  if (g.enhanced) {
+    const tags = [];
+    if (g.detected.trend) tags.push(g.detected.trend);
+    if (g.detected.type) tags.push(g.detected.type);
+    if (g.detected.material) tags.push(g.detected.material);
+    g.detected.colors.forEach((c) => tags.push(c));
+
+    controlsEl.append(
+      UI.section("Enhanced prompt", [
+        UI.el("div", { class: "enhanced" }, [
+          UI.el("span", { class: "lbl" }, "expanded internally, then generated"),
+          g.enhanced,
+          tags.length ? UI.el("div", { class: "chips" }, tags.map((t) => UI.el("span", { class: "tag" }, t))) : null,
+        ]),
+      ])
+    );
+
+    const grid = UI.el("div", { class: "variations" });
+    grid.append(
+      UI.el("button", { class: g.active === -1 ? "active" : "", onclick: () => loadGenSpec(g.base, -1) },
+        [swatch(g.base), "Base"])
+    );
+    g.variations.forEach((v, i) => {
+      grid.append(
+        UI.el("button", { class: g.active === i ? "active" : "", onclick: () => loadGenSpec(v, i) },
+          [swatch(v), "V" + (i + 1)])
+      );
+    });
+    controlsEl.append(UI.section("Variations", [grid]));
+
+    controlsEl.append(
+      UI.section("Refine", [
+        UI.el("div", { class: "gen-row" }, [
+          UI.el("button", {
+            onclick: () => { g.variations = makeVariations(g.base, g.prompt + "#" + Date.now(), 6); buildGenerateControls(); },
+          }, "Recreate variations"),
+          UI.el("button", {
+            class: "ghost",
+            onclick: () => { state.mode = "weapon"; setActiveTab("weapon"); render(); },
+          }, "Edit in Forge"),
+        ]),
+      ])
+    );
+  }
+}
+
+// ---------- scene (point 1) ----------
+function buildSceneControls() {
+  const s = state.scene;
+  controlsEl.innerHTML = "";
+
+  const fileInput = UI.el("input", { type: "file", accept: ".rbxmx,.xml", style: "display:none" });
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const instances = parseRbxmx(reader.result);
+        const { group, partCount, emitters } = buildSceneGroup(instances);
+        s.instances = instances;
+        s.info = { partCount, emitters };
+        s.fileName = file.name;
+        stage.setScene(group);
+        buildSceneControls();
+        refreshExport();
+      } catch (err) {
+        alert("Couldn't read .rbxmx: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  controlsEl.append(
+    UI.section("Import Roblox model", [
+      UI.el("div", { class: "gen-row" }, [
+        UI.el("button", { onclick: () => fileInput.click() }, "Import .rbxmx file"),
+      ]),
+      fileInput,
+      UI.el("p", { class: "tip" }, "In Studio: right-click a model → Save to File → choose .rbxmx (not binary .rbxm). The parts render here and round-trip back to Luau."),
+    ])
+  );
+
+  if (s.info) {
+    controlsEl.append(
+      UI.section("Loaded: " + s.fileName, [
+        UI.el("div", { class: "chips" }, [
+          UI.el("span", { class: "tag" }, s.info.partCount + " parts"),
+          UI.el("span", { class: "tag" }, s.info.emitters.length + " emitters"),
+        ]),
+      ])
+    );
+
+    const rows = flatten(s.instances).slice(0, 80).map(({ instance, depth }) =>
+      UI.el("div", { class: "row" }, [
+        UI.el("span", { class: "tip", style: "padding-left:" + depth * 12 + "px" }, instance.className + " · " + instance.name),
+      ])
+    );
+    controlsEl.append(UI.section("Instances", rows));
+
+    controlsEl.append(
+      UI.section("Scene", [
+        UI.el("div", { class: "gen-row" }, [
+          UI.el("button", {
+            class: "ghost",
+            onclick: () => { s.instances = null; s.info = null; s.fileName = ""; stage.setScene(null); buildSceneControls(); refreshExport(); },
+          }, "Clear scene"),
+        ]),
+      ])
+    );
+  }
+}
+
 // ---------- export ----------
 function refreshExport() {
   let code = "";
@@ -1563,7 +2283,12 @@ function refreshExport() {
     if (state.exportFormat === "snippet") code = toLuauSnippet(state.cfg);
     else if (state.exportFormat === "module") code = toLuauModule(state.cfg);
     else code = JSON.stringify(state.cfg, null, 2);
+  } else if (state.mode === "scene") {
+    if (!state.scene.instances) code = "-- Import a .rbxmx file to generate scene code.";
+    else if (state.exportFormat === "json") code = JSON.stringify(state.scene.instances, null, 2);
+    else code = exportSceneLuau(state.scene.instances);
   } else {
+    // weapon + generate share the Weapon Forge spec
     if (state.exportFormat === "json") code = JSON.stringify(state.weapon, null, 2);
     else code = toLuauWeapon(state.weapon);
   }
@@ -1574,6 +2299,8 @@ function buildExportTabs() {
   exportTabs.innerHTML = "";
   const formats = state.mode === "particles"
     ? [["snippet", "Luau (paste & run)"], ["module", "ModuleScript"], ["json", "JSON config"]]
+    : state.mode === "scene"
+    ? [["luau", "Luau (rebuild scene)"], ["json", "JSON tree"]]
     : [["luau", "Luau (welded Model)"], ["json", "JSON config"]];
   if (!formats.find((f) => f[0] === state.exportFormat)) state.exportFormat = formats[0][0];
   for (const [key, label] of formats) {
@@ -1587,21 +2314,31 @@ function buildExportTabs() {
 // ---------- mode / render ----------
 function render() {
   stage.setMode(state.mode);
+  sim.points.visible = state.mode === "particles";
   if (state.mode === "particles") {
     sim.setConfig(state.cfg);
     buildParticleControls();
-  } else {
+  } else if (state.mode === "weapon") {
     stage.setWeapon(buildWeaponGroup(state.weapon));
     buildWeaponControls();
+  } else if (state.mode === "generate") {
+    stage.setWeapon(buildWeaponGroup(state.weapon));
+    buildGenerateControls();
+  } else if (state.mode === "scene") {
+    buildSceneControls();
   }
   buildExportTabs();
   refreshExport();
 }
 
+function setActiveTab(mode) {
+  document.querySelectorAll("[data-tab]").forEach((b) => b.classList.toggle("active", b.dataset.tab === mode));
+}
+
 document.querySelectorAll("[data-tab]").forEach((btn) => {
   btn.addEventListener("click", () => {
     state.mode = btn.dataset.tab;
-    document.querySelectorAll("[data-tab]").forEach((b) => b.classList.toggle("active", b === btn));
+    setActiveTab(state.mode);
     render();
   });
 });
@@ -1614,7 +2351,9 @@ document.getElementById("copyBtn").addEventListener("click", async () => {
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const isJson = state.exportFormat === "json";
   const ext = isJson ? "json" : "lua";
-  const name = (state.mode === "particles" ? state.cfg.name : state.weapon.style).replace(/\s+/g, "_");
+  const name = (state.mode === "particles" ? state.cfg.name
+    : state.mode === "scene" ? "ImportedScene"
+    : state.weapon.style).replace(/\s+/g, "_");
   download(`${name}.${ext}`, exportEl.textContent);
 });
 
@@ -1626,7 +2365,8 @@ document.getElementById("loadFile").addEventListener("change", (e) => {
     try {
       const obj = JSON.parse(reader.result);
       if (state.mode === "particles") state.cfg = { ...defaultConfig(), ...obj };
-      else state.weapon = { ...defaultWeapon(), ...obj };
+      else if (state.mode === "weapon" || state.mode === "generate") state.weapon = { ...defaultWeapon(), ...obj };
+      else { alert("Switch to Particle/Weapon/Prompt tab to load a JSON config."); return; }
       sim.reset();
       render();
     } catch (err) { alert("Invalid JSON config: " + err.message); }
