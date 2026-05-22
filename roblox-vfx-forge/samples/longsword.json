@@ -1,0 +1,20 @@
+{
+  "style": "Longsword",
+  "bladeLength": 4.5,
+  "bladeWidth": 0.55,
+  "bladeThickness": 0.14,
+  "bladeTaper": 0.5,
+  "fuller": true,
+  "guardWidth": 1.4,
+  "guardDepth": 0.4,
+  "guardThickness": 0.22,
+  "gripLength": 1.1,
+  "gripRadius": 0.16,
+  "pommelSize": 0.35,
+  "bladeColor": [220, 226, 235],
+  "bladeMaterial": "Metal",
+  "guardColor": [196, 160, 60],
+  "gripColor": [70, 45, 30],
+  "pommelColor": [196, 160, 60],
+  "glowColor": [120, 180, 255]
+}
