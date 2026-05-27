@@ -1,7 +1,7 @@
 import { hasLiveAI } from "@/lib/ai/client";
 import ProductStudio from "@/components/product/ProductStudio";
 
-export default function StudioPage() {
+export default function Page() {
   return (
     <div className="space-y-5">
       <div>

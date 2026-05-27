@@ -2,33 +2,7 @@
 
 An AI-powered command center for food & beverage executives. Built as a clickable demo with dummy data so the full UI flow and AI surfaces can be walked through with stakeholders before any real ingestion or deployment work is committed.
 
-> **Also in this repo:** [Product Studio](#product-studio--image--listing) at `/studio` — upload a product image and get a publish-ready listing (name, title, descriptions, tags, metadata, SEO, recommended images) powered by Claude vision.
-
----
-
-## Product Studio — image → listing
-
-A standalone dashboard at **`/studio`** (no login required). Upload a product photo and Claude's vision model returns a complete, publish-ready listing:
-
-- **Product name** and SEO-friendly **listing title**
-- **Short** and **full descriptions**
-- **Tags** for search/filtering
-- **Attributes & metadata** (color, material, style, features…)
-- **SEO block** — meta title, meta description, keywords, URL slug, image alt text, plus a live search-result preview
-- **Recommended product images** — a suggested gallery/shot list to complete the listing
-
-Copy any field to the clipboard or export the whole result as JSON.
-
-Pick a target marketplace (Amazon, Shopify, Etsy, eBay, Google Shopping…) and add an optional hint to steer the output. Drag-and-drop, click-to-browse, and clipboard paste are all supported (JPEG/PNG/WebP/GIF, up to 8 MB).
-
-With `ANTHROPIC_API_KEY` set, the uploaded image is analyzed live; without it, the dashboard returns a clearly-labeled demo result so the flow can be walked through fully offline. The seam:
-
-- `app/studio/` — page + standalone shell
-- `components/product/` — uploader, results panel, copy controls
-- `app/api/product/analyze/route.ts` — vision call + JSON parsing, with demo fallback
-- `lib/ai/product.ts` — types, prompt, response parser, demo data
-
----
+> **Also in this repo:** [`product-studio/`](./product-studio) — a separate, standalone Next.js app (deploy it as its own Vercel project) that turns a product image into a publish-ready listing using Claude vision.
 
 ## What's in the demo
 
