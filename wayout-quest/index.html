@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>WayOut Camper Quest — UAE Family Adventure</title>
+<meta name="description" content="Rent a WayOut camper van, load up the family, and roam the UAE collecting tokens at real camping spots. Find rare places to level up — every stop shows its real Google Maps listing." />
+<style>
+  :root{
+    --sand:#F4C26B; --sand-deep:#E89B3C; --dune:#D98324; --night:#1B2A4A;
+    --teal:#1FB5A6; --sky1:#7CC6FF; --sky2:#BFE9FF; --ink:#27201A;
+    --orange:#FF7A2E; --orange-deep:#E85C12; --cream:#FFF6E8;
+    --common:#7BD148; --uncommon:#37A2F2; --rare:#A86CFF; --legendary:#FFC233;
+    --shadow:rgba(40,24,10,.28);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;background:#0d1526;
+    font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:var(--ink);
+    user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+  #game{position:fixed;inset:0;display:block;width:100%;height:100%;}
+  .layer{position:fixed;inset:0;}
+
+  /* ---------- HUD ---------- */
+  #hud{pointer-events:none;display:none;}
+  #hud.on{display:block;}
+  .hudtop{position:absolute;top:0;left:0;right:0;display:flex;gap:8px;align-items:flex-start;
+    padding:max(10px,env(safe-area-inset-top)) 12px 0;justify-content:space-between;flex-wrap:wrap;}
+  .pill{pointer-events:auto;background:rgba(255,246,232,.95);border:3px solid #27201A;
+    border-radius:999px;padding:6px 12px;display:flex;align-items:center;gap:7px;
+    box-shadow:0 4px 0 var(--shadow);font-weight:800;font-size:15px;line-height:1;}
+  .pill .ico{font-size:18px;}
+  .stack{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .xpwrap{pointer-events:auto;background:rgba(255,246,232,.95);border:3px solid #27201A;border-radius:999px;
+    padding:5px 10px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 0 var(--shadow);min-width:150px;}
+  .lvlbadge{background:var(--orange);color:#fff;border-radius:50%;width:30px;height:30px;display:grid;
+    place-items:center;font-weight:900;border:2px solid #27201A;flex:0 0 auto;font-size:14px;}
+  .xpbar{flex:1;height:12px;background:#E6D4B8;border-radius:8px;overflow:hidden;border:2px solid #27201A;min-width:70px;}
+  .xpfill{height:100%;width:0%;background:linear-gradient(90deg,#FFD23F,#FF7A2E);transition:width .5s cubic-bezier(.2,1.4,.4,1);}
+  .iconbtn{pointer-events:auto;cursor:pointer;background:rgba(255,246,232,.95);border:3px solid #27201A;
+    border-radius:50%;width:42px;height:42px;display:grid;place-items:center;font-size:20px;
+    box-shadow:0 4px 0 var(--shadow);}
+  .iconbtn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--shadow);}
+
+  .hint{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+    background:rgba(27,42,74,.86);color:#fff;padding:9px 18px;border-radius:999px;font-weight:700;font-size:14px;
+    box-shadow:0 4px 0 rgba(0,0,0,.3);white-space:nowrap;border:2px solid rgba(255,255,255,.25);}
+
+  /* ---------- Generic buttons / cards ---------- */
+  .btn{cursor:pointer;border:3px solid #27201A;border-radius:16px;padding:14px 22px;font-weight:900;
+    font-size:18px;background:var(--orange);color:#fff;box-shadow:0 6px 0 var(--orange-deep);
+    transition:transform .08s, box-shadow .08s;letter-spacing:.3px;}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--orange-deep);}
+  .btn.green{background:#56C14C;box-shadow:0 6px 0 #36912f;}
+  .btn.ghost{background:var(--cream);color:#27201A;box-shadow:0 6px 0 #C9B48E;}
+  .btn.blue{background:#2F8FE6;box-shadow:0 6px 0 #1d6cb5;}
+
+  /* ---------- Overlays / modals ---------- */
+  .screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    padding:18px;z-index:20;}
+  .screen.on{display:flex;}
+  .panel{background:var(--cream);border:4px solid #27201A;border-radius:26px;
+    box-shadow:0 12px 0 var(--shadow), 0 30px 60px rgba(0,0,0,.4);
+    width:min(560px,94vw);max-height:92vh;overflow:auto;position:relative;}
+  .panel.wide{width:min(760px,96vw);}
+  .ph{padding:18px 22px 6px;text-align:center;}
+  .pb{padding:6px 22px 22px;}
+  .title-xl{font-weight:900;font-size:clamp(26px,7vw,42px);color:var(--orange-deep);
+    text-shadow:2px 2px 0 #fff,4px 4px 0 var(--shadow);margin:0;line-height:1;}
+  .sub{font-weight:700;color:#6b5b45;margin:6px 0 0;font-size:15px;}
+  .closeX{position:absolute;top:10px;right:12px;width:38px;height:38px;border-radius:50%;
+    border:3px solid #27201A;background:#fff;font-weight:900;font-size:18px;cursor:pointer;
+    box-shadow:0 3px 0 var(--shadow);display:grid;place-items:center;}
+  .closeX:active{transform:translateY(2px);}
+
+  /* van + family cards */
+  .cardgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .pick{cursor:pointer;border:3px solid #27201A;border-radius:18px;background:#fff;padding:10px;
+    text-align:center;box-shadow:0 5px 0 var(--shadow);transition:transform .1s;position:relative;}
+  .pick:active{transform:translateY(3px);}
+  .pick.sel{outline:4px solid var(--orange);outline-offset:2px;}
+  .pick canvas{width:100%;height:84px;display:block;}
+  .pick .nm{font-weight:900;font-size:15px;margin-top:4px;}
+  .pick .ds{font-size:12px;color:#6b5b45;font-weight:700;min-height:30px;}
+  .stats{display:flex;justify-content:center;gap:6px;margin-top:6px;flex-wrap:wrap;}
+  .stat{font-size:10px;font-weight:800;background:var(--sand);border:2px solid #27201A;border-radius:8px;padding:2px 6px;}
+
+  /* spot detail */
+  .badge{display:inline-block;font-weight:900;font-size:13px;color:#fff;padding:4px 12px;border-radius:999px;
+    border:2px solid #27201A;box-shadow:0 3px 0 var(--shadow);text-transform:uppercase;letter-spacing:.5px;}
+  .mapbox{border:3px solid #27201A;border-radius:16px;overflow:hidden;box-shadow:0 5px 0 var(--shadow);
+    background:#cfe3d6;margin:12px 0;}
+  .mapbox iframe{display:block;width:100%;height:230px;border:0;}
+  .reward-row{display:flex;gap:10px;justify-content:center;margin:12px 0;flex-wrap:wrap;}
+  .reward{background:#fff;border:3px solid #27201A;border-radius:14px;padding:8px 14px;font-weight:900;
+    box-shadow:0 4px 0 var(--shadow);display:flex;align-items:center;gap:6px;font-size:16px;}
+  .desc{font-weight:600;color:#4a3c2c;font-size:15px;line-height:1.45;}
+  .linkrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px;}
+  a.maplink{text-decoration:none;}
+
+  /* toast / banner */
+  #toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-140%);
+    background:#FFC233;border:3px solid #27201A;border-radius:16px;padding:10px 20px;font-weight:900;
+    box-shadow:0 6px 0 var(--shadow);z-index:40;transition:transform .45s cubic-bezier(.2,1.5,.4,1);
+    text-align:center;font-size:17px;max-width:90vw;}
+  #toast.show{transform:translateX(-50%) translateY(0);}
+
+  .footer{text-align:center;font-size:12px;color:#8a785f;font-weight:700;padding:4px 0 2px;}
+  .legend{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;font-size:12px;font-weight:800;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .dot{width:12px;height:12px;border-radius:50%;border:2px solid #27201A;display:inline-block;}
+  .tagline{font-style:italic;color:#a07b3a;font-weight:800;}
+  .progress-note{font-weight:800;color:#6b5b45;font-size:13px;margin-top:6px;text-align:center;}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<!-- HUD -->
+<div id="hud" class="layer">
+  <div class="hudtop">
+    <div class="stack">
+      <div class="xpwrap"><div class="lvlbadge" id="lvlBadge">1</div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <div style="font-size:11px;font-weight:900;color:#6b5b45;line-height:1">LEVEL</div>
+          <div class="xpbar"><div class="xpfill" id="xpFill"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="pill"><span class="ico">🪙</span><span id="hudTokens">0</span></div>
+      <div class="pill"><span class="ico">⭐</span><span id="hudScore">0</span></div>
+      <div class="pill"><span class="ico">⛽</span><span id="hudFuel">100</span></div>
+      <div class="iconbtn" id="btnMute">🔊</div>
+      <div class="iconbtn" id="btnGuide">🗺️</div>
+    </div>
+  </div>
+  <div class="hint" id="hint">Tap a glowing spot on the map to drive there!</div>
+</div>
+
+<!-- TITLE -->
+<div id="scrTitle" class="screen on">
+  <div class="panel">
+    <div class="ph">
+      <canvas id="logoVan" width="320" height="120" style="width:min(320px,80vw);height:auto;"></canvas>
+      <h1 class="title-xl">WayOut Camper Quest</h1>
+      <p class="sub">Rent a WayOut camper van • Load up the family • Roam the real UAE</p>
+      <p class="tagline">“A hotel room in a car — turn the holiday into an adventure.”</p>
+    </div>
+    <div class="pb">
+      <div style="text-align:center;margin:8px 0 14px;">
+        <button class="btn green" id="btnStart" style="font-size:22px;padding:16px 34px;">▶ Start Adventure</button>
+      </div>
+      <p class="desc" style="text-align:center;">
+        Drive across the Emirates to <b>real camping spots</b>. Collect 🪙 tokens, rack up ⭐ points,
+        and hunt down <b style="color:#A86CFF">rare</b> &amp; <b style="color:#E8a000">legendary</b> places to level up.
+        Every stop shows its <b>real Google Maps listing</b>.
+      </p>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--common)"></i>Common</span>
+        <span><i class="dot" style="background:var(--uncommon)"></i>Uncommon</span>
+        <span><i class="dot" style="background:var(--rare)"></i>Rare</span>
+        <span><i class="dot" style="background:var(--legendary)"></i>Legendary</span>
+      </div>
+      <p class="footer">Fan-made game for wayoutuae.com • Locations from Google Maps</p>
+    </div>
+  </div>
+</div>
+
+<!-- VAN SELECT -->
+<div id="scrVan" class="screen">
+  <div class="panel wide">
+    <div class="ph">
+      <h2 class="title-xl" style="font-size:clamp(22px,6vw,34px)">Pick your WayOut van</h2>
+      <p class="sub">Each van handles the desert, mountains &amp; beach differently.</p>
+    </div>
+    <div class="pb">
+      <div class="cardgrid" id="vanGrid"></div>
+      <div class="ph" style="padding-top:18px;">
+        <h2 class="title-xl" style="font-size:clamp(20px,5.5vw,30px)">Who's coming along?</h2>
+        <p class="sub">Tap to pick your family crew.</p>
+      </div>
+      <div class="cardgrid" id="famGrid"></div>
+      <div style="text-align:center;margin-top:16px;">
+        <button class="btn green" id="btnGo" style="font-size:20px;">🚐 Hit the Road!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SPOT DETAIL -->
+<div id="scrSpot" class="screen">
+  <div class="panel wide">
+    <button class="closeX" id="spotClose">✕</button>
+    <div class="ph">
+      <span class="badge" id="spotBadge">COMMON</span>
+      <h2 class="title-xl" id="spotName" style="font-size:clamp(22px,6vw,34px);margin-top:8px;">Spot</h2>
+      <p class="sub" id="spotRegion">Region</p>
+    </div>
+    <div class="pb">
+      <div class="reward-row" id="spotRewards"></div>
+      <p class="desc" id="spotDesc"></p>
+      <div style="font-weight:900;text-align:center;margin-top:10px;color:#6b5b45;">📍 Real Google Maps listing</div>
+      <div class="mapbox"><iframe id="spotMap" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Google Map"></iframe></div>
+      <div class="linkrow">
+        <a class="maplink" id="spotPhotos" target="_blank" rel="noopener"><button class="btn blue">📷 See real photos</button></a>
+        <a class="maplink" id="spotDir" target="_blank" rel="noopener"><button class="btn ghost">🧭 Directions</button></a>
+      </div>
+      <p class="progress-note" id="spotProgress"></p>
+      <div style="text-align:center;margin-top:12px;">
+        <button class="btn green" id="spotContinue">↩ Back to the map</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VICTORY -->
+<div id="scrWin" class="screen">
+  <div class="panel">
+    <div class="ph">
+      <h1 class="title-xl">🏆 Trailblazer!</h1>
+      <p class="sub">You discovered every camping spot in the UAE.</p>
+    </div>
+    <div class="pb" style="text-align:center;">
+      <p class="desc" id="winStats"></p>
+      <button class="btn green" id="btnReplay" style="margin-top:10px;">🔄 New Road Trip</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================================
+   WayOut Camper Quest — a self-contained HTML5 game.
+   A family rents one of WayOut UAE's camper vans and tours real UAE camping
+   spots placed on the map by their true latitude/longitude. Collect tokens,
+   score points, and discover rare/legendary spots to level up. Each spot opens
+   its real Google Maps listing.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- Data ---- */
+// Bounding box of the UAE (lng/lat) used to project real coordinates onto map.
+const BBOX = { minLng: 51.4, maxLng: 56.6, minLat: 22.4, maxLat: 26.5 };
+
+const RARITY = {
+  home:      { color:"#FF7A2E", label:"HOME BASE", points:0,    tokens:0,   xp:0   },
+  common:    { color:"#7BD148", label:"COMMON",    points:120,  tokens:6,   xp:18  },
+  uncommon:  { color:"#37A2F2", label:"UNCOMMON",  points:280,  tokens:12,  xp:34  },
+  rare:      { color:"#A86CFF", label:"RARE",      points:650,  tokens:28,  xp:70  },
+  legendary: { color:"#FFC233", label:"LEGENDARY", points:1600, tokens:80,  xp:160 },
+};
+
+// Real WayOut-inspired fleet. Stats: spd(1-5) cmf(1-5) off(1-5) eff(fuel economy 1-5)
+const VANS = [
+  { id:"merc516", name:"Sandstorm 516", base:"Mercedes 516", body:"#F2A03D", roof:"#FFE3B0",
+    desc:"Spacious family cruiser. Sleeps 4 in comfort.", spd:3, cmf:5, off:2, eff:5, solar:false },
+  { id:"sprinter4x4", name:"Dune Rider", base:"Sprinter 4×4", body:"#1FB5A6", roof:"#CFF5EF",
+    desc:"Cozy & elegant. Confident off the tarmac.", spd:4, cmf:4, off:4, eff:4, solar:false },
+  { id:"dodgeram", name:"Red Beast", base:"Dodge Ram 4×4", body:"#E0443C", roof:"#FFD3CF",
+    desc:"The off-road monster. Eats dunes for breakfast.", spd:5, cmf:3, off:5, eff:3, solar:false },
+  { id:"solar", name:"Solar Nomad", base:"Solar Camper", body:"#FFD23F", roof:"#FFF3C4",
+    desc:"Self-sufficient eco van. Solar tops up your fuel as you roam.", spd:3, cmf:4, off:3, eff:5, solar:true },
+];
+
+const FAMILY = [
+  { id:"dad",  name:"Dad",     skin:"#F4C28B", hair:"#3A2A1A", emoji:"👨" },
+  { id:"mom",  name:"Mom",     skin:"#F6CBA0", hair:"#5A3320", emoji:"👩" },
+  { id:"kid",  name:"Kiddo",   skin:"#F8D2A6", hair:"#222",    emoji:"🧒" },
+  { id:"gran", name:"Grandpa", skin:"#EBC9A0", hair:"#DDD",    emoji:"👴" },
+  { id:"dog",  name:"Biscuit", skin:"#D69A52", hair:"#A66B2E", emoji:"🐶" },
+];
+
+// Real UAE spots. coords are true lat/lng (from Google Maps).
+const SPOTS = [
+  { id:"hq",        name:"WayOut Base · Dubai", region:"Al Quoz, Dubai", rarity:"home",
+    lat:25.140, lng:55.230, icon:"🏠",
+    desc:"Pick up your fully-furnished WayOut camper van and roll out. This is home base — refuel here anytime." },
+  { id:"alqudra",   name:"Al Qudra Lakes", region:"Saih Al Salam, Dubai", rarity:"common",
+    lat:24.8103, lng:55.3289, icon:"🦩",
+    desc:"Man-made lakes ringed by dunes, with flamingos, oryx and easy BBQ-friendly camping spots." },
+  { id:"lahbab",    name:"Lahbab Red Dunes", region:"Lahbab, Dubai", rarity:"common",
+    lat:24.9276, lng:55.6470, icon:"🏜️",
+    desc:"The famous deep-red 'Big Red' dunes — sandboarding, dune bashing and golden-hour stargazing." },
+  { id:"uaq",       name:"Umm Al Quwain Beach", region:"Umm Al Quwain", rarity:"common",
+    lat:25.5647, lng:55.5550, icon:"🏖️",
+    desc:"Quiet coastline with mangroves and kayaking — a calm beach camp away from the crowds." },
+  { id:"hatta",     name:"Hatta Dam", region:"Hatta, Dubai", rarity:"uncommon",
+    lat:24.8003, lng:56.1160, icon:"🚣",
+    desc:"Turquoise dam water hugged by the Hajar Mountains. Kayak, then camp at the Wadi Hub." },
+  { id:"shawka",    name:"Wadi Shawka", region:"Ras Al Khaimah", rarity:"uncommon",
+    lat:25.1190, lng:56.0247, icon:"🥾",
+    desc:"Green wadi pools and a mountain-bike loop tucked into the Hajar foothills. Peaceful nights." },
+  { id:"alaqah",    name:"Al Aqah Beach", region:"Fujairah", rarity:"uncommon",
+    lat:25.5021, lng:56.3597, icon:"🐠",
+    desc:"East-coast beach camping facing Snoopy Island — snorkelling reefs right off the sand." },
+  { id:"fossil",    name:"Fossil Rock (Mleiha)", region:"Sharjah", rarity:"rare",
+    lat:25.0594, lng:55.7886, icon:"🦴",
+    desc:"Ancient seabed fossils embedded in rock rising from red sand — archaeology meets the desert." },
+  { id:"jais",      name:"Jebel Jais", region:"Ras Al Khaimah", rarity:"rare",
+    lat:25.9479, lng:56.1357, icon:"⛰️",
+    desc:"The UAE's highest peak. Cool mountain air, switchback roads and unreal sunrise camps." },
+  { id:"hafeet",    name:"Jebel Hafeet", region:"Al Ain, Abu Dhabi", rarity:"rare",
+    lat:24.0586, lng:55.7736, icon:"🌄",
+    desc:"A lone limestone mountain with one of the world's great driving roads and glittering city views." },
+  { id:"moreeb",    name:"Tal Moreeb · Liwa", region:"Empty Quarter, Abu Dhabi", rarity:"legendary",
+    lat:23.1390, lng:53.7853, icon:"🌟",
+    desc:"One of Earth's tallest sand dunes on the edge of the Empty Quarter. The ultimate WayOut pilgrimage." },
+];
+
+/* ------------------------------------------------------------- Helpers ---- */
+const $ = s => document.querySelector(s);
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp = (a,b,t)=>a+(b-a)*t;
+const dist = (a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const fmt = n => n.toLocaleString("en-US");
+
+/* ------------------------------------------------------------- Audio ------ */
+const Sound = (()=> {
+  let ctx, muted=false;
+  const ac = ()=> ctx || (ctx = new (window.AudioContext||window.webkitAudioContext)());
+  function blip(freq, dur=.12, type="sine", vol=.18){
+    if(muted) return;
+    try{
+      const c=ac(), o=c.createOscillator(), g=c.createGain();
+      o.type=type; o.frequency.value=freq; o.connect(g); g.connect(c.destination);
+      g.gain.setValueAtTime(vol, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.0001, c.currentTime+dur);
+      o.start(); o.stop(c.currentTime+dur);
+    }catch(e){}
+  }
+  return {
+    coin:()=>blip(880,.08,"square",.12),
+    arrive:()=>{blip(523,.1,"triangle");setTimeout(()=>blip(784,.14,"triangle"),90);},
+    level:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>blip(f,.16,"triangle",.2),i*90));},
+    rare:()=>{[660,880,1100,1320].forEach((f,i)=>setTimeout(()=>blip(f,.18,"sawtooth",.16),i*80));},
+    engine:()=>blip(120,.18,"sawtooth",.07),
+    toggle:()=>{muted=!muted; return muted;},
+    get muted(){return muted;}
+  };
+})();
+
+/* ------------------------------------------------------------- State ------ */
+const G = {
+  tokens:0, score:0, level:1, xp:0, xpNeed:100,
+  fuel:100, maxFuel:100,
+  van:VANS[0], crew:["dad","mom","kid"],
+  scene:"title",            // title | van | map
+  visited:new Set(),
+  // van avatar on the map
+  vx:0, vy:0, facing:1, driving:false,
+  trail:[],
+  particles:[], floaters:[],
+  spots:[],                  // projected spots {…spot, x, y, r, pulse}
+  coins:[],                  // floating collectible tokens on roads
+  time:0, camShake:0,
+};
+
+/* ------------------------------------------------------------- Canvas ----- */
+const cv = $("#game"), ctx = cv.getContext("2d");
+let W=0,H=0,DPR=1, mapPad=70;
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio||1);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = W*DPR; cv.height = H*DPR; cv.style.width=W+"px"; cv.style.height=H+"px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  mapPad = Math.max(54, Math.min(W,H)*0.12);
+  projectSpots();
+}
+window.addEventListener("resize", resize);
+
+function projectSpots(){
+  const padX = mapPad, padTop = mapPad+30, padBot = mapPad+40;
+  G.spots = SPOTS.map(s=>{
+    const nx = (s.lng-BBOX.minLng)/(BBOX.maxLng-BBOX.minLng);
+    const ny = (BBOX.maxLat-s.lat)/(BBOX.maxLat-BBOX.minLat);
+    return { ...s,
+      x: lerp(padX, W-padX, nx),
+      y: lerp(padTop, H-padBot, ny),
+      r: 26, pulse:Math.random()*6.28 };
+  });
+  if(G.scene!=="map"){ // keep van parked at base until launch
+    const hq=G.spots.find(s=>s.id==="hq");
+    if(hq){ G.vx=hq.x; G.vy=hq.y; }
+  }
+}
+
+/* ------------------------------------------------------------ Drawing ----- */
+// Cute family head used in van windows and on selection cards.
+function drawHead(g, x, y, r, skin, hair, look=0){
+  g.save(); g.translate(x,y);
+  // hair/back
+  g.fillStyle=hair; g.beginPath(); g.arc(0,-r*.15,r,Math.PI,0); g.fill();
+  // face
+  g.fillStyle=skin; g.beginPath(); g.arc(0,0,r,0,7); g.fill();
+  g.lineWidth=Math.max(2,r*.12); g.strokeStyle="#27201A"; g.stroke();
+  // eyes
+  const ex=r*.36, ey=-r*.05, er=r*.22;
+  for(const sx of [-1,1]){
+    g.fillStyle="#fff"; g.beginPath(); g.arc(sx*ex,ey,er,0,7); g.fill();
+    g.lineWidth=Math.max(1.5,r*.06); g.strokeStyle="#27201A"; g.stroke();
+    g.fillStyle="#27201A"; g.beginPath(); g.arc(sx*ex+look*er*.5,ey,er*.5,0,7); g.fill();
+  }
+  // smile
+  g.lineWidth=Math.max(2,r*.12); g.strokeStyle="#27201A"; g.lineCap="round";
+  g.beginPath(); g.arc(0,r*.18,r*.4,.15*Math.PI,.85*Math.PI); g.stroke();
+  g.restore();
+}
+
+// Cute dog head variant
+function drawDog(g,x,y,r,c1,c2){
+  g.save(); g.translate(x,y);
+  g.fillStyle=c2; // ears
+  g.beginPath(); g.ellipse(-r*.9,0,r*.45,r*.75,0,0,7); g.fill();
+  g.beginPath(); g.ellipse(r*.9,0,r*.45,r*.75,0,0,7); g.fill();
+  g.fillStyle=c1; g.beginPath(); g.arc(0,0,r,0,7); g.fill();
+  g.lineWidth=Math.max(2,r*.12); g.strokeStyle="#27201A"; g.stroke();
+  for(const sx of [-1,1]){
+    g.fillStyle="#fff"; g.beginPath(); g.arc(sx*r*.35,-r*.05,r*.2,0,7); g.fill(); g.strokeStyle="#27201A";g.lineWidth=r*.05;g.stroke();
+    g.fillStyle="#27201A"; g.beginPath(); g.arc(sx*r*.35,-r*.05,r*.1,0,7); g.fill();
+  }
+  g.fillStyle="#27201A"; g.beginPath(); g.arc(0,r*.25,r*.16,0,7); g.fill();
+  g.restore();
+}
+
+// The hero: a chunky cartoon WayOut camper van with a face. dir=1 right,-1 left.
+function drawVan(g, x, y, scale, van, dir, bob, crew){
+  g.save();
+  g.translate(x,y);
+  g.scale(dir*scale, scale);
+  g.translate(0, bob||0);
+  const w=120,h=70;
+  // shadow
+  g.save(); g.scale(dir,1);
+  g.fillStyle="rgba(40,24,10,.22)";
+  g.beginPath(); g.ellipse(0,h*.62,w*.55,12,0,0,7); g.fill();
+  g.restore();
+  // body
+  roundRect(g,-w/2,-h/2,w,h,16); g.fillStyle=van.body; g.fill();
+  g.lineWidth=5; g.strokeStyle="#27201A"; g.stroke();
+  // raised roof / pop-top (camper)
+  roundRect(g,-w/2+8,-h/2-16,w*.7,22,9); g.fillStyle=van.roof; g.fill(); g.stroke();
+  // roof rack + solar panel
+  if(van.solar){ roundRect(g,-6,-h/2-13,w*.34,8,3); g.fillStyle="#1b3a6b"; g.fill(); g.stroke();
+    g.strokeStyle="#7fb2ff"; g.lineWidth=1.5;
+    for(let i=1;i<4;i++){g.beginPath();g.moveTo(-6+i*w*.085,-h/2-13);g.lineTo(-6+i*w*.085,-h/2-5);g.stroke();}
+    g.strokeStyle="#27201A"; g.lineWidth=5;
+  }
+  // window band with family faces
+  roundRect(g,-w/2+10,-h/2+8,w*.52,h*.42,8); g.fillStyle="#Bfe9ff"; g.fill(); g.lineWidth=4; g.stroke();
+  // passengers
+  const seats=[ -w/2+24, -w/2+44, -w/2+64 ];
+  (crew||[]).slice(0,3).forEach((id,i)=>{
+    const m=FAMILY.find(f=>f.id===id); if(!m) return;
+    g.save(); g.scale(dir,1);
+    if(m.id==="dog") drawDog(g, dir*seats[i], -h/2+22, 9, m.skin, m.hair);
+    else drawHead(g, dir*seats[i], -h/2+22, 10, m.skin, m.hair, .2);
+    g.restore();
+  });
+  // door line + WayOut stripe
+  g.fillStyle=van.roof; roundRect(g, w/2-44,-h/2+10,30,h*.6,6); g.fill(); g.lineWidth=3; g.stroke();
+  g.fillStyle="#27201A"; g.font="900 11px Trebuchet MS"; g.save(); g.scale(dir,1);
+  g.fillText("WAY", dir>0? w/2-42 : -(w/2-2), 2); g.fillText("OUT", dir>0? w/2-42 : -(w/2-2), 14); g.restore();
+  // headlight "eyes" (give the van a face)
+  const fx=w/2-6;
+  g.fillStyle="#fff"; g.beginPath(); g.arc(fx,-2,8,0,7); g.fill(); g.lineWidth=3; g.stroke();
+  g.fillStyle="#27201A"; g.beginPath(); g.arc(fx+2,-2,3.4,0,7); g.fill();
+  // bumper smile
+  g.lineWidth=4; g.lineCap="round"; g.beginPath(); g.arc(w/2-12,12,9,-.1*Math.PI,.6*Math.PI); g.stroke();
+  // wheels
+  for(const wx of [-w*.3, w*.3]){
+    g.fillStyle="#2b2b2b"; g.beginPath(); g.arc(wx,h/2-2,15,0,7); g.fill(); g.lineWidth=4; g.strokeStyle="#27201A"; g.stroke();
+    g.fillStyle="#9a9a9a"; g.beginPath(); g.arc(wx,h/2-2,6,0,7); g.fill();
+  }
+  g.restore();
+}
+
+function roundRect(g,x,y,w,h,r){
+  r=Math.min(r,w/2,h/2);
+  g.beginPath();
+  g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
+}
+
+// Decorative palm
+function drawPalm(g,x,y,s){
+  g.save(); g.translate(x,y); g.scale(s,s);
+  g.strokeStyle="#8a5a2b"; g.lineWidth=6; g.lineCap="round";
+  g.beginPath(); g.moveTo(0,0); g.quadraticCurveTo(4,-22,-2,-40); g.stroke();
+  g.fillStyle="#3fae5a";
+  for(let i=0;i<6;i++){ g.save(); g.translate(-2,-40); g.rotate((i/6)*6.28);
+    g.beginPath(); g.ellipse(16,0,18,6,0,0,7); g.fill(); g.restore(); }
+  g.restore();
+}
+
+/* ---------------------------------------------------------- Map render ---- */
+function drawMap(){
+  // sky-to-sand vertical wash backdrop
+  const sky = ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,"#FFE7B3"); sky.addColorStop(.45,"#F7C779"); sky.addColorStop(1,"#E89B3C");
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+  // Gulf water along top + east coast (stylised) — based on real UAE geography.
+  ctx.fillStyle="#39B3D6";
+  ctx.beginPath();
+  ctx.moveTo(0,0); ctx.lineTo(W,0);
+  ctx.lineTo(W, H*.18);
+  // wavy coastline going down-left
+  let waveY=H*.18;
+  ctx.quadraticCurveTo(W*.72,H*.10, W*.55,H*.16);
+  ctx.quadraticCurveTo(W*.40,H*.22, W*.22,H*.16);
+  ctx.quadraticCurveTo(W*.08,H*.12, 0,H*.20);
+  ctx.closePath(); ctx.fill();
+  // east coast strip (Gulf of Oman)
+  ctx.beginPath();
+  ctx.moveTo(W,0); ctx.lineTo(W,H);
+  ctx.quadraticCurveTo(W*.86,H*.7, W*.9,H*.4);
+  ctx.quadraticCurveTo(W*.95,H*.18, W,0); ctx.closePath(); ctx.fill();
+
+  // dune ridges
+  ctx.fillStyle="rgba(217,131,36,.35)";
+  for(let k=0;k<4;k++){
+    const yy=H*(.4+ k*.13);
+    ctx.beginPath(); ctx.moveTo(0,yy);
+    for(let x=0;x<=W;x+=60) ctx.lineTo(x, yy + Math.sin((x*0.01)+(k*1.7))*14);
+    ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath(); ctx.fill();
+  }
+
+  // dashed roads radiating from the WayOut base to every spot
+  const hq=byId("hq");
+  ctx.strokeStyle="rgba(70,45,20,.35)"; ctx.lineWidth=8; ctx.setLineDash([2,14]); ctx.lineCap="round";
+  ctx.beginPath();
+  G.spots.forEach(s=>{ if(s.id!=="hq"){ ctx.moveTo(hq.x,hq.y); ctx.lineTo(s.x,s.y);} });
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // a few palms / decor near base
+  drawPalm(ctx, hq.x-46, hq.y+8, 1.1);
+  drawPalm(ctx, hq.x+50, hq.y+2, .9);
+
+  // van trail (dust)
+  G.trail.forEach((t,i)=>{
+    ctx.fillStyle=`rgba(255,255,255,${0.04*t.life})`;
+    ctx.beginPath(); ctx.arc(t.x,t.y, 6+ (1-t.life)*16, 0,7); ctx.fill();
+  });
+
+  // floating collectible tokens
+  G.coins.forEach(c=>{
+    const yy=c.y+Math.sin(G.time*4+c.ph)*4;
+    ctx.save(); ctx.translate(c.x,yy);
+    ctx.fillStyle="#FFD23F"; ctx.beginPath(); ctx.arc(0,0,10,0,7); ctx.fill();
+    ctx.lineWidth=3; ctx.strokeStyle="#B8860B"; ctx.stroke();
+    ctx.fillStyle="#B8860B"; ctx.font="900 12px Trebuchet MS"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText("W",0,1); ctx.restore();
+  });
+
+  // spots
+  G.spots.forEach(s=>{
+    s.pulse+=0.05;
+    const r=s.rarity==="home"?30:26;
+    const col=RARITY[s.rarity].color;
+    const visited=G.visited.has(s.id);
+    // pulse ring for undiscovered, reachable spots
+    if(!visited && s.rarity!=="home"){
+      const pr = r + 8 + Math.sin(s.pulse)*5;
+      ctx.beginPath(); ctx.arc(s.x,s.y,pr,0,7);
+      ctx.strokeStyle=col; ctx.globalAlpha=.5; ctx.lineWidth=4; ctx.stroke(); ctx.globalAlpha=1;
+    }
+    // badge
+    ctx.save();
+    ctx.fillStyle="rgba(40,24,10,.25)"; ctx.beginPath(); ctx.ellipse(s.x,s.y+r*.7,r*.9,8,0,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(s.x,s.y,r,0,7);
+    ctx.fillStyle = visited? "#fff" : col; ctx.fill();
+    ctx.lineWidth=4; ctx.strokeStyle="#27201A"; ctx.stroke();
+    ctx.font=`${r*1.1}px serif`; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(s.icon, s.x, s.y+1);
+    // visited check
+    if(visited){ ctx.fillStyle="#56C14C"; ctx.beginPath(); ctx.arc(s.x+r*.7,s.y-r*.7,9,0,7); ctx.fill();
+      ctx.lineWidth=3; ctx.strokeStyle="#27201A"; ctx.stroke();
+      ctx.fillStyle="#fff"; ctx.font="900 12px Trebuchet MS"; ctx.fillText("✓", s.x+r*.7,s.y-r*.7+1); }
+    // legendary sparkle
+    if(s.rarity==="legendary" && !visited){
+      for(let i=0;i<3;i++){const a=s.pulse+i*2.1; ctx.fillStyle="#fff";
+        ctx.beginPath(); ctx.arc(s.x+Math.cos(a)*(r+10), s.y+Math.sin(a)*(r+10),2.4,0,7); ctx.fill();}
+    }
+    ctx.restore();
+    // name label
+    ctx.font="900 12px Trebuchet MS"; ctx.textAlign="center";
+    const tw=ctx.measureText(s.name).width+12;
+    ctx.fillStyle="rgba(255,246,232,.92)"; roundRect(ctx,s.x-tw/2,s.y+r+4,tw,18,8); ctx.fill();
+    ctx.lineWidth=2; ctx.strokeStyle="#27201A"; ctx.stroke();
+    ctx.fillStyle="#27201A"; ctx.fillText(s.name, s.x, s.y+r+16);
+  });
+
+  // the van avatar
+  const bob = G.driving ? Math.sin(G.time*16)*3 : Math.sin(G.time*3)*1.5;
+  drawVan(ctx, G.vx, G.vy-6, 0.62, G.van, G.facing, bob, G.crew);
+
+  // floaters (+points / +tokens)
+  G.floaters.forEach(f=>{
+    ctx.globalAlpha=clamp(f.life,0,1);
+    ctx.fillStyle=f.color; ctx.font="900 18px Trebuchet MS"; ctx.textAlign="center";
+    ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.strokeText(f.txt,f.x,f.y); ctx.fillText(f.txt,f.x,f.y);
+    ctx.globalAlpha=1;
+  });
+  // confetti particles
+  G.particles.forEach(p=>{ ctx.fillStyle=p.color; ctx.fillRect(p.x,p.y,p.s,p.s); });
+}
+
+const byId = id => G.spots.find(s=>s.id===id);
+
+/* --------------------------------------------------------- Game logic ----- */
+let driveTarget=null, driveFrom=null, driveT=0, driveDur=1;
+
+function tryDriveTo(spot){
+  if(G.driving) return;
+  const from={x:G.vx,y:G.vy};
+  const d=dist(from,spot)/Math.min(W,H);   // normalised distance
+  const cost = Math.round( (d*70) * (4/G.van.eff) );  // fuel cost
+  if(spot.id==="hq" && dist(from,spot)<6){ showToast("⛽ Refueled at base!","#56C14C"); G.fuel=G.maxFuel; updateHUD(); return; }
+  if(G.fuel < cost){
+    showToast("⛽ Not enough fuel! Drive back to base to refuel.","#E0443C");
+    return;
+  }
+  driveFrom=from; driveTarget=spot; driveT=0;
+  driveDur = clamp(d* (3.2 - G.van.spd*0.35), .5, 2.4);
+  G.facing = spot.x>=G.vx?1:-1;
+  G.driving=true; G.pendingCost=cost;
+  setHint("🚐 On the road…");
+  Sound.engine();
+}
+
+function arrive(spot){
+  G.driving=false;
+  G.fuel = clamp(G.fuel - G.pendingCost, 0, G.maxFuel);
+  const firstTime = !G.visited.has(spot.id);
+  const meta=RARITY[spot.rarity];
+
+  if(spot.id==="hq"){ G.fuel=G.maxFuel; updateHUD(); openNothing(); return; }
+
+  let pts = meta.points, tok=meta.tokens, xp=meta.xp;
+  if(firstTime){ pts=Math.round(pts*1.5); }   // discovery bonus
+  // level multiplier rewards progression
+  pts = Math.round(pts * (1 + (G.level-1)*0.08));
+
+  G.visited.add(spot.id);
+  addTokens(tok, spot.x, spot.y-30);
+  addScore(pts, spot.x, spot.y-50);
+  G.fuel = clamp(G.fuel+35,0,G.maxFuel);       // resting at camp tops up a little
+  gainXP(xp, spot);
+
+  Sound.arrive();
+  if(spot.rarity==="rare"||spot.rarity==="legendary"){
+    Sound.rare(); burstConfetti(spot.x,spot.y, spot.rarity==="legendary"?120:60); G.camShake=10;
+    showToast((spot.rarity==="legendary"?"🌟 LEGENDARY FIND!":"💜 RARE DISCOVERY!")+" "+spot.name, meta.color);
+  }
+  scatterCoins(); // sprinkle fresh tokens on the map after each trip
+  openSpot(spot, {pts,tok,xp,firstTime});
+}
+
+function addTokens(n,x,y){ G.tokens+=n; floater("+"+n+" 🪙", x,y,"#B8860B"); Sound.coin(); updateHUD(); }
+function addScore(n,x,y){ G.score+=n; floater("+"+fmt(n)+" ⭐", x,y,"#E85C12"); updateHUD(); }
+
+function gainXP(n,spot){
+  G.xp+=n;
+  while(G.xp>=G.xpNeed){
+    G.xp-=G.xpNeed; G.level++; G.xpNeed=Math.round(G.xpNeed*1.35);
+    Sound.level(); burstConfetti(W/2,H*0.3,80); G.camShake=8;
+    showToast("⬆️ LEVEL "+G.level+"! Bigger point bonuses unlocked.","#FF7A2E");
+  }
+  updateHUD();
+}
+
+function floater(txt,x,y,color){ G.floaters.push({txt,x,y,color,life:1.6,vy:-0.6}); }
+function burstConfetti(x,y,n){
+  const cols=["#FFD23F","#FF7A2E","#A86CFF","#37A2F2","#56C14C","#fff"];
+  for(let i=0;i<n;i++) G.particles.push({
+    x,y, vx:(Math.random()-.5)*8, vy:(Math.random()-1)*9, g:0.35,
+    s:4+Math.random()*5, color:cols[i%cols.length], life:1.4 });
+}
+function scatterCoins(){
+  G.coins=[];
+  const undisc=G.spots.filter(s=>!G.visited.has(s.id)&&s.rarity!=="home");
+  undisc.slice(0,6).forEach(s=>{
+    const from=byId("hq");
+    for(let k=1;k<=2;k++){ const t=k/3;
+      G.coins.push({x:lerp(from.x,s.x,t)+(Math.random()-.5)*30,
+                    y:lerp(from.y,s.y,t)+(Math.random()-.5)*30, ph:Math.random()*6.28}); }
+  });
+}
+function collectCoinsNear(x,y){
+  for(let i=G.coins.length-1;i>=0;i--){
+    if(Math.hypot(G.coins[i].x-x,G.coins[i].y-y)<30){
+      G.coins.splice(i,1); addTokens(2,x,y-20);
+    }
+  }
+}
+
+/* ------------------------------------------------------------- Loop -------- */
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now; G.time+=dt;
+
+  if(G.scene==="map"){
+    if(G.driving){
+      driveT+=dt/driveDur;
+      const t=clamp(driveT,0,1), e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; // ease
+      G.vx=lerp(driveFrom.x,driveTarget.x,e);
+      G.vy=lerp(driveFrom.y,driveTarget.y,e) + Math.sin(t*Math.PI)*-22; // little hop
+      if(G.time%0.03<dt) G.trail.push({x:G.vx,y:G.vy+18,life:1});
+      collectCoinsNear(G.vx,G.vy);
+      if(driveT>=1) arrive(driveTarget);
+    }
+    // update trail
+    G.trail.forEach(t=>t.life-=dt*1.6); G.trail=G.trail.filter(t=>t.life>0);
+    // particles
+    G.particles.forEach(p=>{ p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.life-=dt; });
+    G.particles=G.particles.filter(p=>p.life>0 && p.y<H+40);
+    // floaters
+    G.floaters.forEach(f=>{ f.y+=f.vy*60*dt; f.life-=dt; });
+    G.floaters=G.floaters.filter(f=>f.life>0);
+
+    // camera shake
+    ctx.save();
+    if(G.camShake>0){ const s=G.camShake; ctx.translate((Math.random()-.5)*s,(Math.random()-.5)*s); G.camShake-=dt*40; }
+    drawMap();
+    ctx.restore();
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ------------------------------------------------------------- Input ------- */
+cv.addEventListener("pointerdown", e=>{
+  if(G.scene!=="map" || G.driving) return;
+  const x=e.clientX, y=e.clientY;
+  // hit test spots
+  let hit=null, best=44;
+  for(const s of G.spots){ const d=Math.hypot(s.x-x,s.y-y); if(d<best){best=d;hit=s;} }
+  if(hit) tryDriveTo(hit);
+});
+
+/* ------------------------------------------------------------- HUD UI ------ */
+function updateHUD(){
+  $("#hudTokens").textContent=fmt(G.tokens);
+  $("#hudScore").textContent=fmt(G.score);
+  $("#hudFuel").textContent=Math.round(G.fuel);
+  $("#lvlBadge").textContent=G.level;
+  $("#xpFill").style.width=clamp(G.xp/G.xpNeed*100,0,100)+"%";
+}
+function setHint(t){ $("#hint").textContent=t; }
+function showToast(msg,color){
+  const t=$("#toast"); t.textContent=msg; t.style.background=color||"#FFC233";
+  t.style.color = (color==="#A86CFF"||color==="#37A2F2"||color==="#E0443C"||color==="#FF7A2E")?"#fff":"#27201A";
+  t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2600);
+}
+
+/* ----------------------------------------------------- Spot detail modal --- */
+function gmapEmbed(s){ return `https://www.google.com/maps?q=${s.lat},${s.lng}&z=12&hl=en&output=embed`; }
+function gmapSearch(s){ return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name+", UAE")}`; }
+function gmapDir(s){ return `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`; }
+
+function openSpot(s,reward){
+  const meta=RARITY[s.rarity];
+  $("#spotBadge").textContent=meta.label; $("#spotBadge").style.background=meta.color;
+  $("#spotName").textContent=s.name; $("#spotRegion").textContent="📍 "+s.region;
+  $("#spotDesc").textContent=s.desc;
+  $("#spotRewards").innerHTML =
+    `<div class="reward">⭐ +${fmt(reward.pts)}</div>`+
+    `<div class="reward">🪙 +${reward.tok}</div>`+
+    `<div class="reward">✨ +${reward.xp} XP</div>`+
+    (reward.firstTime? `<div class="reward" style="background:#FFE9A8">🆕 First visit!</div>`:``);
+  $("#spotMap").src=gmapEmbed(s);
+  $("#spotPhotos").href=gmapSearch(s);
+  $("#spotDir").href=gmapDir(s);
+  const left=G.spots.filter(x=>x.rarity!=="home").length - [...G.visited].filter(id=>id!=="hq").length;
+  $("#spotProgress").textContent = left>0 ? `🗺️ ${left} spot${left>1?"s":""} left to discover.` : "🏆 Every spot discovered!";
+  show("#scrSpot");
+}
+function openNothing(){ /* arriving back at HQ: no modal */ }
+
+/* --------------------------------------------------------- Screen control -- */
+function show(sel){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); if(sel) $(sel).classList.add("on"); }
+function hideAll(){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); }
+
+/* --------------------------------------------------------- Selection UI ---- */
+function buildVanCards(){
+  const grid=$("#vanGrid"); grid.innerHTML="";
+  VANS.forEach(v=>{
+    const d=document.createElement("div"); d.className="pick"+(v.id===G.van.id?" sel":"");
+    d.innerHTML=`<canvas width="200" height="120"></canvas>
+      <div class="nm">${v.name}</div><div class="ds">${v.base} — ${v.desc}</div>
+      <div class="stats">
+        <span class="stat">⚡ ${v.spd}</span><span class="stat">🛋️ ${v.cmf}</span>
+        <span class="stat">🏔️ ${v.off}</span><span class="stat">⛽ ${v.eff}</span></div>`;
+    grid.appendChild(d);
+    const c=d.querySelector("canvas"), g=c.getContext("2d");
+    g.clearRect(0,0,200,120); drawVan(g,100,64,0.78,v,1,0,G.crew);
+    d.addEventListener("click",()=>{ G.van=v; buildVanCards(); Sound.coin(); });
+  });
+}
+function buildFamCards(){
+  const grid=$("#famGrid"); grid.innerHTML="";
+  FAMILY.forEach(m=>{
+    const sel=G.crew.includes(m.id);
+    const d=document.createElement("div"); d.className="pick"+(sel?" sel":""); d.style.padding="8px";
+    d.innerHTML=`<canvas width="120" height="100"></canvas><div class="nm">${m.emoji} ${m.name}</div>`;
+    grid.appendChild(d);
+    const g=d.querySelector("canvas").getContext("2d");
+    if(m.id==="dog") drawDog(g,60,52,30,m.skin,m.hair); else drawHead(g,60,52,30,m.skin,m.hair,.2);
+    d.addEventListener("click",()=>{
+      const i=G.crew.indexOf(m.id);
+      if(i>=0){ if(G.crew.length>1) G.crew.splice(i,1); }
+      else { if(G.crew.length<3) G.crew.push(m.id); else { G.crew.shift(); G.crew.push(m.id);} }
+      buildFamCards(); buildVanCards(); Sound.coin();
+    });
+  });
+}
+
+/* --------------------------------------------------------- Title logo van -- */
+function drawLogo(){
+  const c=$("#logoVan"); if(!c) return; const g=c.getContext("2d");
+  g.clearRect(0,0,320,120); drawVan(g,160,70,0.9,VANS[1],1,0,["dad","mom","kid"]);
+}
+
+/* --------------------------------------------------------- Wire buttons ---- */
+$("#btnStart").addEventListener("click",()=>{ Sound.coin(); show("#scrVan"); buildVanCards(); buildFamCards(); });
+$("#btnGo").addEventListener("click",()=>{
+  Sound.level(); hideAll(); $("#hud").classList.add("on");
+  G.scene="map"; resize(); scatterCoins(); updateHUD();
+  setHint("Tap a glowing spot to drive there. Find rare places to level up!");
+});
+$("#spotContinue").addEventListener("click",()=>{ hideAll(); checkWin(); });
+$("#spotClose").addEventListener("click",()=>{ $("#spotMap").src="about:blank"; hideAll(); checkWin(); });
+$("#btnReplay").addEventListener("click",()=>location.reload());
+$("#btnMute").addEventListener("click",()=>{ const m=Sound.toggle(); $("#btnMute").textContent=m?"🔇":"🔊"; });
+$("#btnGuide").addEventListener("click",()=>{
+  const left=SPOTS.filter(s=>s.rarity!=="home" && !G.visited.has(s.id));
+  if(!left.length){ showToast("🏆 All spots discovered — legend!","#FFC233"); return; }
+  const rare=left.find(s=>s.rarity==="legendary")||left.find(s=>s.rarity==="rare")||left[0];
+  showToast(`${rare.icon} Try: ${rare.name} (${RARITY[rare.rarity].label})`, RARITY[rare.rarity].color);
+});
+
+function checkWin(){
+  const left=SPOTS.filter(s=>s.rarity!=="home" && !G.visited.has(s.id));
+  if(left.length===0){
+    $("#winStats").innerHTML=`You reached <b>Level ${G.level}</b> with <b>${fmt(G.score)}</b> ⭐ points and <b>${fmt(G.tokens)}</b> 🪙 tokens.<br>The whole family saw the UAE the WayOut way. 🚐💨`;
+    show("#scrWin"); burstConfetti(W/2,H*.4,160); Sound.level();
+  }
+}
+
+/* ----------------------------------------------------------------- Boot ---- */
+resize(); drawLogo(); updateHUD();
+requestAnimationFrame(loop);
+// redraw the title logo van if fonts/canvas settle late
+setTimeout(drawLogo,120);
+</script>
+</body>
+</html>
