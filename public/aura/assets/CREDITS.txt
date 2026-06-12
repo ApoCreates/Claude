@@ -1,0 +1,14 @@
+AURA — asset credits
+
+Art & sound from Kenney "Starter Kit: Match-3" (https://github.com/KenneyNL/Starter-Kit-Match-3)
+Licensed CC0 1.0 (Public Domain) — https://creativecommons.org/publicdomain/zero/1.0/
+No attribution required; credited here gratefully.
+
+- bg.png ............ background (Kenney, CC0)
+- sparkle.png ....... particle (Kenney, CC0)
+- gem-*.png ......... recolored from Kenney's tile-gem (hue-shifted; CC0)
+- tile-match.ogg .... collect sound (Kenney, CC0)
+- tile-swap.ogg ..... pulse/whoosh sound (Kenney, CC0)
+- tile-land.ogg ..... hit/impact sound (Kenney, CC0)
+
+Hazards, glow, trails, particles and music notes are generated procedurally.
