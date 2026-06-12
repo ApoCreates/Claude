@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a1a" />
+<title>MIRAGE CITY — Dubai Nights · Chapter 1</title>
+<style>
+  :root{
+    --gold:#f5d271; --gold2:#caa84a; --neon:#36e3ff; --pink:#ff4d9d; --ink:#05060f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:none;}
+  html,body{height:100%;background:#05060f;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;color:#fff;}
+  #game{position:fixed;inset:0;display:block;}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+
+  /* ---------- HUD ---------- */
+  .hud{position:absolute;inset:0;pointer-events:none;z-index:5;}
+  .topbar{position:absolute;top:0;left:0;right:0;padding:max(10px,env(safe-area-inset-top)) 12px 10px;
+    display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+    background:linear-gradient(180deg,rgba(5,6,15,.7),rgba(5,6,15,0));}
+  .chip{background:rgba(10,12,28,.55);border:1px solid rgba(245,210,113,.35);backdrop-filter:blur(8px);
+    border-radius:12px;padding:6px 10px;font-size:12px;letter-spacing:.3px;line-height:1.25;}
+  .chip b{color:var(--gold);font-weight:700;}
+  .title{font-weight:800;font-size:13px;letter-spacing:1px;
+    background:linear-gradient(90deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .sub{font-size:10px;opacity:.7;letter-spacing:1.5px;text-transform:uppercase;}
+  .stats{display:flex;flex-direction:column;gap:6px;align-items:flex-end;}
+  .objective{position:absolute;left:50%;top:64px;transform:translateX(-50%);max-width:88%;text-align:center;
+    background:rgba(10,12,28,.5);border:1px solid rgba(54,227,255,.3);border-radius:12px;padding:7px 14px;
+    font-size:12px;backdrop-filter:blur(8px);transition:opacity .4s;}
+  .objective .o{color:var(--neon);font-weight:700;font-size:10px;letter-spacing:2px;display:block;margin-bottom:2px;}
+
+  /* ---------- Controls ---------- */
+  .controls{position:absolute;inset:0;pointer-events:none;z-index:6;}
+  #stick{position:absolute;left:max(18px,env(safe-area-inset-left));bottom:max(26px,env(safe-area-inset-bottom));
+    width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.18);pointer-events:auto;touch-action:none;}
+  #knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff,var(--gold) 70%,var(--gold2));box-shadow:0 6px 18px rgba(0,0,0,.5),0 0 22px rgba(245,210,113,.4);}
+  .btns{position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(26px,env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none;}
+  .row{display:flex;gap:14px;align-items:center;}
+  .btn{pointer-events:auto;touch-action:none;width:76px;height:76px;border-radius:50%;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:.5px;text-align:center;
+    border:1px solid rgba(255,255,255,.22);background:rgba(12,14,30,.5);backdrop-filter:blur(8px);
+    box-shadow:0 6px 16px rgba(0,0,0,.4);transition:transform .06s,background .15s;}
+  .btn .ic{font-size:22px;line-height:1;margin-bottom:2px;}
+  .btn:active{transform:scale(.92);}
+  .btn.act{border-color:rgba(54,227,255,.6);box-shadow:0 0 22px rgba(54,227,255,.35);}
+  .btn.car{border-color:rgba(245,210,113,.7);box-shadow:0 0 22px rgba(245,210,113,.35);}
+  .btn.brake{width:60px;height:60px;border-color:rgba(255,77,157,.6);}
+  .btn.small{width:54px;height:54px;font-size:9px;}
+  .hidden{display:none!important;}
+
+  /* ---------- Splash ---------- */
+  #splash{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:24px;background:
+      radial-gradient(120% 80% at 50% 0%,rgba(54,227,255,.12),transparent 60%),
+      radial-gradient(100% 80% at 50% 100%,rgba(255,77,157,.14),transparent 60%),
+      linear-gradient(180deg,#070815,#0b0c1f 60%,#05060f);}
+  #splash .kicker{font-size:11px;letter-spacing:6px;color:var(--neon);opacity:.85;margin-bottom:14px;}
+  #splash h1{font-size:clamp(34px,11vw,68px);font-weight:900;letter-spacing:2px;line-height:.95;
+    background:linear-gradient(180deg,#fff,var(--gold) 60%,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 40px rgba(245,210,113,.25);}
+  #splash h2{margin-top:6px;font-size:clamp(13px,4.2vw,18px);font-weight:600;letter-spacing:4px;color:#cfd3ff;opacity:.9;text-transform:uppercase;}
+  #splash .desc{margin-top:18px;max-width:520px;font-size:13px;line-height:1.6;color:#aab;}
+  #play{margin-top:30px;pointer-events:auto;cursor:pointer;border:none;padding:16px 42px;border-radius:40px;font-weight:800;
+    font-size:16px;letter-spacing:1px;color:#1a1300;background:linear-gradient(180deg,#ffe9a8,var(--gold) 55%,var(--gold2));
+    box-shadow:0 12px 36px rgba(245,210,113,.4),inset 0 1px 0 rgba(255,255,255,.6);transition:transform .1s;}
+  #play:active{transform:scale(.96);}
+  #splash .hint{margin-top:16px;font-size:11px;letter-spacing:1px;opacity:.55;}
+  .skyline{position:absolute;left:0;right:0;bottom:0;height:42%;opacity:.5;}
+
+  /* ---------- Dialogue ---------- */
+  #dlg{position:absolute;left:50%;bottom:max(160px,calc(env(safe-area-inset-bottom) + 150px));transform:translateX(-50%);
+    width:min(560px,92%);z-index:8;pointer-events:auto;
+    background:linear-gradient(180deg,rgba(12,14,32,.92),rgba(8,9,22,.96));border:1px solid rgba(245,210,113,.35);
+    border-radius:16px;padding:14px 16px;backdrop-filter:blur(10px);box-shadow:0 18px 50px rgba(0,0,0,.6);}
+  #dlg .who{font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  #dlg .who .dot{width:8px;height:8px;border-radius:50%;background:var(--neon);box-shadow:0 0 10px var(--neon);}
+  #dlg .txt{font-size:14px;line-height:1.55;color:#eef;}
+  #dlg .next{margin-top:10px;text-align:right;font-size:11px;color:var(--neon);letter-spacing:1px;}
+
+  /* toast */
+  #toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);z-index:9;opacity:0;
+    background:rgba(10,12,28,.8);border:1px solid rgba(245,210,113,.5);border-radius:14px;padding:16px 26px;text-align:center;
+    transition:opacity .35s,transform .35s;pointer-events:none;backdrop-filter:blur(8px);max-width:80%;}
+  #toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  #toast .big{font-size:18px;font-weight:800;letter-spacing:1px;color:var(--gold);}
+  #toast .sm{font-size:12px;opacity:.8;margin-top:4px;}
+
+  .credit{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font-size:9px;letter-spacing:1px;opacity:.4;z-index:5;}
+</style>
+</head>
+<body>
+<div id="game">
+  <canvas id="c"></canvas>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="topbar">
+      <div class="chip">
+        <div class="title">MIRAGE CITY</div>
+        <div class="sub" id="chapter">Ch.1 · Gold Dust</div>
+      </div>
+      <div class="stats">
+        <div class="chip"><b id="cash">AED 2,500</b></div>
+        <div class="chip"><span id="clock">21:40</span> · <span id="phase">Night</span></div>
+      </div>
+    </div>
+    <div class="objective" id="objective"><span class="o">Objective</span><span id="objtext">Find a ride near the Marina.</span></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div id="stick"><div id="knob"></div></div>
+    <div class="btns">
+      <div class="row">
+        <div class="btn act" id="bAct"><span class="ic">✋</span><span id="actLbl">ACTION</span></div>
+      </div>
+      <div class="row">
+        <div class="btn brake hidden" id="bBrake"><span class="ic">🛑</span>BRAKE</div>
+        <div class="btn car" id="bCar"><span class="ic">🚗</span><span id="carLbl">ENTER</span></div>
+        <div class="btn small" id="bHorn"><span class="ic">📣</span>HORN</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialogue -->
+  <div id="dlg" class="hidden">
+    <div class="who"><span class="dot"></span><span id="dlgWho">CONTACT</span></div>
+    <div class="txt" id="dlgTxt"></div>
+    <div class="next" id="dlgNext">tap to continue ▸</div>
+  </div>
+
+  <div id="toast"><div class="big" id="toastBig"></div><div class="sm" id="toastSm"></div></div>
+
+  <!-- Splash -->
+  <div id="splash">
+    <div class="kicker">A N   I N T E R A C T I V E   W O R L D</div>
+    <h1>MIRAGE<br>CITY</h1>
+    <h2>Dubai Nights · Chapter 1</h2>
+    <p class="desc">Neon towers, golden sand, the hum of supercars on Sheikh Zayed Road. Beneath the glamour runs a quieter current — late-night deals, whispered contacts, and a city that never quite sleeps. Drive it. Walk it. Read its lights.</p>
+    <button id="play">▶  ENTER THE CITY</button>
+    <div class="hint">Drag the left stick to move · tap ENTER near a car to drive</div>
+  </div>
+
+  <div class="credit">MIRAGE CITY — a playable concept · built for the feed</div>
+</div>
+
+<script>
+"use strict";
+/* =========================================================================
+   MIRAGE CITY — Dubai Nights, Chapter 1
+   Single-file top-down open-world concept. Canvas 2D, mobile-first.
+   ========================================================================= */
+(function(){
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+let W=0,H=0,DPR=1;
+
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = Math.floor(W*DPR); cv.height = Math.floor(H*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize); resize();
+
+/* ---------------- World definition ---------------- */
+const WORLD = { w: 4200, h: 3000 };
+// Districts give the map its colour zones
+// Buildings: solid obstacles. Landmarks: special draw. Roads: drawn under.
+const rng = (seed=>{let s=seed;return()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;}})(7);
+
+// Roads as a simple grid of horizontal/vertical strips
+const ROADS = [];
+function road(x,y,w,h){ ROADS.push({x,y,w,h}); }
+// main coastal highway + grid
+for(let i=0;i<6;i++) road(0, 360+i*440, WORLD.w, 70);      // horizontals
+for(let i=0;i<8;i++) road(300+i*500, 0, 70, WORLD.h);       // verticals
+road(0, 120, WORLD.w, 90); // Sheikh Zayed style top highway
+
+// Buildings (obstacles) — generated within blocks, avoiding roads & water
+const BUILDINGS = [];
+function isOnRoad(x,y,w,h){
+  for(const r of ROADS){ if(x< r.x+r.w && x+w> r.x && y< r.y+r.h && y+h> r.y) return true; }
+  return false;
+}
+const SEA_Y = 2580; // everything below is sea / beach
+const palette = [
+  ['#2a3566','#1c2547'],['#33406f','#202a53'],['#3a3060','#241d44'],
+  ['#244e5c','#163742'],['#4a3a5e','#2c2240'],['#2e3a52','#1d2538']
+];
+for(let bx=0;bx<14;bx++){
+  for(let by=0;by<7;by++){
+    const gx = 110+bx*290, gy = 180+by*440;
+    const cells = 1+Math.floor(rng()*2);
+    for(let k=0;k<cells;k++){
+      const w = 70+rng()*120, h=70+rng()*110;
+      const x = gx + rng()*120, y = gy + rng()*90;
+      if(y> SEA_Y-140) continue;
+      if(isOnRoad(x-14,y-14,w+28,h+28)) continue;
+      const pal = palette[Math.floor(rng()*palette.length)];
+      BUILDINGS.push({x,y,w,h,c1:pal[0],c2:pal[1],ht:0.5+rng(), seed:rng()*1000});
+    }
+  }
+}
+
+// Landmarks (special, also obstacles)
+const LANDMARKS = [
+  {type:'burj',   x:1980, y:980,  label:'Burj Khalifa'},
+  {type:'sail',   x:520,  y:2300, label:'Burj Al Arab'},
+  {type:'frame',  x:2820, y:760,  label:'Dubai Frame'},
+  {type:'fountain',x:1820, y:1320, label:'The Fountain'},
+  {type:'wheel',  x:980,  y:2260, label:'Ain Dubai'},
+  {type:'museum', x:2540, y:1640, label:'Museum of the Future'},
+];
+
+// Points of interest / story nodes
+const POIS = [
+  {id:'marina', x:760,  y:1980, name:'Marina Walk', kind:'place'},
+  {id:'club',   x:2360, y:2080, name:'Club Mirage', kind:'club'},
+  {id:'souk',   x:3200, y:1300, name:'Gold Souk',   kind:'place'},
+  {id:'heli',   x:1980, y:760,  name:'Skydeck',     kind:'place'},
+];
+
+/* ---------------- Entities ---------------- */
+const player = {
+  x:760, y:2180, r:11, ang:-Math.PI/2, speed:0, inCar:null, name:'You'
+};
+
+// Fancy cars scattered around
+const CARMODELS = [
+  {name:'Veyhron', c:'#e8c34a', accent:'#fff', top:280},
+  {name:'Lamborg', c:'#ff7a1a', accent:'#222', top:300},
+  {name:'Rolls Spectre', c:'#101a3a', accent:'#d8def0', top:230},
+  {name:'McLar', c:'#ff2e63', accent:'#111', top:300},
+  {name:'G63 Brabus', c:'#0c0c0c', accent:'#444', top:250},
+  {name:'Ferra', c:'#d61f26', accent:'#111', top:300},
+];
+const CARS = [];
+function spawnCar(x,y,modelIdx){
+  const m = CARMODELS[modelIdx % CARMODELS.length];
+  CARS.push({x,y,ang:rng()*6.28,vx:0,vy:0,speed:0,w:24,h:46,
+    color:m.c,accent:m.accent,name:m.name,top:m.top, occupied:false});
+}
+spawnCar(820,2070,0); spawnCar(1320,1900,1); spawnCar(2200,1600,2);
+spawnCar(1860,560,3); spawnCar(2480,2160,4); spawnCar(3050,1180,5);
+spawnCar(640,1500,1); spawnCar(2900,860,0);
+
+// NPC pedestrians
+const NPCS = [];
+const skin=['#caa07a','#e3b88e','#a9774f','#8a5a36','#d8b48a'];
+const wear=['#36e3ff','#ff4d9d','#f5d271','#9b8cff','#7CFFB2','#ffffff','#ff8a5b'];
+for(let i=0;i<90;i++){
+  NPCS.push({
+    x:200+rng()*(WORLD.w-400), y:160+rng()*(SEA_Y-260),
+    ang:rng()*6.28, spd:.25+rng()*.5, t:rng()*100,
+    s:skin[(rng()*skin.length)|0], w:wear[(rng()*wear.length)|0],
+    story:false
+  });
+}
+// Story NPCs (tasteful nightlife contacts — mystery, not explicit)
+const CONTACTS = [
+  {x:760, y:1980, name:'Yusuf "The Valet"', tag:'fixer',
+   lines:[
+     "You're new. Good — new faces still have clean hands.",
+     "Take a car. The gold one runs like a dream. Bring it to Club Mirage on the strip.",
+     "Park it pretty out front. Someone there wants to talk to you about... opportunities."
+   ], reward:'Objective: Drive to Club Mirage', advance:'club'},
+  {x:2360, y:2080, name:'Layla', tag:'hostess',
+   lines:[
+     "So you're Yusuf's runner. Cute. The city eats cute for breakfast.",
+     "Listen — Dubai shows you the towers and the fountains, the daylight postcard.",
+     "But there's a night side. Quiet deals on the 40th floor, names you don't say out loud.",
+     "Do one clean run for us and the Gold Souk opens its back door. Interested?"
+   ], reward:'Chapter 1 complete', advance:'done'},
+];
+CONTACTS.forEach(c=>{ c.done=false; });
+
+/* ---------------- State ---------------- */
+const game = {
+  started:false, t:0, tod: 21.6, // time of day in hours (21.6 = night)
+  cash: 2500, dialogue:null, dlgIndex:0, objective:'Talk to the Valet at the Marina (white marker).',
+  stage:'marina', horn:0
+};
+
+/* ---------------- Camera ---------------- */
+const cam = {x:player.x, y:player.y, zoom:1};
+
+/* ---------------- Input ---------------- */
+const input = {mx:0,my:0,mag:0, act:false, car:false, brake:false};
+// Joystick
+const stick = document.getElementById('stick');
+const knob = document.getElementById('knob');
+let stickId=null, sCx=0,sCy=0,sR=58;
+function stickStart(e){
+  const t = e.changedTouches? e.changedTouches[0]: e;
+  const rect = stick.getBoundingClientRect();
+  sCx=rect.left+rect.width/2; sCy=rect.top+rect.height/2;
+  stickId = e.changedTouches? t.identifier : 'mouse';
+  stickMove(e); e.preventDefault();
+}
+function stickMove(e){
+  let t;
+  if(e.changedTouches){
+    for(const tt of e.changedTouches){ if(tt.identifier===stickId){t=tt;break;} }
+    if(!t) return;
+  } else t=e;
+  let dx=t.clientX-sCx, dy=t.clientY-sCy;
+  const d=Math.hypot(dx,dy)||1; const cl=Math.min(d,sR);
+  const nx=dx/d, ny=dy/d;
+  input.mx=nx*(cl/sR); input.my=ny*(cl/sR); input.mag=cl/sR;
+  knob.style.transform=`translate(${nx*cl}px,${ny*cl}px)`;
+  e.preventDefault();
+}
+function stickEnd(e){
+  if(e.changedTouches){ let found=false; for(const tt of e.changedTouches){if(tt.identifier===stickId)found=true;} if(!found) return; }
+  stickId=null; input.mx=input.my=input.mag=0; knob.style.transform='translate(0,0)';
+}
+stick.addEventListener('touchstart',stickStart,{passive:false});
+stick.addEventListener('touchmove',stickMove,{passive:false});
+stick.addEventListener('touchend',stickEnd);
+stick.addEventListener('touchcancel',stickEnd);
+stick.addEventListener('mousedown',e=>{stickStart(e);window.addEventListener('mousemove',stickMove);window.addEventListener('mouseup',function up(){stickEnd(e);window.removeEventListener('mousemove',stickMove);window.removeEventListener('mouseup',up);});});
+
+function bindBtn(el,key,onDown){
+  const dn=e=>{input[key]=true; if(onDown)onDown(); e.preventDefault();};
+  const up=e=>{input[key]=false; e.preventDefault();};
+  el.addEventListener('touchstart',dn,{passive:false});
+  el.addEventListener('touchend',up);
+  el.addEventListener('touchcancel',up);
+  el.addEventListener('mousedown',dn);
+  el.addEventListener('mouseup',up);
+  el.addEventListener('mouseleave',up);
+}
+bindBtn(document.getElementById('bAct'),'act',onAction);
+bindBtn(document.getElementById('bCar'),'car',onCarBtn);
+bindBtn(document.getElementById('bBrake'),'brake');
+document.getElementById('bHorn').addEventListener('touchstart',e=>{game.horn=1;e.preventDefault();},{passive:false});
+document.getElementById('bHorn').addEventListener('mousedown',()=>game.horn=1);
+
+// Keyboard (desktop testing)
+const keys={};
+window.addEventListener('keydown',e=>{
+  keys[e.key.toLowerCase()]=true;
+  if(e.key==='e'||e.key==='E'){ onCarBtn(); }
+  if(e.key===' '){ input.brake=true; if(game.dialogue) onAction(); }
+  if(e.key==='Enter'&&game.dialogue) onAction();
+});
+window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false; if(e.key===' ')input.brake=false;});
+function readKeys(){
+  let dx=0,dy=0;
+  if(keys['arrowup']||keys['w'])dy-=1;
+  if(keys['arrowdown']||keys['s'])dy+=1;
+  if(keys['arrowleft']||keys['a'])dx-=1;
+  if(keys['arrowright']||keys['d'])dx+=1;
+  if(dx||dy){const d=Math.hypot(dx,dy);input.mx=dx/d;input.my=dy/d;input.mag=1;}
+}
+
+/* ---------------- Actions ---------------- */
+function nearestContact(){
+  let best=null,bd=70;
+  for(const c of CONTACTS){ if(c.done)continue; const d=Math.hypot(c.x-player.x,c.y-player.y); if(d<bd){bd=d;best=c;} }
+  return best;
+}
+function nearestCar(){
+  let best=null,bd=46;
+  for(const c of CARS){ const d=Math.hypot(c.x-player.x,c.y-player.y); if(d<bd){bd=d;best=c;} }
+  return best;
+}
+function onAction(){
+  if(game.dialogue){ advanceDialogue(); return; }
+  const c=nearestContact();
+  if(c){ openDialogue(c); }
+}
+function onCarBtn(){
+  if(game.dialogue) return;
+  if(player.inCar){ exitCar(); }
+  else { const c=nearestCar(); if(c){ enterCar(c); } }
+}
+function enterCar(c){
+  player.inCar=c; c.occupied=true;
+  document.getElementById('bBrake').classList.remove('hidden');
+  document.getElementById('carLbl').textContent='EXIT';
+  document.getElementById('actLbl').textContent='ACTION';
+  toast(c.name, 'Top '+c.top+' km/h · floor it');
+}
+function exitCar(){
+  const c=player.inCar; if(!c)return;
+  c.occupied=false; c.speed*=0.2;
+  player.x=c.x+Math.cos(c.ang+Math.PI/2)*30;
+  player.y=c.y+Math.sin(c.ang+Math.PI/2)*30;
+  player.inCar=null;
+  document.getElementById('bBrake').classList.add('hidden');
+  document.getElementById('carLbl').textContent='ENTER';
+}
+function openDialogue(c){
+  game.dialogue=c; game.dlgIndex=0;
+  document.getElementById('dlgWho').textContent=c.name+'  ·  '+c.tag;
+  document.getElementById('dlgTxt').textContent=c.lines[0];
+  document.getElementById('dlg').classList.remove('hidden');
+}
+function advanceDialogue(){
+  const c=game.dialogue; game.dlgIndex++;
+  if(game.dlgIndex>=c.lines.length){
+    document.getElementById('dlg').classList.add('hidden');
+    c.done=true; game.dialogue=null;
+    completeContact(c);
+  } else {
+    document.getElementById('dlgTxt').textContent=c.lines[game.dlgIndex];
+  }
+}
+function completeContact(c){
+  if(c.advance==='club'){
+    game.objective='Drive to Club Mirage (pink marker on the strip).';
+    game.stage='drive_club';
+    game.cash+=1500; updateCash();
+    toast('+ AED 1,500', 'Yusuf slips you a roll of notes');
+  } else if(c.advance==='done'){
+    game.objective='Chapter 1 complete — the city is yours to explore.';
+    game.stage='free';
+    game.cash+=5000; updateCash();
+    toast('CHAPTER 1 COMPLETE', 'Gold Souk back door unlocked · explore freely');
+    document.getElementById('chapter').textContent='Ch.1 ✓ · Free Roam';
+  }
+  refreshObjective();
+}
+function updateCash(){ document.getElementById('cash').textContent='AED '+game.cash.toLocaleString(); }
+function refreshObjective(){ document.getElementById('objtext').textContent=game.objective; }
+
+function toast(big,sm){
+  document.getElementById('toastBig').textContent=big;
+  document.getElementById('toastSm').textContent=sm||'';
+  const t=document.getElementById('toast'); t.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ---------------- Collision ---------------- */
+function collideCircle(nx,ny,r){
+  // returns adjusted [x,y] pushing out of buildings/landmarks
+  for(const b of BUILDINGS){
+    const cx=Math.max(b.x,Math.min(nx,b.x+b.w));
+    const cy=Math.max(b.y,Math.min(ny,b.y+b.h));
+    let dx=nx-cx, dy=ny-cy; let d=Math.hypot(dx,dy);
+    if(d<r){ if(d===0){d=.01;dx=1;} const p=(r-d); nx+=dx/d*p; ny+=dy/d*p; }
+  }
+  // keep in bounds
+  nx=Math.max(20,Math.min(WORLD.w-20,nx));
+  ny=Math.max(20,Math.min(SEA_Y-8,ny)); // can walk onto beach a bit, not into deep sea
+  return [nx,ny];
+}
+
+/* ---------------- Update ---------------- */
+function update(dt){
+  game.t+=dt;
+  // time of day advances slowly
+  game.tod += dt*0.04; if(game.tod>=24) game.tod-=24;
+  updateClock();
+
+  readKeys();
+  if(game.horn>0){ game.horn=Math.max(0,game.horn-dt*1.5); }
+
+  if(player.inCar){
+    const c=player.inCar;
+    // arcade car physics
+    const throttle = input.mag>0.1? input.mag : (keys['w']||keys['arrowup']?1: (keys['s']||keys['arrowdown']? -0.6:0));
+    // steer toward stick direction relative to car heading, or arrow
+    let steer=0;
+    if(input.mag>0.15){
+      const desired=Math.atan2(input.my,input.mx);
+      let diff=desired - c.ang; while(diff>Math.PI)diff-=6.283; while(diff<-Math.PI)diff+=6.283;
+      steer = Math.max(-1,Math.min(1,diff*1.4));
+      c.speed += (Math.min(c.top/40, 7) - c.speed)*0.04*input.mag;
+    } else if(keys['a']||keys['arrowleft']) steer=-1;
+    else if(keys['d']||keys['arrowright']) steer=1;
+
+    if(keys['w']||keys['arrowup']) c.speed += (7-c.speed)*0.05;
+    if(input.brake){ c.speed *= 0.90; }
+    c.speed *= 0.985; // drag
+    if(Math.abs(c.speed)<0.02)c.speed=0;
+    c.ang += steer * 0.045 * Math.min(1,Math.abs(c.speed)/2) * Math.sign(c.speed||1);
+    const nx=c.x+Math.cos(c.ang)*c.speed*3.0;
+    const ny=c.y+Math.sin(c.ang)*c.speed*3.0;
+    const [ax,ay]=collideCircle(nx,ny,18);
+    if(ax!==nx||ay!==ny) c.speed*=0.5; // bump
+    c.x=ax; c.y=ay;
+    player.x=c.x; player.y=c.y; player.ang=c.ang;
+    checkArrival();
+  } else {
+    // walking
+    const sp = 1.9*input.mag;
+    if(input.mag>0.05){
+      player.ang=Math.atan2(input.my,input.mx);
+      const nx=player.x+input.mx*sp*1.6, ny=player.y+input.my*sp*1.6;
+      const [ax,ay]=collideCircle(nx,ny,player.r);
+      player.x=ax; player.y=ay;
+    }
+    player.speed=sp;
+  }
+
+  // NPC wander
+  for(const n of NPCS){
+    n.t+=dt;
+    if(n.t>2.2+Math.random()*2){ n.ang+=(Math.random()-0.5)*1.6; n.t=0; }
+    const nx=n.x+Math.cos(n.ang)*n.spd, ny=n.y+Math.sin(n.ang)*n.spd;
+    if(nx<120||nx>WORLD.w-120) n.ang=Math.PI-n.ang;
+    else if(ny<150||ny>SEA_Y-150) n.ang=-n.ang;
+    else { n.x=nx; n.y=ny; }
+  }
+
+  // camera follow with car look-ahead
+  const tx=player.x + (player.inCar?Math.cos(player.ang)*60:0);
+  const ty=player.y + (player.inCar?Math.sin(player.ang)*60:0);
+  cam.x += (tx-cam.x)*Math.min(1,dt*5);
+  cam.y += (ty-cam.y)*Math.min(1,dt*5);
+  const targetZoom = player.inCar? 0.92 : 1.12;
+  cam.zoom += (targetZoom-cam.zoom)*Math.min(1,dt*3);
+
+  // update car/action button labels based on proximity
+  const nc=nearestContact();
+  document.getElementById('actLbl').textContent = game.dialogue? 'NEXT' : (nc? 'TALK':'ACTION');
+  const car=nearestCar();
+  if(!player.inCar) document.getElementById('carLbl').textContent = car? 'ENTER':'CAR';
+}
+
+let lastPoiToast='';
+function checkArrival(){
+  if(game.stage==='drive_club'){
+    const cl=POIS.find(p=>p.id==='club');
+    if(Math.hypot(cl.x-player.x,cl.y-player.y)<90){
+      game.objective='Park & step out — Layla is waiting (pink marker).';
+      refreshObjective();
+      if(lastPoiToast!=='club'){ toast('CLUB MIRAGE','Step out of the car to meet Layla'); lastPoiToast='club'; }
+      game.stage='at_club';
+    }
+  }
+}
+
+function updateClock(){
+  let h=Math.floor(game.tod), m=Math.floor((game.tod-h)*60);
+  document.getElementById('clock').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  const night = (game.tod>=19||game.tod<6);
+  document.getElementById('phase').textContent= night?'Night':(game.tod<11?'Morning':game.tod<17?'Day':'Dusk');
+}
+
+/* ---------------- Rendering ---------------- */
+function nightFactor(){
+  // 1 = full night, 0 = full day
+  const t=game.tod;
+  if(t>=20||t<5) return 1;
+  if(t>=5&&t<7) return 1-(t-5)/2;
+  if(t>=7&&t<18) return 0;
+  if(t>=18&&t<20) return (t-18)/2;
+  return 0;
+}
+
+function worldToScreen(x,y){
+  return [ (x-cam.x)*cam.zoom + W/2, (y-cam.y)*cam.zoom + H/2 ];
+}
+
+function draw(){
+  const nf=nightFactor();
+  // sky/ground base
+  ctx.fillStyle='#0a1326';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.save();
+  ctx.translate(W/2,H/2);
+  ctx.scale(cam.zoom,cam.zoom);
+  ctx.translate(-cam.x,-cam.y);
+
+  drawGround(nf);
+  drawSea(nf);
+  drawRoads(nf);
+  drawLandmarks(nf);
+  drawBuildings(nf);
+  drawPOIs(nf);
+  drawCars(nf);
+  drawNPCs(nf);
+  drawContacts(nf);
+  drawPlayer(nf);
+
+  ctx.restore();
+
+  // night vignette / colour grade overlay
+  if(nf>0){
+    const g=ctx.createRadialGradient(W/2,H*0.42,Math.min(W,H)*0.2,W/2,H/2,Math.max(W,H)*0.75);
+    g.addColorStop(0,'rgba(10,8,30,0)');
+    g.addColorStop(1,`rgba(4,4,20,${0.55*nf})`);
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  }
+  drawMinimap();
+}
+
+function drawGround(nf){
+  // desert/city floor with subtle district tint
+  const base = mix('#d8c39a','#1a2138', nf);
+  ctx.fillStyle=base;
+  ctx.fillRect(0,0,WORLD.w,SEA_Y);
+  // sand texture near edges (beach)
+  const beach=ctx.createLinearGradient(0,SEA_Y-260,0,SEA_Y);
+  beach.addColorStop(0,'rgba(0,0,0,0)');
+  beach.addColorStop(1, mix('#f0dcab','#243049',nf));
+  ctx.fillStyle=beach; ctx.fillRect(0,SEA_Y-260,WORLD.w,260);
+  // faint block grid
+  ctx.strokeStyle=`rgba(0,0,0,${0.06+0.05*nf})`; ctx.lineWidth=1;
+  ctx.beginPath();
+  for(let x=0;x<WORLD.w;x+=290){ctx.moveTo(x,0);ctx.lineTo(x,SEA_Y);}
+  for(let y=0;y<SEA_Y;y+=220){ctx.moveTo(0,y);ctx.lineTo(WORLD.w,y);}
+  ctx.stroke();
+}
+
+function drawSea(nf){
+  const g=ctx.createLinearGradient(0,SEA_Y,0,WORLD.h);
+  g.addColorStop(0, mix('#2bb6c9','#0a2a4a',nf));
+  g.addColorStop(1, mix('#1787b8','#061a33',nf));
+  ctx.fillStyle=g; ctx.fillRect(0,SEA_Y,WORLD.w,WORLD.h-SEA_Y);
+  // shimmer
+  ctx.save();
+  ctx.globalAlpha=0.18+0.12*nf;
+  ctx.strokeStyle= nf>0.5?'#7fe9ff':'#ffffff';
+  ctx.lineWidth=2;
+  for(let i=0;i<26;i++){
+    const yy=SEA_Y+30+i*16 + Math.sin(game.t*1.2+i)*4;
+    const xoff=Math.sin(game.t*0.8+i*0.6)*40;
+    ctx.beginPath();
+    ctx.moveTo(120+i*150+xoff, yy);
+    ctx.lineTo(220+i*150+xoff, yy);
+    ctx.stroke();
+  }
+  ctx.restore();
+  // Palm Jumeirah silhouette in the sea
+  drawPalm(nf);
+}
+
+function drawPalm(nf){
+  const px=3300, py=SEA_Y+230;
+  ctx.save();
+  ctx.fillStyle=mix('#cdb98f','#1c2740',nf);
+  // trunk
+  ctx.fillRect(px-14,py-150,28,300);
+  // fronds
+  for(let i=0;i<7;i++){
+    ctx.save();
+    ctx.translate(px,py-150+i*42);
+    for(const s of [-1,1]){
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(s*70,-10, s*120,-30-i*4);
+      ctx.lineWidth=10; ctx.strokeStyle=mix('#cdb98f','#1c2740',nf);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  // crescent
+  ctx.strokeStyle=mix('#bda77c','#16203a',nf); ctx.lineWidth=20;
+  ctx.beginPath(); ctx.arc(px,py-10,210,Math.PI*0.15,Math.PI*0.85); ctx.stroke();
+  ctx.restore();
+  // label
+  tagLabel(px,py-160,'Palm Jumeirah',nf);
+}
+
+function drawRoads(nf){
+  ctx.fillStyle=mix('#3a3a3f','#0e1220',nf);
+  for(const r of ROADS){ if(r.y>SEA_Y)continue; ctx.fillRect(r.x,r.y,r.w,r.h); }
+  // lane markings
+  ctx.strokeStyle=`rgba(245,220,150,${0.5+0.3*nf})`; ctx.lineWidth=2; ctx.setLineDash([18,16]);
+  ctx.beginPath();
+  for(const r of ROADS){
+    if(r.y>SEA_Y)continue;
+    if(r.w>r.h){ const y=r.y+r.h/2; ctx.moveTo(r.x,y); ctx.lineTo(r.x+r.w,y); }
+    else { const x=r.x+r.w/2; ctx.moveTo(x,r.y); ctx.lineTo(x,Math.min(r.y+r.h,SEA_Y)); }
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+}
+
+function drawBuildings(nf){
+  for(const b of BUILDINGS){
+    // shadow
+    ctx.fillStyle='rgba(0,0,0,0.28)';
+    ctx.fillRect(b.x+6,b.y+8,b.w,b.h);
+    // body gradient
+    const g=ctx.createLinearGradient(b.x,b.y,b.x+b.w,b.y+b.h);
+    g.addColorStop(0, mix(lighten(b.c1,nf?20:40), b.c1, nf));
+    g.addColorStop(1, b.c2);
+    ctx.fillStyle=g;
+    ctx.fillRect(b.x,b.y,b.w,b.h);
+    // roof rim
+    ctx.fillStyle='rgba(255,255,255,'+(0.08+0.04*(1-nf))+')';
+    ctx.fillRect(b.x,b.y,b.w,3);
+    // windows
+    const cols=Math.max(2,Math.floor(b.w/16)), rows=Math.max(2,Math.floor(b.h/16));
+    for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){
+      const wx=b.x+5+i*((b.w-8)/cols), wy=b.y+6+j*((b.h-10)/rows);
+      const lit = ((i*7+j*3+((b.seed)|0))%5===0);
+      if(nf>0.3 && lit){
+        ctx.fillStyle=`rgba(255,225,150,${0.55+0.35*nf})`;
+      } else {
+        ctx.fillStyle=`rgba(180,210,255,${0.10+0.10*(1-nf)})`;
+      }
+      ctx.fillRect(wx,wy,(b.w-8)/cols-3,(b.h-10)/rows-3);
+    }
+  }
+}
+
+function drawLandmarks(nf){
+  for(const L of LANDMARKS){
+    ctx.save(); ctx.translate(L.x,L.y);
+    if(L.type==='burj') drawBurj(nf);
+    else if(L.type==='sail') drawSail(nf);
+    else if(L.type==='frame') drawFrame(nf);
+    else if(L.type==='fountain') drawFountain(nf);
+    else if(L.type==='wheel') drawWheel(nf);
+    else if(L.type==='museum') drawMuseum(nf);
+    ctx.restore();
+    tagLabel(L.x,L.y-(L.type==='burj'?300:110),L.label,nf);
+  }
+}
+function drawBurj(nf){
+  // tapered tiered tower, big shadow
+  ctx.fillStyle='rgba(0,0,0,0.35)';
+  ctx.beginPath(); ctx.moveTo(20,0); ctx.lineTo(90,18); ctx.lineTo(60,-260); ctx.lineTo(34,-280); ctx.closePath(); ctx.fill();
+  const g=ctx.createLinearGradient(-40,0,40,0);
+  g.addColorStop(0, mix('#9fb6d6','#26324f',nf));
+  g.addColorStop(0.5, mix('#e8f1ff','#5a6b95',nf));
+  g.addColorStop(1, mix('#7e95bd','#1b2440',nf));
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.moveTo(-36,0); ctx.lineTo(36,0);
+  ctx.lineTo(20,-150); ctx.lineTo(12,-235); ctx.lineTo(4,-300); ctx.lineTo(0,-318);
+  ctx.lineTo(-4,-300); ctx.lineTo(-12,-235); ctx.lineTo(-20,-150); ctx.closePath();
+  ctx.fill();
+  // tier lines
+  ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1;
+  for(let y=-30;y>-300;y-=22){ ctx.beginPath(); ctx.moveTo(-30*(1+y/300),y);ctx.lineTo(30*(1+y/300),y); ctx.stroke(); }
+  // glowing spire at night
+  if(nf>0.2){
+    ctx.shadowColor='#9fe9ff'; ctx.shadowBlur=24*nf;
+    ctx.strokeStyle=`rgba(160,235,255,${0.5+0.5*nf})`; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(0,-300); ctx.lineTo(0,-340); ctx.stroke();
+    ctx.shadowBlur=0;
+  }
+}
+function drawSail(nf){
+  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath();
+  ctx.moveTo(8,0); ctx.quadraticCurveTo(120,-110,30,-220); ctx.lineTo(8,0); ctx.fill();
+  const g=ctx.createLinearGradient(-40,0,80,-200);
+  g.addColorStop(0, mix('#ffffff','#2a3450',nf)); g.addColorStop(1, mix('#cfe0ff','#3a4a66',nf));
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.moveTo(-30,0); ctx.lineTo(-30,-210); ctx.quadraticCurveTo(70,-150,20,0); ctx.closePath(); ctx.fill();
+  // mast
+  ctx.strokeStyle=mix('#aab','#445',nf); ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(-30,-210);ctx.lineTo(-30,0);ctx.stroke();
+  if(nf>0.3){ ctx.fillStyle=`rgba(255,120,180,${0.25*nf})`; ctx.beginPath(); ctx.moveTo(-30,0);ctx.lineTo(-30,-210);ctx.quadraticCurveTo(70,-150,20,0);ctx.closePath();ctx.fill(); }
+}
+function drawFrame(nf){
+  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.fillRect(-6,-6,150,16);
+  const g=ctx.createLinearGradient(0,-180,0,0);
+  g.addColorStop(0, mix('#f5d271','#7a6520',nf)); g.addColorStop(1, mix('#caa84a','#4a3c14',nf));
+  ctx.fillStyle=g;
+  ctx.fillRect(-10,-180,22,180); ctx.fillRect(110,-180,22,180); ctx.fillRect(-10,-180,142,24);
+  if(nf>0.3){ ctx.shadowColor='#f5d271';ctx.shadowBlur=18*nf; ctx.strokeStyle=`rgba(245,210,113,${nf})`;ctx.lineWidth=2;
+    ctx.strokeRect(-10,-180,142,180); ctx.shadowBlur=0; }
+}
+function drawFountain(nf){
+  ctx.fillStyle=mix('#2bb6c9','#0a2a4a',nf);
+  ctx.beginPath(); ctx.ellipse(0,0,80,46,0,0,6.3); ctx.fill();
+  // animated jets
+  ctx.save();
+  for(let i=0;i<10;i++){
+    const a=(i/10)*6.283; const h=30+Math.sin(game.t*2+i)*22+22;
+    ctx.strokeStyle=`rgba(${nf>0.4?'150,235,255':'255,255,255'},${0.6})`; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(Math.cos(a)*36,Math.sin(a)*20); ctx.lineTo(Math.cos(a)*36,Math.sin(a)*20-h); ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawWheel(nf){
+  ctx.strokeStyle=mix('#cfd6e8','#3a4a66',nf); ctx.lineWidth=4;
+  ctx.beginPath(); ctx.arc(0,-90,90,0,6.283); ctx.stroke();
+  for(let i=0;i<16;i++){ const a=i/16*6.283 + game.t*0.1; ctx.beginPath(); ctx.moveTo(0,-90); ctx.lineTo(Math.cos(a)*90,-90+Math.sin(a)*90); ctx.stroke();
+    if(nf>0.3){ ctx.fillStyle=`hsla(${(i*30+game.t*40)%360},90%,65%,${nf})`; ctx.beginPath(); ctx.arc(Math.cos(a)*90,-90+Math.sin(a)*90,4,0,6.3); ctx.fill(); }
+  }
+  ctx.fillStyle=mix('#888','#222',nf); ctx.fillRect(-6,-90,12,90);
+}
+function drawMuseum(nf){
+  const g=ctx.createLinearGradient(-60,-90,60,0);
+  g.addColorStop(0, mix('#d9c089','#6a5a2e',nf)); g.addColorStop(1, mix('#b89a52','#3a3014',nf));
+  ctx.fillStyle=g;
+  ctx.beginPath(); ctx.ellipse(0,-55,62,72,0,0,6.3); ctx.fill();
+  ctx.fillStyle=mix('#0e1326','#05060f',nf);
+  ctx.save(); ctx.beginPath(); ctx.ellipse(0,-55,62,72,0,0,6.3); ctx.clip();
+  ctx.lineWidth=2; ctx.strokeStyle=`rgba(245,210,113,${0.3+0.4*nf})`;
+  for(let i=-6;i<6;i++){ ctx.beginPath(); ctx.moveTo(-70,i*16-55); ctx.bezierCurveTo(-20,i*16-70,20,i*16-40,70,i*16-55); ctx.stroke(); }
+  ctx.restore();
+}
+
+function drawPOIs(nf){
+  for(const p of POIS){
+    if(p.kind==='club'){
+      // neon club marker
+      ctx.save(); ctx.translate(p.x,p.y);
+      ctx.shadowColor='#ff4d9d'; ctx.shadowBlur=20+Math.sin(game.t*4)*6;
+      ctx.fillStyle=`rgba(255,77,157,${0.85})`;
+      ctx.font='bold 22px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('CLUB MIRAGE',0,0);
+      ctx.shadowBlur=0;
+      ctx.strokeStyle='rgba(54,227,255,0.8)'; ctx.lineWidth=2;
+      ctx.strokeRect(-70,-44,140,60);
+      ctx.restore();
+    } else {
+      tagLabel(p.x,p.y,p.name,nf);
+    }
+  }
+}
+
+function drawCars(nf){
+  for(const c of CARS){
+    ctx.save(); ctx.translate(c.x,c.y); ctx.rotate(c.ang+Math.PI/2);
+    // shadow
+    ctx.fillStyle='rgba(0,0,0,0.35)'; roundRect(-c.w/2+3,-c.h/2+5,c.w,c.h,6); ctx.fill();
+    // body
+    const g=ctx.createLinearGradient(-c.w/2,0,c.w/2,0);
+    g.addColorStop(0, shade(c.color,-30)); g.addColorStop(0.5,c.color); g.addColorStop(1, shade(c.color,-50));
+    ctx.fillStyle=g; roundRect(-c.w/2,-c.h/2,c.w,c.h,7); ctx.fill();
+    // windshield
+    ctx.fillStyle='rgba(20,30,50,0.85)'; roundRect(-c.w/2+4,-c.h/2+8,c.w-8,12,4); ctx.fill();
+    roundRect(-c.w/2+4,c.h/2-20,c.w-8,10,4); ctx.fill();
+    // accent stripe
+    ctx.fillStyle=c.accent; ctx.fillRect(-1.5,-c.h/2+2,3,c.h-4);
+    // headlights at night
+    if(nf>0.3){
+      ctx.fillStyle='rgba(255,245,200,0.95)';
+      ctx.fillRect(-c.w/2+3,-c.h/2,5,3); ctx.fillRect(c.w/2-8,-c.h/2,5,3);
+      // beams
+      const grd=ctx.createLinearGradient(0,-c.h/2,0,-c.h/2-90);
+      grd.addColorStop(0,`rgba(255,245,200,${0.25*nf})`); grd.addColorStop(1,'rgba(255,245,200,0)');
+      ctx.fillStyle=grd; ctx.beginPath(); ctx.moveTo(-c.w/2+2,-c.h/2); ctx.lineTo(-c.w/2-14,-c.h/2-90); ctx.lineTo(c.w/2+14,-c.h/2-90); ctx.lineTo(c.w/2-2,-c.h/2); ctx.fill();
+      // tail lights
+      ctx.fillStyle='rgba(255,40,40,0.9)'; ctx.fillRect(-c.w/2+3,c.h/2-3,5,3); ctx.fillRect(c.w/2-8,c.h/2-3,5,3);
+    }
+    ctx.restore();
+  }
+}
+
+function drawNPCs(nf){
+  for(const n of NPCS){
+    if(n.y>SEA_Y)continue;
+    ctx.save(); ctx.translate(n.x,n.y);
+    ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(0,4,7,4,0,0,6.3); ctx.fill();
+    // body (robe/dress)
+    ctx.fillStyle=n.w; ctx.beginPath(); ctx.arc(0,0,5.2,0,6.3); ctx.fill();
+    // head
+    ctx.fillStyle=n.s; ctx.beginPath(); ctx.arc(Math.cos(n.ang)*1.5,Math.sin(n.ang)*1.5,3.2,0,6.3); ctx.fill();
+    if(nf>0.5){ ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.arc(0,0,9,0,6.3); ctx.fill(); }
+    ctx.restore();
+  }
+}
+
+function drawContacts(nf){
+  for(const c of CONTACTS){
+    if(c.done) continue;
+    // beam of light marker
+    ctx.save(); ctx.translate(c.x,c.y);
+    const pulse=0.5+0.5*Math.sin(game.t*3);
+    const col = c.tag==='hostess'? '255,77,157':'255,255,255';
+    ctx.shadowColor=`rgb(${col})`; ctx.shadowBlur=18;
+    // pillar
+    const grd=ctx.createLinearGradient(0,0,0,-70);
+    grd.addColorStop(0,`rgba(${col},${0.5+0.3*pulse})`); grd.addColorStop(1,`rgba(${col},0)`);
+    ctx.fillStyle=grd; ctx.fillRect(-5,-70,10,70);
+    ctx.shadowBlur=0;
+    // person
+    ctx.fillStyle=`rgb(${col})`; ctx.beginPath(); ctx.arc(0,0,6,0,6.3); ctx.fill();
+    ctx.fillStyle='#1a1300'; ctx.beginPath(); ctx.arc(0,-2,3,0,6.3); ctx.fill();
+    // bobbing marker
+    ctx.fillStyle=`rgb(${col})`;
+    const by=-86-pulse*4;
+    ctx.beginPath(); ctx.moveTo(0,by+8); ctx.lineTo(-7,by-2); ctx.lineTo(7,by-2); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    tagLabel(c.x,c.y-100,c.name,nf,true);
+  }
+}
+
+function drawPlayer(nf){
+  if(player.inCar) return; // drawn as car
+  ctx.save(); ctx.translate(player.x,player.y);
+  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(0,5,9,5,0,0,6.3); ctx.fill();
+  // gold-trimmed outfit
+  ctx.rotate(player.ang+Math.PI/2);
+  ctx.fillStyle='#11162a'; ctx.beginPath(); ctx.arc(0,0,7,0,6.3); ctx.fill();
+  ctx.strokeStyle='#f5d271'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,7,0,6.3); ctx.stroke();
+  ctx.fillStyle='#e3b88e'; ctx.beginPath(); ctx.arc(0,-3,4,0,6.3); ctx.fill();
+  if(nf>0.4){ ctx.shadowColor='#f5d271'; ctx.shadowBlur=14; ctx.strokeStyle='rgba(245,210,113,0.6)'; ctx.beginPath(); ctx.arc(0,0,10,0,6.3); ctx.stroke(); ctx.shadowBlur=0; }
+  ctx.restore();
+}
+
+function tagLabel(x,y,text,nf,bright){
+  ctx.save();
+  ctx.font='600 12px -apple-system,sans-serif'; ctx.textAlign='center';
+  const w=ctx.measureText(text).width+14;
+  ctx.fillStyle='rgba(8,9,22,0.55)';
+  roundRect(x-w/2,y-14,w,18,9); ctx.fill();
+  ctx.fillStyle= bright? '#fff' : `rgba(245,225,180,${0.7+0.3*nf})`;
+  ctx.fillText(text,x,y-1);
+  ctx.restore();
+}
+
+/* minimap */
+function drawMinimap(){
+  const size=Math.min(W,H)*0.22, pad=10;
+  const mx=W-size-pad, my=H-size-pad - (window.innerHeight*0); // bottom-right above controls? keep top-right instead
+  // place top-right under stats
+  const X=W-size-12, Y=88;
+  ctx.save();
+  ctx.globalAlpha=0.92;
+  roundRect(X,Y,size,size,10); ctx.fillStyle='rgba(8,9,22,0.7)'; ctx.fill();
+  ctx.strokeStyle='rgba(245,210,113,0.4)'; ctx.lineWidth=1; roundRect(X,Y,size,size,10); ctx.stroke();
+  ctx.beginPath(); roundRect(X,Y,size,size,10); ctx.clip();
+  const sx=size/WORLD.w, sy=size/WORLD.h;
+  // sea
+  ctx.fillStyle='rgba(30,120,170,0.6)'; ctx.fillRect(X,Y+SEA_Y*sy,size,(WORLD.h-SEA_Y)*sy);
+  // roads
+  ctx.fillStyle='rgba(255,255,255,0.12)';
+  for(const r of ROADS){ ctx.fillRect(X+r.x*sx,Y+r.y*sy,r.w*sx,Math.max(1,r.h*sy)); }
+  // landmarks
+  for(const L of LANDMARKS){ ctx.fillStyle='rgba(245,210,113,0.9)'; ctx.fillRect(X+L.x*sx-1.5,Y+L.y*sy-1.5,3,3); }
+  // club
+  const club=POIS.find(p=>p.id==='club'); ctx.fillStyle='#ff4d9d'; ctx.fillRect(X+club.x*sx-2,Y+club.y*sy-2,4,4);
+  // contacts
+  for(const c of CONTACTS){ if(c.done)continue; ctx.fillStyle= c.tag==='hostess'?'#ff4d9d':'#fff'; ctx.beginPath(); ctx.arc(X+c.x*sx,Y+c.y*sy,2.4,0,6.3); ctx.fill(); }
+  // player
+  ctx.fillStyle='#36e3ff'; ctx.beginPath(); ctx.arc(X+player.x*sx,Y+player.y*sy,3,0,6.3); ctx.fill();
+  ctx.restore();
+}
+
+/* ---------------- helpers ---------------- */
+function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function hex(c){ c=c.replace('#',''); if(c.length===3)c=c.split('').map(x=>x+x).join(''); return [parseInt(c.substr(0,2),16),parseInt(c.substr(2,2),16),parseInt(c.substr(4,2),16)]; }
+function mix(a,b,t){ const A=hex(a),B=hex(b); return `rgb(${Math.round(A[0]+(B[0]-A[0])*t)},${Math.round(A[1]+(B[1]-A[1])*t)},${Math.round(A[2]+(B[2]-A[2])*t)})`; }
+function shade(c,amt){ const A=hex(c); return `rgb(${Math.max(0,Math.min(255,A[0]+amt))},${Math.max(0,Math.min(255,A[1]+amt))},${Math.max(0,Math.min(255,A[2]+amt))})`; }
+function lighten(c,amt){ return shade(c,amt); }
+
+/* ---------------- main loop ---------------- */
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(game.started){ update(dt); }
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* splash skyline draw on canvas behind splash is via CSS gradient only */
+document.getElementById('play').addEventListener('click',()=>{
+  game.started=true;
+  document.getElementById('splash').style.transition='opacity .6s';
+  document.getElementById('splash').style.opacity='0';
+  setTimeout(()=>document.getElementById('splash').classList.add('hidden'),600);
+  updateCash(); refreshObjective();
+  setTimeout(()=>toast('WELCOME TO MIRAGE CITY','Follow the white marker · meet Yusuf at the Marina'),700);
+});
+// allow tapping the dialogue box to advance
+document.getElementById('dlg').addEventListener('click',advanceDialogue);
+
+// expose for screenshot tooling
+window.__MIRAGE={game,player,CARS,enterCar,toast};
+})();
+</script>
+</body>
+</html>
