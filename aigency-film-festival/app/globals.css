@@ -1,0 +1,108 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,30..100;1,9..144,300..700,30..100&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --serif: "Fraunces", Georgia, serif;
+  --sans: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --plasma: radial-gradient(
+    120% 112% at 78% 22%,
+    #fff4d0 0%,
+    #ffcb58 8%,
+    #f2862a 30%,
+    #dc4a1e 58%,
+    #8e1f18 82%,
+    #3a0a0c 100%
+  );
+}
+
+html,
+body {
+  background: #15140f;
+  color: #f4efe5;
+}
+
+body {
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(255, 203, 88, 0.25);
+  color: #f4efe5;
+}
+
+/* warm ambient glow, fixed behind everything */
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    120% 90% at 92% -8%,
+    rgba(242, 134, 42, 0.16),
+    rgba(184, 52, 28, 0.05) 38%,
+    transparent 60%
+  );
+}
+
+/* serif display helper */
+.display {
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+}
+
+/* hide number input spinners on the rating sliders' companions */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* form controls — paper inputs on the dark surface */
+.field {
+  width: 100%;
+  background: #1a1812;
+  border: 1px solid rgba(244, 239, 229, 0.16);
+  color: #f4efe5;
+  font-family: var(--sans);
+  font-size: 15px;
+  padding: 12px 14px;
+  transition: border-color 150ms ease;
+}
+.field::placeholder {
+  color: rgba(244, 239, 229, 0.32);
+}
+.field:focus {
+  outline: none;
+  border-color: #f2862a;
+}
+textarea.field {
+  resize: vertical;
+  min-height: 84px;
+  line-height: 1.5;
+}
+select.field {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(244, 239, 229, 0.5) 50%),
+    linear-gradient(135deg, rgba(244, 239, 229, 0.5) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 18px, calc(100% - 13px) 18px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.field-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(244, 239, 229, 0.6);
+  margin-bottom: 8px;
+}
