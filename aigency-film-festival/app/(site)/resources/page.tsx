@@ -11,9 +11,8 @@ export default function ResourcesPage() {
       <section className="relative overflow-hidden border-b border-on/12">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/banner.png" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-center" />
-        <div className="absolute inset-0 bg-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/75 to-surface/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/85 to-surface/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/15 to-surface/30" />
         <div className="relative mx-auto max-w-shell px-6 py-20 sm:px-10 sm:py-24">
           <Eyebrow>{FESTIVAL.name} · Capacity Building</Eyebrow>
           <h1 className="display mt-6 text-on" style={{ fontSize: "clamp(44px, 8vw, 96px)", fontWeight: 300 }}>

@@ -113,28 +113,18 @@ export function FestivalLockup({
 /** The grand prize, rendered with glamour: a luminous slashed sun on a plinth. */
 export function PrizeSun({ size = 240, slash = "#15140F" }: { size?: number; slash?: string }) {
   return (
-    <div className="relative flex flex-col items-center" style={{ width: size }}>
+    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <div
         className="pointer-events-none absolute -z-10"
         style={{
-          inset: "-30%",
-          background: "radial-gradient(46% 42% at 70% 34%, rgba(255,203,88,0.42), rgba(242,134,42,0.10) 46%, transparent 70%)",
-          filter: "blur(40px)",
+          inset: "-26%",
+          background: "radial-gradient(46% 42% at 68% 32%, rgba(255,203,88,0.40), rgba(242,134,42,0.10) 48%, transparent 72%)",
+          filter: "blur(44px)",
         }}
       />
       <div className="animate-floaty">
         <Mark size={size} glow slash={slash} />
       </div>
-      {/* plinth line */}
-      <div
-        className="mt-6 h-[2px] w-3/4 rounded-full"
-        style={{ background: "linear-gradient(90deg, transparent, rgba(217,162,74,0.7), transparent)" }}
-      />
-      <div
-        className="mt-3 h-10 w-1/2 rounded-[50%] opacity-30 blur-md"
-        style={{ background: "radial-gradient(closest-side, rgba(217,162,74,0.5), transparent)" }}
-        aria-hidden
-      />
     </div>
   );
 }

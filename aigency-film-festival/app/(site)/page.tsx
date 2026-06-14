@@ -20,15 +20,14 @@ export default async function HomePage() {
       <section className="relative overflow-hidden border-b border-on/12">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/banner.png" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-center" />
-        {/* 10% black wash + warm gradient for legibility + fade into the page */}
-        <div className="absolute inset-0 bg-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/75 to-surface/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />
+        {/* scrim: dark under the text, banner stays visible toward the right; fades into the page */}
+        <div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/85 to-surface/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/15 to-surface/30" />
         <div className="relative mx-auto max-w-shell px-6 py-24 sm:px-10 sm:py-32 lg:py-40">
           <div className="max-w-2xl">
             <Eyebrow>{FESTIVAL.service}</Eyebrow>
-            <div className="mt-6">
-              <Lockup size={32} />
+            <div className="mt-7">
+              <Lockup size={38} wordClassName="text-xl" />
             </div>
             <h1 className="display mt-7 text-on" style={{ fontSize: "clamp(52px, 9vw, 124px)", fontWeight: 300 }}>
               Film
