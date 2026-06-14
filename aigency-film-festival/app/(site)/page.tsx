@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { listSubmissions, summariesFor } from "@/lib/store";
 import { ARC, AWARDS, BRAND, FESTIVAL, GRAND_PRIZE } from "@/lib/brand";
-import { Mark, FestivalLockup, PrizeSun } from "@/components/brandmarks";
+import { Lockup, PrizeSun } from "@/components/brandmarks";
 import { Eyebrow, SectionLabel, ButtonLink, Stat } from "@/components/ui";
 import { FilmCard } from "@/components/FilmCard";
 
@@ -16,39 +16,41 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── HERO ───────────────────────────────────────────────────────── */}
-      <section className="mx-auto grid max-w-shell items-center gap-10 px-6 pb-12 pt-12 sm:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:pt-20">
-        <div>
-          <Eyebrow>{FESTIVAL.service}</Eyebrow>
-          <div className="mt-8">
-            <FestivalLockup size={44} />
-          </div>
-          <h1 className="display mt-8 text-on" style={{ fontSize: "clamp(56px, 9vw, 132px)", fontWeight: 300 }}>
-            Film
-            <br />
-            <span style={{ fontStyle: "italic" }}>Festival.</span>
-          </h1>
-          <div className="mt-8 flex flex-wrap items-baseline gap-x-7 gap-y-2">
-            <span className="font-serif text-2xl italic text-accent" style={{ fontVariationSettings: '"opsz" 96, "SOFT" 50' }}>
-              {FESTIVAL.tagline}
-            </span>
-            <span className="font-mono text-[11px] uppercase tracking-label text-on/45">{FESTIVAL.edition}</span>
-          </div>
-          <p className="mt-8 max-w-md font-serif text-lg leading-relaxed text-on/70">
-            A festival of short films made with AI. You bring the reason to care; the tools bring the light.
-            Submit your film and the portal turns it, at once, into a page of its own.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <ButtonLink href="/submit">Submit your film →</ButtonLink>
-            <ButtonLink href="/films" variant="ghost">
-              See the selection
-            </ButtonLink>
-          </div>
-        </div>
-
-        <div className="relative flex justify-center lg:justify-end">
-          <div className="w-full max-w-[480px] animate-floaty">
-            <Mark size={480} glow />
+      {/* ── HERO (banner) ──────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden border-b border-on/12">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/banner.png" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-center" />
+        {/* 10% black wash + warm gradient for legibility + fade into the page */}
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/75 to-surface/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />
+        <div className="relative mx-auto max-w-shell px-6 py-24 sm:px-10 sm:py-32 lg:py-40">
+          <div className="max-w-2xl">
+            <Eyebrow>{FESTIVAL.service}</Eyebrow>
+            <div className="mt-6">
+              <Lockup size={32} />
+            </div>
+            <h1 className="display mt-7 text-on" style={{ fontSize: "clamp(52px, 9vw, 124px)", fontWeight: 300 }}>
+              Film
+              <br />
+              <span style={{ fontStyle: "italic" }}>Festival.</span>
+            </h1>
+            <div className="mt-7 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+              <span className="font-serif text-2xl italic text-accent" style={{ fontVariationSettings: '"opsz" 96, "SOFT" 50' }}>
+                {FESTIVAL.tagline}
+              </span>
+              <span className="font-mono text-[11px] uppercase tracking-label text-on/60">{FESTIVAL.edition}</span>
+            </div>
+            <p className="mt-7 max-w-md font-serif text-lg leading-relaxed text-on/85">
+              A festival of short films made with AI. You bring the reason to care; the tools bring the light.
+              Submit your film and the portal publishes it as a page of its own.
+            </p>
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <ButtonLink href="/submit">Submit your film →</ButtonLink>
+              <ButtonLink href="/films" variant="ghost">
+                See the selection
+              </ButtonLink>
+            </div>
           </div>
         </div>
       </section>

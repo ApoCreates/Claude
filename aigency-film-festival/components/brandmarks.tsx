@@ -1,11 +1,9 @@
 import { cx } from "@/lib/utils";
 import { FESTIVAL } from "@/lib/brand";
 
-const SQUIRCLE = "M22,0 L178,0 Q200,0 200,22 L200,178 Q200,200 178,200 L44,200 L0,156 L0,22 Q0,0 22,0 Z";
-
 /**
- * The slashed sun — the only icon in the system. A plasma disc cut by a bar in
- * the surface colour. "No horizon line. The cut is the horizon."
+ * The slashed sun — the only icon in the system. A round plasma disc cut by a
+ * bar in the surface colour at −22°. "No horizon line. The cut is the horizon."
  */
 export function Mark({
   size = 120,
@@ -36,7 +34,7 @@ export function Mark({
       )}
       <svg viewBox="0 0 200 200" width="100%" height="100%" className="relative block overflow-visible">
         <defs>
-          <radialGradient id="aff-plasma" cx="0.78" cy="0.26" r="0.92">
+          <radialGradient id="aff-plasma" cx="0.72" cy="0.28" r="0.9">
             <stop offset="0%" stopColor="#FFF4D0" />
             <stop offset="8%" stopColor="#FFCB58" />
             <stop offset="30%" stopColor="#F2862A" />
@@ -44,14 +42,14 @@ export function Mark({
             <stop offset="82%" stopColor="#8E1F18" />
             <stop offset="100%" stopColor="#3A0A0C" />
           </radialGradient>
-          <clipPath id="aff-squircle">
-            <path d={SQUIRCLE} />
+          <clipPath id="aff-disc">
+            <circle cx="100" cy="100" r="98" />
           </clipPath>
         </defs>
-        <g clipPath="url(#aff-squircle)">
-          <path d={SQUIRCLE} fill="url(#aff-plasma)" />
-          <g transform="rotate(-20 100 100)">
-            <rect x="-12" y="92" width="226" height="14.5" fill={slash} />
+        <g clipPath="url(#aff-disc)">
+          <circle cx="100" cy="100" r="98" fill="url(#aff-plasma)" />
+          <g transform="rotate(-22 100 100)">
+            <rect x="-4" y="94" width="208" height="11.5" fill={slash} />
           </g>
         </g>
       </svg>

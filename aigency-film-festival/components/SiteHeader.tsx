@@ -12,9 +12,15 @@ export function SiteHeader() {
         <nav className="flex items-center gap-5 sm:gap-7">
           <Link
             href="/films"
-            className="font-mono text-[10px] uppercase tracking-label text-on/55 transition-colors hover:text-on"
+            className="hidden font-mono text-[10px] uppercase tracking-label text-on/55 transition-colors hover:text-on sm:inline"
           >
             The Selection
+          </Link>
+          <Link
+            href="/resources"
+            className="font-mono text-[10px] uppercase tracking-label text-on/55 transition-colors hover:text-on"
+          >
+            Resources
           </Link>
           <Link
             href="/submit"
