@@ -18,7 +18,7 @@ import { makeId, shortId, slugify, average, round1 } from "./utils";
  * Supabase (see supabase/schema.sql) before collecting real submissions.
  */
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "";
+const SUPABASE_URL = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 const BUCKET = process.env.SUPABASE_POSTER_BUCKET || "posters";
 
@@ -302,14 +302,31 @@ function driver() {
 
 // ── Public API ───────────────────────────────────────────────────────────────
 
-export function listSubmissions(opts?: ListOpts) {
-  return driver().list(opts);
+// Reads degrade gracefully: a database hiccup shows an empty festival, never a
+// crashed page. Writes (below) still surface errors to the caller/API.
+export async function listSubmissions(opts?: ListOpts): Promise<Submission[]> {
+  try {
+    return await driver().list(opts);
+  } catch (e) {
+    console.error("[store] listSubmissions failed:", e);
+    return [];
+  }
 }
-export function getSubmissionBySlug(slug: string) {
-  return driver().getBySlug(slug);
+export async function getSubmissionBySlug(slug: string): Promise<Submission | null> {
+  try {
+    return await driver().getBySlug(slug);
+  } catch (e) {
+    console.error("[store] getSubmissionBySlug failed:", e);
+    return null;
+  }
 }
-export function getSubmissionById(id: string) {
-  return driver().getById(id);
+export async function getSubmissionById(id: string): Promise<Submission | null> {
+  try {
+    return await driver().getById(id);
+  } catch (e) {
+    console.error("[store] getSubmissionById failed:", e);
+    return null;
+  }
 }
 
 export async function createSubmission(data: NewSubmission): Promise<Submission> {
@@ -335,12 +352,22 @@ export async function addRating(data: NewRating): Promise<Rating> {
   return driver().addRating(row);
 }
 
-export function listRatings(submissionId?: string) {
-  return driver().listRatings(submissionId);
+export async function listRatings(submissionId?: string): Promise<Rating[]> {
+  try {
+    return await driver().listRatings(submissionId);
+  } catch (e) {
+    console.error("[store] listRatings failed:", e);
+    return [];
+  }
 }
 
-export function incrementVote(id: string) {
-  return driver().incrementVote(id);
+export async function incrementVote(id: string): Promise<number> {
+  try {
+    return await driver().incrementVote(id);
+  } catch (e) {
+    console.error("[store] incrementVote failed:", e);
+    return 0;
+  }
 }
 
 /** Map of submissionId → RatingSummary for a set of submissions. */
