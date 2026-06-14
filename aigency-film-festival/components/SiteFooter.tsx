@@ -21,7 +21,6 @@ export function SiteFooter() {
               <li><Link href="/submit" className="hover:text-accent">Submit a film</Link></li>
               <li><Link href="/resources" className="hover:text-accent">Resources</Link></li>
               <li><Link href="/#prize" className="hover:text-accent">The Slashed Sun</Link></li>
-              <li><Link href="/admin" className="hover:text-accent">Jury &amp; admin</Link></li>
             </ul>
           </div>
 
