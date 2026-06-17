@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#e9d9b8" />
+<title>Dubai Kindness Quest — 2D LoFi Walk</title>
+<style>
+  :root{
+    --sand:#efe2c4; --sand2:#e3d2a8; --sea:#7ec8d6; --gold:#d9a441; --ink:#5a4632;
+    --leaf:#7fae5e; --mint:#9fe0c3; --coral:#ff7a93; --paper:#fbf4e4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:none;}
+  html,body{height:100%;background:#cdb98e;overflow:hidden;
+    font-family:ui-rounded,"Segoe UI",-apple-system,system-ui,sans-serif;color:var(--ink);}
+  #game{position:fixed;inset:0;display:block;}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:auto;}
+
+  /* HUD */
+  .hud{position:absolute;inset:0;pointer-events:none;z-index:5;}
+  .topbar{position:absolute;top:0;left:0;right:0;
+    padding:max(8px,env(safe-area-inset-top)) 10px 8px;
+    display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .chip{background:rgba(251,244,228,.82);border:2px solid var(--ink);border-radius:14px;
+    padding:5px 11px;font-size:12px;line-height:1.3;box-shadow:0 3px 0 rgba(90,70,50,.25);}
+  .chip b{color:var(--gold);}
+  .title{font-weight:800;font-size:13px;letter-spacing:.5px;}
+  .sub{font-size:9px;opacity:.7;letter-spacing:1px;text-transform:uppercase;}
+  .stats{display:flex;flex-direction:column;gap:5px;align-items:flex-end;}
+  .meter{width:120px;height:11px;border:2px solid var(--ink);border-radius:7px;background:rgba(251,244,228,.7);overflow:hidden;}
+  .meter > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--mint),var(--leaf));transition:width .5s;}
+  .objective{position:absolute;left:50%;top:60px;transform:translateX(-50%);max-width:90%;text-align:center;
+    background:rgba(251,244,228,.86);border:2px solid var(--ink);border-radius:14px;padding:6px 14px;
+    font-size:12px;box-shadow:0 3px 0 rgba(90,70,50,.25);transition:opacity .4s;}
+  .objective .o{color:var(--coral);font-weight:800;font-size:9px;letter-spacing:1.5px;display:block;margin-bottom:1px;}
+
+  /* Controls */
+  .controls{position:absolute;inset:0;pointer-events:none;z-index:6;}
+  #pad{position:absolute;left:max(14px,env(safe-area-inset-left));bottom:max(20px,env(safe-area-inset-bottom));
+    width:150px;height:150px;pointer-events:auto;touch-action:none;}
+  .dbtn{position:absolute;width:50px;height:50px;border-radius:13px;border:2px solid var(--ink);
+    background:rgba(251,244,228,.8);box-shadow:0 3px 0 rgba(90,70,50,.25);
+    display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--ink);}
+  .dbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(90,70,50,.25);}
+  #dU{left:50px;top:0;} #dD{left:50px;top:100px;} #dL{left:0;top:50px;} #dR{left:100px;top:50px;}
+  #act{position:absolute;right:max(20px,env(safe-area-inset-right));bottom:max(34px,env(safe-area-inset-bottom));
+    width:84px;height:84px;border-radius:50%;border:3px solid var(--ink);pointer-events:auto;touch-action:none;
+    background:radial-gradient(circle at 35% 30%,#fff,var(--coral) 75%);box-shadow:0 5px 0 rgba(90,70,50,.3);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.3);}
+  #act:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(90,70,50,.3);}
+  #act .ic{font-size:24px;line-height:1;}
+  .hidden{display:none!important;}
+  #audioBtn{position:absolute;top:max(8px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+    pointer-events:auto;background:rgba(251,244,228,.82);border:2px solid var(--ink);border-radius:50%;
+    width:34px;height:34px;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:7;}
+
+  /* Cutscene / dialogue */
+  #scene{position:absolute;inset:0;z-index:12;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+    background:rgba(40,30,22,.55);padding:0 0 0 0;backdrop-filter:blur(2px);}
+  #sceneArt{position:absolute;inset:0;background-size:cover;background-position:center;}
+  #sceneArt::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,30,22,0) 40%,rgba(40,30,22,.55));}
+  .dlg{position:relative;width:min(680px,94%);margin:0 auto max(18px,env(safe-area-inset-bottom));
+    background:var(--paper);border:3px solid var(--ink);border-radius:18px;padding:14px 16px 12px;
+    box-shadow:0 6px 0 rgba(90,70,50,.3);}
+  .dlg .who{font-weight:800;font-size:12px;color:var(--coral);letter-spacing:.5px;margin-bottom:3px;}
+  .dlg .who .ar{float:right;color:var(--gold);font-weight:700;}
+  .dlg .txt{font-size:15px;line-height:1.45;min-height:46px;}
+  .dlg .hint{margin-top:8px;font-size:11px;opacity:.6;text-align:right;}
+  .choices{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .choice{pointer-events:auto;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:10px 12px;
+    font-size:14px;font-weight:600;text-align:left;box-shadow:0 3px 0 rgba(90,70,50,.25);cursor:pointer;}
+  .choice:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(90,70,50,.25);}
+  .choice .k{color:var(--leaf);font-weight:800;}
+
+  /* Splash & complete */
+  #splash,#done{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:26px;color:var(--ink);
+    background:
+      radial-gradient(120% 80% at 50% 8%,#fbe7c2,transparent 60%),
+      linear-gradient(180deg,#bfe6ec,#efe2c4 55%);}
+  #splash h1,#done h1{font-size:30px;letter-spacing:.5px;margin-bottom:4px;line-height:1.05;}
+  #splash .ar,#done .ar{font-size:18px;color:var(--gold);margin-bottom:14px;font-weight:700;}
+  #splash p{font-size:14px;max-width:440px;line-height:1.55;opacity:.85;margin-bottom:8px;}
+  .keys{font-size:12px;opacity:.7;margin:10px 0 18px;line-height:1.7;}
+  .play{pointer-events:auto;border:3px solid var(--ink);background:var(--coral);color:#fff;font-weight:800;
+    font-size:18px;letter-spacing:1px;padding:13px 34px;border-radius:16px;box-shadow:0 5px 0 rgba(90,70,50,.3);cursor:pointer;}
+  .play:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(90,70,50,.3);}
+  .badge{font-size:46px;margin-bottom:6px;}
+  .toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);z-index:14;
+    background:var(--paper);border:3px solid var(--ink);border-radius:18px;padding:14px 22px;text-align:center;
+    box-shadow:0 6px 0 rgba(90,70,50,.3);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;}
+  .toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  .toast .big{font-size:22px;font-weight:800;color:var(--leaf);}
+  .toast .sm{font-size:13px;margin-top:2px;}
+</style>
+</head>
+<body>
+<div id="game">
+  <canvas id="cv"></canvas>
+
+  <div class="hud">
+    <div class="topbar">
+      <div class="chip"><span class="title">DUBAI KINDNESS QUEST</span><br><span class="sub">2D LoFi Walk</span></div>
+      <div class="stats">
+        <div class="chip">Good deeds <b id="deeds">0</b> / <span id="deedsMax">6</span></div>
+        <div class="meter" title="Kindness"><i id="kbar"></i></div>
+      </div>
+    </div>
+    <div class="objective" id="obj"><span class="o">OBJECTIVE</span><span id="objText">Walk around Dubai and find someone who needs a hand.</span></div>
+  </div>
+
+  <button id="audioBtn" title="music">♪</button>
+
+  <div class="controls" id="ctrls">
+    <div id="pad">
+      <div class="dbtn" id="dU">▲</div>
+      <div class="dbtn" id="dD">▼</div>
+      <div class="dbtn" id="dL">◀</div>
+      <div class="dbtn" id="dR">▶</div>
+    </div>
+    <button id="act"><span class="ic">✋</span>HELP</button>
+  </div>
+
+  <div id="scene" class="hidden">
+    <div id="sceneArt"></div>
+    <div class="dlg">
+      <div class="who"><span id="who">—</span><span class="ar" id="whoAr"></span></div>
+      <div class="txt" id="dtxt"></div>
+      <div class="choices hidden" id="choices"></div>
+      <div class="hint" id="dhint">tap / press SPACE ▸</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><div class="big" id="toastBig">+ Kindness</div><div class="sm" id="toastSm"></div></div>
+
+  <div id="splash">
+    <h1>Dubai Kindness Quest</h1>
+    <div class="ar">مهمة اللطف في دبي</div>
+    <p>A tiny lo-fi stroll through Dubai. Walk the streets, meet locals & expats, and do small kind things — water a ghaf tree, share dates in the heat, guide a lost family, reunite a lost cat.</p>
+    <div class="keys"><b>Move:</b> Arrow keys / WASD &nbsp;•&nbsp; on phone use the on-screen pad<br><b>Help / talk:</b> SPACE or the ✋ button &nbsp;•&nbsp; <b>♪</b> toggles music</div>
+    <button class="play" id="playBtn">▶ PLAY</button>
+    <p style="font-size:11px;opacity:.6;margin-top:16px">Headphones recommended — soft lo-fi with an oud hint.</p>
+  </div>
+
+  <div id="done" class="hidden">
+    <div class="badge">🌟</div>
+    <h1>Good Citizen of Dubai</h1>
+    <div class="ar">مواطن دبي الطيّب</div>
+    <p>You spread kindness all across the city. The warmth you gave came right back to you — that's the spirit of this place.</p>
+    <p id="doneScore" style="font-weight:800;color:#caa23a"></p>
+    <button class="play" id="againBtn">↻ Walk again</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   Dubai Kindness Quest — single-file 2D lo-fi walking game
+   - keyboard (arrows / WASD) + touch D-pad
+   - procedural Dubai overworld, camera follow
+   - kindness missions w/ real Higgsfield scene art (URL refs,
+     procedural fallback so nothing ever looks broken)
+   - WebAudio lo-fi loop with an Arabic (Hijaz) oud hint
+   ============================================================ */
+
+/* ---------- asset URLs (your Higgsfield art) ----------
+   These load in the player's browser directly from CloudFront.
+   If a URL fails, the game draws a stylised fallback instead. */
+const GEN = "https://d8j0ntlcm91z4.cloudfront.net/user_36Qu7m1QQeYKD3neBodMrYupmxc/";
+const MED = "https://d2ol7oe51mr4n9.cloudfront.net/user_36Qu7m1QQeYKD3neBodMrYupmxc/";
+
+// character turn-around sheets (front / back / side poses on a magenta key)
+const CHAR_SHEETS = {
+  walk: GEN + "hf_20260617_081642_e47684e2-c778-415c-aeb8-2f7a91e641e1.png",
+  idle: GEN + "hf_20260617_081646_b5aa11c3-ccdf-49b9-9357-d1d5a92bb5c9.png"
+};
+// mission scene art
+const SCENE = {
+  ghaf:  MED + "3d11813b-a1e9-410d-acc1-0a789f5e3690.png",
+  dates: MED + "5762110c-0990-416b-8308-bab6e57f106d.png",
+  metro: MED + "b6c5c8cd-78ab-4e7b-8865-6774bc3717ba.png",
+  cat:   MED + "127a9491-f0d5-4f30-9b72-d1594800a44b.png"
+};
+
+/* ---------- canvas ---------- */
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W=0,H=0,DPR=Math.min(devicePixelRatio||1,2);
+function resize(){
+  W=innerWidth;H=innerHeight;
+  cv.width=W*DPR;cv.height=H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+addEventListener('resize',resize);resize();
+
+/* ---------- world ---------- */
+const WORLD={w:2400,h:1700};
+const cam={x:0,y:0};
+
+/* ---------- image loader w/ magenta chroma-key for sprites ---------- */
+function loadImage(src){
+  return new Promise(res=>{
+    const im=new Image();im.crossOrigin="anonymous";
+    im.onload=()=>res(im);im.onerror=()=>res(null);im.src=src;
+  });
+}
+// remove the pink/magenta key colour from a sheet -> transparent canvas
+function chromaKey(img){
+  const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+  const x=c.getContext('2d');x.drawImage(img,0,0);
+  let d;try{d=x.getImageData(0,0,c.width,c.height);}catch(e){return null;} // tainted (no CORS) -> use procedural hero
+  const p=d.data;
+  // sample corner as key colour
+  const kr=p[0],kg=p[1],kb=p[2];
+  for(let i=0;i<p.length;i+=4){
+    const r=p[i],g=p[i+1],b=p[i+2];
+    // magenta-ish: high R, low G, high-ish B  OR close to sampled key
+    const near=Math.abs(r-kr)<60&&Math.abs(g-kg)<60&&Math.abs(b-kb)<60;
+    const magenta=r>150&&g<120&&b>90&&(r-g)>60;
+    if(near||magenta){p[i+3]=0;}
+  }
+  x.putImageData(d,0,0);return c;
+}
+
+/* ---------- character sprite ---------- */
+const CHAR={sheet:null, frames:null, ready:false};
+// crop a turnaround sheet (4 poses across) into directional frames
+function sliceSheet(canvasOrImg){
+  const wImg=canvasOrImg.width, hImg=canvasOrImg.height;
+  const cols=4, cw=wImg/cols;
+  // order on the sheets: front, back, side(left-ish), side(right-ish)
+  return {
+    down:{img:canvasOrImg,sx:0,        sy:0,sw:cw,sh:hImg},
+    up:  {img:canvasOrImg,sx:cw,       sy:0,sw:cw,sh:hImg},
+    left:{img:canvasOrImg,sx:cw*2,     sy:0,sw:cw,sh:hImg,flip:false},
+    right:{img:canvasOrImg,sx:cw*3,    sy:0,sw:cw,sh:hImg,flip:false}
+  };
+}
+
+/* ---------- player ---------- */
+const player={x:WORLD.w/2,y:WORLD.h/2+260,dir:'down',moving:false,t:0,r:17,speed:2.4};
+
+/* ---------- districts / scenery (procedural baked world) ---------- */
+const palms=[], buildings=[], waters=[];
+function rnd(a,b){return a+Math.random()*(b-a);}
+(function buildWorld(){
+  // sea strip along the top
+  waters.push({x:0,y:0,w:WORLD.w,h:300});
+  // scatter palms
+  for(let i=0;i<70;i++){
+    let px=rnd(40,WORLD.w-40), py=rnd(330,WORLD.h-40);
+    palms.push({x:px,y:py,s:rnd(.8,1.3)});
+  }
+  // building clusters (old town + marina blocks)
+  const pal=['#e7d3a6','#e9c98f','#dcc59a','#cdb489','#efe0bd'];
+  for(let i=0;i<26;i++){
+    buildings.push({x:rnd(60,WORLD.w-220),y:rnd(360,WORLD.h-180),
+      w:rnd(120,220),h:rnd(110,180),c:pal[(Math.random()*pal.length)|0],
+      win:(Math.random()*3)|0+1});
+  }
+})();
+
+/* ---------- missions ---------- */
+const missions=[
+  {id:'ghaf',  spot:{x:520, y:560},  marker:'🌳', place:'Al Barsha Park',  ar:'حديقة البرشاء',
+   art:SCENE.ghaf,
+   who:'Elderly Emirati man', whoAr:'مُسِنّ إماراتي',
+   lines:[
+     "An elder kneels by a small ghaf sapling — the national tree.",
+     "“Would you help me water it, my dear? My back is not what it used to be.”"],
+   prompt:"He hands you the watering can.",
+   choices:[
+     {t:"Water the little ghaf tree 🌱",kind:true,
+      reply:"“BarakAllah feek. Here — fresh gahwa, just for you.” He pours qahwa from a golden dallah.",reward:20},
+     {t:"“Sorry, I'm in a hurry.”",kind:false,
+      reply:"He smiles kindly anyway. Maybe next time.",reward:5}
+   ]},
+  {id:'dates', spot:{x:1700,y:470}, marker:'🛵', place:'Dubai Marina', ar:'مرسى دبي',
+   art:SCENE.dates,
+   who:'Delivery rider', whoAr:'عامل توصيل',
+   lines:[
+     "A delivery rider rests on a bench in the midday heat, exhausted.",
+     "He wipes his forehead and gives a tired, polite nod."],
+   prompt:"You have chilled water and a box of dates in your bag.",
+   choices:[
+     {t:"Share cold water & dates 💧🌴",kind:true,
+      reply:"“Thank you, sister — truly. You made my whole shift.” His smile is pure gratitude.",reward:20},
+     {t:"Walk past",kind:false,
+      reply:"He keeps resting in the heat. You feel a small pang.",reward:0}
+   ]},
+  {id:'metro', spot:{x:1950,y:1150}, marker:'🧭', place:'Jumeirah Street', ar:'شارع جميرا',
+   art:SCENE.metro,
+   who:'Lost tourist family', whoAr:'عائلة سائحة',
+   lines:[
+     "A European family turns a crumpled map in circles, looking lost.",
+     "“Excuse me… do you know the way to the Metro station?”"],
+   prompt:"The modern Metro entrance glints just down the road.",
+   choices:[
+     {t:"Point them to the Metro 🚇",kind:true,
+      reply:"“Thank you so much!” The kids wave happily as they head off.",reward:20},
+     {t:"Shrug",kind:false,reply:"They wander off, still unsure.",reward:0}
+   ]},
+  {id:'cat',   spot:{x:760, y:1320}, marker:'🐈', place:'Jumeirah lanes', ar:'أزقة جميرا',
+   art:SCENE.cat,
+   who:'Worried cat owner', whoAr:'صاحبة القطة',
+   lines:[
+     "A sand-coloured Arabian Mau winds around your ankles, no collar in sight.",
+     "Down the lane a young woman in an abaya is calling out, worried."],
+   prompt:"The cat looks up at you, trusting.",
+   choices:[
+     {t:"Carry the cat to its owner 🐾",kind:true,
+      reply:"“Mishmish! You found her!” She hugs the cat, eyes shining. “Shukran, shukran!”",reward:20},
+     {t:"Leave it",kind:false,reply:"The cat trots off alone again.",reward:5}
+   ]},
+  // two extra procedurally-drawn missions (no external art needed)
+  {id:'litter',spot:{x:1300,y:900}, marker:'🗑️', place:'Marina Walk', ar:'ممشى المرسى',
+   who:'A clean corniche', whoAr:'كورنيش نظيف',
+   lines:["A plastic bottle rolls along the spotless promenade.","A bin stands just a few steps away."],
+   prompt:"Nobody's watching — but the city stays clean because people care.",
+   choices:[
+     {t:"Pick it up & recycle ♻️",kind:true,reply:"A passer-by gives you a quiet, approving smile. Clean city, happy city.",reward:15},
+     {t:"Step over it",kind:false,reply:"It rolls into a flowerbed. Oh well.",reward:0}
+   ]},
+  {id:'groceries',spot:{x:430,y:980}, marker:'🛍️', place:'Old Town corner shop', ar:'بقالة الحي',
+   who:'Neighbour with bags', whoAr:'جار يحمل أكياساً',
+   lines:["A neighbour juggles heavy grocery bags up the steps, struggling.","One bag is about to tip over."],
+   prompt:"You could grab the bags before they fall.",
+   choices:[
+     {t:"Help carry the bags 🤝",kind:true,reply:"“Allah yusallmak! Come, have tea with us sometime.” Warmth all around.",reward:15},
+     {t:"Keep walking",kind:false,reply:"The bag splits. Tomatoes everywhere. Yikes.",reward:0}
+   ]}
+];
+const sceneImgs={};
+let kindness=0, deeds=0;
+const deedsMaxEl=document.getElementById('deedsMax');deedsMaxEl.textContent=missions.length;
+
+/* ---------- input ---------- */
+const keys={};
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())||['w','a','s','d'].includes(k))e.preventDefault();
+  keys[k]=true;
+  if(e.key===' '||k==='enter'){onAction();}
+});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+// touch dpad
+function bindHold(id,key){
+  const el=document.getElementById(id);
+  const on=e=>{e.preventDefault();keys[key]=true;};
+  const off=e=>{e.preventDefault();keys[key]=false;};
+  el.addEventListener('touchstart',on,{passive:false});
+  el.addEventListener('touchend',off,{passive:false});
+  el.addEventListener('touchcancel',off,{passive:false});
+  el.addEventListener('mousedown',on);el.addEventListener('mouseup',off);el.addEventListener('mouseleave',off);
+}
+bindHold('dU','arrowup');bindHold('dD','arrowdown');bindHold('dL','arrowleft');bindHold('dR','arrowright');
+document.getElementById('act').addEventListener('click',e=>{e.preventDefault();onAction();});
+
+/* ---------- game state ---------- */
+let state='splash'; // splash | walk | scene | done
+let activeMission=null, dlgStep=0, showingChoices=false;
+
+const objText=document.getElementById('objText');
+function nearestOpenMission(){
+  let best=null,bd=1e9;
+  for(const m of missions){if(m.done)continue;
+    const d=Math.hypot(player.x-m.spot.x,player.y-m.spot.y);
+    if(d<bd){bd=d;best=m;}}
+  return {m:best,d:bd};
+}
+function updateObjective(){
+  const {m,d}=nearestOpenMission();
+  if(!m){objText.textContent="Every good deed is done. You are a true friend of Dubai. 🌟";return;}
+  if(d<70) objText.textContent=`${m.marker} ${m.place} — press SPACE / ✋ to help`;
+  else objText.textContent=`Head to ${m.marker} ${m.place} — someone could use a hand.`;
+}
+
+/* ---------- action / dialogue ---------- */
+function onAction(){
+  if(state==='walk'){
+    const {m,d}=nearestOpenMission();
+    if(m&&d<70){openMission(m);}
+    return;
+  }
+  if(state==='scene'){advanceDialogue();}
+}
+const sceneEl=document.getElementById('scene');
+const sceneArt=document.getElementById('sceneArt');
+const whoEl=document.getElementById('who'),whoArEl=document.getElementById('whoAr');
+const dtxt=document.getElementById('dtxt'),choicesEl=document.getElementById('choices'),dhint=document.getElementById('dhint');
+
+function openMission(m){
+  state='scene';activeMission=m;dlgStep=0;showingChoices=false;
+  sceneEl.classList.remove('hidden');
+  if(m.art){sceneArt.style.backgroundImage=`url("${m.art}")`;sceneArt.style.display='block';}
+  else{sceneArt.style.display='none';}
+  whoEl.textContent=m.who;whoArEl.textContent=m.whoAr||'';
+  choicesEl.classList.add('hidden');dhint.classList.remove('hidden');
+  typeLine(m.lines[0]);
+}
+let typing=null;
+function typeLine(s){
+  clearInterval(typing);dtxt.textContent='';let i=0;
+  typing=setInterval(()=>{dtxt.textContent=s.slice(0,++i);if(i>=s.length)clearInterval(typing);},16);
+}
+function advanceDialogue(){
+  const m=activeMission;if(!m)return;
+  if(typing&&dtxt.textContent.length<currentLine().length){dtxt.textContent=currentLine();clearInterval(typing);return;}
+  dlgStep++;
+  if(dlgStep<m.lines.length){typeLine(m.lines[dlgStep]);return;}
+  if(dlgStep===m.lines.length){ // prompt + choices
+    typeLine(m.prompt);showChoices(m);return;
+  }
+}
+function currentLine(){const m=activeMission;return dlgStep<m.lines.length?m.lines[dlgStep]:m.prompt;}
+function showChoices(m){
+  showingChoices=true;dhint.classList.add('hidden');
+  choicesEl.innerHTML='';choicesEl.classList.remove('hidden');
+  m.choices.forEach(ch=>{
+    const b=document.createElement('button');b.className='choice';
+    b.innerHTML=ch.kind?`<span class="k">♥</span> ${ch.t}`:ch.t;
+    b.onclick=()=>resolveChoice(m,ch);
+    choicesEl.appendChild(b);
+  });
+}
+function resolveChoice(m,ch){
+  choicesEl.classList.add('hidden');dhint.classList.remove('hidden');showingChoices=false;
+  typeLine(ch.reply);
+  // award + close after a beat
+  m.done=true;deeds++;kindness=Math.min(100,kindness+ch.reward);
+  document.getElementById('deeds').textContent=deeds;
+  document.getElementById('kbar').style.width=Math.round((deeds/missions.length)*100)+'%';
+  if(ch.kind)blip(880);else blip(300);
+  // override action to close
+  dlgStep=99;
+  setTimeout(()=>{
+    if(ch.reward>0)toast(`+${ch.reward} Kindness`,m.place);
+    closeScene(()=>{
+      if(deeds>=missions.length)finish();
+    });
+  },1700);
+}
+function closeScene(after){
+  state='walk';activeMission=null;sceneEl.classList.add('hidden');updateObjective();if(after)after();
+}
+// when choices are shown SPACE shouldn't skip; only advance text
+const _origAdvance=advanceDialogue;
+
+/* ---------- toast ---------- */
+const toastEl=document.getElementById('toast'),toastBig=document.getElementById('toastBig'),toastSm=document.getElementById('toastSm');
+let toastT=null;
+function toast(big,sm){toastBig.textContent=big;toastSm.textContent=sm||'';toastEl.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),1400);}
+
+/* ---------- finish ---------- */
+function finish(){
+  state='done';
+  document.getElementById('done').classList.remove('hidden');
+  document.getElementById('doneScore').textContent=`Kindness ${kindness} / 100 • ${deeds} good deeds`;
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function drawWorld(){
+  // ground
+  ctx.fillStyle='#e7d6ad';ctx.fillRect(0,0,W,H);
+  // sea
+  for(const w of waters){
+    const sx=w.x-cam.x, sy=w.y-cam.y;
+    const g=ctx.createLinearGradient(0,sy,0,sy+w.h);
+    g.addColorStop(0,'#7ec8d6');g.addColorStop(1,'#a9dce0');
+    ctx.fillStyle=g;ctx.fillRect(sx,sy,w.w,w.h);
+    // shoreline
+    ctx.fillStyle='#efe2c4';ctx.fillRect(sx,sy+w.h-14,w.w,18);
+    // gentle wave lines
+    ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=2;
+    const t=performance.now()/900;
+    for(let i=0;i<6;i++){ctx.beginPath();
+      for(let xx=0;xx<w.w;xx+=18){const yy=sy+40+i*36+Math.sin((xx/60)+t+i)*4;xx===0?ctx.moveTo(sx+xx,yy):ctx.lineTo(sx+xx,yy);}
+      ctx.stroke();}
+  }
+  // paths (soft cross of walkways)
+  ctx.fillStyle='#f3ead0';
+  ctx.fillRect(-cam.x+0, -cam.y+760, WORLD.w, 120);
+  ctx.fillRect(-cam.x+1150, -cam.y+300, 130, WORLD.h-300);
+  // buildings
+  for(const b of buildings){
+    const sx=b.x-cam.x, sy=b.y-cam.y;
+    if(sx>W||sy>H||sx+b.w<0||sy+b.h<0)continue;
+    ctx.fillStyle='rgba(120,95,60,.18)';ctx.fillRect(sx+6,sy+b.h-6,b.w,16); // shadow
+    ctx.fillStyle=b.c;ctx.fillRect(sx,sy,b.w,b.h);
+    ctx.strokeStyle='#8a6f4a';ctx.lineWidth=2;ctx.strokeRect(sx,sy,b.w,b.h);
+    // roof band
+    ctx.fillStyle='rgba(140,110,70,.25)';ctx.fillRect(sx,sy,b.w,14);
+    // windows
+    ctx.fillStyle='#bcd7d4';
+    for(let r=0;r<2;r++)for(let c=0;c<3;c++){ctx.fillRect(sx+18+c*(b.w-36)/3,sy+30+r*40,26,30);}
+    // wind-tower hint
+    ctx.fillStyle=b.c;ctx.fillRect(sx+b.w/2-12,sy-22,24,26);
+    ctx.strokeRect(sx+b.w/2-12,sy-22,24,26);
+  }
+  // palms
+  for(const p of palms){
+    const sx=p.x-cam.x, sy=p.y-cam.y;
+    if(sx<-60||sy<-60||sx>W+60||sy>H+60)continue;
+    drawPalm(sx,sy,p.s);
+  }
+  // mission markers
+  for(const m of missions){
+    if(m.done)continue;
+    const sx=m.spot.x-cam.x, sy=m.spot.y-cam.y;
+    const bob=Math.sin(performance.now()/400+m.spot.x)*4;
+    // glow ring
+    ctx.beginPath();ctx.arc(sx,sy,26,0,7);ctx.fillStyle='rgba(159,224,195,.45)';ctx.fill();
+    ctx.beginPath();ctx.arc(sx,sy,18,0,7);ctx.fillStyle='rgba(255,122,147,.55)';ctx.fill();
+    // pin
+    ctx.font='24px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(m.marker,sx,sy-22+bob);
+    // proximity prompt
+    const d=Math.hypot(player.x-m.spot.x,player.y-m.spot.y);
+    if(d<70){
+      ctx.fillStyle='rgba(90,70,50,.9)';roundRect(sx-44,sy-66,88,22,8);ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.fillText('✋ HELP',sx,sy-55);
+    }
+  }
+}
+function drawPalm(x,y,s){
+  // trunk
+  ctx.strokeStyle='#a9824e';ctx.lineWidth=7*s;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x-6*s,y-30*s,x+2*s,y-54*s);ctx.stroke();
+  // fronds
+  ctx.fillStyle='#7fae5e';
+  const tx=x+2*s,ty=y-54*s;
+  for(let a=0;a<7;a++){
+    const ang=(-Math.PI/2)+(a-3)*0.6;
+    ctx.beginPath();ctx.moveTo(tx,ty);
+    ctx.quadraticCurveTo(tx+Math.cos(ang)*30*s,ty+Math.sin(ang)*30*s,
+      tx+Math.cos(ang)*52*s,ty+Math.sin(ang)*52*s+8*s);
+    ctx.quadraticCurveTo(tx+Math.cos(ang)*30*s,ty+Math.sin(ang)*30*s+6*s,tx,ty);
+    ctx.fill();
+  }
+  // shadow
+  ctx.fillStyle='rgba(120,95,60,.16)';ctx.beginPath();ctx.ellipse(x,y+3,14*s,5*s,0,0,7);ctx.fill();
+}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+function drawPlayer(){
+  const sx=player.x-cam.x, sy=player.y-cam.y;
+  // shadow
+  ctx.fillStyle='rgba(90,70,50,.22)';ctx.beginPath();ctx.ellipse(sx,sy+2,16,6,0,0,7);ctx.fill();
+  const bob=player.moving?Math.abs(Math.sin(player.t*8))*3:0;
+  if(CHAR.ready&&CHAR.frames){
+    const f=CHAR.frames[player.dir]||CHAR.frames.down;
+    const dh=64, dw=dh*(f.sw/f.sh);
+    ctx.save();
+    if(player.dir==='right'){ // mirror the left/side pose for right
+      ctx.translate(sx,0);ctx.scale(-1,1);
+      ctx.drawImage(f.img,f.sx,f.sy,f.sw,f.sh,-dw/2,sy-dh+6-bob,dw,dh);
+    }else{
+      ctx.drawImage(f.img,f.sx,f.sy,f.sw,f.sh,sx-dw/2,sy-dh+6-bob,dw,dh);
+    }
+    ctx.restore();
+  }else{
+    drawHeroFallback(sx,sy-bob,player.dir,player.t,player.moving);
+  }
+}
+// stylised fallback hero (black bob, white tee, denim shorts, sneakers)
+function drawHeroFallback(x,y,dir,t,moving){
+  const swing=moving?Math.sin(t*9)*5:0;
+  // legs
+  ctx.strokeStyle='#e6b98f';ctx.lineWidth=6;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x-4,y-22);ctx.lineTo(x-4+swing,y-2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+4,y-22);ctx.lineTo(x+4-swing,y-2);ctx.stroke();
+  // sneakers
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(x-4+swing,y-1,5,3,0,0,7);ctx.fill();
+  ctx.beginPath();ctx.ellipse(x+4-swing,y-1,5,3,0,0,7);ctx.fill();
+  // denim shorts
+  ctx.fillStyle='#5b7aa8';roundRect(x-9,y-34,18,14,4);ctx.fill();
+  // white tee
+  ctx.fillStyle='#fafafa';roundRect(x-10,y-50,20,18,6);ctx.fill();
+  // arms
+  ctx.strokeStyle='#e6b98f';ctx.lineWidth=5;
+  ctx.beginPath();ctx.moveTo(x-9,y-46);ctx.lineTo(x-13,y-34-swing);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+9,y-46);ctx.lineTo(x+13,y-34+swing);ctx.stroke();
+  // head
+  ctx.fillStyle='#e9bd92';ctx.beginPath();ctx.arc(x,y-58,8,0,7);ctx.fill();
+  // hair (black bob)
+  ctx.fillStyle='#1d1a1f';
+  if(dir==='up'){ctx.beginPath();ctx.arc(x,y-58,9,0,7);ctx.fill();}
+  else{
+    ctx.beginPath();ctx.arc(x,y-60,9,Math.PI,0);ctx.fill();
+    ctx.fillRect(x-9,y-60,18,7);
+    ctx.beginPath();ctx.arc(x-9,y-54,3,0,7);ctx.fill();
+    ctx.beginPath();ctx.arc(x+9,y-54,3,0,7);ctx.fill();
+  }
+  // face dots
+  if(dir!=='up'){ctx.fillStyle='#3a2a20';
+    const fx=dir==='left'?-2:dir==='right'?2:0;
+    ctx.fillRect(x-3+fx,y-59,1.6,1.6);ctx.fillRect(x+2+fx,y-59,1.6,1.6);}
+}
+
+/* ---------- update ---------- */
+let last=performance.now();
+function update(dt){
+  if(state!=='walk')return;
+  let vx=0,vy=0;
+  if(keys['arrowup']||keys['w'])vy-=1;
+  if(keys['arrowdown']||keys['s'])vy+=1;
+  if(keys['arrowleft']||keys['a'])vx-=1;
+  if(keys['arrowright']||keys['d'])vx+=1;
+  player.moving=(vx||vy)?true:false;
+  if(player.moving){
+    const len=Math.hypot(vx,vy)||1;vx/=len;vy/=len;
+    player.x+=vx*player.speed*dt*60/16;
+    player.y+=vy*player.speed*dt*60/16;
+    // face dir (prefer vertical for up/down art, horizontal otherwise)
+    if(Math.abs(vy)>=Math.abs(vx))player.dir=vy<0?'up':'down';
+    else player.dir=vx<0?'left':'right';
+    player.t+=dt/1000*6;
+    // clamp to world (keep below sea)
+    player.x=Math.max(20,Math.min(WORLD.w-20,player.x));
+    player.y=Math.max(320,Math.min(WORLD.h-20,player.y));
+  }
+  // camera
+  cam.x=Math.max(0,Math.min(WORLD.w-W,player.x-W/2));
+  cam.y=Math.max(0,Math.min(WORLD.h-H,player.y-H/2));
+  if(WORLD.w<W)cam.x=(WORLD.w-W)/2;
+  if(WORLD.h<H)cam.y=(WORLD.h-H)/2;
+  updateObjective();
+}
+function frame(now){
+  const dt=Math.min(40,now-last);last=now;
+  update(dt);
+  if(state!=='splash'){drawWorld();drawPlayer();}
+  requestAnimationFrame(frame);
+}
+
+/* ============================================================
+   AUDIO — lo-fi pad + soft beat + Hijaz (Arabic) oud pluck
+   ============================================================ */
+let actx=null,musicOn=false,musicNodes=[];
+function startMusic(){
+  if(actx)return;
+  actx=new (window.AudioContext||window.webkitAudioContext)();
+  const master=actx.createGain();master.gain.value=0.0;master.connect(actx.destination);
+  // gentle lowpass for the lo-fi warmth
+  const lp=actx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2200;lp.connect(master);
+
+  // ---- warm pad (two detuned saws through filter) ----
+  const padGain=actx.createGain();padGain.gain.value=0.07;padGain.connect(lp);
+  const chordRoot=[146.83,196.0,220.0]; // D3 G3 A3 drone-ish
+  chordRoot.forEach(f=>{
+    [0,4].forEach(det=>{const o=actx.createOscillator();o.type='sawtooth';o.frequency.value=f;o.detune.value=det;o.connect(padGain);o.start();musicNodes.push(o);});
+  });
+  // slow tremolo on pad
+  const lfo=actx.createOscillator();lfo.frequency.value=0.12;const lfg=actx.createGain();lfg.gain.value=0.03;
+  lfo.connect(lfg);lfg.connect(padGain.gain);lfo.start();musicNodes.push(lfo);
+
+  // ---- vinyl-ish noise ----
+  const nb=actx.createBuffer(1,actx.sampleRate*2,actx.sampleRate);
+  const nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=(Math.random()*2-1)*0.5;
+  const noise=actx.createBufferSource();noise.buffer=nb;noise.loop=true;
+  const ng=actx.createGain();ng.gain.value=0.012;const nf=actx.createBiquadFilter();nf.type='highpass';nf.frequency.value=4000;
+  noise.connect(nf);nf.connect(ng);ng.connect(master);noise.start();musicNodes.push(noise);
+
+  // ---- rhythm + Hijaz oud melody ----
+  const tempo=72, beat=60/tempo;
+  // Hijaz on D: D Eb F# G A Bb C  -> Arabic flavour
+  const hijaz=[293.66,311.13,369.99,392.0,440.0,466.16,523.25,587.33];
+  function pluck(freq,when,dur,vol){
+    const o=actx.createOscillator();o.type='triangle';o.frequency.value=freq;
+    const g=actx.createGain();g.gain.setValueAtTime(0,when);
+    g.gain.linearRampToValueAtTime(vol,when+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,when+dur);
+    // tiny second osc = oud double-string shimmer
+    const o2=actx.createOscillator();o2.type='triangle';o2.frequency.value=freq*2.01;
+    const g2=actx.createGain();g2.gain.value=0.3;g2.connect(g);o2.connect(g2);
+    o.connect(g);g.connect(lp);o.start(when);o.stop(when+dur+0.05);o2.start(when);o2.stop(when+dur+0.05);
+  }
+  function kick(when){const o=actx.createOscillator();o.type='sine';
+    o.frequency.setValueAtTime(120,when);o.frequency.exponentialRampToValueAtTime(45,when+0.12);
+    const g=actx.createGain();g.gain.setValueAtTime(0.18,when);g.gain.exponentialRampToValueAtTime(0.001,when+0.2);
+    o.connect(g);g.connect(master);o.start(when);o.stop(when+0.22);}
+  function hat(when){const b=actx.createBufferSource();const buf=actx.createBuffer(1,actx.sampleRate*0.05,actx.sampleRate);
+    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);b.buffer=buf;
+    const g=actx.createGain();g.gain.value=0.02;const f=actx.createBiquadFilter();f.type='highpass';f.frequency.value=7000;
+    b.connect(f);f.connect(g);g.connect(master);b.start(when);}
+
+  let step=0;
+  function schedule(){
+    if(!actx)return;
+    const t=actx.currentTime+0.05;
+    // melodic phrase — sparse, lo-fi
+    if(step%2===0){
+      const note=hijaz[(Math.random()*hijaz.length)|0];
+      pluck(note, t, 1.1, 0.10);
+      if(Math.random()<0.4)pluck(hijaz[0], t+beat/2, 0.7, 0.05);
+    }
+    kick(t);
+    hat(t+beat/2);
+    step++;
+  }
+  const interval=setInterval(schedule,beat*1000);
+  musicNodes.push({stop:()=>clearInterval(interval)});
+  // fade in
+  master.gain.linearRampToValueAtTime(0.9,actx.currentTime+1.5);
+  musicOn=true;document.getElementById('audioBtn').textContent='♪';
+  window._master=master;
+}
+function toggleMusic(){
+  if(!actx){startMusic();return;}
+  if(musicOn){window._master.gain.linearRampToValueAtTime(0.0001,actx.currentTime+0.4);musicOn=false;document.getElementById('audioBtn').textContent='♪̶';}
+  else{window._master.gain.linearRampToValueAtTime(0.9,actx.currentTime+0.4);musicOn=true;document.getElementById('audioBtn').textContent='♪';}
+}
+function blip(freq){ // small UI sound
+  if(!actx)return;const t=actx.currentTime;const o=actx.createOscillator();o.type='sine';o.frequency.value=freq;
+  const g=actx.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.12,t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.25);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+0.3);
+}
+document.getElementById('audioBtn').addEventListener('click',toggleMusic);
+
+/* ---------- tap-to-advance on the scene overlay ---------- */
+sceneEl.addEventListener('click',e=>{
+  if(showingChoices)return; // let buttons handle it
+  if(e.target.closest('.choice'))return;
+  advanceDialogue();
+});
+
+/* ---------- boot ---------- */
+async function boot(){
+  // load character sheet(s)
+  const img=await loadImage(CHAR_SHEETS.walk);
+  if(img){
+    const keyed=chromaKey(img);
+    if(keyed){CHAR.frames=sliceSheet(keyed);CHAR.ready=true;}
+    // if keyed===null (CORS taint), CHAR.ready stays false -> faithful procedural hero
+  }
+  // (mission art is loaded by the browser via CSS background when shown)
+}
+boot();
+
+document.getElementById('playBtn').addEventListener('click',()=>{
+  document.getElementById('splash').classList.add('hidden');
+  state='walk';updateObjective();
+  startMusic(); // user gesture -> audio allowed
+});
+document.getElementById('againBtn').addEventListener('click',()=>{
+  missions.forEach(m=>m.done=false);kindness=0;deeds=0;
+  document.getElementById('deeds').textContent=0;document.getElementById('kbar').style.width='0%';
+  document.getElementById('done').classList.add('hidden');
+  player.x=WORLD.w/2;player.y=WORLD.h/2+260;state='walk';updateObjective();
+});
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
