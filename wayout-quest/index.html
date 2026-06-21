@@ -4,59 +4,72 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>WayOut Camper Quest — UAE Family Adventure</title>
-<meta name="description" content="Rent a WayOut camper van, load up the family, and roam the UAE collecting tokens at real camping spots. Find rare places to level up — every stop shows its real Google Maps listing." />
+<meta name="description" content="Rent a WayOut camper van, load up the family, and roam a living 2D UAE. Pinch to zoom, drag to explore, collect tokens at real camping spots, and hunt rare places to level up. Every stop shows its real Google Maps listing." />
 <style>
   :root{
     --sand:#F4C26B; --sand-deep:#E89B3C; --dune:#D98324; --night:#1B2A4A;
-    --teal:#1FB5A6; --sky1:#7CC6FF; --sky2:#BFE9FF; --ink:#27201A;
-    --orange:#FF7A2E; --orange-deep:#E85C12; --cream:#FFF6E8;
+    --teal:#1FB5A6; --ink:#27201A; --orange:#FF7A2E; --orange-deep:#E85C12; --cream:#FFF6E8;
     --common:#7BD148; --uncommon:#37A2F2; --rare:#A86CFF; --legendary:#FFC233;
     --shadow:rgba(40,24,10,.28);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;background:#0d1526;
     font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:var(--ink);
-    user-select:none;-webkit-user-select:none;touch-action:manipulation;}
-  #game{position:fixed;inset:0;display:block;width:100%;height:100%;}
+    user-select:none;-webkit-user-select:none;touch-action:none;overscroll-behavior:none;}
+  #game{position:fixed;inset:0;display:block;width:100%;height:100%;touch-action:none;cursor:grab;}
+  #game:active{cursor:grabbing;}
   .layer{position:fixed;inset:0;}
 
   /* ---------- HUD ---------- */
   #hud{pointer-events:none;display:none;}
   #hud.on{display:block;}
-  .hudtop{position:absolute;top:0;left:0;right:0;display:flex;gap:8px;align-items:flex-start;
-    padding:max(10px,env(safe-area-inset-top)) 12px 0;justify-content:space-between;flex-wrap:wrap;}
-  .pill{pointer-events:auto;background:rgba(255,246,232,.95);border:3px solid #27201A;
-    border-radius:999px;padding:6px 12px;display:flex;align-items:center;gap:7px;
-    box-shadow:0 4px 0 var(--shadow);font-weight:800;font-size:15px;line-height:1;}
-  .pill .ico{font-size:18px;}
-  .stack{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-  .xpwrap{pointer-events:auto;background:rgba(255,246,232,.95);border:3px solid #27201A;border-radius:999px;
-    padding:5px 10px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 0 var(--shadow);min-width:150px;}
+  .hudtop{position:absolute;top:0;left:0;right:0;display:flex;gap:6px;align-items:flex-start;
+    padding:max(8px,env(safe-area-inset-top)) 10px 0;justify-content:space-between;}
+  .stack{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .stackR{justify-content:flex-end;}
+  .pill{pointer-events:auto;background:rgba(255,246,232,.96);border:3px solid #27201A;
+    border-radius:999px;padding:5px 11px;display:flex;align-items:center;gap:6px;
+    box-shadow:0 4px 0 var(--shadow);font-weight:800;font-size:clamp(13px,3.4vw,16px);line-height:1;}
+  .pill .ico{font-size:1.15em;}
+  .xpwrap{pointer-events:auto;background:rgba(255,246,232,.96);border:3px solid #27201A;border-radius:999px;
+    padding:5px 9px;display:flex;align-items:center;gap:7px;box-shadow:0 4px 0 var(--shadow);}
   .lvlbadge{background:var(--orange);color:#fff;border-radius:50%;width:30px;height:30px;display:grid;
     place-items:center;font-weight:900;border:2px solid #27201A;flex:0 0 auto;font-size:14px;}
-  .xpbar{flex:1;height:12px;background:#E6D4B8;border-radius:8px;overflow:hidden;border:2px solid #27201A;min-width:70px;}
+  .xpbar{width:clamp(56px,18vw,110px);height:11px;background:#E6D4B8;border-radius:8px;overflow:hidden;border:2px solid #27201A;}
   .xpfill{height:100%;width:0%;background:linear-gradient(90deg,#FFD23F,#FF7A2E);transition:width .5s cubic-bezier(.2,1.4,.4,1);}
-  .iconbtn{pointer-events:auto;cursor:pointer;background:rgba(255,246,232,.95);border:3px solid #27201A;
-    border-radius:50%;width:42px;height:42px;display:grid;place-items:center;font-size:20px;
-    box-shadow:0 4px 0 var(--shadow);}
+  .iconbtn{pointer-events:auto;cursor:pointer;background:rgba(255,246,232,.96);border:3px solid #27201A;
+    border-radius:50%;width:40px;height:40px;display:grid;place-items:center;font-size:19px;
+    box-shadow:0 4px 0 var(--shadow);position:relative;}
   .iconbtn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--shadow);}
+  .iconbtn .badge-dot{position:absolute;top:-4px;right:-4px;background:#E0443C;color:#fff;border:2px solid #fff;
+    border-radius:999px;font-size:10px;font-weight:900;min-width:17px;height:17px;display:grid;place-items:center;padding:0 3px;}
 
-  .hint{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
-    background:rgba(27,42,74,.86);color:#fff;padding:9px 18px;border-radius:999px;font-weight:700;font-size:14px;
-    box-shadow:0 4px 0 rgba(0,0,0,.3);white-space:nowrap;border:2px solid rgba(255,255,255,.25);}
+  /* objective banner */
+  .objbar{pointer-events:auto;position:absolute;left:50%;transform:translateX(-50%);top:54px;
+    background:rgba(27,42,74,.9);color:#fff;border:2px solid rgba(255,255,255,.25);border-radius:14px;
+    padding:6px 14px;font-weight:800;font-size:13px;box-shadow:0 4px 0 rgba(0,0,0,.3);display:flex;gap:8px;align-items:center;
+    max-width:92vw;}
+  .objbar .gold{color:#FFD23F;}
 
-  /* ---------- Generic buttons / cards ---------- */
-  .btn{cursor:pointer;border:3px solid #27201A;border-radius:16px;padding:14px 22px;font-weight:900;
+  .hint{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+    background:rgba(27,42,74,.86);color:#fff;padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px;
+    box-shadow:0 4px 0 rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.25);text-align:center;max-width:92vw;}
+  .zoombtns{position:absolute;right:10px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 8px);
+    display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+  .zoombtns .iconbtn{pointer-events:auto;}
+
+  /* ---------- buttons ---------- */
+  .btn{cursor:pointer;border:3px solid #27201A;border-radius:16px;padding:13px 22px;font-weight:900;
     font-size:18px;background:var(--orange);color:#fff;box-shadow:0 6px 0 var(--orange-deep);
     transition:transform .08s, box-shadow .08s;letter-spacing:.3px;}
   .btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--orange-deep);}
   .btn.green{background:#56C14C;box-shadow:0 6px 0 #36912f;}
   .btn.ghost{background:var(--cream);color:#27201A;box-shadow:0 6px 0 #C9B48E;}
   .btn.blue{background:#2F8FE6;box-shadow:0 6px 0 #1d6cb5;}
+  .btn.sm{font-size:14px;padding:9px 16px;border-radius:12px;}
 
-  /* ---------- Overlays / modals ---------- */
-  .screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
-    padding:18px;z-index:20;}
+  /* ---------- overlays ---------- */
+  .screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;z-index:20;}
   .screen.on{display:flex;}
   .panel{background:var(--cream);border:4px solid #27201A;border-radius:26px;
     box-shadow:0 12px 0 var(--shadow), 0 30px 60px rgba(0,0,0,.4);
@@ -69,10 +82,9 @@
   .sub{font-weight:700;color:#6b5b45;margin:6px 0 0;font-size:15px;}
   .closeX{position:absolute;top:10px;right:12px;width:38px;height:38px;border-radius:50%;
     border:3px solid #27201A;background:#fff;font-weight:900;font-size:18px;cursor:pointer;
-    box-shadow:0 3px 0 var(--shadow);display:grid;place-items:center;}
+    box-shadow:0 3px 0 var(--shadow);display:grid;place-items:center;z-index:2;}
   .closeX:active{transform:translateY(2px);}
 
-  /* van + family cards */
   .cardgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
   .pick{cursor:pointer;border:3px solid #27201A;border-radius:18px;background:#fff;padding:10px;
     text-align:center;box-shadow:0 5px 0 var(--shadow);transition:transform .1s;position:relative;}
@@ -84,12 +96,11 @@
   .stats{display:flex;justify-content:center;gap:6px;margin-top:6px;flex-wrap:wrap;}
   .stat{font-size:10px;font-weight:800;background:var(--sand);border:2px solid #27201A;border-radius:8px;padding:2px 6px;}
 
-  /* spot detail */
   .badge{display:inline-block;font-weight:900;font-size:13px;color:#fff;padding:4px 12px;border-radius:999px;
     border:2px solid #27201A;box-shadow:0 3px 0 var(--shadow);text-transform:uppercase;letter-spacing:.5px;}
   .mapbox{border:3px solid #27201A;border-radius:16px;overflow:hidden;box-shadow:0 5px 0 var(--shadow);
     background:#cfe3d6;margin:12px 0;}
-  .mapbox iframe{display:block;width:100%;height:230px;border:0;}
+  .mapbox iframe{display:block;width:100%;height:240px;border:0;}
   .reward-row{display:flex;gap:10px;justify-content:center;margin:12px 0;flex-wrap:wrap;}
   .reward{background:#fff;border:3px solid #27201A;border-radius:14px;padding:8px 14px;font-weight:900;
     box-shadow:0 4px 0 var(--shadow);display:flex;align-items:center;gap:6px;font-size:16px;}
@@ -97,11 +108,20 @@
   .linkrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px;}
   a.maplink{text-decoration:none;}
 
-  /* toast / banner */
-  #toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-140%);
+  /* lists (objectives / achievements) */
+  .row{display:flex;align-items:center;gap:10px;background:#fff;border:3px solid #27201A;border-radius:14px;
+    padding:9px 12px;margin:8px 0;box-shadow:0 4px 0 var(--shadow);font-weight:700;font-size:14px;}
+  .row.done{background:#E9F8E2;opacity:.85;}
+  .row .em{font-size:22px;flex:0 0 auto;}
+  .row .gt{flex:1;}
+  .row .pr{font-weight:900;color:#6b5b45;font-size:12px;white-space:nowrap;}
+  .mini-prog{height:7px;background:#E6D4B8;border-radius:6px;overflow:hidden;border:2px solid #27201A;margin-top:4px;}
+  .mini-prog>div{height:100%;background:linear-gradient(90deg,#FFD23F,#FF7A2E);}
+
+  #toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-160%);
     background:#FFC233;border:3px solid #27201A;border-radius:16px;padding:10px 20px;font-weight:900;
     box-shadow:0 6px 0 var(--shadow);z-index:40;transition:transform .45s cubic-bezier(.2,1.5,.4,1);
-    text-align:center;font-size:17px;max-width:90vw;}
+    text-align:center;font-size:16px;max-width:90vw;}
   #toast.show{transform:translateX(-50%) translateY(0);}
 
   .footer{text-align:center;font-size:12px;color:#8a785f;font-weight:700;padding:4px 0 2px;}
@@ -119,22 +139,23 @@
 <div id="hud" class="layer">
   <div class="hudtop">
     <div class="stack">
-      <div class="xpwrap"><div class="lvlbadge" id="lvlBadge">1</div>
-        <div style="display:flex;flex-direction:column;gap:3px;">
-          <div style="font-size:11px;font-weight:900;color:#6b5b45;line-height:1">LEVEL</div>
-          <div class="xpbar"><div class="xpfill" id="xpFill"></div></div>
-        </div>
-      </div>
-    </div>
-    <div class="stack">
+      <div class="xpwrap"><div class="lvlbadge" id="lvlBadge">1</div><div class="xpbar"><div class="xpfill" id="xpFill"></div></div></div>
       <div class="pill"><span class="ico">🪙</span><span id="hudTokens">0</span></div>
       <div class="pill"><span class="ico">⭐</span><span id="hudScore">0</span></div>
       <div class="pill"><span class="ico">⛽</span><span id="hudFuel">100</span></div>
-      <div class="iconbtn" id="btnMute">🔊</div>
-      <div class="iconbtn" id="btnGuide">🗺️</div>
+    </div>
+    <div class="stack stackR">
+      <div class="iconbtn" id="btnObj">🎯<span class="badge-dot" id="objDot" style="display:none">!</span></div>
+      <div class="iconbtn" id="btnMenu">☰</div>
     </div>
   </div>
-  <div class="hint" id="hint">Tap a glowing spot on the map to drive there!</div>
+  <div class="objbar" id="objBar" style="display:none">🎯 <span id="objText">—</span></div>
+  <div class="zoombtns">
+    <div class="iconbtn" id="btnZin">＋</div>
+    <div class="iconbtn" id="btnZout">－</div>
+    <div class="iconbtn" id="btnFit">🎯</div>
+  </div>
+  <div class="hint" id="hint">Drag to explore • pinch / scroll to zoom • tap a glowing spot to drive</div>
 </div>
 
 <!-- TITLE -->
@@ -143,17 +164,18 @@
     <div class="ph">
       <canvas id="logoVan" width="320" height="120" style="width:min(320px,80vw);height:auto;"></canvas>
       <h1 class="title-xl">WayOut Camper Quest</h1>
-      <p class="sub">Rent a WayOut camper van • Load up the family • Roam the real UAE</p>
+      <p class="sub">Rent a WayOut camper van • Load up the family • Roam a living UAE</p>
       <p class="tagline">“A hotel room in a car — turn the holiday into an adventure.”</p>
     </div>
     <div class="pb">
-      <div style="text-align:center;margin:8px 0 14px;">
-        <button class="btn green" id="btnStart" style="font-size:22px;padding:16px 34px;">▶ Start Adventure</button>
+      <div style="text-align:center;margin:8px 0 12px;display:flex;flex-direction:column;gap:10px;align-items:center;">
+        <button class="btn green" id="btnContinue" style="font-size:20px;padding:14px 30px;display:none;">▶ Continue Adventure</button>
+        <button class="btn" id="btnStart" style="font-size:20px;padding:14px 30px;">🚐 New Road Trip</button>
       </div>
       <p class="desc" style="text-align:center;">
         Drive across the Emirates to <b>real camping spots</b>. Collect 🪙 tokens, rack up ⭐ points,
         and hunt down <b style="color:#A86CFF">rare</b> &amp; <b style="color:#E8a000">legendary</b> places to level up.
-        Every stop shows its <b>real Google Maps listing</b>.
+        Every stop opens its <b>real Google Maps listing</b>.
       </p>
       <div class="legend">
         <span><i class="dot" style="background:var(--common)"></i>Common</span>
@@ -171,18 +193,14 @@
   <div class="panel wide">
     <div class="ph">
       <h2 class="title-xl" style="font-size:clamp(22px,6vw,34px)">Pick your WayOut van</h2>
-      <p class="sub">Each van handles the desert, mountains &amp; beach differently.</p>
+      <p class="sub">Each van handles desert, mountains &amp; beach differently.</p>
     </div>
     <div class="pb">
       <div class="cardgrid" id="vanGrid"></div>
-      <div class="ph" style="padding-top:18px;">
-        <h2 class="title-xl" style="font-size:clamp(20px,5.5vw,30px)">Who's coming along?</h2>
-        <p class="sub">Tap to pick your family crew.</p>
-      </div>
+      <div class="ph" style="padding-top:18px;"><h2 class="title-xl" style="font-size:clamp(20px,5.5vw,30px)">Who's coming along?</h2>
+        <p class="sub">Tap up to 3 family members.</p></div>
       <div class="cardgrid" id="famGrid"></div>
-      <div style="text-align:center;margin-top:16px;">
-        <button class="btn green" id="btnGo" style="font-size:20px;">🚐 Hit the Road!</button>
-      </div>
+      <div style="text-align:center;margin-top:16px;"><button class="btn green" id="btnGo" style="font-size:20px;">🚐 Hit the Road!</button></div>
     </div>
   </div>
 </div>
@@ -199,15 +217,37 @@
     <div class="pb">
       <div class="reward-row" id="spotRewards"></div>
       <p class="desc" id="spotDesc"></p>
-      <div style="font-weight:900;text-align:center;margin-top:10px;color:#6b5b45;">📍 Real Google Maps listing</div>
+      <div style="font-weight:900;text-align:center;margin-top:10px;color:#6b5b45;">📍 Real Google Maps listing (drag &amp; zoom it)</div>
       <div class="mapbox"><iframe id="spotMap" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Google Map"></iframe></div>
       <div class="linkrow">
         <a class="maplink" id="spotPhotos" target="_blank" rel="noopener"><button class="btn blue">📷 See real photos</button></a>
         <a class="maplink" id="spotDir" target="_blank" rel="noopener"><button class="btn ghost">🧭 Directions</button></a>
       </div>
       <p class="progress-note" id="spotProgress"></p>
-      <div style="text-align:center;margin-top:12px;">
-        <button class="btn green" id="spotContinue">↩ Back to the map</button>
+      <div style="text-align:center;margin-top:12px;"><button class="btn green" id="spotContinue">↩ Back to the map</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- OBJECTIVES / MENU -->
+<div id="scrObj" class="screen">
+  <div class="panel">
+    <button class="closeX" id="objClose">✕</button>
+    <div class="ph"><h2 class="title-xl" style="font-size:clamp(22px,6vw,32px)">🎯 Quests</h2>
+      <p class="sub">Complete these for bonus 🪙 tokens.</p></div>
+    <div class="pb"><div id="objList"></div></div>
+  </div>
+</div>
+<div id="scrMenu" class="screen">
+  <div class="panel">
+    <button class="closeX" id="menuClose">✕</button>
+    <div class="ph"><h2 class="title-xl" style="font-size:clamp(22px,6vw,32px)">☰ Trip Log</h2></div>
+    <div class="pb">
+      <div id="achList"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;">
+        <button class="btn ghost sm" id="btnSound">🔊 Sound: On</button>
+        <button class="btn blue sm" id="btnHowto">❔ How to play</button>
+        <button class="btn sm" id="btnReset" style="background:#E0443C;box-shadow:0 6px 0 #a82d26;">↺ Reset progress</button>
       </div>
     </div>
   </div>
@@ -216,14 +256,9 @@
 <!-- VICTORY -->
 <div id="scrWin" class="screen">
   <div class="panel">
-    <div class="ph">
-      <h1 class="title-xl">🏆 Trailblazer!</h1>
-      <p class="sub">You discovered every camping spot in the UAE.</p>
-    </div>
-    <div class="pb" style="text-align:center;">
-      <p class="desc" id="winStats"></p>
-      <button class="btn green" id="btnReplay" style="margin-top:10px;">🔄 New Road Trip</button>
-    </div>
+    <div class="ph"><h1 class="title-xl">🏆 Trailblazer!</h1><p class="sub">You discovered every camping spot in the UAE.</p></div>
+    <div class="pb" style="text-align:center;"><p class="desc" id="winStats"></p>
+      <button class="btn green" id="btnReplay" style="margin-top:10px;">🔄 New Road Trip</button></div>
   </div>
 </div>
 
@@ -232,16 +267,18 @@
 <script>
 "use strict";
 /* ============================================================================
-   WayOut Camper Quest — a self-contained HTML5 game.
-   A family rents one of WayOut UAE's camper vans and tours real UAE camping
-   spots placed on the map by their true latitude/longitude. Collect tokens,
-   score points, and discover rare/legendary spots to level up. Each spot opens
-   its real Google Maps listing.
+   WayOut Camper Quest — self-contained HTML5 game.
+   A family rents a WayOut UAE camper van and tours a living 2D map of the UAE,
+   placed by real latitude/longitude. Pinch/scroll to zoom, drag to pan, tap a
+   spot to drive. Collect tokens, score points, complete quests and discover
+   rare/legendary places to level up. Each spot opens its real Google Maps listing.
+   Progress is saved locally.
    ========================================================================== */
 
-/* ---------------------------------------------------------------- Data ---- */
-// Bounding box of the UAE (lng/lat) used to project real coordinates onto map.
-const BBOX = { minLng: 51.4, maxLng: 56.6, minLat: 22.4, maxLat: 26.5 };
+/* ----------------------------------------------------------- World data --- */
+const BBOX = { minLng:51.4, maxLng:56.6, minLat:22.4, maxLat:26.5 };
+const WORLD = { w:1900, h:1350 };           // game-world coordinate space
+const PAD = { x:230, top:300, bot:210 };    // keep spots inside scenery margins
 
 const RARITY = {
   home:      { color:"#FF7A2E", label:"HOME BASE", points:0,    tokens:0,   xp:0   },
@@ -251,7 +288,6 @@ const RARITY = {
   legendary: { color:"#FFC233", label:"LEGENDARY", points:1600, tokens:80,  xp:160 },
 };
 
-// Real WayOut-inspired fleet. Stats: spd(1-5) cmf(1-5) off(1-5) eff(fuel economy 1-5)
 const VANS = [
   { id:"merc516", name:"Sandstorm 516", base:"Mercedes 516", body:"#F2A03D", roof:"#FFE3B0",
     desc:"Spacious family cruiser. Sleeps 4 in comfort.", spd:3, cmf:5, off:2, eff:5, solar:false },
@@ -260,7 +296,7 @@ const VANS = [
   { id:"dodgeram", name:"Red Beast", base:"Dodge Ram 4×4", body:"#E0443C", roof:"#FFD3CF",
     desc:"The off-road monster. Eats dunes for breakfast.", spd:5, cmf:3, off:5, eff:3, solar:false },
   { id:"solar", name:"Solar Nomad", base:"Solar Camper", body:"#FFD23F", roof:"#FFF3C4",
-    desc:"Self-sufficient eco van. Solar tops up your fuel as you roam.", spd:3, cmf:4, off:3, eff:5, solar:true },
+    desc:"Eco van — solar panels top up your fuel as you roam.", spd:3, cmf:4, off:3, eff:5, solar:true },
 ];
 
 const FAMILY = [
@@ -271,586 +307,491 @@ const FAMILY = [
   { id:"dog",  name:"Biscuit", skin:"#D69A52", hair:"#A66B2E", emoji:"🐶" },
 ];
 
-// Real UAE spots. coords are true lat/lng (from Google Maps).
 const SPOTS = [
-  { id:"hq",        name:"WayOut Base · Dubai", region:"Al Quoz, Dubai", rarity:"home",
-    lat:25.140, lng:55.230, icon:"🏠",
-    desc:"Pick up your fully-furnished WayOut camper van and roll out. This is home base — refuel here anytime." },
-  { id:"alqudra",   name:"Al Qudra Lakes", region:"Saih Al Salam, Dubai", rarity:"common",
-    lat:24.8103, lng:55.3289, icon:"🦩",
-    desc:"Man-made lakes ringed by dunes, with flamingos, oryx and easy BBQ-friendly camping spots." },
-  { id:"lahbab",    name:"Lahbab Red Dunes", region:"Lahbab, Dubai", rarity:"common",
-    lat:24.9276, lng:55.6470, icon:"🏜️",
-    desc:"The famous deep-red 'Big Red' dunes — sandboarding, dune bashing and golden-hour stargazing." },
-  { id:"uaq",       name:"Umm Al Quwain Beach", region:"Umm Al Quwain", rarity:"common",
-    lat:25.5647, lng:55.5550, icon:"🏖️",
-    desc:"Quiet coastline with mangroves and kayaking — a calm beach camp away from the crowds." },
-  { id:"hatta",     name:"Hatta Dam", region:"Hatta, Dubai", rarity:"uncommon",
-    lat:24.8003, lng:56.1160, icon:"🚣",
-    desc:"Turquoise dam water hugged by the Hajar Mountains. Kayak, then camp at the Wadi Hub." },
-  { id:"shawka",    name:"Wadi Shawka", region:"Ras Al Khaimah", rarity:"uncommon",
-    lat:25.1190, lng:56.0247, icon:"🥾",
-    desc:"Green wadi pools and a mountain-bike loop tucked into the Hajar foothills. Peaceful nights." },
-  { id:"alaqah",    name:"Al Aqah Beach", region:"Fujairah", rarity:"uncommon",
-    lat:25.5021, lng:56.3597, icon:"🐠",
-    desc:"East-coast beach camping facing Snoopy Island — snorkelling reefs right off the sand." },
-  { id:"fossil",    name:"Fossil Rock (Mleiha)", region:"Sharjah", rarity:"rare",
-    lat:25.0594, lng:55.7886, icon:"🦴",
-    desc:"Ancient seabed fossils embedded in rock rising from red sand — archaeology meets the desert." },
-  { id:"jais",      name:"Jebel Jais", region:"Ras Al Khaimah", rarity:"rare",
-    lat:25.9479, lng:56.1357, icon:"⛰️",
-    desc:"The UAE's highest peak. Cool mountain air, switchback roads and unreal sunrise camps." },
-  { id:"hafeet",    name:"Jebel Hafeet", region:"Al Ain, Abu Dhabi", rarity:"rare",
-    lat:24.0586, lng:55.7736, icon:"🌄",
-    desc:"A lone limestone mountain with one of the world's great driving roads and glittering city views." },
-  { id:"moreeb",    name:"Tal Moreeb · Liwa", region:"Empty Quarter, Abu Dhabi", rarity:"legendary",
-    lat:23.1390, lng:53.7853, icon:"🌟",
-    desc:"One of Earth's tallest sand dunes on the edge of the Empty Quarter. The ultimate WayOut pilgrimage." },
+  { id:"hq",      name:"WayOut Base · Dubai", region:"Al Quoz, Dubai", rarity:"home", lat:25.140, lng:55.230, icon:"🏠",
+    type:"base", desc:"Pick up your fully-furnished WayOut camper van and roll out. Drive back here anytime to refuel for free." },
+  { id:"alqudra", name:"Al Qudra Lakes", region:"Saih Al Salam, Dubai", rarity:"common", lat:24.8103, lng:55.3289, icon:"🦩",
+    type:"lake", desc:"Man-made lakes ringed by dunes, with flamingos, oryx and easy BBQ-friendly camping." },
+  { id:"lahbab",  name:"Lahbab Red Dunes", region:"Lahbab, Dubai", rarity:"common", lat:24.9276, lng:55.6470, icon:"🏜️",
+    type:"dune", desc:"The famous deep-red 'Big Red' dunes — sandboarding, dune bashing and golden-hour stargazing." },
+  { id:"uaq",     name:"Umm Al Quwain Beach", region:"Umm Al Quwain", rarity:"common", lat:25.5647, lng:55.5550, icon:"🏖️",
+    type:"beach", desc:"Quiet coastline with mangroves and kayaking — a calm beach camp away from the crowds." },
+  { id:"hatta",   name:"Hatta Dam", region:"Hatta, Dubai", rarity:"uncommon", lat:24.8003, lng:56.1160, icon:"🚣",
+    type:"mountain", desc:"Turquoise dam water hugged by the Hajar Mountains. Kayak, then camp at the Wadi Hub." },
+  { id:"shawka",  name:"Wadi Shawka", region:"Ras Al Khaimah", rarity:"uncommon", lat:25.1190, lng:56.0247, icon:"🥾",
+    type:"mountain", desc:"Green wadi pools and a mountain-bike loop tucked into the Hajar foothills. Peaceful nights." },
+  { id:"alaqah",  name:"Al Aqah Beach", region:"Fujairah", rarity:"uncommon", lat:25.5021, lng:56.3597, icon:"🐠",
+    type:"beach", desc:"East-coast beach camping facing Snoopy Island — snorkelling reefs right off the sand." },
+  { id:"fossil",  name:"Fossil Rock (Mleiha)", region:"Sharjah", rarity:"rare", lat:25.0594, lng:55.7886, icon:"🦴",
+    type:"dune", desc:"Ancient seabed fossils embedded in rock rising from red sand — archaeology meets desert." },
+  { id:"jais",    name:"Jebel Jais", region:"Ras Al Khaimah", rarity:"rare", lat:25.9479, lng:56.1357, icon:"⛰️",
+    type:"mountain", desc:"The UAE's highest peak. Cool mountain air, switchback roads and unreal sunrise camps." },
+  { id:"hafeet",  name:"Jebel Hafeet", region:"Al Ain, Abu Dhabi", rarity:"rare", lat:24.0586, lng:55.7736, icon:"🌄",
+    type:"mountain", desc:"A lone limestone mountain with one of the world's great driving roads and city views." },
+  { id:"moreeb",  name:"Tal Moreeb · Liwa", region:"Empty Quarter, Abu Dhabi", rarity:"legendary", lat:23.1390, lng:53.7853, icon:"🌟",
+    type:"dune", desc:"One of Earth's tallest sand dunes on the edge of the Empty Quarter. The ultimate WayOut pilgrimage." },
 ];
 
-/* ------------------------------------------------------------- Helpers ---- */
-const $ = s => document.querySelector(s);
-const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
-const lerp = (a,b,t)=>a+(b-a)*t;
-const dist = (a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-const fmt = n => n.toLocaleString("en-US");
+/* --------------------------------------------------------------- Quests --- */
+const QUESTS = [
+  { id:"first",   text:"Camp at your first spot",        reward:25,  done:g=>visitedCount()>=1 },
+  { id:"tok80",   text:"Collect 80 tokens",              reward:30,  prog:g=>[G.tokens,80], done:g=>G.tokens>=80 },
+  { id:"beaches", text:"Camp at 2 different beaches",     reward:40,  prog:g=>[typeCount('beach'),2], done:g=>typeCount('beach')>=2 },
+  { id:"rare",    text:"Discover a RARE spot",            reward:60,  done:g=>hasRarity('rare') },
+  { id:"lvl4",    text:"Reach Level 4",                   reward:70,  prog:g=>[G.level,4], done:g=>G.level>=4 },
+  { id:"mtn",     text:"Camp on 3 mountains",             reward:80,  prog:g=>[typeCount('mountain'),3], done:g=>typeCount('mountain')>=3 },
+  { id:"legend",  text:"Reach Tal Moreeb (Legendary)",    reward:150, done:g=>G.visited.has('moreeb') },
+  { id:"all",     text:"Discover every spot in the UAE",  reward:300, prog:g=>[visitedCount(),10], done:g=>visitedCount()>=10 },
+];
+const ACHIEVEMENTS = [
+  { id:"rollout", em:"🚐", text:"Rolled out of base",        done:g=>visitedCount()>=1 },
+  { id:"collector",em:"🪙", text:"Collected 150 tokens",      done:g=>G.tokens>=150 },
+  { id:"explorer",em:"🧭", text:"Discovered 5 spots",         done:g=>visitedCount()>=5 },
+  { id:"climber", em:"⛰️", text:"Reached the UAE's highest peak (Jebel Jais)", done:g=>G.visited.has('jais') },
+  { id:"legend",  em:"🌟", text:"Stood on Tal Moreeb",        done:g=>G.visited.has('moreeb') },
+  { id:"level5",  em:"⬆️", text:"Reached Level 5",            done:g=>G.level>=5 },
+  { id:"complete",em:"🏆", text:"Discovered the whole UAE",   done:g=>visitedCount()>=10 },
+];
 
-/* ------------------------------------------------------------- Audio ------ */
-const Sound = (()=> {
-  let ctx, muted=false;
-  const ac = ()=> ctx || (ctx = new (window.AudioContext||window.webkitAudioContext)());
-  function blip(freq, dur=.12, type="sine", vol=.18){
-    if(muted) return;
-    try{
-      const c=ac(), o=c.createOscillator(), g=c.createGain();
-      o.type=type; o.frequency.value=freq; o.connect(g); g.connect(c.destination);
-      g.gain.setValueAtTime(vol, c.currentTime);
-      g.gain.exponentialRampToValueAtTime(.0001, c.currentTime+dur);
-      o.start(); o.stop(c.currentTime+dur);
-    }catch(e){}
-  }
-  return {
-    coin:()=>blip(880,.08,"square",.12),
-    arrive:()=>{blip(523,.1,"triangle");setTimeout(()=>blip(784,.14,"triangle"),90);},
+/* ----------------------------------------------------------- Utilities ---- */
+const $ = s => document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const distp=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const fmt=n=>Math.round(n).toLocaleString("en-US");
+const byId=id=>G.spots.find(s=>s.id===id);
+const visitedCount=()=>[...G.visited].filter(id=>id!=="hq").length;
+const typeCount=t=>SPOTS.filter(s=>s.type===t && G.visited.has(s.id)).length;
+const hasRarity=r=>SPOTS.some(s=>s.rarity===r && G.visited.has(s.id));
+
+/* --------------------------------------------------------------- Audio ---- */
+const Sound=(()=>{ let ctx,muted=false;
+  const ac=()=>ctx||(ctx=new (window.AudioContext||window.webkitAudioContext)());
+  function blip(f,d=.12,t="sine",v=.18){ if(muted)return;
+    try{const c=ac(),o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;
+      o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);o.start();o.stop(c.currentTime+d);}catch(e){} }
+  return { coin:()=>blip(880,.08,"square",.12), arrive:()=>{blip(523,.1,"triangle");setTimeout(()=>blip(784,.14,"triangle"),90);},
     level:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>blip(f,.16,"triangle",.2),i*90));},
     rare:()=>{[660,880,1100,1320].forEach((f,i)=>setTimeout(()=>blip(f,.18,"sawtooth",.16),i*80));},
+    quest:()=>{[784,988,1318].forEach((f,i)=>setTimeout(()=>blip(f,.14,"triangle",.18),i*70));},
     engine:()=>blip(120,.18,"sawtooth",.07),
-    toggle:()=>{muted=!muted; return muted;},
-    get muted(){return muted;}
-  };
+    setMuted:m=>{muted=m;}, get muted(){return muted;} };
 })();
 
-/* ------------------------------------------------------------- State ------ */
+/* --------------------------------------------------------------- State ---- */
 const G = {
-  tokens:0, score:0, level:1, xp:0, xpNeed:100,
-  fuel:100, maxFuel:100,
+  tokens:0, score:0, level:1, xp:0, xpNeed:100, fuel:100, maxFuel:100,
   van:VANS[0], crew:["dad","mom","kid"],
-  scene:"title",            // title | van | map
-  visited:new Set(),
-  // van avatar on the map
-  vx:0, vy:0, facing:1, driving:false,
-  trail:[],
-  particles:[], floaters:[],
-  spots:[],                  // projected spots {…spot, x, y, r, pulse}
-  coins:[],                  // floating collectible tokens on roads
+  scene:"title", visited:new Set(),
+  vx:0, vy:0, facing:1, driving:false, pendingCost:0,
+  trail:[], particles:[], floaters:[], spots:[], coins:[],
   time:0, camShake:0,
+  questsDone:new Set(), achDone:new Set(), curQuest:0,
 };
 
-/* ------------------------------------------------------------- Canvas ----- */
-const cv = $("#game"), ctx = cv.getContext("2d");
-let W=0,H=0,DPR=1, mapPad=70;
-function resize(){
-  DPR = Math.min(2, window.devicePixelRatio||1);
-  W = window.innerWidth; H = window.innerHeight;
-  cv.width = W*DPR; cv.height = H*DPR; cv.style.width=W+"px"; cv.style.height=H+"px";
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-  mapPad = Math.max(54, Math.min(W,H)*0.12);
-  projectSpots();
+/* -------------------------------------------------------------- Camera ---- */
+const cam={ x:WORLD.w/2, y:WORLD.h/2, zoom:0.5 };
+let minZoom=0.3, maxZoom=2.4, follow=false;
+function fitZoom(){ return Math.min(W/(WORLD.w+120), H/(WORLD.h+120)); }
+function clampCam(){
+  const hw=W/2/cam.zoom, hh=H/2/cam.zoom, m=120;
+  cam.x = (WORLD.w>2*hw) ? clamp(cam.x, hw-m, WORLD.w-hw+m) : WORLD.w/2;
+  cam.y = (WORLD.h>2*hh) ? clamp(cam.y, hh-m, WORLD.h-hh+m) : WORLD.h/2;
 }
-window.addEventListener("resize", resize);
+function screenToWorld(sx,sy){ return { x:(sx-W/2)/cam.zoom+cam.x, y:(sy-H/2)/cam.zoom+cam.y }; }
+function zoomAt(sx,sy,factor){
+  const w=screenToWorld(sx,sy);
+  cam.zoom=clamp(cam.zoom*factor,minZoom,maxZoom);
+  cam.x=w.x-(sx-W/2)/cam.zoom; cam.y=w.y-(sy-H/2)/cam.zoom; clampCam();
+}
+function fitToWorld(){ cam.zoom=clamp(fitZoom(),minZoom,maxZoom); cam.x=WORLD.w/2; cam.y=WORLD.h/2; clampCam(); }
+function focusVan(z){ cam.zoom=clamp(z||1.1,minZoom,maxZoom); cam.x=G.vx; cam.y=G.vy; clampCam(); }
+
+/* -------------------------------------------------------------- Canvas ---- */
+const cv=$("#game"), ctx=cv.getContext("2d");
+let W=0,H=0,DPR=1;
+function resize(){
+  DPR=Math.min(2,window.devicePixelRatio||1); W=innerWidth; H=innerHeight;
+  cv.width=W*DPR; cv.height=H*DPR; cv.style.width=W+"px"; cv.style.height=H+"px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  minZoom=Math.min(fitZoom()*0.85, 0.5); maxZoom=2.6;
+  cam.zoom=clamp(cam.zoom,minZoom,maxZoom); clampCam();
+}
+addEventListener("resize",resize);
 
 function projectSpots(){
-  const padX = mapPad, padTop = mapPad+30, padBot = mapPad+40;
-  G.spots = SPOTS.map(s=>{
-    const nx = (s.lng-BBOX.minLng)/(BBOX.maxLng-BBOX.minLng);
-    const ny = (BBOX.maxLat-s.lat)/(BBOX.maxLat-BBOX.minLat);
-    return { ...s,
-      x: lerp(padX, W-padX, nx),
-      y: lerp(padTop, H-padBot, ny),
-      r: 26, pulse:Math.random()*6.28 };
+  G.spots=SPOTS.map(s=>{
+    const nx=(s.lng-BBOX.minLng)/(BBOX.maxLng-BBOX.minLng);
+    const ny=(BBOX.maxLat-s.lat)/(BBOX.maxLat-BBOX.minLat);
+    return { ...s, x:lerp(PAD.x,WORLD.w-PAD.x,nx), y:lerp(PAD.top,WORLD.h-PAD.bot,ny), r:s.rarity==="home"?34:30, pulse:Math.random()*6.28 };
   });
-  if(G.scene!=="map"){ // keep van parked at base until launch
-    const hq=G.spots.find(s=>s.id==="hq");
-    if(hq){ G.vx=hq.x; G.vy=hq.y; }
-  }
 }
 
-/* ------------------------------------------------------------ Drawing ----- */
-// Cute family head used in van windows and on selection cards.
-function drawHead(g, x, y, r, skin, hair, look=0){
-  g.save(); g.translate(x,y);
-  // hair/back
-  g.fillStyle=hair; g.beginPath(); g.arc(0,-r*.15,r,Math.PI,0); g.fill();
-  // face
-  g.fillStyle=skin; g.beginPath(); g.arc(0,0,r,0,7); g.fill();
-  g.lineWidth=Math.max(2,r*.12); g.strokeStyle="#27201A"; g.stroke();
-  // eyes
-  const ex=r*.36, ey=-r*.05, er=r*.22;
-  for(const sx of [-1,1]){
-    g.fillStyle="#fff"; g.beginPath(); g.arc(sx*ex,ey,er,0,7); g.fill();
-    g.lineWidth=Math.max(1.5,r*.06); g.strokeStyle="#27201A"; g.stroke();
-    g.fillStyle="#27201A"; g.beginPath(); g.arc(sx*ex+look*er*.5,ey,er*.5,0,7); g.fill();
-  }
-  // smile
-  g.lineWidth=Math.max(2,r*.12); g.strokeStyle="#27201A"; g.lineCap="round";
-  g.beginPath(); g.arc(0,r*.18,r*.4,.15*Math.PI,.85*Math.PI); g.stroke();
-  g.restore();
+/* ----- decorative world props (computed once for a stable scene) ----- */
+let CLOUDS=[], PALMS=[], MTNS=[], BIRDS=[];
+function buildScenery(){
+  CLOUDS=[]; for(let i=0;i<10;i++) CLOUDS.push({x:Math.random()*WORLD.w,y:60+Math.random()*260,s:.7+Math.random()*1.4,v:6+Math.random()*10});
+  BIRDS=[]; for(let i=0;i<6;i++) BIRDS.push({x:Math.random()*WORLD.w,y:120+Math.random()*200,s:.8+Math.random()*.6,v:18+Math.random()*14,ph:Math.random()*6});
+  MTNS=[]; for(let i=0;i<6;i++) MTNS.push({x:WORLD.w*0.62+i*120+Math.random()*40,y:WORLD.h*0.5,s:1+Math.random()*1.2}); // east Hajar range
+  PALMS=[]; const hq=SPOTS.find(s=>s.id==="hq");
+  for(let i=0;i<24;i++) PALMS.push({x:Math.random()*WORLD.w,y:PAD.top+120+Math.random()*(WORLD.h-PAD.top-PAD.bot-120),s:.8+Math.random()*.8});
 }
 
-// Cute dog head variant
-function drawDog(g,x,y,r,c1,c2){
-  g.save(); g.translate(x,y);
-  g.fillStyle=c2; // ears
-  g.beginPath(); g.ellipse(-r*.9,0,r*.45,r*.75,0,0,7); g.fill();
-  g.beginPath(); g.ellipse(r*.9,0,r*.45,r*.75,0,0,7); g.fill();
-  g.fillStyle=c1; g.beginPath(); g.arc(0,0,r,0,7); g.fill();
-  g.lineWidth=Math.max(2,r*.12); g.strokeStyle="#27201A"; g.stroke();
-  for(const sx of [-1,1]){
-    g.fillStyle="#fff"; g.beginPath(); g.arc(sx*r*.35,-r*.05,r*.2,0,7); g.fill(); g.strokeStyle="#27201A";g.lineWidth=r*.05;g.stroke();
-    g.fillStyle="#27201A"; g.beginPath(); g.arc(sx*r*.35,-r*.05,r*.1,0,7); g.fill();
-  }
-  g.fillStyle="#27201A"; g.beginPath(); g.arc(0,r*.25,r*.16,0,7); g.fill();
-  g.restore();
-}
+/* -------------------------------------------------------------- Drawing --- */
+function roundRect(g,x,y,w,h,r){ r=Math.min(r,w/2,h/2);
+  g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath(); }
 
-// The hero: a chunky cartoon WayOut camper van with a face. dir=1 right,-1 left.
-function drawVan(g, x, y, scale, van, dir, bob, crew){
-  g.save();
-  g.translate(x,y);
-  g.scale(dir*scale, scale);
-  g.translate(0, bob||0);
+function drawHead(g,x,y,r,skin,hair,look=0){ g.save();g.translate(x,y);
+  g.fillStyle=hair;g.beginPath();g.arc(0,-r*.15,r,Math.PI,0);g.fill();
+  g.fillStyle=skin;g.beginPath();g.arc(0,0,r,0,7);g.fill();
+  g.lineWidth=Math.max(2,r*.12);g.strokeStyle="#27201A";g.stroke();
+  const ex=r*.36,ey=-r*.05,er=r*.22;
+  for(const sx of[-1,1]){g.fillStyle="#fff";g.beginPath();g.arc(sx*ex,ey,er,0,7);g.fill();
+    g.lineWidth=Math.max(1.5,r*.06);g.stroke();g.fillStyle="#27201A";g.beginPath();g.arc(sx*ex+look*er*.5,ey,er*.5,0,7);g.fill();}
+  g.lineWidth=Math.max(2,r*.12);g.lineCap="round";g.beginPath();g.arc(0,r*.18,r*.4,.15*Math.PI,.85*Math.PI);g.stroke();g.restore(); }
+function drawDog(g,x,y,r,c1,c2){ g.save();g.translate(x,y);g.fillStyle=c2;
+  g.beginPath();g.ellipse(-r*.9,0,r*.45,r*.75,0,0,7);g.fill();g.beginPath();g.ellipse(r*.9,0,r*.45,r*.75,0,0,7);g.fill();
+  g.fillStyle=c1;g.beginPath();g.arc(0,0,r,0,7);g.fill();g.lineWidth=Math.max(2,r*.12);g.strokeStyle="#27201A";g.stroke();
+  for(const sx of[-1,1]){g.fillStyle="#fff";g.beginPath();g.arc(sx*r*.35,-r*.05,r*.2,0,7);g.fill();g.lineWidth=r*.05;g.stroke();
+    g.fillStyle="#27201A";g.beginPath();g.arc(sx*r*.35,-r*.05,r*.1,0,7);g.fill();}
+  g.fillStyle="#27201A";g.beginPath();g.arc(0,r*.25,r*.16,0,7);g.fill();g.restore(); }
+
+function drawVan(g,x,y,scale,van,dir,bob,crew){ g.save();g.translate(x,y);g.scale(dir*scale,scale);g.translate(0,bob||0);
   const w=120,h=70;
-  // shadow
-  g.save(); g.scale(dir,1);
-  g.fillStyle="rgba(40,24,10,.22)";
-  g.beginPath(); g.ellipse(0,h*.62,w*.55,12,0,0,7); g.fill();
-  g.restore();
-  // body
-  roundRect(g,-w/2,-h/2,w,h,16); g.fillStyle=van.body; g.fill();
-  g.lineWidth=5; g.strokeStyle="#27201A"; g.stroke();
-  // raised roof / pop-top (camper)
-  roundRect(g,-w/2+8,-h/2-16,w*.7,22,9); g.fillStyle=van.roof; g.fill(); g.stroke();
-  // roof rack + solar panel
-  if(van.solar){ roundRect(g,-6,-h/2-13,w*.34,8,3); g.fillStyle="#1b3a6b"; g.fill(); g.stroke();
-    g.strokeStyle="#7fb2ff"; g.lineWidth=1.5;
-    for(let i=1;i<4;i++){g.beginPath();g.moveTo(-6+i*w*.085,-h/2-13);g.lineTo(-6+i*w*.085,-h/2-5);g.stroke();}
-    g.strokeStyle="#27201A"; g.lineWidth=5;
-  }
-  // window band with family faces
-  roundRect(g,-w/2+10,-h/2+8,w*.52,h*.42,8); g.fillStyle="#Bfe9ff"; g.fill(); g.lineWidth=4; g.stroke();
-  // passengers
-  const seats=[ -w/2+24, -w/2+44, -w/2+64 ];
-  (crew||[]).slice(0,3).forEach((id,i)=>{
-    const m=FAMILY.find(f=>f.id===id); if(!m) return;
-    g.save(); g.scale(dir,1);
-    if(m.id==="dog") drawDog(g, dir*seats[i], -h/2+22, 9, m.skin, m.hair);
-    else drawHead(g, dir*seats[i], -h/2+22, 10, m.skin, m.hair, .2);
-    g.restore();
-  });
-  // door line + WayOut stripe
-  g.fillStyle=van.roof; roundRect(g, w/2-44,-h/2+10,30,h*.6,6); g.fill(); g.lineWidth=3; g.stroke();
-  g.fillStyle="#27201A"; g.font="900 11px Trebuchet MS"; g.save(); g.scale(dir,1);
-  g.fillText("WAY", dir>0? w/2-42 : -(w/2-2), 2); g.fillText("OUT", dir>0? w/2-42 : -(w/2-2), 14); g.restore();
-  // headlight "eyes" (give the van a face)
-  const fx=w/2-6;
-  g.fillStyle="#fff"; g.beginPath(); g.arc(fx,-2,8,0,7); g.fill(); g.lineWidth=3; g.stroke();
-  g.fillStyle="#27201A"; g.beginPath(); g.arc(fx+2,-2,3.4,0,7); g.fill();
-  // bumper smile
-  g.lineWidth=4; g.lineCap="round"; g.beginPath(); g.arc(w/2-12,12,9,-.1*Math.PI,.6*Math.PI); g.stroke();
-  // wheels
-  for(const wx of [-w*.3, w*.3]){
-    g.fillStyle="#2b2b2b"; g.beginPath(); g.arc(wx,h/2-2,15,0,7); g.fill(); g.lineWidth=4; g.strokeStyle="#27201A"; g.stroke();
-    g.fillStyle="#9a9a9a"; g.beginPath(); g.arc(wx,h/2-2,6,0,7); g.fill();
-  }
+  g.save();g.scale(dir,1);g.fillStyle="rgba(40,24,10,.22)";g.beginPath();g.ellipse(0,h*.62,w*.55,12,0,0,7);g.fill();g.restore();
+  roundRect(g,-w/2,-h/2,w,h,16);g.fillStyle=van.body;g.fill();g.lineWidth=5;g.strokeStyle="#27201A";g.stroke();
+  roundRect(g,-w/2+8,-h/2-16,w*.7,22,9);g.fillStyle=van.roof;g.fill();g.stroke();
+  if(van.solar){roundRect(g,-6,-h/2-13,w*.34,8,3);g.fillStyle="#1b3a6b";g.fill();g.stroke();
+    g.strokeStyle="#7fb2ff";g.lineWidth=1.5;for(let i=1;i<4;i++){g.beginPath();g.moveTo(-6+i*w*.085,-h/2-13);g.lineTo(-6+i*w*.085,-h/2-5);g.stroke();}g.strokeStyle="#27201A";g.lineWidth=5;}
+  roundRect(g,-w/2+10,-h/2+8,w*.52,h*.42,8);g.fillStyle="#Bfe9ff";g.fill();g.lineWidth=4;g.stroke();
+  const seats=[-w/2+24,-w/2+44,-w/2+64];
+  (crew||[]).slice(0,3).forEach((id,i)=>{const m=FAMILY.find(f=>f.id===id);if(!m)return;
+    g.save();g.scale(dir,1);if(m.id==="dog")drawDog(g,dir*seats[i],-h/2+22,9,m.skin,m.hair);else drawHead(g,dir*seats[i],-h/2+22,10,m.skin,m.hair,.2);g.restore();});
+  g.fillStyle=van.roof;roundRect(g,w/2-44,-h/2+10,30,h*.6,6);g.fill();g.lineWidth=3;g.stroke();
+  g.fillStyle="#27201A";g.font="900 11px Trebuchet MS";g.save();g.scale(dir,1);
+  g.fillText("WAY",dir>0?w/2-42:-(w/2-2),2);g.fillText("OUT",dir>0?w/2-42:-(w/2-2),14);g.restore();
+  const fx=w/2-6;g.fillStyle="#fff";g.beginPath();g.arc(fx,-2,8,0,7);g.fill();g.lineWidth=3;g.stroke();
+  g.fillStyle="#27201A";g.beginPath();g.arc(fx+2,-2,3.4,0,7);g.fill();
+  g.lineWidth=4;g.lineCap="round";g.beginPath();g.arc(w/2-12,12,9,-.1*Math.PI,.6*Math.PI);g.stroke();
+  for(const wx of[-w*.3,w*.3]){g.fillStyle="#2b2b2b";g.beginPath();g.arc(wx,h/2-2,15,0,7);g.fill();g.lineWidth=4;g.strokeStyle="#27201A";g.stroke();
+    g.fillStyle="#9a9a9a";g.beginPath();g.arc(wx,h/2-2,6,0,7);g.fill();}
+  g.restore(); }
+
+function drawPalm(g,x,y,s){ g.save();g.translate(x,y);g.scale(s,s);
+  g.fillStyle="rgba(40,24,10,.15)";g.beginPath();g.ellipse(0,2,18,5,0,0,7);g.fill();
+  g.strokeStyle="#8a5a2b";g.lineWidth=6;g.lineCap="round";g.beginPath();g.moveTo(0,0);g.quadraticCurveTo(4,-22,-2,-40);g.stroke();
+  g.fillStyle="#3fae5a";for(let i=0;i<6;i++){g.save();g.translate(-2,-40);g.rotate((i/6)*6.28+Math.sin(G.time+ x)*.04);g.beginPath();g.ellipse(16,0,18,6,0,0,7);g.fill();g.restore();}g.restore(); }
+
+function drawMountain(g,x,y,s){ g.save();g.translate(x,y);g.scale(s,s);
+  g.fillStyle="#9c7a52";g.beginPath();g.moveTo(-70,0);g.lineTo(0,-120);g.lineTo(70,0);g.closePath();g.fill();
+  g.lineWidth=4;g.strokeStyle="#6f5436";g.stroke();
+  g.fillStyle="#fff";g.beginPath();g.moveTo(-20,-86);g.lineTo(0,-120);g.lineTo(22,-84);g.lineTo(8,-92);g.lineTo(-4,-82);g.lineTo(-12,-92);g.closePath();g.fill();g.restore(); }
+
+function drawCamp(g,x,y,t){ // tent + campfire at a visited spot
+  g.save();g.translate(x,y);
+  g.fillStyle="#E0443C";g.beginPath();g.moveTo(-22,18);g.lineTo(0,-14);g.lineTo(22,18);g.closePath();g.fill();
+  g.lineWidth=3;g.strokeStyle="#27201A";g.stroke();
+  g.fillStyle="#FFE3B0";g.beginPath();g.moveTo(0,-14);g.lineTo(8,18);g.lineTo(-8,18);g.closePath();g.fill();g.stroke();
+  // fire
+  const f=Math.abs(Math.sin(t*6));
+  g.fillStyle="#5a3a1a";g.fillRect(26,12,18,5);
+  g.fillStyle="#FF7A2E";g.beginPath();g.moveTo(35,14);g.quadraticCurveTo(28,2-f*4,35,-8-f*6);g.quadraticCurveTo(42,2-f*4,35,14);g.fill();
+  g.fillStyle="#FFD23F";g.beginPath();g.moveTo(35,12);g.quadraticCurveTo(31,4,35,-2-f*4);g.quadraticCurveTo(39,4,35,12);g.fill();
   g.restore();
 }
 
-function roundRect(g,x,y,w,h,r){
-  r=Math.min(r,w/2,h/2);
-  g.beginPath();
-  g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
-  g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
-}
+function drawWorld(){
+  // --- sky/sand vertical wash sized to world ---
+  const sky=ctx.createLinearGradient(0,0,0,WORLD.h);
+  sky.addColorStop(0,"#BFE9FF");sky.addColorStop(.28,"#FFE7B3");sky.addColorStop(.6,"#F7C779");sky.addColorStop(1,"#E89B3C");
+  ctx.fillStyle=sky;ctx.fillRect(0,0,WORLD.w,WORLD.h);
+  // sun
+  ctx.save();ctx.globalAlpha=.9;ctx.fillStyle="#FFE08A";ctx.beginPath();ctx.arc(WORLD.w*.18,150,70,0,7);ctx.fill();
+  ctx.globalAlpha=.25;ctx.fillStyle="#FFF3C4";ctx.beginPath();ctx.arc(WORLD.w*.18,150,110,0,7);ctx.fill();ctx.restore();
+  // clouds
+  CLOUDS.forEach(c=>{ const cx=((c.x - G.time*c.v)%WORLD.w+WORLD.w)%WORLD.w;
+    ctx.fillStyle="rgba(255,255,255,.92)";ctx.save();ctx.translate(cx,c.y);ctx.scale(c.s,c.s);
+    for(const o of[[-26,4,18],[0,-6,24],[26,4,20],[6,8,22]]){ctx.beginPath();ctx.arc(o[0],o[1],o[2],0,7);ctx.fill();}ctx.restore(); });
+  // birds
+  BIRDS.forEach(b=>{ const bx=((b.x+G.time*b.v)%WORLD.w+WORLD.w)%WORLD.w, fl=Math.sin(G.time*6+b.ph)*4;
+    ctx.strokeStyle="rgba(40,24,10,.5)";ctx.lineWidth=2;ctx.beginPath();
+    ctx.moveTo(bx-7,b.y);ctx.quadraticCurveTo(bx,b.y-5-fl,bx+7,b.y);ctx.moveTo(bx+7,b.y);ctx.quadraticCurveTo(bx+14,b.y-5-fl,bx+21,b.y);ctx.stroke(); });
 
-// Decorative palm
-function drawPalm(g,x,y,s){
-  g.save(); g.translate(x,y); g.scale(s,s);
-  g.strokeStyle="#8a5a2b"; g.lineWidth=6; g.lineCap="round";
-  g.beginPath(); g.moveTo(0,0); g.quadraticCurveTo(4,-22,-2,-40); g.stroke();
-  g.fillStyle="#3fae5a";
-  for(let i=0;i<6;i++){ g.save(); g.translate(-2,-40); g.rotate((i/6)*6.28);
-    g.beginPath(); g.ellipse(16,0,18,6,0,0,7); g.fill(); g.restore(); }
-  g.restore();
-}
-
-/* ---------------------------------------------------------- Map render ---- */
-function drawMap(){
-  // sky-to-sand vertical wash backdrop
-  const sky = ctx.createLinearGradient(0,0,0,H);
-  sky.addColorStop(0,"#FFE7B3"); sky.addColorStop(.45,"#F7C779"); sky.addColorStop(1,"#E89B3C");
-  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
-
-  // Gulf water along top + east coast (stylised) — based on real UAE geography.
+  // Arabian Gulf (top coast) — stylised from real UAE geography
   ctx.fillStyle="#39B3D6";
-  ctx.beginPath();
-  ctx.moveTo(0,0); ctx.lineTo(W,0);
-  ctx.lineTo(W, H*.18);
-  // wavy coastline going down-left
-  let waveY=H*.18;
-  ctx.quadraticCurveTo(W*.72,H*.10, W*.55,H*.16);
-  ctx.quadraticCurveTo(W*.40,H*.22, W*.22,H*.16);
-  ctx.quadraticCurveTo(W*.08,H*.12, 0,H*.20);
-  ctx.closePath(); ctx.fill();
-  // east coast strip (Gulf of Oman)
-  ctx.beginPath();
-  ctx.moveTo(W,0); ctx.lineTo(W,H);
-  ctx.quadraticCurveTo(W*.86,H*.7, W*.9,H*.4);
-  ctx.quadraticCurveTo(W*.95,H*.18, W,0); ctx.closePath(); ctx.fill();
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(WORLD.w,0);ctx.lineTo(WORLD.w,WORLD.h*.16);
+  ctx.quadraticCurveTo(WORLD.w*.72,WORLD.h*.09,WORLD.w*.55,WORLD.h*.15);
+  ctx.quadraticCurveTo(WORLD.w*.4,WORLD.h*.2,WORLD.w*.22,WORLD.h*.14);
+  ctx.quadraticCurveTo(WORLD.w*.08,WORLD.h*.1,0,WORLD.h*.18);ctx.closePath();ctx.fill();
+  // Gulf of Oman (east coast)
+  ctx.beginPath();ctx.moveTo(WORLD.w,0);ctx.lineTo(WORLD.w,WORLD.h);
+  ctx.quadraticCurveTo(WORLD.w*.86,WORLD.h*.66,WORLD.w*.9,WORLD.h*.36);
+  ctx.quadraticCurveTo(WORLD.w*.95,WORLD.h*.16,WORLD.w,0);ctx.closePath();ctx.fill();
+  // sea shimmer
+  ctx.strokeStyle="rgba(255,255,255,.5)";ctx.lineWidth=3;
+  for(let i=0;i<5;i++){const yy=30+i*22+Math.sin(G.time*1.5+i)*4;ctx.beginPath();
+    for(let x=20;x<WORLD.w*.5;x+=40)ctx.lineTo(x,yy+Math.sin(x*.03+G.time*2)*3);ctx.stroke();}
 
+  // distant mountains (east)
+  MTNS.forEach(m=>drawMountain(ctx,m.x,m.y,m.s));
   // dune ridges
-  ctx.fillStyle="rgba(217,131,36,.35)";
-  for(let k=0;k<4;k++){
-    const yy=H*(.4+ k*.13);
-    ctx.beginPath(); ctx.moveTo(0,yy);
-    for(let x=0;x<=W;x+=60) ctx.lineTo(x, yy + Math.sin((x*0.01)+(k*1.7))*14);
-    ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath(); ctx.fill();
-  }
+  for(let k=0;k<4;k++){ctx.fillStyle=`rgba(217,131,36,${.18+k*.06})`;const yy=WORLD.h*(.45+k*.12);
+    ctx.beginPath();ctx.moveTo(0,yy);for(let x=0;x<=WORLD.w;x+=70)ctx.lineTo(x,yy+Math.sin(x*.008+k*1.7)*22);
+    ctx.lineTo(WORLD.w,WORLD.h);ctx.lineTo(0,WORLD.h);ctx.closePath();ctx.fill();}
+  // palms
+  PALMS.forEach(p=>drawPalm(ctx,p.x,p.y,p.s));
 
-  // dashed roads radiating from the WayOut base to every spot
+  // roads from base to every spot
   const hq=byId("hq");
-  ctx.strokeStyle="rgba(70,45,20,.35)"; ctx.lineWidth=8; ctx.setLineDash([2,14]); ctx.lineCap="round";
-  ctx.beginPath();
-  G.spots.forEach(s=>{ if(s.id!=="hq"){ ctx.moveTo(hq.x,hq.y); ctx.lineTo(s.x,s.y);} });
-  ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle="rgba(70,45,20,.32)";ctx.lineWidth=10;ctx.setLineDash([3,18]);ctx.lineCap="round";
+  ctx.beginPath();G.spots.forEach(s=>{if(s.id!=="hq"){ctx.moveTo(hq.x,hq.y);ctx.lineTo(s.x,s.y);}});ctx.stroke();ctx.setLineDash([]);
 
-  // a few palms / decor near base
-  drawPalm(ctx, hq.x-46, hq.y+8, 1.1);
-  drawPalm(ctx, hq.x+50, hq.y+2, .9);
+  // van dust trail
+  G.trail.forEach(t=>{ctx.fillStyle=`rgba(255,255,255,${0.06*t.life})`;ctx.beginPath();ctx.arc(t.x,t.y,8+(1-t.life)*20,0,7);ctx.fill();});
 
-  // van trail (dust)
-  G.trail.forEach((t,i)=>{
-    ctx.fillStyle=`rgba(255,255,255,${0.04*t.life})`;
-    ctx.beginPath(); ctx.arc(t.x,t.y, 6+ (1-t.life)*16, 0,7); ctx.fill();
-  });
-
-  // floating collectible tokens
-  G.coins.forEach(c=>{
-    const yy=c.y+Math.sin(G.time*4+c.ph)*4;
-    ctx.save(); ctx.translate(c.x,yy);
-    ctx.fillStyle="#FFD23F"; ctx.beginPath(); ctx.arc(0,0,10,0,7); ctx.fill();
-    ctx.lineWidth=3; ctx.strokeStyle="#B8860B"; ctx.stroke();
-    ctx.fillStyle="#B8860B"; ctx.font="900 12px Trebuchet MS"; ctx.textAlign="center"; ctx.textBaseline="middle";
-    ctx.fillText("W",0,1); ctx.restore();
-  });
+  // collectible tokens
+  G.coins.forEach(c=>{const yy=c.y+Math.sin(G.time*4+c.ph)*5;ctx.save();ctx.translate(c.x,yy);
+    ctx.fillStyle="#FFD23F";ctx.beginPath();ctx.arc(0,0,12,0,7);ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#B8860B";ctx.stroke();
+    ctx.fillStyle="#B8860B";ctx.font="900 14px Trebuchet MS";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("W",0,1);ctx.restore();});
 
   // spots
-  G.spots.forEach(s=>{
-    s.pulse+=0.05;
-    const r=s.rarity==="home"?30:26;
-    const col=RARITY[s.rarity].color;
-    const visited=G.visited.has(s.id);
-    // pulse ring for undiscovered, reachable spots
-    if(!visited && s.rarity!=="home"){
-      const pr = r + 8 + Math.sin(s.pulse)*5;
-      ctx.beginPath(); ctx.arc(s.x,s.y,pr,0,7);
-      ctx.strokeStyle=col; ctx.globalAlpha=.5; ctx.lineWidth=4; ctx.stroke(); ctx.globalAlpha=1;
-    }
-    // badge
-    ctx.save();
-    ctx.fillStyle="rgba(40,24,10,.25)"; ctx.beginPath(); ctx.ellipse(s.x,s.y+r*.7,r*.9,8,0,0,7); ctx.fill();
-    ctx.beginPath(); ctx.arc(s.x,s.y,r,0,7);
-    ctx.fillStyle = visited? "#fff" : col; ctx.fill();
-    ctx.lineWidth=4; ctx.strokeStyle="#27201A"; ctx.stroke();
-    ctx.font=`${r*1.1}px serif`; ctx.textAlign="center"; ctx.textBaseline="middle";
-    ctx.fillText(s.icon, s.x, s.y+1);
-    // visited check
-    if(visited){ ctx.fillStyle="#56C14C"; ctx.beginPath(); ctx.arc(s.x+r*.7,s.y-r*.7,9,0,7); ctx.fill();
-      ctx.lineWidth=3; ctx.strokeStyle="#27201A"; ctx.stroke();
-      ctx.fillStyle="#fff"; ctx.font="900 12px Trebuchet MS"; ctx.fillText("✓", s.x+r*.7,s.y-r*.7+1); }
-    // legendary sparkle
-    if(s.rarity==="legendary" && !visited){
-      for(let i=0;i<3;i++){const a=s.pulse+i*2.1; ctx.fillStyle="#fff";
-        ctx.beginPath(); ctx.arc(s.x+Math.cos(a)*(r+10), s.y+Math.sin(a)*(r+10),2.4,0,7); ctx.fill();}
-    }
-    ctx.restore();
-    // name label
-    ctx.font="900 12px Trebuchet MS"; ctx.textAlign="center";
-    const tw=ctx.measureText(s.name).width+12;
-    ctx.fillStyle="rgba(255,246,232,.92)"; roundRect(ctx,s.x-tw/2,s.y+r+4,tw,18,8); ctx.fill();
-    ctx.lineWidth=2; ctx.strokeStyle="#27201A"; ctx.stroke();
-    ctx.fillStyle="#27201A"; ctx.fillText(s.name, s.x, s.y+r+16);
+  const lf=1/cam.zoom; // keep labels readable at any zoom
+  G.spots.forEach(s=>{ s.pulse+=0.05; const r=s.r,col=RARITY[s.rarity].color,visited=G.visited.has(s.id);
+    if(!visited && s.rarity!=="home"){const pr=r+10+Math.sin(s.pulse)*6;ctx.beginPath();ctx.arc(s.x,s.y,pr,0,7);
+      ctx.strokeStyle=col;ctx.globalAlpha=.5;ctx.lineWidth=5;ctx.stroke();ctx.globalAlpha=1;}
+    ctx.fillStyle="rgba(40,24,10,.22)";ctx.beginPath();ctx.ellipse(s.x,s.y+r*.7,r*.95,9,0,0,7);ctx.fill();
+    if(visited && s.rarity!=="home"){ drawCamp(ctx,s.x,s.y,G.time); }
+    ctx.beginPath();ctx.arc(s.x,s.y,r,0,7);ctx.fillStyle=visited?"#fff":col;ctx.fill();ctx.lineWidth=4;ctx.strokeStyle="#27201A";ctx.stroke();
+    ctx.font=`${r*1.05}px serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(s.icon,s.x,s.y+1);
+    if(visited){ctx.fillStyle="#56C14C";ctx.beginPath();ctx.arc(s.x+r*.72,s.y-r*.72,10,0,7);ctx.fill();ctx.lineWidth=3;ctx.stroke();
+      ctx.fillStyle="#fff";ctx.font="900 13px Trebuchet MS";ctx.fillText("✓",s.x+r*.72,s.y-r*.72+1);}
+    if(s.rarity==="legendary"&&!visited){for(let i=0;i<3;i++){const a=s.pulse+i*2.1;ctx.fillStyle="#fff";
+      ctx.beginPath();ctx.arc(s.x+Math.cos(a)*(r+12),s.y+Math.sin(a)*(r+12),3,0,7);ctx.fill();}}
+    if(s.id==="hq"){ // little flag on base
+      ctx.strokeStyle="#27201A";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(s.x+r-4,s.y-r);ctx.lineTo(s.x+r-4,s.y-r-22);ctx.stroke();
+      ctx.fillStyle="#FF7A2E";ctx.beginPath();ctx.moveTo(s.x+r-4,s.y-r-22);ctx.lineTo(s.x+r-4+18+Math.sin(G.time*4)*3,s.y-r-17);ctx.lineTo(s.x+r-4,s.y-r-12);ctx.closePath();ctx.fill();}
+    // label (constant screen size)
+    ctx.font=`900 ${13*lf}px Trebuchet MS`;ctx.textAlign="center";
+    const tw=ctx.measureText(s.name).width+12*lf;
+    ctx.fillStyle="rgba(255,246,232,.94)";roundRect(ctx,s.x-tw/2,s.y+r+5*lf,tw,18*lf,8*lf);ctx.fill();
+    ctx.lineWidth=2*lf;ctx.strokeStyle="#27201A";ctx.stroke();
+    ctx.fillStyle="#27201A";ctx.textBaseline="middle";ctx.fillText(s.name,s.x,s.y+r+14*lf);
   });
 
-  // the van avatar
-  const bob = G.driving ? Math.sin(G.time*16)*3 : Math.sin(G.time*3)*1.5;
-  drawVan(ctx, G.vx, G.vy-6, 0.62, G.van, G.facing, bob, G.crew);
+  // van
+  const bob=G.driving?Math.sin(G.time*16)*3:Math.sin(G.time*3)*1.6;
+  drawVan(ctx,G.vx,G.vy-6,0.7,G.van,G.facing,bob,G.crew);
 
-  // floaters (+points / +tokens)
-  G.floaters.forEach(f=>{
-    ctx.globalAlpha=clamp(f.life,0,1);
-    ctx.fillStyle=f.color; ctx.font="900 18px Trebuchet MS"; ctx.textAlign="center";
-    ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.strokeText(f.txt,f.x,f.y); ctx.fillText(f.txt,f.x,f.y);
-    ctx.globalAlpha=1;
-  });
-  // confetti particles
-  G.particles.forEach(p=>{ ctx.fillStyle=p.color; ctx.fillRect(p.x,p.y,p.s,p.s); });
+  // floaters & particles
+  G.floaters.forEach(f=>{ctx.globalAlpha=clamp(f.life,0,1);ctx.fillStyle=f.color;ctx.font="900 22px Trebuchet MS";ctx.textAlign="center";
+    ctx.strokeStyle="#fff";ctx.lineWidth=4;ctx.strokeText(f.txt,f.x,f.y);ctx.fillText(f.txt,f.x,f.y);ctx.globalAlpha=1;});
+  G.particles.forEach(p=>{ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,p.s,p.s);});
 }
 
-const byId = id => G.spots.find(s=>s.id===id);
-
-/* --------------------------------------------------------- Game logic ----- */
-let driveTarget=null, driveFrom=null, driveT=0, driveDur=1;
-
+/* -------------------------------------------------------- Game logic ------ */
+let driveFrom=null,driveTarget=null,driveT=0,driveDur=1;
 function tryDriveTo(spot){
   if(G.driving) return;
-  const from={x:G.vx,y:G.vy};
-  const d=dist(from,spot)/Math.min(W,H);   // normalised distance
-  const cost = Math.round( (d*70) * (4/G.van.eff) );  // fuel cost
-  if(spot.id==="hq" && dist(from,spot)<6){ showToast("⛽ Refueled at base!","#56C14C"); G.fuel=G.maxFuel; updateHUD(); return; }
-  if(G.fuel < cost){
-    showToast("⛽ Not enough fuel! Drive back to base to refuel.","#E0443C");
-    return;
-  }
-  driveFrom=from; driveTarget=spot; driveT=0;
-  driveDur = clamp(d* (3.2 - G.van.spd*0.35), .5, 2.4);
-  G.facing = spot.x>=G.vx?1:-1;
-  G.driving=true; G.pendingCost=cost;
-  setHint("🚐 On the road…");
-  Sound.engine();
+  const from={x:G.vx,y:G.vy}, d=distp(from,spot)/Math.min(WORLD.w,WORLD.h);
+  if(spot.id==="hq" && distp(from,spot)<20){ G.fuel=G.maxFuel; updateHUD(); showToast("⛽ Refueled at base!","#56C14C"); save(); return; }
+  const cost=Math.round((d*150)*(4/G.van.eff));
+  if(G.fuel<cost){ showToast("⛽ Low fuel! Drive back to base to refuel.","#E0443C"); return; }
+  driveFrom=from; driveTarget=spot; driveT=0; driveDur=clamp(d*(7-G.van.spd*0.7),.6,2.6);
+  G.facing=spot.x>=G.vx?1:-1; G.driving=true; G.pendingCost=cost; follow=true;
+  setHint("🚐 On the road…"); Sound.engine();
 }
-
 function arrive(spot){
-  G.driving=false;
-  G.fuel = clamp(G.fuel - G.pendingCost, 0, G.maxFuel);
-  const firstTime = !G.visited.has(spot.id);
-  const meta=RARITY[spot.rarity];
-
-  if(spot.id==="hq"){ G.fuel=G.maxFuel; updateHUD(); openNothing(); return; }
-
-  let pts = meta.points, tok=meta.tokens, xp=meta.xp;
-  if(firstTime){ pts=Math.round(pts*1.5); }   // discovery bonus
-  // level multiplier rewards progression
-  pts = Math.round(pts * (1 + (G.level-1)*0.08));
-
+  G.driving=false; follow=false; G.fuel=clamp(G.fuel-G.pendingCost,0,G.maxFuel);
+  if(spot.id==="hq"){ G.fuel=G.maxFuel; updateHUD(); save(); return; }
+  const first=!G.visited.has(spot.id), meta=RARITY[spot.rarity];
+  let pts=meta.points; if(first)pts*=1.5; pts=Math.round(pts*(1+(G.level-1)*0.08));
   G.visited.add(spot.id);
-  addTokens(tok, spot.x, spot.y-30);
-  addScore(pts, spot.x, spot.y-50);
-  G.fuel = clamp(G.fuel+35,0,G.maxFuel);       // resting at camp tops up a little
-  gainXP(xp, spot);
-
+  addTokens(meta.tokens,spot.x,spot.y-30); addScore(pts,spot.x,spot.y-58);
+  G.fuel=clamp(G.fuel+35,0,G.maxFuel); gainXP(meta.xp);
   Sound.arrive();
-  if(spot.rarity==="rare"||spot.rarity==="legendary"){
-    Sound.rare(); burstConfetti(spot.x,spot.y, spot.rarity==="legendary"?120:60); G.camShake=10;
-    showToast((spot.rarity==="legendary"?"🌟 LEGENDARY FIND!":"💜 RARE DISCOVERY!")+" "+spot.name, meta.color);
-  }
-  scatterCoins(); // sprinkle fresh tokens on the map after each trip
-  openSpot(spot, {pts,tok,xp,firstTime});
+  if(spot.rarity==="rare"||spot.rarity==="legendary"){Sound.rare();burstConfetti(spot.x,spot.y,spot.rarity==="legendary"?140:70);G.camShake=10;
+    showToast((spot.rarity==="legendary"?"🌟 LEGENDARY FIND! ":"💜 RARE DISCOVERY! ")+spot.name,meta.color);}
+  scatterCoins(); checkQuests(); checkAchievements(); save();
+  openSpot(spot,{pts,tok:meta.tokens,xp:meta.xp,first});
 }
+function addTokens(n,x,y){G.tokens+=n;floater("+"+n+" 🪙",x,y,"#B8860B");Sound.coin();updateHUD();}
+function addScore(n,x,y){G.score+=n;floater("+"+fmt(n)+" ⭐",x,y,"#E85C12");updateHUD();}
+function gainXP(n){G.xp+=n;while(G.xp>=G.xpNeed){G.xp-=G.xpNeed;G.level++;G.xpNeed=Math.round(G.xpNeed*1.35);
+  Sound.level();burstConfetti(G.vx,G.vy-40,80);G.camShake=8;showToast("⬆️ LEVEL "+G.level+"! Bigger point bonuses.","#FF7A2E");}updateHUD();}
+function floater(txt,x,y,color){G.floaters.push({txt,x,y,color,life:1.7,vy:-0.7});}
+function burstConfetti(x,y,n){const c=["#FFD23F","#FF7A2E","#A86CFF","#37A2F2","#56C14C","#fff"];
+  for(let i=0;i<n;i++)G.particles.push({x,y,vx:(Math.random()-.5)*9,vy:(Math.random()-1)*10,g:0.4,s:5+Math.random()*6,color:c[i%c.length],life:1.5});}
+function scatterCoins(){G.coins=[];const u=G.spots.filter(s=>!G.visited.has(s.id)&&s.rarity!=="home"),from=byId("hq");
+  u.slice(0,7).forEach(s=>{for(let k=1;k<=2;k++){const t=k/3;
+    G.coins.push({x:lerp(from.x,s.x,t)+(Math.random()-.5)*60,y:lerp(from.y,s.y,t)+(Math.random()-.5)*60,ph:Math.random()*6.28});}});}
+function collectCoinsNear(x,y){for(let i=G.coins.length-1;i>=0;i--){if(Math.hypot(G.coins[i].x-x,G.coins[i].y-y)<40){G.coins.splice(i,1);addTokens(2,x,y-20);}}}
 
-function addTokens(n,x,y){ G.tokens+=n; floater("+"+n+" 🪙", x,y,"#B8860B"); Sound.coin(); updateHUD(); }
-function addScore(n,x,y){ G.score+=n; floater("+"+fmt(n)+" ⭐", x,y,"#E85C12"); updateHUD(); }
+/* ----- quests & achievements ----- */
+function activeQuest(){ for(const q of QUESTS){ if(!G.questsDone.has(q.id)) return q; } return null; }
+function checkQuests(){
+  let q=activeQuest();
+  while(q && q.done(G)){ G.questsDone.add(q.id); addTokens(q.reward,G.vx,G.vy-80); Sound.quest();
+    showToast("🎯 Quest done: "+q.text+"  (+"+q.reward+" 🪙)","#56C14C"); q=activeQuest(); }
+  refreshObjUI();
+}
+function checkAchievements(){ ACHIEVEMENTS.forEach(a=>{ if(!G.achDone.has(a.id)&&a.done(G)){G.achDone.add(a.id);
+  setTimeout(()=>showToast(a.em+" Achievement: "+a.text,"#FFC233"),700);} }); }
 
-function gainXP(n,spot){
-  G.xp+=n;
-  while(G.xp>=G.xpNeed){
-    G.xp-=G.xpNeed; G.level++; G.xpNeed=Math.round(G.xpNeed*1.35);
-    Sound.level(); burstConfetti(W/2,H*0.3,80); G.camShake=8;
-    showToast("⬆️ LEVEL "+G.level+"! Bigger point bonuses unlocked.","#FF7A2E");
-  }
-  updateHUD();
-}
-
-function floater(txt,x,y,color){ G.floaters.push({txt,x,y,color,life:1.6,vy:-0.6}); }
-function burstConfetti(x,y,n){
-  const cols=["#FFD23F","#FF7A2E","#A86CFF","#37A2F2","#56C14C","#fff"];
-  for(let i=0;i<n;i++) G.particles.push({
-    x,y, vx:(Math.random()-.5)*8, vy:(Math.random()-1)*9, g:0.35,
-    s:4+Math.random()*5, color:cols[i%cols.length], life:1.4 });
-}
-function scatterCoins(){
-  G.coins=[];
-  const undisc=G.spots.filter(s=>!G.visited.has(s.id)&&s.rarity!=="home");
-  undisc.slice(0,6).forEach(s=>{
-    const from=byId("hq");
-    for(let k=1;k<=2;k++){ const t=k/3;
-      G.coins.push({x:lerp(from.x,s.x,t)+(Math.random()-.5)*30,
-                    y:lerp(from.y,s.y,t)+(Math.random()-.5)*30, ph:Math.random()*6.28}); }
-  });
-}
-function collectCoinsNear(x,y){
-  for(let i=G.coins.length-1;i>=0;i--){
-    if(Math.hypot(G.coins[i].x-x,G.coins[i].y-y)<30){
-      G.coins.splice(i,1); addTokens(2,x,y-20);
-    }
-  }
-}
-
-/* ------------------------------------------------------------- Loop -------- */
+/* -------------------------------------------------------------- Loop ------ */
 let last=performance.now();
-function loop(now){
-  const dt=Math.min(.05,(now-last)/1000); last=now; G.time+=dt;
-
+function loop(now){ const dt=Math.min(.05,(now-last)/1000); last=now; G.time+=dt;
   if(G.scene==="map"){
-    if(G.driving){
-      driveT+=dt/driveDur;
-      const t=clamp(driveT,0,1), e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; // ease
-      G.vx=lerp(driveFrom.x,driveTarget.x,e);
-      G.vy=lerp(driveFrom.y,driveTarget.y,e) + Math.sin(t*Math.PI)*-22; // little hop
-      if(G.time%0.03<dt) G.trail.push({x:G.vx,y:G.vy+18,life:1});
-      collectCoinsNear(G.vx,G.vy);
+    if(G.driving){ driveT+=dt/driveDur; const t=clamp(driveT,0,1),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+      G.vx=lerp(driveFrom.x,driveTarget.x,e); G.vy=lerp(driveFrom.y,driveTarget.y,e)+Math.sin(t*Math.PI)*-26;
+      G.trail.push({x:G.vx,y:G.vy+20,life:1}); collectCoinsNear(G.vx,G.vy);
       if(driveT>=1) arrive(driveTarget);
     }
-    // update trail
+    if(follow){ cam.x=lerp(cam.x,G.vx,0.07); cam.y=lerp(cam.y,G.vy,0.07); cam.zoom=lerp(cam.zoom,clamp(1.05,minZoom,maxZoom),0.04); clampCam(); }
     G.trail.forEach(t=>t.life-=dt*1.6); G.trail=G.trail.filter(t=>t.life>0);
-    // particles
-    G.particles.forEach(p=>{ p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.life-=dt; });
-    G.particles=G.particles.filter(p=>p.life>0 && p.y<H+40);
-    // floaters
-    G.floaters.forEach(f=>{ f.y+=f.vy*60*dt; f.life-=dt; });
-    G.floaters=G.floaters.filter(f=>f.life>0);
+    G.particles.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.life-=dt;}); G.particles=G.particles.filter(p=>p.life>0);
+    G.floaters.forEach(f=>{f.y+=f.vy*60*dt;f.life-=dt;}); G.floaters=G.floaters.filter(f=>f.life>0);
 
-    // camera shake
+    ctx.clearRect(0,0,W,H);
     ctx.save();
-    if(G.camShake>0){ const s=G.camShake; ctx.translate((Math.random()-.5)*s,(Math.random()-.5)*s); G.camShake-=dt*40; }
-    drawMap();
+    if(G.camShake>0){const s=G.camShake;ctx.translate((Math.random()-.5)*s,(Math.random()-.5)*s);G.camShake-=dt*40;}
+    ctx.translate(W/2,H/2);ctx.scale(cam.zoom,cam.zoom);ctx.translate(-cam.x,-cam.y);
+    drawWorld();
     ctx.restore();
   }
   requestAnimationFrame(loop);
 }
 
-/* ------------------------------------------------------------- Input ------- */
-cv.addEventListener("pointerdown", e=>{
-  if(G.scene!=="map" || G.driving) return;
-  const x=e.clientX, y=e.clientY;
-  // hit test spots
-  let hit=null, best=44;
-  for(const s of G.spots){ const d=Math.hypot(s.x-x,s.y-y); if(d<best){best=d;hit=s;} }
-  if(hit) tryDriveTo(hit);
-});
+/* -------------------------------------------------------------- Input ----- */
+const pointers=new Map();
+let dragLast=null,downPos=null,downTime=0,moved=0,isPinch=false,pinchStart=null;
+const d2=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+cv.addEventListener("pointerdown",e=>{ if(G.scene!=="map")return; cv.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===1){downPos={x:e.clientX,y:e.clientY};downTime=performance.now();moved=0;dragLast={x:e.clientX,y:e.clientY};isPinch=false;follow=false;}
+  else if(pointers.size===2){isPinch=true;const p=[...pointers.values()];pinchStart={dist:d2(p[0],p[1]),zoom:cam.zoom};} });
+cv.addEventListener("pointermove",e=>{ if(G.scene!=="map"||!pointers.has(e.pointerId))return;
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY}); const p=[...pointers.values()];
+  if(pointers.size>=2){ isPinch=true; const m=mid(p[0],p[1]); const w=screenToWorld(m.x,m.y);
+    cam.zoom=clamp(pinchStart.zoom*(d2(p[0],p[1])/pinchStart.dist),minZoom,maxZoom);
+    cam.x=w.x-(m.x-W/2)/cam.zoom; cam.y=w.y-(m.y-H/2)/cam.zoom; clampCam(); }
+  else if(dragLast){ const dx=e.clientX-dragLast.x,dy=e.clientY-dragLast.y; moved+=Math.abs(dx)+Math.abs(dy);
+    cam.x-=dx/cam.zoom; cam.y-=dy/cam.zoom; dragLast={x:e.clientX,y:e.clientY}; clampCam(); } });
+function endPtr(e){ if(!pointers.has(e.pointerId))return; pointers.delete(e.pointerId);
+  if(pointers.size<2)pinchStart=null;
+  if(pointers.size===0){ const dt=performance.now()-downTime;
+    if(!isPinch&&moved<14&&dt<450&&downPos){ const w=screenToWorld(downPos.x,downPos.y);
+      let hit=null,best=60; for(const s of G.spots){const dd=Math.hypot(s.x-w.x,s.y-w.y);if(dd<best){best=dd;hit=s;}}
+      if(hit)tryDriveTo(hit); }
+    dragLast=null;downPos=null;isPinch=false;
+  } else if(pointers.size===1){ const p=[...pointers.values()][0]; dragLast={x:p.x,y:p.y}; } }
+cv.addEventListener("pointerup",endPtr); cv.addEventListener("pointercancel",endPtr);
+cv.addEventListener("wheel",e=>{ if(G.scene!=="map")return; e.preventDefault(); follow=false;
+  zoomAt(e.clientX,e.clientY,e.deltaY<0?1.12:0.89); },{passive:false});
 
-/* ------------------------------------------------------------- HUD UI ------ */
-function updateHUD(){
-  $("#hudTokens").textContent=fmt(G.tokens);
-  $("#hudScore").textContent=fmt(G.score);
-  $("#hudFuel").textContent=Math.round(G.fuel);
-  $("#lvlBadge").textContent=G.level;
-  $("#xpFill").style.width=clamp(G.xp/G.xpNeed*100,0,100)+"%";
-}
-function setHint(t){ $("#hint").textContent=t; }
-function showToast(msg,color){
-  const t=$("#toast"); t.textContent=msg; t.style.background=color||"#FFC233";
-  t.style.color = (color==="#A86CFF"||color==="#37A2F2"||color==="#E0443C"||color==="#FF7A2E")?"#fff":"#27201A";
-  t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2600);
-}
+/* -------------------------------------------------------------- HUD/UI ---- */
+function updateHUD(){ $("#hudTokens").textContent=fmt(G.tokens);$("#hudScore").textContent=fmt(G.score);
+  $("#hudFuel").textContent=Math.round(G.fuel);$("#lvlBadge").textContent=G.level;
+  $("#xpFill").style.width=clamp(G.xp/G.xpNeed*100,0,100)+"%"; refreshObjUI(); }
+function setHint(t){$("#hint").textContent=t;}
+function showToast(msg,color){const t=$("#toast");t.textContent=msg;t.style.background=color||"#FFC233";
+  t.style.color=(["#A86CFF","#37A2F2","#E0443C","#FF7A2E","#56C14C"].includes(color))?"#fff":"#27201A";
+  t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2700);}
+function refreshObjUI(){ const q=activeQuest();
+  if(q){ $("#objBar").style.display="flex"; let txt=q.text;
+    if(q.prog){const[a,b]=q.prog(G);txt+=`  (${Math.min(a,b)}/${b})`;}
+    $("#objText").textContent=txt; $("#objDot").style.display="none";
+  } else { $("#objBar").style.display="none"; } }
 
-/* ----------------------------------------------------- Spot detail modal --- */
-function gmapEmbed(s){ return `https://www.google.com/maps?q=${s.lat},${s.lng}&z=12&hl=en&output=embed`; }
-function gmapSearch(s){ return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name+", UAE")}`; }
-function gmapDir(s){ return `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`; }
+/* ----- spot detail ----- */
+const gmapEmbed=s=>`https://www.google.com/maps?q=${s.lat},${s.lng}&z=11&hl=en&output=embed`;
+const gmapSearch=s=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name+", UAE")}`;
+const gmapDir=s=>`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
+function openSpot(s,r){ const meta=RARITY[s.rarity];
+  $("#spotBadge").textContent=meta.label;$("#spotBadge").style.background=meta.color;
+  $("#spotName").textContent=s.name;$("#spotRegion").textContent="📍 "+s.region;$("#spotDesc").textContent=s.desc;
+  $("#spotRewards").innerHTML=`<div class="reward">⭐ +${fmt(r.pts)}</div><div class="reward">🪙 +${r.tok}</div><div class="reward">✨ +${r.xp} XP</div>`+(r.first?`<div class="reward" style="background:#FFE9A8">🆕 First visit!</div>`:``);
+  $("#spotMap").src=gmapEmbed(s);$("#spotPhotos").href=gmapSearch(s);$("#spotDir").href=gmapDir(s);
+  const left=10-visitedCount();
+  $("#spotProgress").textContent=left>0?`🗺️ ${left} spot${left>1?"s":""} left to discover.`:"🏆 Every spot discovered!";
+  show("#scrSpot"); }
 
-function openSpot(s,reward){
-  const meta=RARITY[s.rarity];
-  $("#spotBadge").textContent=meta.label; $("#spotBadge").style.background=meta.color;
-  $("#spotName").textContent=s.name; $("#spotRegion").textContent="📍 "+s.region;
-  $("#spotDesc").textContent=s.desc;
-  $("#spotRewards").innerHTML =
-    `<div class="reward">⭐ +${fmt(reward.pts)}</div>`+
-    `<div class="reward">🪙 +${reward.tok}</div>`+
-    `<div class="reward">✨ +${reward.xp} XP</div>`+
-    (reward.firstTime? `<div class="reward" style="background:#FFE9A8">🆕 First visit!</div>`:``);
-  $("#spotMap").src=gmapEmbed(s);
-  $("#spotPhotos").href=gmapSearch(s);
-  $("#spotDir").href=gmapDir(s);
-  const left=G.spots.filter(x=>x.rarity!=="home").length - [...G.visited].filter(id=>id!=="hq").length;
-  $("#spotProgress").textContent = left>0 ? `🗺️ ${left} spot${left>1?"s":""} left to discover.` : "🏆 Every spot discovered!";
-  show("#scrSpot");
-}
-function openNothing(){ /* arriving back at HQ: no modal */ }
+function show(sel){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));if(sel)$(sel).classList.add("on");}
+function hideAll(){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));}
 
-/* --------------------------------------------------------- Screen control -- */
-function show(sel){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); if(sel) $(sel).classList.add("on"); }
-function hideAll(){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); }
+/* ----- selection cards ----- */
+function buildVanCards(){const grid=$("#vanGrid");grid.innerHTML="";VANS.forEach(v=>{const d=document.createElement("div");
+  d.className="pick"+(v.id===G.van.id?" sel":"");
+  d.innerHTML=`<canvas width="200" height="120"></canvas><div class="nm">${v.name}</div><div class="ds">${v.base} — ${v.desc}</div>
+    <div class="stats"><span class="stat">⚡ ${v.spd}</span><span class="stat">🛋️ ${v.cmf}</span><span class="stat">🏔️ ${v.off}</span><span class="stat">⛽ ${v.eff}</span></div>`;
+  grid.appendChild(d);const g=d.querySelector("canvas").getContext("2d");g.clearRect(0,0,200,120);drawVan(g,100,64,0.78,v,1,0,G.crew);
+  d.addEventListener("click",()=>{G.van=v;buildVanCards();Sound.coin();});});}
+function buildFamCards(){const grid=$("#famGrid");grid.innerHTML="";FAMILY.forEach(m=>{const sel=G.crew.includes(m.id);
+  const d=document.createElement("div");d.className="pick"+(sel?" sel":"");d.style.padding="8px";
+  d.innerHTML=`<canvas width="120" height="100"></canvas><div class="nm">${m.emoji} ${m.name}</div>`;grid.appendChild(d);
+  const g=d.querySelector("canvas").getContext("2d");if(m.id==="dog")drawDog(g,60,52,30,m.skin,m.hair);else drawHead(g,60,52,30,m.skin,m.hair,.2);
+  d.addEventListener("click",()=>{const i=G.crew.indexOf(m.id);if(i>=0){if(G.crew.length>1)G.crew.splice(i,1);}else{if(G.crew.length<3)G.crew.push(m.id);else{G.crew.shift();G.crew.push(m.id);}}buildFamCards();buildVanCards();Sound.coin();});});}
 
-/* --------------------------------------------------------- Selection UI ---- */
-function buildVanCards(){
-  const grid=$("#vanGrid"); grid.innerHTML="";
-  VANS.forEach(v=>{
-    const d=document.createElement("div"); d.className="pick"+(v.id===G.van.id?" sel":"");
-    d.innerHTML=`<canvas width="200" height="120"></canvas>
-      <div class="nm">${v.name}</div><div class="ds">${v.base} — ${v.desc}</div>
-      <div class="stats">
-        <span class="stat">⚡ ${v.spd}</span><span class="stat">🛋️ ${v.cmf}</span>
-        <span class="stat">🏔️ ${v.off}</span><span class="stat">⛽ ${v.eff}</span></div>`;
-    grid.appendChild(d);
-    const c=d.querySelector("canvas"), g=c.getContext("2d");
-    g.clearRect(0,0,200,120); drawVan(g,100,64,0.78,v,1,0,G.crew);
-    d.addEventListener("click",()=>{ G.van=v; buildVanCards(); Sound.coin(); });
-  });
-}
-function buildFamCards(){
-  const grid=$("#famGrid"); grid.innerHTML="";
-  FAMILY.forEach(m=>{
-    const sel=G.crew.includes(m.id);
-    const d=document.createElement("div"); d.className="pick"+(sel?" sel":""); d.style.padding="8px";
-    d.innerHTML=`<canvas width="120" height="100"></canvas><div class="nm">${m.emoji} ${m.name}</div>`;
-    grid.appendChild(d);
-    const g=d.querySelector("canvas").getContext("2d");
-    if(m.id==="dog") drawDog(g,60,52,30,m.skin,m.hair); else drawHead(g,60,52,30,m.skin,m.hair,.2);
-    d.addEventListener("click",()=>{
-      const i=G.crew.indexOf(m.id);
-      if(i>=0){ if(G.crew.length>1) G.crew.splice(i,1); }
-      else { if(G.crew.length<3) G.crew.push(m.id); else { G.crew.shift(); G.crew.push(m.id);} }
-      buildFamCards(); buildVanCards(); Sound.coin();
-    });
-  });
-}
+function buildObjList(){const el=$("#objList");el.innerHTML="";QUESTS.forEach(q=>{const done=G.questsDone.has(q.id);
+  let pr=""; if(q.prog&&!done){const[a,b]=q.prog(G);pr=`<div class="pr">${Math.min(a,b)}/${b}</div>`;}
+  const d=document.createElement("div");d.className="row"+(done?" done":"");
+  d.innerHTML=`<span class="em">${done?"✅":"🎯"}</span><div class="gt">${q.text}<div style="font-size:12px;color:#a07b3a;font-weight:800">Reward: ${q.reward} 🪙</div></div>${done?'<div class="pr">Done</div>':pr}`;
+  el.appendChild(d);});}
+function buildAchList(){const el=$("#achList");el.innerHTML="";
+  el.innerHTML=`<div style="text-align:center;font-weight:900;color:#6b5b45;margin-bottom:6px">Level ${G.level} • ${fmt(G.score)} ⭐ • ${fmt(G.tokens)} 🪙 • ${visitedCount()}/10 spots</div>`;
+  ACHIEVEMENTS.forEach(a=>{const done=G.achDone.has(a.id);const d=document.createElement("div");d.className="row"+(done?" done":"");
+    d.innerHTML=`<span class="em">${done?a.em:"🔒"}</span><div class="gt">${a.text}</div><div class="pr">${done?"✓":"—"}</div>`;el.appendChild(d);});}
 
-/* --------------------------------------------------------- Title logo van -- */
-function drawLogo(){
-  const c=$("#logoVan"); if(!c) return; const g=c.getContext("2d");
-  g.clearRect(0,0,320,120); drawVan(g,160,70,0.9,VANS[1],1,0,["dad","mom","kid"]);
-}
+/* ----- save / load ----- */
+const SAVE_KEY="wayout-quest-v2";
+function save(){ try{ localStorage.setItem(SAVE_KEY,JSON.stringify({
+  tokens:G.tokens,score:G.score,level:G.level,xp:G.xp,xpNeed:G.xpNeed,fuel:G.fuel,
+  van:G.van.id,crew:G.crew,visited:[...G.visited],questsDone:[...G.questsDone],achDone:[...G.achDone],muted:Sound.muted
+})); }catch(e){} }
+function loadSave(){ try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)); if(!s)return null;
+  Object.assign(G,{tokens:s.tokens||0,score:s.score||0,level:s.level||1,xp:s.xp||0,xpNeed:s.xpNeed||100,fuel:s.fuel??100});
+  G.van=VANS.find(v=>v.id===s.van)||VANS[0]; G.crew=s.crew&&s.crew.length?s.crew:["dad","mom","kid"];
+  G.visited=new Set(s.visited||[]); G.questsDone=new Set(s.questsDone||[]); G.achDone=new Set(s.achDone||[]);
+  Sound.setMuted(!!s.muted); return s; }catch(e){return null;} }
 
-/* --------------------------------------------------------- Wire buttons ---- */
-$("#btnStart").addEventListener("click",()=>{ Sound.coin(); show("#scrVan"); buildVanCards(); buildFamCards(); });
-$("#btnGo").addEventListener("click",()=>{
-  Sound.level(); hideAll(); $("#hud").classList.add("on");
-  G.scene="map"; resize(); scatterCoins(); updateHUD();
-  setHint("Tap a glowing spot to drive there. Find rare places to level up!");
-});
-$("#spotContinue").addEventListener("click",()=>{ hideAll(); checkWin(); });
+/* ----- enter map ----- */
+function startMap(){ hideAll();$("#hud").classList.add("on");G.scene="map";resize();
+  const hq=byId("hq");G.vx=hq.x;G.vy=hq.y; scatterCoins(); focusVan(1.05); updateHUD(); refreshObjUI();
+  setHint("Drag to explore • pinch / scroll to zoom • tap a glowing spot to drive"); }
+
+/* -------------------------------------------------------------- Wiring ---- */
+$("#btnStart").addEventListener("click",()=>{ // fresh trip (keeps no progress)
+  G.visited=new Set();G.questsDone=new Set();G.achDone=new Set();G.tokens=0;G.score=0;G.level=1;G.xp=0;G.xpNeed=100;G.fuel=100;
+  Sound.coin();show("#scrVan");buildVanCards();buildFamCards(); });
+$("#btnContinue").addEventListener("click",()=>{ Sound.coin(); startMap(); });
+$("#btnGo").addEventListener("click",()=>{ Sound.level(); startMap(); save(); });
+$("#spotContinue").addEventListener("click",()=>{ $("#spotMap").src="about:blank"; hideAll(); checkWin(); });
 $("#spotClose").addEventListener("click",()=>{ $("#spotMap").src="about:blank"; hideAll(); checkWin(); });
-$("#btnReplay").addEventListener("click",()=>location.reload());
-$("#btnMute").addEventListener("click",()=>{ const m=Sound.toggle(); $("#btnMute").textContent=m?"🔇":"🔊"; });
-$("#btnGuide").addEventListener("click",()=>{
-  const left=SPOTS.filter(s=>s.rarity!=="home" && !G.visited.has(s.id));
-  if(!left.length){ showToast("🏆 All spots discovered — legend!","#FFC233"); return; }
-  const rare=left.find(s=>s.rarity==="legendary")||left.find(s=>s.rarity==="rare")||left[0];
-  showToast(`${rare.icon} Try: ${rare.name} (${RARITY[rare.rarity].label})`, RARITY[rare.rarity].color);
-});
+$("#btnReplay").addEventListener("click",()=>{ localStorage.removeItem(SAVE_KEY); location.reload(); });
+$("#btnObj").addEventListener("click",()=>{ buildObjList(); show("#scrObj"); });
+$("#objClose").addEventListener("click",hideAll);
+$("#btnMenu").addEventListener("click",()=>{ buildAchList(); $("#btnSound").textContent=Sound.muted?"🔇 Sound: Off":"🔊 Sound: On"; show("#scrMenu"); });
+$("#menuClose").addEventListener("click",hideAll);
+$("#btnSound").addEventListener("click",()=>{ Sound.setMuted(!Sound.muted); $("#btnSound").textContent=Sound.muted?"🔇 Sound: Off":"🔊 Sound: On"; save(); });
+$("#btnHowto").addEventListener("click",()=>{ hideAll(); showToast("Drag = pan • pinch/scroll = zoom • tap a glowing spot to drive there","#2F8FE6"); });
+$("#btnReset").addEventListener("click",()=>{ localStorage.removeItem(SAVE_KEY); location.reload(); });
+$("#btnZin").addEventListener("click",()=>{ follow=false; zoomAt(W/2,H/2,1.25); });
+$("#btnZout").addEventListener("click",()=>{ follow=false; zoomAt(W/2,H/2,0.8); });
+$("#btnFit").addEventListener("click",()=>{ follow=false; fitToWorld(); showToast("🗺️ Whole UAE in view — pinch to zoom back in","#2F8FE6"); });
 
-function checkWin(){
-  const left=SPOTS.filter(s=>s.rarity!=="home" && !G.visited.has(s.id));
-  if(left.length===0){
-    $("#winStats").innerHTML=`You reached <b>Level ${G.level}</b> with <b>${fmt(G.score)}</b> ⭐ points and <b>${fmt(G.tokens)}</b> 🪙 tokens.<br>The whole family saw the UAE the WayOut way. 🚐💨`;
-    show("#scrWin"); burstConfetti(W/2,H*.4,160); Sound.level();
-  }
-}
+function checkWin(){ if(visitedCount()>=10){
+  $("#winStats").innerHTML=`You reached <b>Level ${G.level}</b> with <b>${fmt(G.score)}</b> ⭐ points and <b>${fmt(G.tokens)}</b> 🪙 tokens.<br>The whole family saw the UAE the WayOut way. 🚐💨`;
+  show("#scrWin");burstConfetti(G.vx,G.vy,160);Sound.level(); } }
 
-/* ----------------------------------------------------------------- Boot ---- */
-resize(); drawLogo(); updateHUD();
+/* -------------------------------------------------------------- Boot ------ */
+function drawLogo(){const c=$("#logoVan");if(!c)return;const g=c.getContext("2d");g.clearRect(0,0,320,120);drawVan(g,160,70,0.9,VANS[1],1,0,["dad","mom","kid"]);}
+projectSpots(); buildScenery(); resize(); fitToWorld(); drawLogo();
+const saved=loadSave();
+if(saved && (saved.visited&&saved.visited.length)){ $("#btnContinue").style.display="inline-block"; }
+updateHUD();
 requestAnimationFrame(loop);
-// redraw the title logo van if fonts/canvas settle late
 setTimeout(drawLogo,120);
 </script>
 </body>
