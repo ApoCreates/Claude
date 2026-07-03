@@ -132,6 +132,16 @@
     <section class="view" id="view-settings">
       <header><h1>Settings & status</h1></header>
       <div class="panel">
+        <h3>Your profile</h3>
+        <p class="muted small">Used to write the “For You” section of meeting notes and to keep
+        names spelled right. List colleagues, companies and project terms — they're fed to the
+        transcriber and summariser so “Lefki” never becomes “Lefty”.</p>
+        <input id="profileName" placeholder="Your name (e.g. Abdullah Btyak)" />
+        <textarea id="profileGlossary" placeholder="Known people & terms, comma-separated — e.g. Lefki (project manager), Sophia, Monica, Littlebird campaign, Phase 1 teasers"></textarea>
+        <button class="primary" id="profileSave" style="align-self:flex-start">Save profile</button>
+        <span class="muted small" id="profileStatus"></span>
+      </div>
+      <div class="panel">
         <h3>Connectors <button class="ghost small-btn" id="syncNow">Sync now</button></h3>
         <div id="connectors" class="muted">loading…</div>
         <p class="muted small">Connectors read Apple Mail & Calendar locally via AppleScript.

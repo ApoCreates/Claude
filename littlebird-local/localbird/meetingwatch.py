@@ -9,6 +9,7 @@ ends it stops the recording, transcribes and summarises it automatically.
 
 from __future__ import annotations
 
+import platform
 import subprocess
 import threading
 import time
@@ -16,26 +17,38 @@ import time
 from . import notify
 from .config import settings
 
-# Native app process names → friendly label.
+# Processes that only exist while a call is ACTIVE (not merely while the app
+# idles in the background). Zoom's in-meeting helper is "CptHost"; FaceTime
+# only runs while its window is open. Do NOT list "zoom.us" or
+# "Microsoft Teams" here — those run all day and caused false detections.
 MEETING_PROCESSES = {
-    "zoom.us": "Zoom",
-    "Microsoft Teams": "Microsoft Teams",
-    "MSTeams": "Microsoft Teams",
-    "Teams": "Microsoft Teams",
+    "CptHost": "Zoom",
     "FaceTime": "FaceTime",
-    "Webex": "Webex",
     "Meeting Center": "Webex",
 }
 
-# Substrings in the active window title that indicate a browser meeting.
-BROWSER_HINTS = (
-    "meet.google.com", "Google Meet", "Zoom Meeting", "Microsoft Teams",
-    "Huddle", "- Webex", "whereby.com", "Jitsi Meet",
+# Substrings in the frontmost window title that indicate an active meeting
+# (browser tabs and apps whose idle process can't be distinguished).
+TITLE_HINTS = (
+    "meet.google.com", "Google Meet", "Zoom Meeting", "Zoom Webinar",
+    "| Microsoft Teams meeting", "Teams meeting", "Huddle", "- Webex",
+    "whereby.com", "Jitsi Meet",
 )
+
+_FRONT_TITLE_SCRIPT = """
+tell application "System Events"
+    set p to first application process whose frontmost is true
+    set t to ""
+    try
+        set t to title of front window of p
+    end try
+    return (name of p) & " — " & t
+end tell
+"""
 
 
 def _running_meeting_app() -> str | None:
-    """Return a friendly name if a native meeting app is running."""
+    """Return a friendly name if an ACTIVE meeting process is running."""
     try:
         out = subprocess.run(["ps", "-axo", "comm"], capture_output=True,
                              text=True, timeout=5).stdout
@@ -45,6 +58,22 @@ def _running_meeting_app() -> str | None:
         if proc in out:
             return label
     return None
+
+
+def _frontmost_title() -> str:
+    """Ask macOS directly for the frontmost app + window title.
+
+    The watcher used to read the capture engine's last snapshot, which goes
+    stale when capture is paused — meetings were missed. This is independent.
+    """
+    if platform.system() != "Darwin":
+        return ""
+    try:
+        out = subprocess.run(["osascript", "-e", _FRONT_TITLE_SCRIPT],
+                             capture_output=True, text=True, timeout=4)
+        return out.stdout.strip()
+    except Exception:
+        return ""
 
 
 class MeetingWatcher:
@@ -93,13 +122,15 @@ class MeetingWatcher:
 
     # -- detection --------------------------------------------------------
     def _detect(self) -> tuple[str | None, bool]:
-        """Return (label, is_browser) for a meeting happening right now."""
+        """Return (label, is_title_based) for a meeting happening right now."""
         app = _running_meeting_app()
         if app:
             return app, False
-        snap = self.capture.last_snapshot or {}
-        title = f"{snap.get('title') or ''} {snap.get('app') or ''}"
-        for hint in BROWSER_HINTS:
+        title = _frontmost_title()
+        if not title:
+            snap = self.capture.last_snapshot or {}
+            title = f"{snap.get('title') or ''} {snap.get('app') or ''}"
+        for hint in TITLE_HINTS:
             if hint.lower() in title.lower():
                 return "Browser meeting", True
         return None, False

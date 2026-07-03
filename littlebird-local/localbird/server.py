@@ -185,6 +185,14 @@ def meetings_transcript(body: TranscriptBody):
     return get_app().meetings.ingest_text(body.transcript, title=body.title)
 
 
+@api.post("/api/meetings/{meeting_id}/resummarise")
+def meetings_resummarise(meeting_id: int):
+    result = get_app().meetings.resummarise(meeting_id)
+    if not result.get("ok"):
+        raise HTTPException(404, result.get("error", "not found"))
+    return result
+
+
 @api.post("/api/meetings/record/start")
 def record_start():
     return get_app().meetings.start_recording()
@@ -249,6 +257,27 @@ def routines_delete(routine_id: int):
 def routines_runs(routine_id: int):
     rows = get_app().db.routine_runs(routine_id, limit=30)
     return {"runs": [dict(r) for r in rows]}
+
+
+# ---- profile (used for "For You" + name-faithful summaries) ----------
+class ProfileBody(BaseModel):
+    name: str = ""
+    glossary: str = ""
+
+
+@api.get("/api/profile")
+def profile_get():
+    db = get_app().db
+    return {"name": db.kv_get("profile_name", "") or "",
+            "glossary": db.kv_get("profile_glossary", "") or ""}
+
+
+@api.post("/api/profile")
+def profile_set(body: ProfileBody):
+    db = get_app().db
+    db.kv_set("profile_name", body.name.strip())
+    db.kv_set("profile_glossary", body.glossary.strip())
+    return {"ok": True}
 
 
 # ---- tasks -----------------------------------------------------------

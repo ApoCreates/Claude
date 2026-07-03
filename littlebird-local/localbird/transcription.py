@@ -19,31 +19,57 @@ from .db import Database
 from .llm import llm
 from .memory import Memory
 
-SUMMARY_PROMPT = """Summarise the following meeting transcript. Be precise with \
-names, numbers, dates and amounts — quote them exactly as spoken. Produce:
+SUMMARY_PROMPT = """You are an elite executive assistant writing meeting notes.
+{user_line}{glossary_line}
+Using ONLY the meeting material below, write notes in EXACTLY this markdown
+structure:
 
-## TL;DR
-2-3 sentences.
+## Executive Summary
+- 3-5 bullets covering scope, strategy, timeline and communication — what
+  someone who missed the meeting must know.
 
-## Key points
-Bullet list.
+## For You
+- What the user personally committed to, will deliver, or must decide,
+  each with its deadline. If the user cannot be identified, cover the
+  participant who took on the most work instead.
+
+## Topics Discussed
+- **Topic name**
+  - 1-3 sub-bullets with the substance of what was said or agreed.
 
 ## Decisions
-Bullet list (or "none").
+- One line per decision, ending with the decider in brackets: [by NAME].
+- Infer decisions from agreement in the conversation ("let's do X",
+  "agreed", "we'll go with…") — do not require the word "decision".
+- Write "None recorded." only if genuinely nothing was settled.
 
-## Action items
-Bullet list, one per task, formatted exactly as:
-- [ ] task description — owner: NAME or "unassigned" — due: DATE or "none"
+## Action Items
+- [ ] Task — owner: NAME or "unassigned" — due: DATE or "none"
 
-## Follow-ups
-Things left open, questions to chase, promised documents (or "none").
+## Risks / Open Questions
+- **Risk:** … / **Open Question:** … (or "None.")
 
-## People & numbers
-Every person mentioned (with role/company if stated) and every important
-figure, date, amount or metric, quoted exactly.
+## People & Numbers
+- Every person (with role/company if stated) and every figure, date,
+  duration or amount — quoted exactly as in the material.
 
-TRANSCRIPT:
-{transcript}
+Rules:
+- Use the EXACT name spellings from the material{glossary_rule}. Never
+  anglicise, shorten or "correct" a name on your own.
+- Never invent facts, owners or dates that are not in the material.
+- Be specific: "12 weeks from music delivery" beats "a timeline was set".
+
+MEETING MATERIAL:
+{material}
+"""
+
+CHUNK_NOTES_PROMPT = """These are detailed running notes for one part of a longer
+meeting. From the transcript section below, extract with exact wording:
+speakers/names, commitments (who will do what by when), agreements and
+decisions, numbers/dates/amounts, and open questions. Dense bullets only.
+
+SECTION {idx}/{total}:
+{chunk}
 """
 
 TASKS_PROMPT = """From this meeting summary, extract the action items as a JSON \
@@ -82,13 +108,16 @@ class Transcriber:
             self._load_error = str(exc)
             return None
 
-    def transcribe_file(self, path: str | Path) -> dict:
+    def transcribe_file(self, path: str | Path, initial_prompt: str | None = None) -> dict:
         model = self._ensure()
         if model is None:
             return {"ok": False, "error": self._load_error or
                     "faster-whisper not installed (pip install faster-whisper)",
                     "text": ""}
-        segments, info = model.transcribe(str(path), vad_filter=True)
+        # initial_prompt biases Whisper toward known vocabulary (names,
+        # company terms) so "Lefki" doesn't come out as "Lefty".
+        segments, info = model.transcribe(str(path), vad_filter=True,
+                                          initial_prompt=initial_prompt or None)
         parts = [seg.text.strip() for seg in segments]
         return {
             "ok": True,
@@ -174,8 +203,10 @@ class MeetingService:
         }
 
     def ingest_audio(self, path: str | Path, title: str | None = None) -> dict:
+        glossary = self.db.kv_get("profile_glossary", "") or ""
         with self._lock:
-            result = self.transcriber.transcribe_file(path)
+            result = self.transcriber.transcribe_file(
+                path, initial_prompt=glossary[:600] or None)
         if not result["ok"] or not result["text"].strip():
             return {"ok": False, "error": result.get("error", "empty transcript")}
         return self._store(result["text"], title=title,
@@ -185,10 +216,53 @@ class MeetingService:
         """Store a transcript you already have (e.g. pasted) + summarise."""
         return self._store(transcript, title=title)
 
+    def _summarise(self, transcript: str) -> str:
+        """Structured, name-faithful summary with map-reduce for long calls.
+
+        Long transcripts used to be truncated, which silently dropped the end
+        of the meeting — exactly where decisions and action items live. Now
+        long calls are condensed chunk-by-chunk first, then composed.
+        """
+        user_name = (self.db.kv_get("profile_name", "") or "").strip()
+        glossary = (self.db.kv_get("profile_glossary", "") or "").strip()
+        user_line = (f"The user these notes are for is: {user_name}. "
+                     f"Write the 'For You' section about them.\n") if user_name else ""
+        glossary_line = (f"Known people & terms (authoritative spellings): "
+                         f"{glossary}\n") if glossary else ""
+        glossary_rule = (", and when the transcript contains a near-miss of a "
+                         "known name, use the known spelling") if glossary else ""
+
+        material = transcript
+        if len(transcript) > 9000 and llm.ollama_available():
+            chunks = [transcript[i:i + 8000]
+                      for i in range(0, len(transcript), 8000)]
+            notes = []
+            for i, chunk in enumerate(chunks, 1):
+                notes.append(llm.complete(
+                    CHUNK_NOTES_PROMPT.format(idx=i, total=len(chunks), chunk=chunk),
+                    temperature=0.2))
+            material = "\n\n".join(notes)
+
+        return llm.complete(
+            SUMMARY_PROMPT.format(user_line=user_line, glossary_line=glossary_line,
+                                  glossary_rule=glossary_rule,
+                                  material=material[:16000]),
+            temperature=0.25)
+
+    def resummarise(self, meeting_id: int) -> dict:
+        """Re-run summarisation on a stored meeting (e.g. after upgrading the
+        model or prompt) without re-transcribing."""
+        row = self.db.meeting(meeting_id)
+        if not row:
+            return {"ok": False, "error": "meeting not found"}
+        summary = self._summarise(row["transcript"])
+        self.db.execute("UPDATE meetings SET summary=? WHERE id=?",
+                        (summary, meeting_id))
+        return {"ok": True, "meeting_id": meeting_id, "summary": summary}
+
     def _store(self, transcript: str, *, title: str | None,
                audio_path: str | None = None, duration: float | None = None) -> dict:
-        summary = llm.complete(SUMMARY_PROMPT.format(transcript=transcript[:12000]),
-                               temperature=0.3)
+        summary = self._summarise(transcript)
         title = title or f"Meeting {time.strftime('%Y-%m-%d %H:%M')}"
         meeting_id = self.db.add_meeting(transcript, title=title, summary=summary,
                                          audio_path=audio_path, duration_s=duration)

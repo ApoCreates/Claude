@@ -162,6 +162,9 @@ button:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 .danger-zone h3 { margin: 0 12px 0 0; font-size: 15px; }
 details summary { cursor: pointer; color: var(--muted); }
 .spin { opacity: .6; }
+.copy-msg { margin-top: 8px; padding: 3px 10px; font-size: 12px; }
+.transcript-box { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px;
+  max-height: 320px; overflow-y: auto; }
 .conn-row { display: flex; gap: 10px; align-items: center; padding: 6px 0; font-size: 13.5px; }
 .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); }
 .conn-dot.err { background: var(--danger); }

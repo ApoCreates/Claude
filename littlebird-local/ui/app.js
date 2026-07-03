@@ -55,8 +55,22 @@ function onView(v) {
   if (v === "timeline") loadTimeline();
   if (v === "meetings") { loadMeetings(); refreshWatch(); }
   if (v === "routines") loadRoutines();
-  if (v === "settings") { loadStatus(); loadConnectors(); }
+  if (v === "settings") { loadStatus(); loadConnectors(); loadProfile(); }
 }
+
+/* ---- profile ---- */
+async function loadProfile() {
+  const p = await api("/api/profile");
+  $("#profileName").value = p.name || "";
+  $("#profileGlossary").value = p.glossary || "";
+}
+$("#profileSave").addEventListener("click", async () => {
+  await api("/api/profile", { method: "POST", body: JSON.stringify({
+    name: $("#profileName").value, glossary: $("#profileGlossary").value,
+  }) });
+  $("#profileStatus").textContent = "Saved ✓ — applies to the next transcription/summary.";
+  setTimeout(() => { $("#profileStatus").textContent = ""; }, 4000);
+});
 
 /* ---- status ---- */
 async function refreshStatus() {
@@ -92,6 +106,13 @@ function addMsg(role, text, sources) {
   const el = document.createElement("div");
   el.className = `msg ${role}`;
   el.innerHTML = `<div class="md">${md(text)}</div>`;
+  if (role === "assistant" && text && text !== "thinking…") {
+    const btn = document.createElement("button");
+    btn.className = "ghost copy-msg";
+    btn.textContent = "⧉ Copy";
+    btn.onclick = () => copyText(btn, text);
+    el.appendChild(btn);
+  }
   if (sources && sources.length) {
     const s = document.createElement("div");
     s.className = "sources";
@@ -194,16 +215,53 @@ async function refreshWatch() {
       (w.last_event ? ` · last: ${w.last_event}` : "");
   }
 }
+/* copy-to-clipboard with feedback */
+window.copyText = async (btn, text) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    const old = btn.textContent;
+    btn.textContent = "✓ Copied";
+    setTimeout(() => { btn.textContent = old; }, 1500);
+  } catch { alert("Copy failed — select and copy manually."); }
+};
+
+const meetingCache = {};
 async function loadMeetings() {
   const { meetings } = await api("/api/meetings");
+  meetings.forEach((m) => { meetingCache[m.id] = m; });
   $("#meetings").innerHTML = meetings.map((m) => `
     <div class="card">
       <div class="head"><span class="tag k-meeting">meeting</span><span>${fmtTime(m.ts)}</span></div>
       <h4>${esc(m.title || "Untitled")}</h4>
-      <div class="md">${md((m.summary || "").slice(0, 1400))}</div>
+      <div class="md">${md(m.summary || "")}</div>
+      <div class="actions">
+        <button class="ghost" onclick="copyText(this, meetingCache[${m.id}].summary || '')">⧉ Copy summary</button>
+        <button class="ghost" onclick="showTranscript(${m.id}, this)">📄 Transcript</button>
+        <button class="ghost" onclick="resummarise(${m.id}, this)">↻ Re-summarise</button>
+      </div>
+      <div class="transcript-box" id="transcript-${m.id}" hidden></div>
     </div>`).join("") ||
     `<div class="empty"><div class="empty-icon">🎙️</div><p>No meetings yet. Join a call and LocalBird will offer to record it.</p></div>`;
 }
+window.showTranscript = async (id, btn) => {
+  const box = $(`#transcript-${id}`);
+  if (!box.hidden) { box.hidden = true; return; }
+  btn.disabled = true;
+  const m = await api(`/api/meetings/${id}`);
+  btn.disabled = false;
+  box.innerHTML = `
+    <div class="actions" style="margin:0 0 8px">
+      <button class="ghost" onclick='copyText(this, ${JSON.stringify(m.transcript || "")})'>⧉ Copy transcript</button>
+    </div>
+    <p class="muted small" style="white-space:pre-wrap">${esc(m.transcript || "(empty)")}</p>`;
+  box.hidden = false;
+};
+window.resummarise = async (id, btn) => {
+  btn.disabled = true; btn.textContent = "Summarising…";
+  const r = await api(`/api/meetings/${id}/resummarise`, { method: "POST" });
+  btn.disabled = false; btn.textContent = "↻ Re-summarise";
+  if (r.ok) loadMeetings(); else alert(r.error || "failed");
+};
 $("#recStart").addEventListener("click", async () => {
   const r = await api("/api/meetings/record/start", { method: "POST" });
   if (!r.ok) return alert(r.error);
