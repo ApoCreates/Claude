@@ -35,6 +35,24 @@ TITLE_HINTS = (
     "whereby.com", "Jitsi Meet",
 )
 
+# In-meeting UI controls visible in the captured screen text. Requiring TWO
+# distinct markers avoids firing on an article that merely mentions "mute".
+# This is the screen-first path: whatever the meeting app, if call controls
+# are on screen, a meeting is happening.
+SCREEN_HINTS = (
+    "mute", "unmute", "share screen", "stop video", "start video",
+    "leave meeting", "leave call", "end call", "turn off microphone",
+    "turn on captions", "raise hand", "meeting chat", "participants",
+    "you are viewing", "recording in progress",
+)
+
+
+def _screen_meeting(text: str) -> bool:
+    if not text:
+        return False
+    low = text.lower()
+    return sum(1 for h in SCREEN_HINTS if h in low) >= 2
+
 _FRONT_TITLE_SCRIPT = """
 tell application "System Events"
     set p to first application process whose frontmost is true
@@ -116,6 +134,10 @@ class MeetingWatcher:
             "in_meeting": self.active_label is not None,
             "meeting": self.active_label,
             "recording": self.recording_meeting,
+            "can_record": self.meetings.recorder.available(),
+            "pending_offer": bool(self.active_label and not self.recording_meeting
+                                  and settings.meeting_autorecord != "never"
+                                  and self.meetings.recorder.available()),
             "since": self.active_since or None,
             "last_event": self.last_event,
         }
@@ -133,7 +155,28 @@ class MeetingWatcher:
         for hint in TITLE_HINTS:
             if hint.lower() in title.lower():
                 return "Browser meeting", True
+        # Screen-first: call controls visible in the captured window text.
+        if _screen_meeting(getattr(self.capture, "last_text", "")):
+            snap = self.capture.last_snapshot or {}
+            label = (snap.get("app") or "On-screen").strip() or "On-screen"
+            return f"{label} meeting", True
         return None, False
+
+    # -- manual fallback ---------------------------------------------------
+    def record_active(self) -> dict:
+        """Start recording the currently-detected meeting (dashboard button —
+        the fallback when the popup was missed or dismissed)."""
+        if self.recording_meeting:
+            return {"ok": True, "recording": True}
+        result = self.meetings.start_recording()
+        if result.get("ok"):
+            self.recording_meeting = True
+            self._declined = False
+            if not self.active_label:
+                self.active_label = "Meeting"
+                self.active_since = time.time()
+            self.last_event = f"recording {self.active_label} (manual)"
+        return result
 
     # -- main loop ---------------------------------------------------------
     def _loop(self) -> None:
@@ -192,6 +235,9 @@ class MeetingWatcher:
             wants = True
             notify.notify("LocalBird", f"{label} detected — recording notes.")
         else:  # ask
+            # Notification first: even if the dialog is missed or blocked,
+            # there's a visible trace + the dashboard offers a Record button.
+            notify.notify("LocalBird", f"{label} detected — asking to record…")
             wants = notify.ask(
                 "LocalBird",
                 f"{label} started. Record and summarise this meeting?",

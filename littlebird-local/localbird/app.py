@@ -8,6 +8,7 @@ from .config import settings
 from .connectors import ConnectorSync
 from .db import Database
 from .images import ImageGenerator
+from .insights import InsightsEngine
 from .journals import Journal
 from .llm import llm
 from .meetingwatch import MeetingWatcher
@@ -31,6 +32,7 @@ class LocalBird:
         self.scheduler = Scheduler(self.routines, self.journal)
         self.meetingwatch = MeetingWatcher(self.meetings, self.capture)
         self.connectors = ConnectorSync(self.db, self.memory)
+        self.insights = InsightsEngine(self.db)
         self.routines.ensure_starters()
 
     def start(self) -> None:
@@ -38,12 +40,14 @@ class LocalBird:
         self.scheduler.start()
         self.meetingwatch.start()
         self.connectors.start()
+        self.insights.start()
 
     def stop(self) -> None:
         self.capture.stop()
         self.scheduler.stop()
         self.meetingwatch.stop()
         self.connectors.stop()
+        self.insights.stop()
 
     def status(self) -> dict:
         return {
@@ -53,6 +57,7 @@ class LocalBird:
             "meetings": self.meetings.status(),
             "meetingwatch": self.meetingwatch.status(),
             "connectors": self.connectors.status(),
+            "insights": self.insights.status(),
             "images": self.images.status(),
             "memory": self.memory.stats(),
             "data_dir": str(settings.data_dir),

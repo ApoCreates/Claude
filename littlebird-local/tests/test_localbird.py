@@ -107,25 +107,57 @@ def test_task_crud(db):
     assert not db.tasks(include_done=True)
 
 
+def test_next_steps_parser():
+    """Zoom-companion-style per-person 'Next steps' sections parse into tasks."""
+    from localbird.transcription import parse_next_steps
+    summary = (
+        "## Quick recap\nIntro call about the rebrand.\n\n"
+        "## Next steps\n"
+        "### Abdullah\n"
+        "- Send an animated sample to Mahan in the next couple of days\n"
+        "- Provide a full detailed storyboard for phase one\n"
+        "### Lefki\n"
+        "- Create a tracker for assets and deliverables\n"
+        "### Collaboration\n"
+        "- Lefki and Monica: schedule a catch-up early next week\n"
+        "### Unassigned\n"
+        "- Book the studio\n\n"
+        "## Summary\n### Kickoff\nDetails here.\n"
+    )
+    items = parse_next_steps(summary)
+    by_task = {i["task"]: i for i in items}
+    assert by_task["Create a tracker for assets and deliverables"]["owner"] == "Lefki"
+    assert by_task["Send an animated sample to Mahan in the next couple of days"]["owner"] == "Abdullah"
+    assert by_task["Book the studio"]["owner"] is None
+    assert by_task["Lefki and Monica: schedule a catch-up early next week"]["owner"] is None
+    assert len(items) == 5
+
+
 def test_action_item_extraction_fallback(db, tmp_path):
-    """Offline, tasks are parsed from the summary's checkbox lines."""
+    """Offline, tasks are parsed deterministically from the summary."""
     from localbird.memory import Memory
     from localbird.transcription import MeetingService
     svc = MeetingService(db, Memory(db))
     summary = (
+        "## Next steps\n"
+        "### Dana\n- Send revised budget by Tuesday\n"
         "## Action items\n"
-        "- [ ] Send revised budget — owner: Dana — due: Tuesday\n"
         "- [ ] Book venue — owner: unassigned — due: none\n"
     )
     tasks = svc._extract_tasks(summary, "Planning call", meeting_id=1)
-    texts = [t["task"] for t in tasks]
-    assert "Send revised budget" in texts
-    assert "Book venue" in texts
-    dana = next(t for t in tasks if t["task"] == "Send revised budget")
-    assert dana["owner"] == "Dana" and dana["due"] == "Tuesday"
-    unassigned = next(t for t in tasks if t["task"] == "Book venue")
-    assert unassigned["owner"] is None and unassigned["due"] is None
+    by_task = {t["task"]: t for t in tasks}
+    assert by_task["Send revised budget by Tuesday"]["owner"] == "Dana"
+    assert by_task["Book venue"]["owner"] is None
     assert len(db.tasks()) == 2
+
+
+def test_insights_dedupe_similarity():
+    from localbird.insights import similar
+    assert similar("Send the revised budget to Dana",
+                   "send revised budget to Dana by Tuesday")
+    assert not similar("Send the revised budget to Dana",
+                       "Book flights for the conference in Berlin")
+    assert not similar("", "anything")
 
 
 def test_connector_record_parsing():

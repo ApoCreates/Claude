@@ -19,45 +19,42 @@ from .db import Database
 from .llm import llm
 from .memory import Memory
 
-SUMMARY_PROMPT = """You are an elite executive assistant writing meeting notes.
-{user_line}{glossary_line}
+SUMMARY_PROMPT = """You are an expert meeting-notes writer producing recap notes
+in the style of the best meeting assistants. {user_line}{glossary_line}
 Using ONLY the meeting material below, write notes in EXACTLY this markdown
 structure:
 
-## Executive Summary
-- 3-5 bullets covering scope, strategy, timeline and communication — what
-  someone who missed the meeting must know.
+## Quick recap
+One tight narrative paragraph: what kind of meeting this was, who joined or
+was introduced (with roles), what it covered, and the headline outcomes —
+timelines, agreements, who coordinates what.
 
-## For You
-- What the user personally committed to, will deliver, or must decide,
-  each with its deadline. If the user cannot be identified, cover the
-  participant who took on the most work instead.
+## Next steps
+Group the work BY PERSON. One section per person who took on work, using
+their exact name, with their commitments as bullets (include the deadline
+whenever one was stated):
+### NAME
+- Commitment, specific and self-contained, with due date if stated.
 
-## Topics Discussed
-- **Topic name**
-  - 1-3 sub-bullets with the substance of what was said or agreed.
+If two people agreed to do something together, add a final section:
+### Collaboration
+- NAME and NAME: the joint item.
 
-## Decisions
-- One line per decision, ending with the decider in brackets: [by NAME].
-- Infer decisions from agreement in the conversation ("let's do X",
-  "agreed", "we'll go with…") — do not require the word "decision".
-- Write "None recorded." only if genuinely nothing was settled.
+If a task's owner is genuinely unclear, put it under "### Unassigned".
 
-## Action Items
-- [ ] Task — owner: NAME or "unassigned" — due: DATE or "none"
-
-## Risks / Open Questions
-- **Risk:** … / **Open Question:** … (or "None.")
-
-## People & Numbers
-- Every person (with role/company if stated) and every figure, date,
-  duration or amount — quoted exactly as in the material.
+## Summary
+Break the meeting into 3-7 chapters in chronological order. Each chapter:
+### Short descriptive title (e.g. "Project Timeline and Deliverables Planning")
+One paragraph of substance: who said or agreed what, with exact numbers,
+dates and durations quoted (e.g. "12 weeks from when the music is received",
+"by end of next week").
 
 Rules:
+- Attribute a next step ONLY to the person who accepted or was clearly given
+  that work in the material. Do not guess owners.
 - Use the EXACT name spellings from the material{glossary_rule}. Never
   anglicise, shorten or "correct" a name on your own.
 - Never invent facts, owners or dates that are not in the material.
-- Be specific: "12 weeks from music delivery" beats "a timeline was set".
 
 MEETING MATERIAL:
 {material}
@@ -72,13 +69,56 @@ SECTION {idx}/{total}:
 {chunk}
 """
 
-TASKS_PROMPT = """From this meeting summary, extract the action items as a JSON \
-array. Each element: {{"task": "...", "owner": "name or null", "due": "date or null"}}.
+TASKS_PROMPT = """From the "Next steps" of this meeting summary, extract every \
+action item as a JSON array. Each element: \
+{{"task": "...", "owner": "name or null", "due": "date or null"}}.
 Return ONLY the JSON array, nothing else. If there are none, return [].
 
 SUMMARY:
 {summary}
 """
+
+
+def parse_next_steps(summary: str) -> list[dict]:
+    """Deterministic parser for the '## Next steps' per-person sections.
+
+    Used as the extraction fallback (and safety net) so tasks always land in
+    the task list even without a chat model.
+    """
+    m = re.search(r"##\s*Next steps(.*?)(?=\n##\s|\Z)", summary, re.S | re.I)
+    items: list[dict] = []
+    if m:
+        owner: str | None = None
+        for line in m.group(1).splitlines():
+            h = re.match(r"###\s*(.+)", line)
+            if h:
+                owner = h.group(1).strip()
+                continue
+            b = re.match(r"\s*[-*]\s*(?:\[\s?\]\s*)?(.+)", line)
+            if b and b.group(1).strip():
+                o = owner
+                if o and o.lower() in ("unassigned", "collaboration", "none"):
+                    o = None
+                items.append({"task": b.group(1).strip(), "owner": o, "due": None})
+    # Also accept legacy "- [ ] task — owner: X — due: Y" checkbox lines.
+    for line in summary.splitlines():
+        cm = re.match(r"\s*-\s*\[\s?\]\s*(.+)", line)
+        if not cm:
+            continue
+        text = cm.group(1).strip()
+        owner = due = None
+        om = re.search(r"—\s*owner:\s*([^—]+)", text)
+        dm = re.search(r"—\s*due:\s*(.+)$", text)
+        if om:
+            owner = om.group(1).strip()
+            owner = None if owner.lower() in ("unassigned", "none") else owner
+        if dm:
+            due = dm.group(1).strip()
+            due = None if due.lower() == "none" else due
+        text = re.split(r"—\s*owner:", text)[0].strip()
+        if text and not any(t["task"] == text for t in items):
+            items.append({"task": text, "owner": owner, "due": due})
+    return items
 
 
 class Transcriber:
@@ -223,6 +263,15 @@ class MeetingService:
         of the meeting — exactly where decisions and action items live. Now
         long calls are condensed chunk-by-chunk first, then composed.
         """
+        if not llm.ollama_available():
+            # Without a model, return an honest stub instead of the generic
+            # extractive fallback — that fallback echoes the prompt template,
+            # which the Next-steps parser would misread as real tasks.
+            return ("_No local model found — install Ollama and pull one "
+                    "(e.g. `ollama pull llama3.1`), then click ↻ Re-summarise "
+                    "to generate full notes._\n\n### Transcript excerpt\n"
+                    + transcript[:1500])
+
         user_name = (self.db.kv_get("profile_name", "") or "").strip()
         glossary = (self.db.kv_get("profile_glossary", "") or "").strip()
         user_line = (f"The user these notes are for is: {user_name}. "
@@ -280,7 +329,7 @@ class MeetingService:
         """
         items: list[dict] = []
         raw = llm.complete(TASKS_PROMPT.format(summary=summary[:6000]),
-                           temperature=0.1)
+                           temperature=0.1) if llm.ollama_available() else ""
         m = re.search(r"\[.*\]", raw, re.S)
         if m:
             try:
@@ -292,23 +341,7 @@ class MeetingService:
             except Exception:
                 items = []
         if not items:
-            for line in summary.splitlines():
-                cm = re.match(r"\s*-\s*\[\s?\]\s*(.+)", line)
-                if not cm:
-                    continue
-                text = cm.group(1).strip()
-                owner = due = None
-                om = re.search(r"—\s*owner:\s*([^—]+)", text)
-                dm = re.search(r"—\s*due:\s*(.+)$", text)
-                if om:
-                    owner = om.group(1).strip()
-                    owner = None if owner.lower() in ("unassigned", "none") else owner
-                if dm:
-                    due = dm.group(1).strip()
-                    due = None if due.lower() == "none" else due
-                text = re.split(r"—\s*owner:", text)[0].strip()
-                if text:
-                    items.append({"task": text, "owner": owner, "due": due})
+            items = parse_next_steps(summary)
 
         created = []
         for it in items[:20]:

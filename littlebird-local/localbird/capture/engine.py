@@ -30,6 +30,9 @@ class CaptureEngine:
         self._last_store_ts = 0.0
         self.captures = 0
         self.last_snapshot: dict | None = None
+        # Current screen text (post-redaction), readable by other subsystems
+        # like the meeting watcher — refreshed every tick, not only on store.
+        self.last_text = ""
 
     # -- lifecycle -----------------------------------------------------
     def start(self) -> None:
@@ -89,6 +92,7 @@ class CaptureEngine:
         }
         if not privacy.should_capture(snap.app, snap.title, text):
             return
+        self.last_text = text
         if not self._changed_enough(text):
             return
         # Rate-limit: don't store more than once per interval per window.

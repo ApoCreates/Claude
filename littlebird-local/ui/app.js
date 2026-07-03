@@ -85,7 +85,10 @@ async function refreshStatus() {
     const pill = $("#meetingPill");
     if (mw.in_meeting) {
       pill.hidden = false;
-      pill.textContent = mw.recording ? `● Recording ${mw.meeting}` : `In ${mw.meeting}`;
+      pill.innerHTML = mw.recording
+        ? `● Recording ${esc(mw.meeting)}`
+        : `In ${esc(mw.meeting)}` + (mw.pending_offer
+            ? ` <button class="pill" onclick="recordNow(this)">● Record</button>` : "");
     } else pill.hidden = true;
     return s;
   } catch { /* server restarting */ }
@@ -176,6 +179,23 @@ $("#taskForm").addEventListener("submit", async (e) => {
   loadTasks();
 });
 $("#showDone").addEventListener("change", loadTasks);
+window.recordNow = async (btn) => {
+  if (btn) { btn.disabled = true; btn.textContent = "…"; }
+  const r = await api("/api/meetingwatch/record", { method: "POST" });
+  if (!r.ok) alert(r.error || "could not start recording");
+  refreshStatus();
+};
+$("#scanTasks").addEventListener("click", async () => {
+  const btn = $("#scanTasks");
+  btn.disabled = true; btn.textContent = "Scanning…";
+  const r = await api("/api/insights/run", { method: "POST" });
+  btn.disabled = false; btn.textContent = "✨ Scan screen for tasks";
+  if (!r.ok) { alert(r.error || "scan failed"); return; }
+  $("#scanResult").textContent = r.added.length
+    ? `Found ${r.added.length} new task${r.added.length > 1 ? "s" : ""} (scanned ${r.scanned} memories)`
+    : `Nothing new found (scanned ${r.scanned} memories)`;
+  loadTasks();
+});
 
 /* ---- timeline ---- */
 async function loadTimeline() {
@@ -378,6 +398,15 @@ $("#syncNow").addEventListener("click", async () => {
   $("#connectors").textContent = "syncing…";
   await api("/api/connectors/sync", { method: "POST" });
   loadConnectors();
+});
+
+$("#testNotify").addEventListener("click", async () => {
+  $("#notifyResult").textContent = "Sending… check the top-right of your screen.";
+  const r = await api("/api/notify/test", { method: "POST" });
+  $("#notifyResult").textContent = !r.ok ? r.error
+    : r.dialog_answered_yes
+      ? "Notification + dialog both work ✓"
+      : "Notification sent. If you saw no dialog, allow your terminal in System Settings → Notifications.";
 });
 
 /* ---- settings / data ---- */

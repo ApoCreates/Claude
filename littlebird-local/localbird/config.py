@@ -91,6 +91,10 @@ class Settings:
     meeting_autorecord: str = os.environ.get("LOCALBIRD_MEETING_AUTORECORD", "ask")
     meeting_max_minutes: int = _int("LOCALBIRD_MEETING_MAX_MINUTES", 150)
 
+    # --- screen -> tasks insights sweep ---------------------------------
+    insights_enabled: bool = _bool("LOCALBIRD_INSIGHTS", True)
+    insights_interval_min: int = _int("LOCALBIRD_INSIGHTS_INTERVAL_MIN", 45)
+
     # --- local connectors (Apple Mail / Calendar via AppleScript) ------
     connectors: tuple[str, ...] = tuple(
         c.strip() for c in os.environ.get(

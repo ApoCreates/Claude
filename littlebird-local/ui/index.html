@@ -54,7 +54,11 @@
         <input id="taskInput" placeholder="Add a task…" autocomplete="off" />
         <button type="submit" class="primary">Add</button>
       </form>
-      <div class="toolbar"><label class="check"><input type="checkbox" id="showDone"> show completed</label></div>
+      <div class="toolbar">
+        <label class="check"><input type="checkbox" id="showDone"> show completed</label>
+        <button class="ghost" id="scanTasks">✨ Scan screen for tasks</button>
+        <span class="muted small" id="scanResult"></span>
+      </div>
       <div class="cards" id="tasks"></div>
     </section>
 
@@ -147,6 +151,13 @@
         <p class="muted small">Connectors read Apple Mail & Calendar locally via AppleScript.
         Add your accounts (Gmail, iCloud, Exchange…) to the macOS Mail/Calendar apps and they're included —
         nothing leaves your Mac. First use triggers an “Automation” permission prompt: click Allow.</p>
+      </div>
+      <div class="panel">
+        <h3>Notifications</h3>
+        <p class="muted small">If meeting popups don't appear, test them here. macOS may ask you to
+        allow notifications for your terminal / Script Editor the first time.</p>
+        <button class="ghost" id="testNotify" style="align-self:flex-start">🔔 Test notification + dialog</button>
+        <span class="muted small" id="notifyResult"></span>
       </div>
       <details class="panel"><summary>Raw status (JSON)</summary>
         <pre class="status-json" id="statusJson">loading…</pre>

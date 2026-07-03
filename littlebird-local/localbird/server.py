@@ -331,6 +331,35 @@ def meetingwatch_status():
     return get_app().meetingwatch.status()
 
 
+@api.post("/api/meetingwatch/record")
+def meetingwatch_record():
+    return get_app().meetingwatch.record_active()
+
+
+# ---- insights (screen -> tasks) -----------------------------------------
+@api.get("/api/insights")
+def insights_status():
+    return get_app().insights.status()
+
+
+@api.post("/api/insights/run")
+def insights_run():
+    return get_app().insights.run()
+
+
+# ---- notifications --------------------------------------------------------
+@api.post("/api/notify/test")
+def notify_test():
+    from . import notify as _n
+    if not _n.available():
+        return {"ok": False, "error": "notifications require macOS"}
+    _n.notify("LocalBird", "Notifications are working 🎉")
+    answered = _n.ask("LocalBird", "This is a test of the meeting-record "
+                      "dialog. Can you see it?", yes="Yes", no="No",
+                      timeout_s=20)
+    return {"ok": True, "dialog_answered_yes": answered}
+
+
 # ---- images ----------------------------------------------------------
 @api.post("/api/images")
 def images(body: ImageBody):
