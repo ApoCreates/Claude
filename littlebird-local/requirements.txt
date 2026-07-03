@@ -1,0 +1,18 @@
+# --- core (always needed) ---
+fastapi>=0.110
+uvicorn[standard]>=0.29
+httpx>=0.27
+pydantic>=2.6
+python-multipart>=0.0.9
+
+# --- optional: local meeting transcription ---
+# faster-whisper>=1.0
+# sounddevice>=0.4        # live mic recording (also pulls numpy)
+# numpy>=1.26
+
+# --- optional: macOS native screen-text capture ---
+# pyobjc-framework-Cocoa>=10 ; sys_platform == "darwin"
+# pyobjc-framework-ApplicationServices>=10 ; sys_platform == "darwin"
+
+# --- optional: macOS menu bar app ---
+# rumps>=0.4 ; sys_platform == "darwin"

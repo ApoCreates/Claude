@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LocalBird</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span> LocalBird</div>
+    <nav>
+      <button class="nav active" data-view="chat">Chat</button>
+      <button class="nav" data-view="timeline">Timeline</button>
+      <button class="nav" data-view="meetings">Meetings</button>
+      <button class="nav" data-view="journal">Journal</button>
+      <button class="nav" data-view="routines">Routines</button>
+      <button class="nav" data-view="images">Images</button>
+      <button class="nav" data-view="settings">Settings</button>
+    </nav>
+    <div class="status-card" id="statusCard">
+      <div class="row"><span>Engine</span><b id="stMode">…</b></div>
+      <div class="row"><span>Memories</span><b id="stMem">…</b></div>
+      <div class="row"><span>Capture</span>
+        <button id="captureToggle" class="pill">…</button>
+      </div>
+      <div class="muted" id="stCap"></div>
+    </div>
+    <div class="foot muted">100% local · unlimited</div>
+  </aside>
+
+  <main>
+    <!-- CHAT -->
+    <section class="view active" id="view-chat">
+      <header><h1>Ask your work</h1><p class="muted">Answers grounded in everything LocalBird has seen.</p></header>
+      <div class="chat-log" id="chatLog"></div>
+      <form class="composer" id="askForm">
+        <input id="askInput" placeholder="Ask anything about what you've worked on…" autocomplete="off" />
+        <button type="submit">Ask</button>
+      </form>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="view" id="view-timeline">
+      <header><h1>Timeline</h1><p class="muted">What LocalBird remembered, most recent first.</p></header>
+      <div class="toolbar">
+        <label>Last <select id="tlHours">
+          <option value="1">hour</option><option value="6">6 hours</option>
+          <option value="24" selected>24 hours</option><option value="168">week</option>
+        </select></label>
+        <button class="ghost" id="tlRefresh">Refresh</button>
+        <input id="tlSearch" placeholder="Semantic search…" />
+      </div>
+      <div class="cards" id="timeline"></div>
+    </section>
+
+    <!-- MEETINGS -->
+    <section class="view" id="view-meetings">
+      <header><h1>Meetings</h1><p class="muted">Transcribed & summarised locally.</p></header>
+      <div class="panel">
+        <div class="rec-controls">
+          <button id="recStart" class="primary">● Record</button>
+          <button id="recStop" class="danger" disabled>■ Stop & summarise</button>
+          <span class="muted" id="recStatus"></span>
+        </div>
+        <div class="or">or</div>
+        <label class="upload">Upload audio
+          <input type="file" id="audioFile" accept="audio/*" hidden />
+        </label>
+        <details><summary>Paste a transcript</summary>
+          <textarea id="pasteTranscript" placeholder="Paste transcript text…"></textarea>
+          <button class="ghost" id="pasteBtn">Summarise transcript</button>
+        </details>
+      </div>
+      <div class="cards" id="meetings"></div>
+    </section>
+
+    <!-- JOURNAL -->
+    <section class="view" id="view-journal">
+      <header><h1>Daily journal</h1><p class="muted">A written record of your day, auto-generated.</p></header>
+      <button class="primary" id="genJournal">Generate today's journal</button>
+      <article class="journal" id="journalOut"></article>
+    </section>
+
+    <!-- ROUTINES -->
+    <section class="view" id="view-routines">
+      <header><h1>Routines</h1><p class="muted">Saved prompts that run on a schedule.</p></header>
+      <div class="cards" id="routines"></div>
+      <details class="new-routine"><summary>+ New routine</summary>
+        <form id="routineForm" class="grid">
+          <input name="name" placeholder="Name" required />
+          <select name="cadence"><option>daily</option><option>weekly</option><option>monthly</option></select>
+          <input name="hour" type="number" min="0" max="23" value="8" title="hour" />
+          <input name="minute" type="number" min="0" max="59" value="0" title="minute" />
+          <textarea name="prompt" placeholder="Prompt to run…" required></textarea>
+          <button type="submit" class="primary">Create</button>
+        </form>
+      </details>
+    </section>
+
+    <!-- IMAGES -->
+    <section class="view" id="view-images">
+      <header><h1>Image generation</h1><p class="muted">Local Stable Diffusion — unlimited.</p></header>
+      <form class="composer" id="imgForm">
+        <input id="imgPrompt" placeholder="Describe an image…" />
+        <button type="submit">Generate</button>
+      </form>
+      <div id="imgStatus" class="muted"></div>
+      <div class="gallery" id="gallery"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <header><h1>Settings & status</h1></header>
+      <pre class="status-json" id="statusJson">loading…</pre>
+      <div class="danger-zone">
+        <h3>Data controls</h3>
+        <button class="ghost" id="forgetHour">Forget last hour</button>
+        <button class="danger" id="wipeAll">Delete all memory</button>
+      </div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

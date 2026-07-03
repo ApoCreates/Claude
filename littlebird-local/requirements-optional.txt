@@ -1,0 +1,11 @@
+# Install these to unlock the native/heavy features.
+#   pip install -r requirements-optional.txt
+
+faster-whisper>=1.0          # local meeting transcription
+sounddevice>=0.4             # live microphone recording
+numpy>=1.26
+
+# macOS only — native accessibility screen-text capture + menu bar
+pyobjc-framework-Cocoa>=10 ; sys_platform == "darwin"
+pyobjc-framework-ApplicationServices>=10 ; sys_platform == "darwin"
+rumps>=0.4 ; sys_platform == "darwin"
