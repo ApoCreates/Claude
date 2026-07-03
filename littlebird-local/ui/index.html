@@ -8,41 +8,59 @@
 </head>
 <body>
   <aside class="sidebar">
-    <div class="brand"><span class="dot"></span> LocalBird</div>
+    <div class="brand"><span class="logo">🐦</span> <span>LocalBird</span></div>
     <nav>
-      <button class="nav active" data-view="chat">Chat</button>
-      <button class="nav" data-view="timeline">Timeline</button>
-      <button class="nav" data-view="meetings">Meetings</button>
-      <button class="nav" data-view="journal">Journal</button>
-      <button class="nav" data-view="routines">Routines</button>
-      <button class="nav" data-view="images">Images</button>
-      <button class="nav" data-view="settings">Settings</button>
+      <button class="nav active" data-view="chat"><i>💬</i> Chat</button>
+      <button class="nav" data-view="tasks"><i>✅</i> Tasks <span class="badge" id="taskBadge"></span></button>
+      <button class="nav" data-view="timeline"><i>🕘</i> Timeline</button>
+      <button class="nav" data-view="meetings"><i>🎙️</i> Meetings</button>
+      <button class="nav" data-view="journal"><i>📓</i> Journal</button>
+      <button class="nav" data-view="routines"><i>🔁</i> Routines</button>
+      <button class="nav" data-view="images"><i>🎨</i> Images</button>
+      <button class="nav" data-view="settings"><i>⚙️</i> Settings</button>
     </nav>
-    <div class="status-card" id="statusCard">
+    <div class="meeting-pill" id="meetingPill" hidden></div>
+    <div class="status-card">
       <div class="row"><span>Engine</span><b id="stMode">…</b></div>
       <div class="row"><span>Memories</span><b id="stMem">…</b></div>
       <div class="row"><span>Capture</span>
         <button id="captureToggle" class="pill">…</button>
       </div>
-      <div class="muted" id="stCap"></div>
+      <div class="muted small" id="stCap"></div>
     </div>
-    <div class="foot muted">100% local · unlimited</div>
+    <div class="foot muted small">100% local · unlimited</div>
   </aside>
 
   <main>
     <!-- CHAT -->
     <section class="view active" id="view-chat">
-      <header><h1>Ask your work</h1><p class="muted">Answers grounded in everything LocalBird has seen.</p></header>
-      <div class="chat-log" id="chatLog"></div>
+      <header><h1>Ask your work</h1><p class="muted">Answers grounded in your screen, meetings, mail and calendar.</p></header>
+      <div class="chat-log" id="chatLog">
+        <div class="empty" id="chatEmpty">
+          <div class="empty-icon">💬</div>
+          <p>Try: <em>“What did I work on today?”</em> · <em>“Summarise my unread topics”</em> · <em>“What's on my to-do list?”</em></p>
+        </div>
+      </div>
       <form class="composer" id="askForm">
         <input id="askInput" placeholder="Ask anything about what you've worked on…" autocomplete="off" />
-        <button type="submit">Ask</button>
+        <button type="submit" class="primary">Ask</button>
       </form>
+    </section>
+
+    <!-- TASKS -->
+    <section class="view" id="view-tasks">
+      <header><h1>Tasks</h1><p class="muted">Action items from meetings land here automatically — add your own too.</p></header>
+      <form class="composer" id="taskForm">
+        <input id="taskInput" placeholder="Add a task…" autocomplete="off" />
+        <button type="submit" class="primary">Add</button>
+      </form>
+      <div class="toolbar"><label class="check"><input type="checkbox" id="showDone"> show completed</label></div>
+      <div class="cards" id="tasks"></div>
     </section>
 
     <!-- TIMELINE -->
     <section class="view" id="view-timeline">
-      <header><h1>Timeline</h1><p class="muted">What LocalBird remembered, most recent first.</p></header>
+      <header><h1>Timeline</h1><p class="muted">Everything LocalBird remembered, most recent first.</p></header>
       <div class="toolbar">
         <label>Last <select id="tlHours">
           <option value="1">hour</option><option value="6">6 hours</option>
@@ -56,18 +74,19 @@
 
     <!-- MEETINGS -->
     <section class="view" id="view-meetings">
-      <header><h1>Meetings</h1><p class="muted">Transcribed & summarised locally.</p></header>
+      <header><h1>Meetings</h1><p class="muted">Auto-detected, transcribed and summarised on-device — with action items.</p></header>
       <div class="panel">
+        <div class="watch-status" id="watchStatus">checking meeting watcher…</div>
         <div class="rec-controls">
-          <button id="recStart" class="primary">● Record</button>
+          <button id="recStart" class="primary">● Record now</button>
           <button id="recStop" class="danger" disabled>■ Stop & summarise</button>
           <span class="muted" id="recStatus"></span>
         </div>
         <div class="or">or</div>
-        <label class="upload">Upload audio
+        <label class="upload">⬆︎ Upload audio file
           <input type="file" id="audioFile" accept="audio/*" hidden />
         </label>
-        <details><summary>Paste a transcript</summary>
+        <details><summary>Paste a transcript instead</summary>
           <textarea id="pasteTranscript" placeholder="Paste transcript text…"></textarea>
           <button class="ghost" id="pasteBtn">Summarise transcript</button>
         </details>
@@ -77,16 +96,16 @@
 
     <!-- JOURNAL -->
     <section class="view" id="view-journal">
-      <header><h1>Daily journal</h1><p class="muted">A written record of your day, auto-generated.</p></header>
+      <header><h1>Daily journal</h1><p class="muted">A written record of your day, generated from what you actually did.</p></header>
       <button class="primary" id="genJournal">Generate today's journal</button>
-      <article class="journal" id="journalOut"></article>
+      <article class="journal md" id="journalOut"></article>
     </section>
 
     <!-- ROUTINES -->
     <section class="view" id="view-routines">
-      <header><h1>Routines</h1><p class="muted">Saved prompts that run on a schedule.</p></header>
+      <header><h1>Routines</h1><p class="muted">Saved prompts that run on a schedule — briefings, summaries, reviews.</p></header>
       <div class="cards" id="routines"></div>
-      <details class="new-routine"><summary>+ New routine</summary>
+      <details class="new-routine"><summary>＋ New routine</summary>
         <form id="routineForm" class="grid">
           <input name="name" placeholder="Name" required />
           <select name="cadence"><option>daily</option><option>weekly</option><option>monthly</option></select>
@@ -100,10 +119,10 @@
 
     <!-- IMAGES -->
     <section class="view" id="view-images">
-      <header><h1>Image generation</h1><p class="muted">Local Stable Diffusion — unlimited.</p></header>
+      <header><h1>Image generation</h1><p class="muted">Local Stable Diffusion — no credits, no limits.</p></header>
       <form class="composer" id="imgForm">
         <input id="imgPrompt" placeholder="Describe an image…" />
-        <button type="submit">Generate</button>
+        <button type="submit" class="primary">Generate</button>
       </form>
       <div id="imgStatus" class="muted"></div>
       <div class="gallery" id="gallery"></div>
@@ -112,7 +131,16 @@
     <!-- SETTINGS -->
     <section class="view" id="view-settings">
       <header><h1>Settings & status</h1></header>
-      <pre class="status-json" id="statusJson">loading…</pre>
+      <div class="panel">
+        <h3>Connectors <button class="ghost small-btn" id="syncNow">Sync now</button></h3>
+        <div id="connectors" class="muted">loading…</div>
+        <p class="muted small">Connectors read Apple Mail & Calendar locally via AppleScript.
+        Add your accounts (Gmail, iCloud, Exchange…) to the macOS Mail/Calendar apps and they're included —
+        nothing leaves your Mac. First use triggers an “Automation” permission prompt: click Allow.</p>
+      </div>
+      <details class="panel"><summary>Raw status (JSON)</summary>
+        <pre class="status-json" id="statusJson">loading…</pre>
+      </details>
       <div class="danger-zone">
         <h3>Data controls</h3>
         <button class="ghost" id="forgetHour">Forget last hour</button>

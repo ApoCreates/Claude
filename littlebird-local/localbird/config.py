@@ -83,6 +83,22 @@ class Settings:
     whisper_model: str = os.environ.get("LOCALBIRD_WHISPER_MODEL", "base.en")
     whisper_device: str = os.environ.get("LOCALBIRD_WHISPER_DEVICE", "auto")
 
+    # --- meeting auto-detection ---------------------------------------
+    meeting_watch_enabled: bool = _bool("LOCALBIRD_MEETING_WATCH", True)
+    # ask  -> notify + dialog asking whether to record
+    # always -> start recording silently
+    # never  -> just notify, never record automatically
+    meeting_autorecord: str = os.environ.get("LOCALBIRD_MEETING_AUTORECORD", "ask")
+    meeting_max_minutes: int = _int("LOCALBIRD_MEETING_MAX_MINUTES", 150)
+
+    # --- local connectors (Apple Mail / Calendar via AppleScript) ------
+    connectors: tuple[str, ...] = tuple(
+        c.strip() for c in os.environ.get(
+            "LOCALBIRD_CONNECTORS", "mail,calendar").split(",") if c.strip()
+    )
+    connector_interval_min: int = _int("LOCALBIRD_CONNECTOR_INTERVAL_MIN", 15)
+    mail_max_messages: int = _int("LOCALBIRD_MAIL_MAX_MESSAGES", 15)
+
     # --- image generation ---------------------------------------------
     # A local Stable-Diffusion-compatible endpoint (Automatic1111 / ComfyUI /
     # SD.Next). Left blank -> image feature reports "not configured".

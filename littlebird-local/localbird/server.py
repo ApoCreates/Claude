@@ -7,6 +7,7 @@ quotas — this is your machine talking to itself.
 from __future__ import annotations
 
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
@@ -19,12 +20,15 @@ from .config import settings
 
 UI_DIR = Path(__file__).resolve().parent.parent / "ui"
 
-api = FastAPI(title="LocalBird", version="1.0.0")
 
-
-@api.on_event("startup")
-def _startup() -> None:
+@asynccontextmanager
+async def _lifespan(_: FastAPI):
     get_app().start()
+    yield
+    get_app().stop()
+
+
+api = FastAPI(title="LocalBird", version="1.1.0", lifespan=_lifespan)
 
 
 # ---- schemas ---------------------------------------------------------
@@ -245,6 +249,57 @@ def routines_delete(routine_id: int):
 def routines_runs(routine_id: int):
     rows = get_app().db.routine_runs(routine_id, limit=30)
     return {"runs": [dict(r) for r in rows]}
+
+
+# ---- tasks -----------------------------------------------------------
+class TaskBody(BaseModel):
+    text: str
+    owner: str | None = None
+    due: str | None = None
+
+
+@api.get("/api/tasks")
+def tasks_list(include_done: bool = False):
+    rows = get_app().db.tasks(include_done=include_done)
+    return {"tasks": [dict(r) for r in rows]}
+
+
+@api.post("/api/tasks")
+def tasks_create(body: TaskBody):
+    if not body.text.strip():
+        raise HTTPException(400, "text is required")
+    tid = get_app().db.add_task(body.text.strip(), owner=body.owner,
+                                due=body.due, source="manual")
+    return {"ok": True, "id": tid}
+
+
+@api.post("/api/tasks/{task_id}/toggle")
+def tasks_toggle(task_id: int, done: bool = Form(...)):
+    get_app().db.set_task_done(task_id, done)
+    return {"ok": True}
+
+
+@api.delete("/api/tasks/{task_id}")
+def tasks_delete(task_id: int):
+    get_app().db.delete_task(task_id)
+    return {"ok": True}
+
+
+# ---- connectors --------------------------------------------------------
+@api.get("/api/connectors")
+def connectors_status():
+    return get_app().connectors.status()
+
+
+@api.post("/api/connectors/sync")
+def connectors_sync():
+    return {"ok": True, "synced": get_app().connectors.sync_now()}
+
+
+# ---- meeting watch ------------------------------------------------------
+@api.get("/api/meetingwatch")
+def meetingwatch_status():
+    return get_app().meetingwatch.status()
 
 
 # ---- images ----------------------------------------------------------

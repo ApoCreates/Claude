@@ -40,9 +40,26 @@ class ChatEngine:
         self.db = db
         self.memory = memory
 
+    def _open_tasks_block(self) -> str:
+        rows = self.db.tasks(include_done=False, limit=25)
+        if not rows:
+            return ""
+        lines = []
+        for r in rows:
+            extra = []
+            if r["owner"]:
+                extra.append(f"owner: {r['owner']}")
+            if r["due"]:
+                extra.append(f"due: {r['due']}")
+            if r["source"] and r["source"] != "manual":
+                extra.append(f"from: {r['source']}")
+            suffix = f" ({', '.join(extra)})" if extra else ""
+            lines.append(f"- {r['text']}{suffix}")
+        return "\n\nOPEN TASKS (the user's current to-do list):\n" + "\n".join(lines)
+
     def ask(self, question: str, *, top_k: int | None = None) -> dict:
         hits = self.memory.search(question, top_k=top_k)
-        context = _format_context(hits)
+        context = _format_context(hits) + self._open_tasks_block()
         history = self.db.recent_chats(limit=8)
 
         messages = [{"role": "system", "content": SYSTEM_PROMPT.format(context=context)}]

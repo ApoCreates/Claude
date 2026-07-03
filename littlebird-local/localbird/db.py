@@ -72,6 +72,17 @@ CREATE TABLE IF NOT EXISTS meetings (
     ts         REAL NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS tasks (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    text       TEXT NOT NULL,
+    owner      TEXT,
+    due        TEXT,
+    source     TEXT,                        -- meeting title / "manual" / routine
+    meeting_id INTEGER,
+    done       INTEGER NOT NULL DEFAULT 0,
+    created_ts REAL NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS kv (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
@@ -254,6 +265,28 @@ class Database:
             "SELECT * FROM routine_runs WHERE routine_id=? ORDER BY id DESC LIMIT ?",
             (routine_id, limit),
         )
+
+    # -- tasks -----------------------------------------------------------
+    def add_task(self, text: str, *, owner: str | None = None,
+                 due: str | None = None, source: str | None = None,
+                 meeting_id: int | None = None) -> int:
+        return int(self.execute(
+            "INSERT INTO tasks (text, owner, due, source, meeting_id, done, created_ts)"
+            " VALUES (?,?,?,?,?,0,?)",
+            (text, owner, due, source, meeting_id, time.time()),
+        ).lastrowid)
+
+    def tasks(self, include_done: bool = False, limit: int = 200) -> list[sqlite3.Row]:
+        sql = "SELECT * FROM tasks"
+        if not include_done:
+            sql += " WHERE done=0"
+        return self.query(sql + " ORDER BY done, id DESC LIMIT ?", (limit,))
+
+    def set_task_done(self, task_id: int, done: bool) -> None:
+        self.execute("UPDATE tasks SET done=? WHERE id=?", (1 if done else 0, task_id))
+
+    def delete_task(self, task_id: int) -> None:
+        self.execute("DELETE FROM tasks WHERE id=?", (task_id,))
 
     # -- kv ------------------------------------------------------------
     def kv_get(self, key: str, default: str | None = None) -> str | None:

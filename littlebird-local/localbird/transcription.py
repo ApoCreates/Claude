@@ -7,6 +7,8 @@ transcript is summarised by the local chat model and stored as memory.
 
 from __future__ import annotations
 
+import json
+import re
 import threading
 import time
 import wave
@@ -17,14 +19,39 @@ from .db import Database
 from .llm import llm
 from .memory import Memory
 
-SUMMARY_PROMPT = """Summarise the following meeting transcript. Produce:
-- **TL;DR**: 2-3 sentences.
-- **Key points**: bullet list.
-- **Decisions**: bullet list (or "none").
-- **Action items**: bullet list with owner if stated (or "none").
+SUMMARY_PROMPT = """Summarise the following meeting transcript. Be precise with \
+names, numbers, dates and amounts — quote them exactly as spoken. Produce:
+
+## TL;DR
+2-3 sentences.
+
+## Key points
+Bullet list.
+
+## Decisions
+Bullet list (or "none").
+
+## Action items
+Bullet list, one per task, formatted exactly as:
+- [ ] task description — owner: NAME or "unassigned" — due: DATE or "none"
+
+## Follow-ups
+Things left open, questions to chase, promised documents (or "none").
+
+## People & numbers
+Every person mentioned (with role/company if stated) and every important
+figure, date, amount or metric, quoted exactly.
 
 TRANSCRIPT:
 {transcript}
+"""
+
+TASKS_PROMPT = """From this meeting summary, extract the action items as a JSON \
+array. Each element: {{"task": "...", "owner": "name or null", "due": "date or null"}}.
+Return ONLY the JSON array, nothing else. If there are none, return [].
+
+SUMMARY:
+{summary}
 """
 
 
@@ -167,8 +194,55 @@ class MeetingService:
                                          audio_path=audio_path, duration_s=duration)
         self.memory.remember(f"{summary}\n\n---\nFull transcript:\n{transcript}",
                             kind="meeting", source="meeting", title=title)
+        tasks = self._extract_tasks(summary, title, meeting_id)
         return {"ok": True, "meeting_id": meeting_id, "title": title,
-                "summary": summary, "transcript": transcript}
+                "summary": summary, "transcript": transcript, "tasks": tasks}
+
+    def _extract_tasks(self, summary: str, title: str, meeting_id: int) -> list[dict]:
+        """Turn the summary's action items into task records.
+
+        Primary path asks the LLM for JSON; fallback parses the summary's
+        `- [ ]` checkbox lines directly so tasks still appear offline.
+        """
+        items: list[dict] = []
+        raw = llm.complete(TASKS_PROMPT.format(summary=summary[:6000]),
+                           temperature=0.1)
+        m = re.search(r"\[.*\]", raw, re.S)
+        if m:
+            try:
+                for it in json.loads(m.group(0)):
+                    task = (it.get("task") or "").strip()
+                    if task:
+                        items.append({"task": task, "owner": it.get("owner"),
+                                      "due": it.get("due")})
+            except Exception:
+                items = []
+        if not items:
+            for line in summary.splitlines():
+                cm = re.match(r"\s*-\s*\[\s?\]\s*(.+)", line)
+                if not cm:
+                    continue
+                text = cm.group(1).strip()
+                owner = due = None
+                om = re.search(r"—\s*owner:\s*([^—]+)", text)
+                dm = re.search(r"—\s*due:\s*(.+)$", text)
+                if om:
+                    owner = om.group(1).strip()
+                    owner = None if owner.lower() in ("unassigned", "none") else owner
+                if dm:
+                    due = dm.group(1).strip()
+                    due = None if due.lower() == "none" else due
+                text = re.split(r"—\s*owner:", text)[0].strip()
+                if text:
+                    items.append({"task": text, "owner": owner, "due": due})
+
+        created = []
+        for it in items[:20]:
+            tid = self.db.add_task(it["task"], owner=it.get("owner"),
+                                   due=it.get("due"), source=title,
+                                   meeting_id=meeting_id)
+            created.append({"id": tid, **it})
+        return created
 
     def start_recording(self) -> dict:
         if not self.recorder.available():

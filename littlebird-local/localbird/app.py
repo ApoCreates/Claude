@@ -5,10 +5,12 @@ from __future__ import annotations
 from .capture import CaptureEngine
 from .chat import ChatEngine
 from .config import settings
+from .connectors import ConnectorSync
 from .db import Database
 from .images import ImageGenerator
 from .journals import Journal
 from .llm import llm
+from .meetingwatch import MeetingWatcher
 from .memory import Memory
 from .routines import Routines
 from .scheduler import Scheduler
@@ -27,15 +29,21 @@ class LocalBird:
         self.images = ImageGenerator()
         self.capture = CaptureEngine(self.memory)
         self.scheduler = Scheduler(self.routines, self.journal)
+        self.meetingwatch = MeetingWatcher(self.meetings, self.capture)
+        self.connectors = ConnectorSync(self.db, self.memory)
         self.routines.ensure_starters()
 
     def start(self) -> None:
         self.capture.start()
         self.scheduler.start()
+        self.meetingwatch.start()
+        self.connectors.start()
 
     def stop(self) -> None:
         self.capture.stop()
         self.scheduler.stop()
+        self.meetingwatch.stop()
+        self.connectors.stop()
 
     def status(self) -> dict:
         return {
@@ -43,6 +51,8 @@ class LocalBird:
             "llm": llm.status(),
             "capture": self.capture.status(),
             "meetings": self.meetings.status(),
+            "meetingwatch": self.meetingwatch.status(),
+            "connectors": self.connectors.status(),
             "images": self.images.status(),
             "memory": self.memory.stats(),
             "data_dir": str(settings.data_dir),

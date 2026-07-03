@@ -22,12 +22,27 @@ bigger context, best models) is simply on by default.
 | Feature | How it works locally |
 |---|---|
 | **Screen memory** | Reads the *text* of your active window (macOS Accessibility tree — no screenshots/video), de-duplicates, embeds and stores it. |
-| **Ask your work (chat)** | RAG over your semantic memory with citations back to the source app/meeting. |
-| **Meeting notes** | Records mic (or ingests an audio file) and transcribes on-device with faster-whisper, then summarises (TL;DR, decisions, action items). Unlimited. |
+| **Ask your work (chat)** | RAG over your semantic memory with citations back to the source app/meeting/email. |
+| **Meeting auto-detection** | Detects Zoom/Teams/Meet/FaceTime/Webex calls starting, sends a native notification and asks whether to record (`ask`/`always`/`never`). Stops + summarises automatically when the call ends. |
+| **Meeting notes** | On-device faster-whisper transcription, then a structured summary: TL;DR, key points, decisions, action items, follow-ups, and an exact "people & numbers" section. Unlimited. |
+| **Tasks** | Action items from meetings land in a task list automatically (owner + due date parsed); add/check/delete your own. Chat knows your open tasks. |
+| **Mail & Calendar connectors** | Reads Apple Mail inbox + Calendar events locally via AppleScript — any account added to the macOS Mail/Calendar apps (Gmail, iCloud, Exchange…) is included, and nothing is sent to any cloud. |
 | **Daily journal** | Auto-summarises your day into a written entry; also generated nightly. |
 | **Routines** | Saved prompts that run daily/weekly/monthly (e.g. "daily briefing"). |
 | **Image generation** | Local Stable Diffusion (Automatic1111/SD.Next) via `LOCALBIRD_SD_URL`. Unlimited. |
 | **Privacy** | Excludes password managers, redacts passwords/cards/keys/private-keys, skips sign-in/checkout/incognito windows. Pause or delete anytime. |
+| **Runs at login** | `./install_autostart.sh` installs a LaunchAgent so LocalBird is always on in the background (`remove` to uninstall). |
+
+### Permissions cheat-sheet (macOS)
+
+| Feature | Permission prompt | Where |
+|---|---|---|
+| Screen memory | Accessibility | Privacy & Security → Accessibility → Terminal |
+| Meeting recording | Microphone | Privacy & Security → Microphone → Terminal |
+| Mail / Calendar connectors | Automation ("Terminal wants to control Mail") | Click **Allow** on first sync |
+
+> If you use `install_autostart.sh`, permissions belong to `.venv/bin/python`
+> instead of Terminal — the script prints the exact path to add.
 
 ## Quick start
 

@@ -95,6 +95,61 @@ def test_routine_scheduling_window(db):
     assert rid not in routines.due(now=time.time())
 
 
+def test_task_crud(db):
+    tid = db.add_task("Send the Falcon deck", owner="Priya", due="Friday",
+                      source="Falcon sync")
+    tasks = db.tasks()
+    assert any(t["id"] == tid for t in tasks)
+    db.set_task_done(tid, True)
+    assert not db.tasks(include_done=False)
+    assert db.tasks(include_done=True)[0]["done"] == 1
+    db.delete_task(tid)
+    assert not db.tasks(include_done=True)
+
+
+def test_action_item_extraction_fallback(db, tmp_path):
+    """Offline, tasks are parsed from the summary's checkbox lines."""
+    from localbird.memory import Memory
+    from localbird.transcription import MeetingService
+    svc = MeetingService(db, Memory(db))
+    summary = (
+        "## Action items\n"
+        "- [ ] Send revised budget — owner: Dana — due: Tuesday\n"
+        "- [ ] Book venue — owner: unassigned — due: none\n"
+    )
+    tasks = svc._extract_tasks(summary, "Planning call", meeting_id=1)
+    texts = [t["task"] for t in tasks]
+    assert "Send revised budget" in texts
+    assert "Book venue" in texts
+    dana = next(t for t in tasks if t["task"] == "Send revised budget")
+    assert dana["owner"] == "Dana" and dana["due"] == "Tuesday"
+    unassigned = next(t for t in tasks if t["task"] == "Book venue")
+    assert unassigned["owner"] is None and unassigned["due"] is None
+    assert len(db.tasks()) == 2
+
+
+def test_connector_record_parsing():
+    from localbird.connectors import applescript as osa
+    raw = f"id1{osa.FIELD}Subject A{osa.FIELD}a@b.c{osa.FIELD}Mon{osa.FIELD}Body{osa.RECORD}" \
+          f"id2{osa.FIELD}Subject B{osa.FIELD}d@e.f{osa.FIELD}Tue{osa.FIELD}Body2{osa.RECORD}"
+    recs = osa.parse_records(raw)
+    assert len(recs) == 2
+    assert recs[0][0] == "id1" and recs[1][1] == "Subject B"
+
+
+def test_meetingwatch_status_offline(db):
+    """The watcher must construct and report status off-macOS."""
+    from localbird.capture import CaptureEngine
+    from localbird.meetingwatch import MeetingWatcher
+    from localbird.memory import Memory
+    from localbird.transcription import MeetingService
+    mem = Memory(db)
+    watcher = MeetingWatcher(MeetingService(db, mem), CaptureEngine(mem))
+    st = watcher.status()
+    assert st["in_meeting"] is False
+    assert "mode" in st
+
+
 def test_forget_deletes_recent(db):
     mem = Memory(db)
     mem.remember("ephemeral thing to forget", kind="note")
