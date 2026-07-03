@@ -83,6 +83,14 @@ CREATE TABLE IF NOT EXISTS tasks (
     created_ts REAL NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS task_feedback (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    text    TEXT NOT NULL,
+    source  TEXT,
+    verdict TEXT NOT NULL,                  -- accepted | rejected
+    ts      REAL NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS kv (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
@@ -283,10 +291,33 @@ class Database:
         return self.query(sql + " ORDER BY done, id DESC LIMIT ?", (limit,))
 
     def set_task_done(self, task_id: int, done: bool) -> None:
+        # Completing an auto-suggested task is positive feedback: the
+        # suggestion engine learns "more like this".
+        if done:
+            row = self.query_one("SELECT * FROM tasks WHERE id=?", (task_id,))
+            if row and (row["source"] or "manual") != "manual" and not row["done"]:
+                self.add_task_feedback(row["text"], row["source"], "accepted")
         self.execute("UPDATE tasks SET done=? WHERE id=?", (1 if done else 0, task_id))
 
     def delete_task(self, task_id: int) -> None:
+        # Deleting an auto-suggested task WITHOUT completing it is negative
+        # feedback: the engine learns to stop suggesting this kind of task.
+        row = self.query_one("SELECT * FROM tasks WHERE id=?", (task_id,))
+        if row and (row["source"] or "manual") != "manual" and not row["done"]:
+            self.add_task_feedback(row["text"], row["source"], "rejected")
         self.execute("DELETE FROM tasks WHERE id=?", (task_id,))
+
+    def add_task_feedback(self, text: str, source: str | None, verdict: str) -> int:
+        return int(self.execute(
+            "INSERT INTO task_feedback (text, source, verdict, ts) VALUES (?,?,?,?)",
+            (text, source, verdict, time.time()),
+        ).lastrowid)
+
+    def task_feedback(self, verdict: str, limit: int = 40) -> list[sqlite3.Row]:
+        return self.query(
+            "SELECT * FROM task_feedback WHERE verdict=? ORDER BY id DESC LIMIT ?",
+            (verdict, limit),
+        )
 
     # -- kv ------------------------------------------------------------
     def kv_get(self, key: str, default: str | None = None) -> str | None:

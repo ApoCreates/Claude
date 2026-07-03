@@ -6,4 +6,4 @@ capture, embeddings, semantic memory, meeting transcription, chat, journals
 and scheduled routines. No cloud, no accounts, no usage caps.
 """
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"

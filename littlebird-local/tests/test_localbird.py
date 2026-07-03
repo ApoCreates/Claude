@@ -151,6 +151,36 @@ def test_action_item_extraction_fallback(db, tmp_path):
     assert len(db.tasks()) == 2
 
 
+def test_task_feedback_learning(db):
+    """Deleting an auto-suggested task teaches rejection; completing teaches
+    acceptance; manual tasks generate no feedback."""
+    auto = db.add_task("Reply to the WAD image bank email", source="screen · Mail")
+    db.delete_task(auto)
+    rejected = [r["text"] for r in db.task_feedback("rejected")]
+    assert "Reply to the WAD image bank email" in rejected
+
+    kept = db.add_task("Send storyboard to Safiyyah", source="screen · Notes")
+    db.set_task_done(kept, True)
+    accepted = [r["text"] for r in db.task_feedback("accepted")]
+    assert "Send storyboard to Safiyyah" in accepted
+
+    manual = db.add_task("My own note", source="manual")
+    db.delete_task(manual)
+    assert len(db.task_feedback("rejected")) == 1  # unchanged
+
+
+def test_rejected_filter_blocks_similar_suggestions():
+    from localbird.insights import filter_rejected
+    rejected = ["Reply to the marketing newsletter about growth tips"]
+    items = [
+        {"task": "Reply to marketing newsletter about growth tips today"},
+        {"task": "Send the phase one storyboard to Safiyyah"},
+    ]
+    out = filter_rejected(items, rejected)
+    assert len(out) == 1
+    assert out[0]["task"].startswith("Send the phase one storyboard")
+
+
 def test_insights_dedupe_similarity():
     from localbird.insights import similar
     assert similar("Send the revised budget to Dana",

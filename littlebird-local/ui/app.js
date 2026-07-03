@@ -145,6 +145,12 @@ $("#askForm").addEventListener("submit", async (e) => {
 async function loadTasks() {
   const showDone = $("#showDone").checked;
   const { tasks } = await api(`/api/tasks?include_done=${showDone}`);
+  api("/api/insights").then((ins) => {
+    const n = (ins.learned_rejections || 0) + (ins.learned_acceptances || 0);
+    $("#learnStatus").textContent = n
+      ? `🧠 Learned from ${ins.learned_rejections} removal${ins.learned_rejections === 1 ? "" : "s"} and ${ins.learned_acceptances} completion${ins.learned_acceptances === 1 ? "" : "s"}`
+      : "🧠 Learning: delete a suggested task to teach it what to skip; complete one to teach it what you want.";
+  }).catch(() => {});
   const open = tasks.filter((t) => !t.done).length;
   $("#taskBadge").textContent = open || "";
   $("#tasks").innerHTML = tasks.map((t) => `
