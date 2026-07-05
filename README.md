@@ -2,7 +2,7 @@
 
 An AI-powered command center for food & beverage executives. Built as a clickable demo with dummy data so the full UI flow and AI surfaces can be walked through with stakeholders before any real ingestion or deployment work is committed.
 
-> **Also in this repo:** [`product-studio/`](./product-studio) — a separate, standalone Next.js app (deploy it as its own Vercel project) that turns a product image into a publish-ready listing using Claude vision.
+> **Also in this repo:** [`product-studio/`](./product-studio) — a separate, standalone Next.js app (deploy it as its own Vercel project) that turns a product image into a publish-ready listing using Claude vision. And [`aigency-writer/`](./aigency-writer) — Qalam · قَلَم, the Aigency's bilingual (Arabic-native/English-native) writer agent: 9 expert writing modes, a daily 30-minute bilingual training gym, daily self-research, and per-client brand profiles; built to be white-labeled and sold per client.
 
 ## What's in the demo
 
