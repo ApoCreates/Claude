@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Brain, Dumbbell, Feather, Languages, PenTool, Users, type LucideIcon } from "lucide-react";
+import {
+  Brain,
+  ClipboardList,
+  Dumbbell,
+  Feather,
+  Languages,
+  PenTool,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+import TaskBoard from "./TaskBoard";
 import WriterStudio from "./WriterStudio";
 import TrainingPanel from "./TrainingPanel";
 import BrainPanel from "./BrainPanel";
@@ -10,13 +20,13 @@ import { DEFAULT_PROFILE, type BrandProfile } from "@/lib/profiles";
 import { t, type UILang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-type Tab = "studio" | "training" | "brain" | "profiles";
+type Tab = "tasks" | "studio" | "training" | "brain" | "profiles";
 
 const STORAGE_KEY = "qalam.profiles.v1";
 
 export default function QalamApp() {
   const [uiLang, setUiLang] = useState<UILang>("en");
-  const [tab, setTab] = useState<Tab>("studio");
+  const [tab, setTab] = useState<Tab>("tasks");
   const [profiles, setProfiles] = useState<BrandProfile[]>([DEFAULT_PROFILE]);
   const [activeId, setActiveId] = useState<string>(DEFAULT_PROFILE.id);
   const [live, setLive] = useState<boolean | null>(null);
@@ -59,6 +69,7 @@ export default function QalamApp() {
   const brandTagline = process.env.NEXT_PUBLIC_BRAND_TAGLINE;
 
   const tabs: { id: Tab; icon: LucideIcon; label: string }[] = [
+    { id: "tasks", icon: ClipboardList, label: t("tabTasks", uiLang) },
     { id: "studio", icon: PenTool, label: t("tabStudio", uiLang) },
     { id: "training", icon: Dumbbell, label: t("tabTraining", uiLang) },
     { id: "brain", icon: Brain, label: t("tabBrain", uiLang) },
@@ -125,6 +136,7 @@ export default function QalamApp() {
       </header>
 
       <main className="mx-auto max-w-6xl px-5 py-7">
+        {tab === "tasks" && <TaskBoard uiLang={uiLang} profile={activeProfile} />}
         {tab === "studio" && <WriterStudio uiLang={uiLang} profile={activeProfile} />}
         {tab === "training" && <TrainingPanel uiLang={uiLang} profile={activeProfile} />}
         {tab === "brain" && <BrainPanel uiLang={uiLang} />}

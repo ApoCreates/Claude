@@ -4,6 +4,8 @@ An Arabic-native **and** English-native master writer agent — two first langua
 
 ## What it is
 
+**A task board you delegate to.** The Tasks tab is the agent's dashboard: assign work (title, brief, discipline, language/dialect, priority, due date) and the agent picks it up automatically, writes the deliverable, and files it under *For your review*. Approve it, or send it back with notes — the agent revises against your exact note (previous drafts are kept per task) and the note simultaneously becomes a permanent lesson in its brain.
+
 **Nine expert disciplines** in one agent, each with a specialist brief layered on a shared bilingual persona:
 
 | Mode | What it delivers |
@@ -69,5 +71,6 @@ One deployment per client = isolated brain, isolated branding, isolated billing.
 - `lib/ai/modes.ts` — the 9 expert-mode registry (add a mode here, everything follows)
 - `lib/training/scenarios.ts` — drill bank + deterministic daily 30-minute plan builder
 - `lib/brain/` — types, runtime store, and the baked-in seed memory
-- `app/api/` — `write` (streaming), `training` (plan + drill runs), `feedback` (lesson distillation), `agent/research` (daily cron), `agent/brain` (inspect/export)
-- `components/writer/` — Studio, Training Gym, Brain, and Profiles panels
+- `lib/tasks/` — task types + queue store for the dashboard
+- `app/api/` — `tasks` (assign/list, review actions, agent runs), `write` (streaming), `training` (plan + drill runs), `feedback` (lesson distillation), `agent/research` (daily cron), `agent/brain` (inspect/export)
+- `components/writer/` — Task board, Studio, Training Gym, Brain, and Profiles panels
