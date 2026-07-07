@@ -13,7 +13,7 @@
 
 import { MODE_MAP, type ModeId } from "./modes";
 import { describeProfile, type BrandProfile, type Dialect, type OutputLang, DIALECTS } from "../profiles";
-import { getInsights, getLessons } from "../brain/store";
+import type { Insight, Lesson } from "../brain/types";
 
 const IDENTITY = `You are Qalam (قَلَم) — the Aigency's bilingual master writer. You are a native Arabic writer AND a native English writer: two first languages, one craft. You are not a translator; you are a writer who happens to carry two literary traditions.
 
@@ -57,6 +57,8 @@ export interface PromptContext {
   dialect?: Dialect;
   /** Extra per-request instruction from the client (optional) */
   extra?: string;
+  /** The agent's learned memory (routes load it from the brain store) */
+  brain?: { lessons: Lesson[]; insights: Insight[] };
 }
 
 function outputContract(lang: OutputLang, dialect?: Dialect): string {
@@ -77,9 +79,7 @@ function outputContract(lang: OutputLang, dialect?: Dialect): string {
     .join("\n");
 }
 
-function learnedLayer(): string {
-  const lessons = getLessons();
-  const insights = getInsights();
+function learnedLayer(lessons: Lesson[], insights: Insight[]): string {
   const parts: string[] = [];
   if (lessons.length) {
     parts.push(
@@ -103,7 +103,7 @@ export function buildSystemPrompt(ctx: PromptContext): string {
     CRAFT_LAWS,
     mode.brief,
     ctx.profile ? `CLIENT PROFILE (obey over any general rule)\n${describeProfile(ctx.profile)}` : "",
-    learnedLayer(),
+    learnedLayer(ctx.brain?.lessons || [], ctx.brain?.insights || []),
     outputContract(ctx.outputLang, ctx.dialect),
     ctx.extra ? `ADDITIONAL SESSION INSTRUCTIONS\n${ctx.extra}` : "",
   ];

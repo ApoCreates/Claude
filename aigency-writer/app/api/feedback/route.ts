@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "rating must be 'up' or 'down'" }, { status: 400 });
   }
 
-  addFeedback({
+  await addFeedback({
     mode: body.mode || "unknown",
     rating: body.rating,
     comment: body.comment,
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   // Without a key, store the coach's words verbatim — still a real lesson.
   if (!hasLiveAI()) {
     const lang = /[؀-ۿ]/.test(comment) ? "ar" : "en";
-    const lesson = addLesson({ source, lang, text: comment });
+    const lesson = await addLesson({ source, lang, text: comment });
     return Response.json({ ok: true, lesson, distilled: false });
   }
 
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       const lang = /[؀-ۿ]/.test(comment) ? "ar" : "en";
-      const lesson = addLesson({ source, lang, text: comment });
+      const lesson = await addLesson({ source, lang, text: comment });
       return Response.json({ ok: true, lesson, distilled: false });
     }
 
@@ -91,11 +91,11 @@ export async function POST(req: NextRequest) {
     const lang = parsed.lang === "ar" || parsed.lang === "en" || parsed.lang === "both" ? parsed.lang : "both";
     if (!parsed.lesson) return Response.json({ ok: true, lesson: null });
 
-    const lesson = addLesson({ source, lang, text: parsed.lesson });
+    const lesson = await addLesson({ source, lang, text: parsed.lesson });
     return Response.json({ ok: true, lesson, distilled: true });
   } catch {
     const lang = /[؀-ۿ]/.test(comment) ? "ar" : "en";
-    const lesson = addLesson({ source, lang, text: comment });
+    const lesson = await addLesson({ source, lang, text: comment });
     return Response.json({ ok: true, lesson, distilled: false });
   }
 }

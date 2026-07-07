@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { DEFAULT_MODEL, getClient, hasLiveAI } from "@/lib/ai/client";
-import { addInsights, getInsights } from "@/lib/brain/store";
+import { addInsights, getBrain } from "@/lib/brain/store";
 import { todayISO } from "@/lib/utils";
 
 export const runtime = "nodejs";
@@ -41,7 +41,7 @@ async function runResearch(): Promise<Response> {
       mode: "demo",
       added: 0,
       message: "Demo mode — set ANTHROPIC_API_KEY to enable live self-research.",
-      insights: getInsights(),
+      insights: (await getBrain()).insights,
     });
   }
 
@@ -81,7 +81,7 @@ async function runResearch(): Promise<Response> {
   }
 
   const date = todayISO();
-  const added = addInsights(
+  const added = await addInsights(
     parsed
       .filter((p) => p.text)
       .slice(0, 8)

@@ -4,7 +4,7 @@ import { getTask, pushDraft, updateTask } from "@/lib/tasks/store";
 export const runtime = "nodejs";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const task = getTask(params.id);
+  const task = await getTask(params.id);
   if (!task) return Response.json({ error: "Task not found" }, { status: 404 });
   return Response.json({ task });
 }
@@ -31,24 +31,24 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const task = getTask(params.id);
+  const task = await getTask(params.id);
   if (!task) return Response.json({ error: "Task not found" }, { status: 404 });
 
   switch (body.action) {
     case "approve":
-      return Response.json({ task: updateTask(params.id, { status: "approved" }) });
+      return Response.json({ task: await updateTask(params.id, { status: "approved" }) });
     case "archive":
-      return Response.json({ task: updateTask(params.id, { status: "archived" }) });
+      return Response.json({ task: await updateTask(params.id, { status: "archived" }) });
     case "requeue":
       return Response.json({
-        task: updateTask(params.id, { status: "queued", error: undefined }),
+        task: await updateTask(params.id, { status: "queued", error: undefined }),
       });
     case "request_changes": {
       if (!body.comment?.trim()) {
         return Response.json({ error: "A change request needs a comment" }, { status: 400 });
       }
-      pushDraft(params.id, body.comment.trim());
-      return Response.json({ task: updateTask(params.id, { status: "queued", error: undefined }) });
+      await pushDraft(params.id, body.comment.trim());
+      return Response.json({ task: await updateTask(params.id, { status: "queued", error: undefined }) });
     }
     default:
       return Response.json({ error: "Unknown action" }, { status: 400 });

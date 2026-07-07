@@ -9,13 +9,17 @@ import {
   ClipboardList,
   Flag,
   Loader2,
+  Mail,
+  Pause,
   Play,
+  Repeat,
   RotateCcw,
   Send,
+  Trash2,
 } from "lucide-react";
 import { MODES, MODE_MAP, type ModeId } from "@/lib/ai/modes";
 import { DIALECTS, type BrandProfile, type Dialect, type OutputLang } from "@/lib/profiles";
-import type { AgentTask, TaskPriority, TaskStatus } from "@/lib/tasks/types";
+import type { AgentTask, RecurringTask, TaskPriority, TaskStatus } from "@/lib/tasks/types";
 import { t, type UILang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { CopyButton } from "./shared";
@@ -57,6 +61,7 @@ export default function TaskBoard({
   profile: BrandProfile;
 }) {
   const [tasks, setTasks] = useState<AgentTask[]>([]);
+  const [recurring, setRecurring] = useState<RecurringTask[]>([]);
   const [stats, setStats] = useState<Record<string, number>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [revisions, setRevisions] = useState<Record<string, string>>({});
@@ -71,12 +76,16 @@ export default function TaskBoard({
   const [dialect, setDialect] = useState<Dialect>(profile.dialect);
   const [priority, setPriority] = useState<TaskPriority>("normal");
   const [due, setDue] = useState("");
+  const [makeDaily, setMakeDaily] = useState(false);
+  const [emailTo, setEmailTo] = useState("");
+  const [runningAutomation, setRunningAutomation] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/tasks");
       const data = await res.json();
       setTasks(data.tasks || []);
+      setRecurring(data.recurring || []);
       setStats(data.stats || {});
     } catch {
       // transient — next poll retries
@@ -117,20 +126,26 @@ export default function TaskBoard({
     if (!brief.trim() || assigning) return;
     setAssigning(true);
     try {
-      const res = await fetch("/api/tasks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          brief,
-          mode,
-          outputLang,
-          dialect: outputLang === "en" ? undefined : dialect,
-          priority,
-          due: due || undefined,
-          profile,
-        }),
-      });
+      const payload = {
+        title,
+        brief,
+        mode,
+        outputLang,
+        dialect: outputLang === "en" ? undefined : dialect,
+        priority,
+        profile,
+      };
+      const res = makeDaily
+        ? await fetch("/api/tasks/recurring", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...payload, emailTo: emailTo || undefined }),
+          })
+        : await fetch("/api/tasks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...payload, due: due || undefined }),
+          });
       if (res.ok) {
         setTitle("");
         setBrief("");
@@ -140,6 +155,34 @@ export default function TaskBoard({
     } finally {
       setAssigning(false);
     }
+  }
+
+  async function runAutomation(id: string) {
+    setRunningAutomation(id);
+    try {
+      await fetch("/api/agent/scheduler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      await load();
+    } finally {
+      setRunningAutomation(null);
+    }
+  }
+
+  async function toggleAutomation(rec: RecurringTask) {
+    await fetch("/api/tasks/recurring", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: rec.id, enabled: !rec.enabled }),
+    });
+    load();
+  }
+
+  async function deleteAutomation(id: string) {
+    await fetch(`/api/tasks/recurring?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    load();
   }
 
   async function review(task: AgentTask, action: "approve" | "archive" | "requeue") {
@@ -254,22 +297,108 @@ export default function TaskBoard({
               <option value="low">{t("priorityLow", uiLang)}</option>
             </select>
           </label>
-          <label className="block text-sm">
-            <span className="mb-1 block text-ink-300">{t("dueLabel", uiLang)}</span>
-            <input type="date" className={cn(field, "w-full")} value={due}
-              onChange={(e) => setDue(e.target.value)} />
-          </label>
+          {!makeDaily && (
+            <label className="block text-sm">
+              <span className="mb-1 block text-ink-300">{t("dueLabel", uiLang)}</span>
+              <input type="date" className={cn(field, "w-full")} value={due}
+                onChange={(e) => setDue(e.target.value)} />
+            </label>
+          )}
+          {makeDaily && (
+            <label className="block text-sm">
+              <span className="mb-1 block text-ink-300">{t("emailToLabel", uiLang)}</span>
+              <input type="email" className={cn(field, "w-full")} value={emailTo}
+                placeholder="you@company.com" dir="ltr"
+                onChange={(e) => setEmailTo(e.target.value)} />
+            </label>
+          )}
         </div>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex flex-wrap items-center justify-end gap-4">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-300">
+            <input
+              type="checkbox"
+              checked={makeDaily}
+              onChange={(e) => setMakeDaily(e.target.checked)}
+              className="h-4 w-4 accent-qalam"
+            />
+            <Repeat size={14} className="text-qalam" />
+            {t("newAutomation", uiLang)}
+          </label>
           <button
             onClick={assign}
             disabled={!brief.trim() || assigning}
             className="inline-flex items-center gap-2 rounded-lg bg-qalam px-5 py-2 text-sm font-semibold text-ink-950 transition hover:bg-qalam-soft disabled:opacity-40"
           >
-            <Send size={14} /> {t("assignTask", uiLang)}
+            <Send size={14} /> {makeDaily ? t("createAutomation", uiLang) : t("assignTask", uiLang)}
           </button>
         </div>
       </section>
+
+      {/* Standing automations */}
+      {recurring.length > 0 && (
+        <section className="rounded-xl border border-ink-700 bg-ink-900/50 p-5">
+          <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-ink-200">
+            <Repeat size={15} className="text-qalam" /> {t("automationsTitle", uiLang)}
+          </h3>
+          <p className="mb-4 text-xs text-ink-400">{t("automationsIntro", uiLang)}</p>
+          <div className="space-y-2">
+            {recurring.map((rec) => (
+              <div
+                key={rec.id}
+                className="flex flex-wrap items-center gap-2.5 rounded-lg border border-ink-700 bg-ink-950/50 px-3 py-2.5"
+              >
+                <span
+                  className={cn(
+                    "rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
+                    rec.enabled ? "bg-teal-glow/15 text-teal-glow" : "bg-ink-700 text-ink-400"
+                  )}
+                >
+                  {rec.enabled ? t("active", uiLang) : t("paused", uiLang)}
+                </span>
+                <span className="text-sm font-medium" dir="auto">{rec.title}</span>
+                <span className="text-xs text-ink-400">{MODE_MAP[rec.mode].label[uiLang]}</span>
+                {rec.emailTo && (
+                  <span className="inline-flex items-center gap-1 text-xs text-ink-400">
+                    <Mail size={12} /> {rec.emailTo}
+                  </span>
+                )}
+                <span className="ms-auto text-[11px] text-ink-500">
+                  {t("lastRun", uiLang)}:{" "}
+                  {rec.lastRunAt ? rec.lastRunAt.slice(0, 16).replace("T", " ") : t("neverRan", uiLang)}
+                </span>
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => runAutomation(rec.id)}
+                    disabled={runningAutomation === rec.id}
+                    className="inline-flex items-center gap-1 rounded-md border border-ink-600 px-2.5 py-1 text-xs text-ink-300 hover:border-qalam hover:text-qalam disabled:opacity-40"
+                  >
+                    {runningAutomation === rec.id ? (
+                      <Loader2 size={11} className="animate-spin" />
+                    ) : (
+                      <Play size={11} />
+                    )}
+                    {t("runToday", uiLang)}
+                  </button>
+                  <button
+                    onClick={() => toggleAutomation(rec)}
+                    className="rounded-md border border-ink-600 p-1.5 text-ink-400 hover:border-qalam hover:text-qalam"
+                    aria-label={rec.enabled ? t("paused", uiLang) : t("active", uiLang)}
+                  >
+                    {rec.enabled ? <Pause size={12} /> : <Play size={12} />}
+                  </button>
+                  <button
+                    onClick={() => deleteAutomation(rec.id)}
+                    className="rounded-md border border-ink-700 p-1.5 text-ink-500 hover:border-red-400 hover:text-red-400"
+                    aria-label="Delete"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Board */}
       {visible.length === 0 ? (
@@ -302,6 +431,16 @@ export default function TaskBoard({
                   {task.drafts.length > 0 && (
                     <span className="rounded-full bg-ink-700 px-2 py-0.5 text-[11px] text-ink-300">
                       {t("revisionRound", uiLang)} {task.drafts.length}
+                    </span>
+                  )}
+                  {task.recurringId && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-qalam/10 px-2 py-0.5 text-[11px] text-qalam-soft">
+                      <Repeat size={10} /> {t("dailyBadge", uiLang)}
+                    </span>
+                  )}
+                  {task.emailedTo && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-teal-glow/10 px-2 py-0.5 text-[11px] text-teal-glow">
+                      <Mail size={10} /> {t("emailedBadge", uiLang)}
                     </span>
                   )}
                   <ChevronDown

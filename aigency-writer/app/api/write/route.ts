@@ -3,6 +3,7 @@ import { DEFAULT_MODEL, getClient, hasLiveAI } from "@/lib/ai/client";
 import { buildSystemPrompt } from "@/lib/ai/persona";
 import { isModeId } from "@/lib/ai/modes";
 import { demoWriteResponse } from "@/lib/ai/demo";
+import { getBrain } from "@/lib/brain/store";
 import type { BrandProfile, Dialect, OutputLang } from "@/lib/profiles";
 
 export const runtime = "nodejs";
@@ -39,7 +40,8 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const system = buildSystemPrompt({ mode, profile, outputLang: outputLang || "both", dialect });
+  const brain = await getBrain();
+  const system = buildSystemPrompt({ mode, profile, outputLang: outputLang || "both", dialect, brain });
   const messages = [
     ...history.slice(-12).map((m) => ({ role: m.role, content: m.content })),
     { role: "user" as const, content: brief },

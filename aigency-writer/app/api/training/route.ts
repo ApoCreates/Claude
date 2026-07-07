@@ -4,6 +4,7 @@ import { buildSystemPrompt } from "@/lib/ai/persona";
 import { buildDailyPlan } from "@/lib/training/scenarios";
 import { demoDrillResponse } from "@/lib/ai/demo";
 import { todayISO } from "@/lib/utils";
+import { getBrain } from "@/lib/brain/store";
 import type { BrandProfile } from "@/lib/profiles";
 
 export const runtime = "nodejs";
@@ -42,10 +43,12 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  const brain = await getBrain();
   const system = buildSystemPrompt({
     mode: drill.mode,
     profile: body.profile,
     outputLang: drill.lang,
+    brain,
     extra: `TRAINING GYM SESSION
 This is a timed practice drill (${drill.minutes} minutes), not client work. Perform the task at full professional quality, then add a 2–3 line self-review: name one thing you did deliberately and one thing a tough coach might challenge. Your coach will review this and correct you — corrections become permanent rules.`,
   });

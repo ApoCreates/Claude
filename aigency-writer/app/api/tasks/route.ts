@@ -1,14 +1,15 @@
 import { NextRequest } from "next/server";
-import { createTask, listTasks, taskStats } from "@/lib/tasks/store";
+import { createTask, listTasks } from "@/lib/tasks/store";
 import { isModeId } from "@/lib/ai/modes";
 import type { BrandProfile, Dialect, OutputLang } from "@/lib/profiles";
 import type { TaskPriority } from "@/lib/tasks/types";
 
 export const runtime = "nodejs";
 
-/** GET → all tasks (priority-ordered) + status counts for the dashboard. */
+/** GET → tasks (priority-ordered) + automations + status counts. */
 export async function GET() {
-  return Response.json({ tasks: listTasks(), stats: taskStats() });
+  const { tasks, recurring, stats } = await listTasks();
+  return Response.json({ tasks, recurring, stats });
 }
 
 interface CreateBody {
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Unknown mode" }, { status: 400 });
   }
 
-  const task = createTask({
+  const task = await createTask({
     title: body.title?.trim() || body.brief.trim().slice(0, 60),
     brief: body.brief.trim(),
     mode: body.mode,
