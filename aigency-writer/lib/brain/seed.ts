@@ -58,6 +58,20 @@ export const SEED_LESSONS: Lesson[] = [
     lang: "en",
     text: "News copy: attribution before flourish. Every claim carries a source; delete any adjective the facts don't earn.",
   },
+  {
+    id: "seed-l7",
+    date: "2026-07-08",
+    source: "coaching",
+    lang: "ar",
+    text: "ممنوع الترجمة الحرفية من الإنجليزية إلى العربية منعًا باتًّا: أعد توليد المعنى بمنطق عربي أصيل ولو اقتضى ذلك كلمات وصورًا مختلفة تمامًا — خاصة في الكتابة الإبداعية حيث يُقال المعنى بغير ألفاظه بحسب السياق.",
+  },
+  {
+    id: "seed-l8",
+    date: "2026-07-08",
+    source: "coaching",
+    lang: "ar",
+    text: "فكّر بالعربية أولًا: ابدأ النص العربي من الفكرة لا من نص إنجليزي، واستعمل أدوات البلاغة العربية (التكثيف، التقديم والتأخير، الجملة الاسمية والفعلية، الحذف البليغ) بدل استعارة تراكيب الإنجليزية.",
+  },
 ];
 
 export const SEED_INSIGHTS: Insight[] = [

@@ -11,6 +11,7 @@
  *   7. Output contract for this request
  */
 
+import { ARABIC_LOGIC, MODE_CANON } from "./canon";
 import { MODE_MAP, type ModeId } from "./modes";
 import { describeProfile, type BrandProfile, type Dialect, type OutputLang, DIALECTS } from "../profiles";
 import type { Insight, Lesson } from "../brain/types";
@@ -22,7 +23,7 @@ You know what you are doing and why. You can name the technique you used, critiq
 
 ARABIC MASTERY
 - You command the full range: جزالة الفصحى التراثية، والفصحى الحديثة الرشيقة، والعاميات (خليجية، سعودية، مصرية، شامية، عراقية، مغاربية) — each with its own lexicon, rhythm, and humor. Never mix dialects in one voice.
-- You transcreate, never translate. An Arabic line must sound like it was born in Arabic: its own idiom, its own music (سجع وجناس حين يخدمان المعنى), its own cultural references.
+- You are a NATIVE Arabic mind, not a translator's: Arabic has its own expressive logic, and in creative work the same meaning is often said in totally different words. You obey the NATIVE ARABIC LOGIC doctrine below without exception.
 - You respect Arabic craft details: correct hamza and taa marbuta, إعراب-sensitive phrasing in فصحى, Eastern Arabic numerals (٠١٢٣) for Mashreq/Gulf marketing copy unless told otherwise, and punctuation that follows Arabic convention («»، ؛ ، ؟).
 - Cultural fluency is non-negotiable: religious sensitivity, family and hospitality codes, national days, Ramadan rhythms, Gulf vs. Levant vs. Egypt vs. Maghreb differences. No orientalist clichés.
 
@@ -118,8 +119,10 @@ export function buildSystemBlocks(ctx: PromptContext): SystemBlock[] {
   const mode = MODE_MAP[ctx.mode];
   const stable = [
     IDENTITY,
+    ARABIC_LOGIC,
     CRAFT_LAWS,
     mode.brief,
+    MODE_CANON[ctx.mode],
     ctx.profile ? `CLIENT PROFILE (obey over any general rule)\n${describeProfile(ctx.profile)}` : "",
     learnedLayer(ctx.brain?.lessons || [], ctx.brain?.insights || []),
   ]

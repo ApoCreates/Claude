@@ -20,6 +20,8 @@ An Arabic-native **and** English-native master writer agent — two first langua
 | Comedy | Sketches, stand-up, brand humor — regional registers, safe red lines |
 | Newsroom | Editor + head of news: wire stories, bulletins, editorial judgment |
 
+**A native Arabic mind with a literary canon.** `lib/ai/canon.ts` carries the transcreation doctrine (literal English→Arabic translation is forbidden; the Arabic is conceived from the idea with Arabic's own expressive logic — التكثيف، التقديم والتأخير، الصورة العربية) plus a per-discipline canon of Arabic masters — from المتنبي، الجاحظ وابن المقفع to محفوظ، درويش، قباني، وحيد حامد، أنيس منصور، الماغوط وهيكل — each distilled into the specific technique the agent channels for that mode.
+
 **Bilingual by design, not by translation.** The agent transcreates: Arabic outputs are born in Arabic (correct hamza, Eastern numerals for Gulf/Mashreq marketing, «» punctuation, dialect discipline across خليجية/سعودية/مصرية/شامية/عراقية/مغاربية), English outputs are born in English. When asked for both, each version is written as an original from the idea.
 
 **Self-aware.** Every deliverable ends with a short "Why this works / لماذا ينجح هذا" note naming the craft choices, and the agent can critique and rewrite its own drafts.

@@ -67,11 +67,29 @@ async function loadState(): Promise<QalamState> {
     const res = await fetch(latest.downloadUrl, { cache: "no-store" });
     if (!res.ok) return defaultState();
     const data = (await res.json()) as Partial<QalamState>;
-    return { ...defaultState(), ...data };
+    return withSeedMemory({ ...defaultState(), ...data });
   } catch (e) {
     console.warn("[persist] load failed, using defaults:", e);
     return defaultState();
   }
+}
+
+/**
+ * Baked seed memory ships in code and can grow with new deploys; persisted
+ * state predates it. Merge in any seed lessons/insights the stored state
+ * doesn't have yet, so coaching baked into seed.ts always reaches the
+ * live brain.
+ */
+function withSeedMemory(state: QalamState): QalamState {
+  const lessonIds = new Set(state.lessons.map((l) => l.id));
+  const newLessons = SEED_LESSONS.filter((l) => !lessonIds.has(l.id));
+  if (newLessons.length) state.lessons = [...newLessons, ...state.lessons];
+
+  const insightIds = new Set(state.insights.map((i) => i.id));
+  const newInsights = SEED_INSIGHTS.filter((i) => !insightIds.has(i.id));
+  if (newInsights.length) state.insights = [...newInsights, ...state.insights];
+
+  return state;
 }
 
 async function saveState(state: QalamState): Promise<void> {
