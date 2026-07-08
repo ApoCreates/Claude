@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { DEFAULT_MODEL, getClient, hasLiveAI } from "@/lib/ai/client";
-import { buildSystemPrompt } from "@/lib/ai/persona";
+import { buildSystemBlocks } from "@/lib/ai/persona";
 import { isModeId } from "@/lib/ai/modes";
 import { demoWriteResponse } from "@/lib/ai/demo";
 import { getBrain } from "@/lib/brain/store";
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   const brain = await getBrain();
-  const system = buildSystemPrompt({ mode, profile, outputLang: outputLang || "both", dialect, brain });
+  const system = buildSystemBlocks({ mode, profile, outputLang: outputLang || "both", dialect, brain });
   const messages = [
     ...history.slice(-12).map((m) => ({ role: m.role, content: m.content })),
     { role: "user" as const, content: brief },
@@ -54,6 +54,9 @@ export async function POST(req: NextRequest) {
     system,
     messages,
   });
+  stream.on("finalMessage", (m) =>
+    console.log("[qalam usage] write", JSON.stringify(m.usage))
+  );
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream<Uint8Array>({

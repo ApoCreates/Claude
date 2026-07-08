@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { DEFAULT_MODEL, getClient, hasLiveAI } from "@/lib/ai/client";
+import { getClient, hasLiveAI, UTILITY_MODEL } from "@/lib/ai/client";
 import { buildLessonDistillPrompt } from "@/lib/ai/persona";
 import { addFeedback, addLesson } from "@/lib/brain/store";
 import type { LessonSource } from "@/lib/brain/types";
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   try {
     const client = getClient();
     const res = await client.messages.create({
-      model: DEFAULT_MODEL,
+      model: UTILITY_MODEL,
       max_tokens: 300,
       messages: [
         {

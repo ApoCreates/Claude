@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { DEFAULT_MODEL, getClient, hasLiveAI } from "@/lib/ai/client";
-import { buildSystemPrompt } from "@/lib/ai/persona";
+import { buildSystemBlocks } from "@/lib/ai/persona";
 import { buildDailyPlan } from "@/lib/training/scenarios";
 import { demoDrillResponse } from "@/lib/ai/demo";
 import { todayISO } from "@/lib/utils";
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   }
 
   const brain = await getBrain();
-  const system = buildSystemPrompt({
+  const system = buildSystemBlocks({
     mode: drill.mode,
     profile: body.profile,
     outputLang: drill.lang,
@@ -60,6 +60,9 @@ This is a timed practice drill (${drill.minutes} minutes), not client work. Perf
     system,
     messages: [{ role: "user", content: drill.task }],
   });
+  stream.on("finalMessage", (m) =>
+    console.log("[qalam usage] drill", JSON.stringify(m.usage))
+  );
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream<Uint8Array>({

@@ -48,18 +48,21 @@ async function runResearch(): Promise<Response> {
   const client = getClient();
   const res = await client.messages.create({
     model: DEFAULT_MODEL,
-    max_tokens: 3000,
+    max_tokens: 2400,
     messages: [{ role: "user", content: RESEARCH_PROMPT }],
     // Server-side web search tool — lets the agent read today's web.
+    // Dynamic-filtering web search (Sonnet 4.6+): results are filtered
+    // before they reach the context window — fewer wasted input tokens.
     tools: [
       {
-        type: "web_search_20250305",
+        type: "web_search_20260209",
         name: "web_search",
-        max_uses: 6,
+        max_uses: 4,
       } as never,
     ],
   });
 
+  console.log("[qalam usage] research", JSON.stringify(res.usage));
   const text = res.content
     .map((b) => (b.type === "text" ? b.text : ""))
     .join("")

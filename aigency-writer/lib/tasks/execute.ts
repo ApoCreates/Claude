@@ -6,7 +6,7 @@
  */
 
 import { DEFAULT_MODEL, getClient, hasLiveAI } from "../ai/client";
-import { buildSystemPrompt } from "../ai/persona";
+import { buildSystemBlocks } from "../ai/persona";
 import { demoWriteResponse } from "../ai/demo";
 import { getBrain } from "../brain/store";
 import { updateTask } from "./store";
@@ -22,7 +22,7 @@ export async function executeTask(task: AgentTask): Promise<AgentTask> {
 
   try {
     const brain = await getBrain();
-    const system = buildSystemPrompt({
+    const system = buildSystemBlocks({
       mode: task.mode,
       profile: task.profile,
       outputLang: task.outputLang,
@@ -56,6 +56,7 @@ Deliver the corrected version in full, and open with one line stating what you c
       messages: [{ role: "user", content: userContent }],
     });
 
+    console.log("[qalam usage] task", JSON.stringify(res.usage));
     const result = res.content
       .map((b) => (b.type === "text" ? b.text : ""))
       .join("")

@@ -48,7 +48,8 @@ WORKING STYLE
 - If the brief is missing something essential (audience, goal, tone, length), ask at most 2 sharp questions — otherwise state your assumption in one line and write.
 - Deliver work, then add a short "Why this works / لماذا ينجح هذا" note (2–4 lines) naming the choices you made. Keep it brief; the work is the star.
 - Offer alternatives when the brief is high-stakes (headlines, names, slogans): label each option's angle.
-- Take feedback like a professional: apply it, restate the corrected line, move on. Never argue, never sulk, never over-apologize.`;
+- Take feedback like a professional: apply it, restate the corrected line, move on. Never argue, never sulk, never over-apologize.
+- QUALITY GATE: before delivering, silently audit the draft against the LEARNED CORRECTIONS and the CLIENT PROFILE. Fix any violation before it ships — a correction the client has to repeat is a failure and wastes a revision round.`;
 
 export interface PromptContext {
   mode: ModeId;
@@ -96,18 +97,53 @@ function learnedLayer(lessons: Lesson[], insights: Insight[]): string {
   return parts.join("\n");
 }
 
-export function buildSystemPrompt(ctx: PromptContext): string {
+const SEP = "\n\n────────\n\n";
+
+export interface SystemBlock {
+  type: "text";
+  text: string;
+  cache_control?: { type: "ephemeral" };
+}
+
+/**
+ * System prompt as cacheable blocks. The first block (identity, craft laws,
+ * mode brief, client profile, learned memory) is stable across requests
+ * within a working session and carries a cache breakpoint — repeat requests
+ * read it at ~10% of the input price. The volatile tail (output contract,
+ * per-request instructions) stays uncached so it never invalidates the
+ * prefix. Prefix cache minimum on Sonnet 4.6 is ~2048 tokens; our stable
+ * block sits comfortably above it.
+ */
+export function buildSystemBlocks(ctx: PromptContext): SystemBlock[] {
   const mode = MODE_MAP[ctx.mode];
-  const layers = [
+  const stable = [
     IDENTITY,
     CRAFT_LAWS,
     mode.brief,
     ctx.profile ? `CLIENT PROFILE (obey over any general rule)\n${describeProfile(ctx.profile)}` : "",
     learnedLayer(ctx.brain?.lessons || [], ctx.brain?.insights || []),
+  ]
+    .filter(Boolean)
+    .join(SEP);
+
+  const volatile = [
     outputContract(ctx.outputLang, ctx.dialect),
     ctx.extra ? `ADDITIONAL SESSION INSTRUCTIONS\n${ctx.extra}` : "",
+  ]
+    .filter(Boolean)
+    .join(SEP);
+
+  const blocks: SystemBlock[] = [
+    { type: "text", text: stable, cache_control: { type: "ephemeral" } },
   ];
-  return layers.filter(Boolean).join("\n\n────────\n\n");
+  if (volatile) blocks.push({ type: "text", text: volatile });
+  return blocks;
+}
+
+export function buildSystemPrompt(ctx: PromptContext): string {
+  return buildSystemBlocks(ctx)
+    .map((b) => b.text)
+    .join(SEP);
 }
 
 /** Prompt used to distill raw feedback into a permanent one-line lesson. */
