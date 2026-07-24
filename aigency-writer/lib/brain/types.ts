@@ -23,6 +23,8 @@ export interface FeedbackRecord {
   date: string;
   mode: string;
   rating: "up" | "down";
+  /** 1–5 star rating (Diwan); also kept locally so metrics work without Supabase */
+  stars?: number;
   comment?: string;
   excerpt?: string;
 }

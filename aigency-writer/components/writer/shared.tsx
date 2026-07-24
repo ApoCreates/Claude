@@ -121,7 +121,7 @@ export function FeedbackBox({
         <button
           onClick={() => send(stars ?? 2, true)}
           disabled={status === "sending" || !comment.trim()}
-          className="shrink-0 rounded-md bg-qalam px-3 py-1.5 text-sm font-medium text-ink-950 transition hover:bg-qalam-soft disabled:opacity-40"
+          className="btn-primary shrink-0 px-3 py-1.5"
         >
           {t("sendFeedback", lang)}
         </button>

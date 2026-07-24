@@ -68,7 +68,7 @@ export default function BrainPanel({ uiLang }: { uiLang: UILang }) {
             <a
               href="/api/agent/brain?export=code"
               download="seed.ts"
-              className="inline-flex items-center gap-2 rounded-lg bg-qalam px-3 py-1.5 text-sm font-semibold text-ink-950 transition hover:bg-qalam-soft"
+              className="btn-primary px-3 py-1.5"
             >
               <Download size={14} /> {t("exportBrain", uiLang)}
             </a>
@@ -99,10 +99,10 @@ export default function BrainPanel({ uiLang }: { uiLang: UILang }) {
               return (
                 <li key={l.id} className="rounded-lg border border-ink-700/70 bg-ink-950/60 p-3">
                   <div className="mb-1.5 flex items-center gap-2 text-[11px]">
-                    <span className={cn("rounded-full px-2 py-0.5 font-medium", badge.cls)}>
+                    <span className={cn("rounded-md px-2 py-0.5 font-medium", badge.cls)}>
                       {badge.label[uiLang]}
                     </span>
-                    <span className="rounded-full bg-ink-700 px-2 py-0.5 text-ink-300">{l.lang}</span>
+                    <span className="rounded-md bg-ink-700 px-2 py-0.5 text-ink-300">{l.lang}</span>
                     <span className="ms-auto text-ink-500">{l.date}</span>
                   </div>
                   <p className="prose-output text-sm text-ink-100" dir="auto">
@@ -124,7 +124,7 @@ export default function BrainPanel({ uiLang }: { uiLang: UILang }) {
             {[...data.insights].reverse().map((i) => (
               <li key={i.id} className="rounded-lg border border-ink-700/70 bg-ink-950/60 p-3">
                 <div className="mb-1.5 flex items-center gap-2 text-[11px]">
-                  <span className="rounded-full bg-sky-500/10 px-2 py-0.5 font-medium text-sky-700">
+                  <span className="rounded-md bg-sky-500/10 px-2 py-0.5 font-medium text-sky-700">
                     {i.topic}
                   </span>
                   <span className="ms-auto text-ink-500">{i.date}</span>

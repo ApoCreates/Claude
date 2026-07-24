@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
   await addFeedback({
     mode: body.mode || "unknown",
     rating: body.rating,
+    stars: body.stars ?? (body.rating === "up" ? 5 : 2),
     comment: body.comment,
     excerpt: body.excerpt?.slice(0, 2000),
   });

@@ -232,7 +232,7 @@ export default function ProfilePanel({
           {savedFlash && <span className="text-sm text-teal-glow">{t("saved", uiLang)}</span>}
           <button
             onClick={save}
-            className="rounded-lg bg-qalam px-5 py-2 text-sm font-semibold text-ink-950 transition hover:bg-qalam-soft"
+            className="btn-primary"
           >
             {t("save", uiLang)}
           </button>

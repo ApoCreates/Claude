@@ -32,6 +32,20 @@ body {
   @apply font-mono text-[11px] uppercase tracking-[0.14em] text-ink-400;
 }
 
+/* ── THE AIGENCY BUTTON STANDARD (final approved form) ──────────────────
+   Every actionable control is a RECTANGLE (rounded-md, never a pill),
+   carries a 2px ink border, and casts a solid offset shadow behind it.
+   Pressing it moves it into its own shadow. Labels/badges are rectangular
+   chips. This is the house philosophy — apply it to every build. */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border-2 border-ink-100 bg-qalam px-5 py-2 text-sm font-bold text-ink-950 shadow-glow transition hover:bg-qalam-soft active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:opacity-40 disabled:shadow-none;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border-2 border-ink-100 bg-ink-900 px-4 py-2 text-sm font-semibold text-ink-100 shadow-glow transition hover:bg-ink-800 active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:opacity-40 disabled:shadow-none;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;

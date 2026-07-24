@@ -135,6 +135,10 @@ export const STRINGS = {
     en: "Feedback becomes product intelligence: every run is logged, every rating is captured, low ratings enter the human review queue, and weekly patterns become improvement tickets.",
     ar: "الملاحظات تتحول إلى ذكاء للمنتج: كل تشغيل يُسجَّل، وكل تقييم يُحفظ، والتقييمات المنخفضة تدخل طابور المراجعة البشرية، والأنماط الأسبوعية تصبح تذاكر تحسين.",
   },
+  opsLocalMode: {
+    en: "Running on the built-in local ledger — ratings and volume are live. Connect Supabase to unlock the human review queue, prompt-version impact, and weekly pattern tickets.",
+    ar: "يعمل على السجل المحلي المدمج — التقييمات وحجم الإنتاج مباشرة الآن. اربط Supabase لتفعيل طابور المراجعة البشرية وأثر نسخ البرومبت وتذاكر الأنماط الأسبوعية.",
+  },
   opsNotConfigured: {
     en: "Supabase is not connected yet. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, apply supabase/schema.sql, and this dashboard lights up — ratings, logs, review queue, and weekly pattern detection.",
     ar: "لم يتم ربط Supabase بعد. أضف SUPABASE_URL و SUPABASE_SERVICE_ROLE_KEY وطبّق ملف supabase/schema.sql وستعمل هذه اللوحة بالكامل — التقييمات والسجلات وطابور المراجعة ورصد الأنماط الأسبوعي.",

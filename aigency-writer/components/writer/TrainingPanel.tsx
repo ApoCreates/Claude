@@ -112,10 +112,10 @@ export default function TrainingPanel({
         <div className="flex flex-wrap items-center gap-3">
           <Dumbbell className="text-qalam" size={20} />
           <h2 className="text-lg font-semibold">{t("trainingTitle", uiLang)}</h2>
-          <span className="rounded-full border border-ink-600 px-3 py-1 text-xs text-ink-300">
+          <span className="rounded-md border border-ink-600 px-3 py-1 text-xs text-ink-300">
             {plan.date}
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-600 px-3 py-1 text-xs text-ink-300">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1 text-xs text-ink-300">
             <Timer size={12} /> {plan.totalMinutes} {t("minutes", uiLang)}
           </span>
           <span className="ms-auto text-sm text-ink-400">
@@ -152,7 +152,7 @@ export default function TrainingPanel({
               </span>
               <span
                 className={cn(
-                  "rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+                  "rounded-md px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
                   isAr ? "bg-qalam/15 text-qalam-soft" : "bg-teal-glow/15 text-teal-glow"
                 )}
               >
@@ -173,7 +173,7 @@ export default function TrainingPanel({
               <button
                 onClick={() => runDrill(drill.id)}
                 disabled={s?.running}
-                className="mt-3 inline-flex items-center gap-2 rounded-lg bg-qalam px-4 py-2 text-sm font-semibold text-ink-950 transition hover:bg-qalam-soft disabled:opacity-40"
+                className="btn-primary mt-3 px-4 py-2"
               >
                 <Play size={14} /> {s?.running ? t("running", uiLang) : t("runDrill", uiLang)}
               </button>
@@ -216,7 +216,7 @@ export default function TrainingPanel({
                   <button
                     onClick={() => coach(drill.id, drill.mode, false)}
                     disabled={!notes[drill.id]?.trim()}
-                    className="rounded-md bg-qalam px-3 py-1.5 text-sm font-semibold text-ink-950 transition hover:bg-qalam-soft disabled:opacity-40"
+                    className="btn-primary px-3 py-1.5"
                   >
                     {t("correct", uiLang)}
                   </button>

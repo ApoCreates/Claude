@@ -1,4 +1,64 @@
 import { diwanEnabled, fetchMetricsRaw } from "@/lib/diwan/db";
+import { readState } from "@/lib/store/persist";
+
+/**
+ * Without Supabase the dashboard still works: ratings come from the
+ * locally-persisted feedback (stars) and volume from the spend ledger.
+ * `source: "local"` tells the UI to show a setup hint for the parts
+ * that genuinely need the database (review queue, version impact,
+ * weekly pattern tickets).
+ */
+async function localMetrics() {
+  const s = await readState();
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const stars = s.feedback.map((f) => f.stars ?? (f.rating === "up" ? 5 : 2));
+  const avgRating = stars.length
+    ? round2(stars.reduce((a, b) => a + b, 0) / stars.length)
+    : null;
+  const flagged = stars.filter((r) => r <= 2).length;
+
+  const byMode = new Map<string, number[]>();
+  for (const f of s.feedback) {
+    const key = f.mode || "other";
+    if (!byMode.has(key)) byMode.set(key, []);
+    byMode.get(key)!.push(f.stars ?? (f.rating === "up" ? 5 : 2));
+  }
+  const runCounts = new Map<string, number>();
+  for (const r of s.spend.records) {
+    const key = r.requestType.split(":").pop() || "other";
+    runCounts.set(key, (runCounts.get(key) || 0) + 1);
+  }
+  const byRequestType = [...new Set([...byMode.keys(), ...runCounts.keys()])].map((key) => {
+    const ratings = byMode.get(key) || [];
+    return {
+      key,
+      avgRating: ratings.length
+        ? round2(ratings.reduce((a, b) => a + b, 0) / ratings.length)
+        : null,
+      count: runCounts.get(key) || ratings.length,
+    };
+  });
+
+  return {
+    enabled: true,
+    source: "local",
+    summary: {
+      outputs: s.spend.totalRuns,
+      errors: 0,
+      avgLatencyMs: null,
+      ratings: stars.length,
+      avgRating,
+      flagRate: stars.length ? round2((flagged / stars.length) * 100) : 0,
+      openFlags: 0,
+      avgResolutionHours: null,
+    },
+    byRequestType: byRequestType.sort((a, b) => b.count - a.count),
+    byClient: [],
+    versionImpact: [],
+    tickets: [],
+    trend: [],
+  };
+}
 
 export const runtime = "nodejs";
 // GET with no request args would be statically prerendered, freezing the
@@ -12,10 +72,10 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   if (!diwanEnabled()) {
-    return Response.json({ enabled: false });
+    return Response.json(await localMetrics());
   }
   const raw = await fetchMetricsRaw(90);
-  if (!raw) return Response.json({ enabled: false });
+  if (!raw) return Response.json(await localMetrics());
 
   const { runs, feedback, queue, tickets, versions } = raw;
 

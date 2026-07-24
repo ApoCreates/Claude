@@ -73,10 +73,7 @@ export default function SpendPanel({ uiLang }: { uiLang: UILang }) {
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-ink-400">{t("costsIntro", uiLang)}</p>
         </div>
-        <button
-          onClick={load}
-          className="inline-flex items-center gap-2 rounded-lg border border-ink-600 px-3 py-1.5 text-sm text-ink-300 transition hover:border-qalam hover:text-qalam-soft"
-        >
+        <button onClick={load} className="btn-secondary px-3 py-1.5">
           <RefreshCw size={14} className={cn(loading && "animate-spin")} />
         </button>
       </div>

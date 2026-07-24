@@ -187,7 +187,7 @@ export default function WriterStudio({
               </select>
             </label>
           )}
-          <span className="ms-auto rounded-full border border-ink-700 px-3 py-1 text-xs text-ink-400">
+          <span className="ms-auto rounded-md border border-ink-700 px-3 py-1 text-xs text-ink-400">
             {profile.name}
           </span>
         </div>
@@ -262,7 +262,7 @@ export default function WriterStudio({
                 <button
                   onClick={run}
                   disabled={!brief.trim()}
-                  className="rounded-lg bg-qalam px-5 py-2 text-sm font-semibold text-ink-950 shadow-glow transition hover:bg-qalam-soft disabled:opacity-40 disabled:shadow-none"
+                  className="btn-primary"
                 >
                   {t("write", uiLang)}
                 </button>

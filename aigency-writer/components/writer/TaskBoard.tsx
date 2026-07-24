@@ -250,7 +250,7 @@ export default function TaskBoard({
           <h2 className="text-lg font-semibold">{t("tasksTitle", uiLang)}</h2>
           <div className="ms-auto flex gap-2">
             {(["queued", "running", "review", "approved"] as TaskStatus[]).map((s) => (
-              <span key={s} className={cn("rounded-full px-3 py-1 text-xs font-medium", STATUS_STYLE[s])}>
+              <span key={s} className={cn("rounded-md px-3 py-1 text-xs font-medium", STATUS_STYLE[s])}>
                 {statusLabel(s, uiLang)}: {stats[s] || 0}
               </span>
             ))}
@@ -350,7 +350,7 @@ export default function TaskBoard({
           <button
             onClick={assign}
             disabled={!brief.trim() || assigning}
-            className="inline-flex items-center gap-2 rounded-lg bg-qalam px-5 py-2 text-sm font-semibold text-ink-950 transition hover:bg-qalam-soft disabled:opacity-40"
+            className="btn-primary"
           >
             <Send size={14} /> {makeDaily ? t("createAutomation", uiLang) : t("assignTask", uiLang)}
           </button>
@@ -372,7 +372,7 @@ export default function TaskBoard({
               >
                 <span
                   className={cn(
-                    "rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
+                    "rounded-md px-2.5 py-0.5 text-[11px] font-semibold",
                     rec.enabled ? "bg-teal-glow/15 text-teal-glow" : "bg-ink-700 text-ink-400"
                   )}
                 >
@@ -439,7 +439,7 @@ export default function TaskBoard({
                   onClick={() => setExpanded((p) => ({ ...p, [task.id]: !isOpen }))}
                   className="flex w-full flex-wrap items-center gap-2.5 p-4 text-start"
                 >
-                  <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", STATUS_STYLE[task.status])}>
+                  <span className={cn("rounded-md px-2.5 py-0.5 text-[11px] font-semibold", STATUS_STYLE[task.status])}>
                     {task.status === "running" && <Loader2 size={10} className="me-1 inline animate-spin" />}
                     {statusLabel(task.status, uiLang)}
                   </span>
@@ -452,17 +452,17 @@ export default function TaskBoard({
                     </span>
                   )}
                   {task.drafts.length > 0 && (
-                    <span className="rounded-full bg-ink-700 px-2 py-0.5 text-[11px] text-ink-300">
+                    <span className="rounded-md bg-ink-700 px-2 py-0.5 text-[11px] text-ink-300">
                       {t("revisionRound", uiLang)} {task.drafts.length}
                     </span>
                   )}
                   {task.recurringId && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-qalam/10 px-2 py-0.5 text-[11px] text-qalam-soft">
+                    <span className="inline-flex items-center gap-1 rounded-md bg-qalam/10 px-2 py-0.5 text-[11px] text-qalam-soft">
                       <Repeat size={10} /> {t("dailyBadge", uiLang)}
                     </span>
                   )}
                   {task.emailedTo && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-teal-glow/10 px-2 py-0.5 text-[11px] text-teal-glow">
+                    <span className="inline-flex items-center gap-1 rounded-md bg-teal-glow/10 px-2 py-0.5 text-[11px] text-teal-glow">
                       <Mail size={10} /> {t("emailedBadge", uiLang)}
                     </span>
                   )}
@@ -543,7 +543,7 @@ export default function TaskBoard({
                           <button
                             onClick={() => requestChanges(task)}
                             disabled={!revisions[task.id]?.trim()}
-                            className="rounded-md bg-qalam px-3 py-1.5 text-sm font-semibold text-ink-950 hover:bg-qalam-soft disabled:opacity-40"
+                            className="btn-primary px-3 py-1.5"
                           >
                             {t("requestChanges", uiLang)}
                           </button>

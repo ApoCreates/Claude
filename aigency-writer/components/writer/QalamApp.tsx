@@ -108,7 +108,7 @@ export default function QalamApp() {
             {live !== null && (
               <span
                 className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-medium",
+                  "rounded-md border px-3 py-1 text-xs font-medium",
                   live
                     ? "border-teal-glow/50 text-teal-glow"
                     : "border-ink-600 text-ink-400"
@@ -117,25 +117,23 @@ export default function QalamApp() {
                 {live ? t("liveAI", uiLang) : t("demoAI", uiLang)}
               </span>
             )}
-            <button
-              onClick={toggleLang}
-              className="inline-flex items-center gap-2 rounded-lg border border-ink-600 px-3 py-1.5 text-sm text-ink-200 transition hover:border-qalam hover:text-qalam"
-            >
+            <button onClick={toggleLang} className="btn-secondary px-3 py-1.5">
               <Languages size={15} />
               {uiLang === "en" ? "العربية" : "English"}
             </button>
           </div>
         </div>
-        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-5">
+        {/* Tabs follow the house philosophy: rectangles with the solid shadow */}
+        <nav className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-5 pb-3.5 pt-1">
           {tabs.map(({ id, icon: Icon, label }) => (
             <button
               key={id}
               onClick={() => setTab(id)}
               className={cn(
-                "inline-flex shrink-0 items-center gap-2 border-b-[3px] px-4 py-2.5 text-sm transition",
+                "inline-flex shrink-0 items-center gap-2 rounded-md border-2 px-3.5 py-1.5 text-sm transition",
                 tab === id
-                  ? "border-qalam font-semibold text-qalam-soft"
-                  : "border-transparent text-ink-400 hover:text-ink-200"
+                  ? "border-ink-100 bg-qalam font-bold text-ink-950 shadow-glow"
+                  : "border-ink-700 bg-ink-900 text-ink-400 hover:border-ink-500 hover:text-ink-200"
               )}
             >
               <Icon size={15} /> {label}
