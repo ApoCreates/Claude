@@ -1,6 +1,9 @@
 import { diwanEnabled, fetchMetricsRaw } from "@/lib/diwan/db";
 
 export const runtime = "nodejs";
+// GET with no request args would be statically prerendered, freezing the
+// build-time "enabled: false" response forever — force per-request eval.
+export const dynamic = "force-dynamic";
 
 /**
  * Per-client and global metrics for the dashboard: rating trend, output

@@ -55,21 +55,30 @@ const g = globalThis as unknown as {
   __qalamLock?: Promise<unknown>;
 };
 
-async function loadState(): Promise<QalamState> {
+/**
+ * failClosed=true (mutations): a load ERROR throws so the mutation aborts
+ * instead of operating on — and then persisting — a default state over
+ * real data. Only a genuinely empty store returns defaults. Fail-open is
+ * allowed solely for read paths, where a degraded read harms nothing.
+ */
+async function loadState(opts?: { failClosed?: boolean }): Promise<QalamState> {
   if (!hasBlob()) {
     if (!g.__qalamState) g.__qalamState = defaultState();
     return g.__qalamState;
   }
   try {
     const { blobs } = await list({ prefix: PREFIX });
-    if (!blobs.length) return defaultState();
+    if (!blobs.length) return defaultState(); // truly empty store
     const latest = blobs.reduce((a, b) => (a.pathname > b.pathname ? a : b));
     const res = await fetch(latest.downloadUrl, { cache: "no-store" });
-    if (!res.ok) return defaultState();
+    if (!res.ok) throw new Error(`state fetch ${res.status}`);
     const data = (await res.json()) as Partial<QalamState>;
     return withSeedMemory({ ...defaultState(), ...data });
   } catch (e) {
-    console.warn("[persist] load failed, using defaults:", e);
+    if (opts?.failClosed) {
+      throw new Error(`[persist] state load failed — mutation aborted to protect data: ${e}`);
+    }
+    console.warn("[persist] load failed, serving defaults (read-only):", e);
     return defaultState();
   }
 }
@@ -130,8 +139,15 @@ export async function mutateState<T>(fn: (s: QalamState) => T | Promise<T>): Pro
   const prev = g.__qalamLock || Promise.resolve();
   let result!: T;
   const next = prev.then(async () => {
-    const s = await loadState();
+    const s = await loadState({ failClosed: true });
+    const tasksBefore = s.tasks.length;
     result = await fn(s);
+    // Wipe guard: no legitimate mutation empties a non-empty task board
+    // (archiving keeps rows; eviction only trims settled tasks over the
+    // cap). Refuse rather than persist a mass erase.
+    if (tasksBefore > 0 && s.tasks.length === 0) {
+      throw new Error("[persist] refusing to save: mutation would erase all tasks");
+    }
     await saveState(s);
   });
   g.__qalamLock = next.catch(() => {});
