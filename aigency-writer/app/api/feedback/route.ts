@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         },
       ],
     });
-    void logAgentRun({
+    await logAgentRun({
       id: newId("run"),
       requestType: "distill",
       clientId: body.clientId,

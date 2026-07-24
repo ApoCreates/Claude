@@ -79,11 +79,15 @@ export async function POST(req: NextRequest) {
     system,
     messages,
   });
+  // The serverless function is frozen the moment the response closes, so
+  // the final log/spend write must complete BEFORE the stream ends — we
+  // hold the close until this promise settles.
+  let logDone: Promise<void> = Promise.resolve();
   stream.on("finalMessage", (m) => {
     const output = m.content
       .map((b) => (b.type === "text" ? b.text : ""))
       .join("");
-    void logAgentRun({
+    logDone = logAgentRun({
       id: runId,
       requestType: mode,
       clientId,
@@ -97,7 +101,7 @@ export async function POST(req: NextRequest) {
     });
   });
   stream.on("error", (err) => {
-    void logAgentRun({
+    logDone = logAgentRun({
       id: runId,
       requestType: mode,
       clientId,
@@ -114,12 +118,14 @@ export async function POST(req: NextRequest) {
   const readable = new ReadableStream<Uint8Array>({
     start(controller) {
       stream.on("text", (text) => controller.enqueue(encoder.encode(text)));
-      stream.on("end", () => controller.close());
+      stream.on("end", () => {
+        logDone.catch(() => {}).finally(() => controller.close());
+      });
       stream.on("error", (err) => {
         controller.enqueue(
           encoder.encode(`\n\n[The writer hit an error: ${err instanceof Error ? err.message : "unknown"}]`)
         );
-        controller.close();
+        logDone.catch(() => {}).finally(() => controller.close());
       });
     },
     cancel() {

@@ -67,7 +67,7 @@ Deliver the corrected version in full, and open with one line stating what you c
       .map((b) => (b.type === "text" ? b.text : ""))
       .join("")
       .trim();
-    void logAgentRun({
+    await logAgentRun({
       id: runId,
       requestType: `task:${task.mode}`,
       clientId: task.profile?.id || null,
@@ -91,7 +91,7 @@ Deliver the corrected version in full, and open with one line stating what you c
       revisionNote: undefined,
     }))!;
   } catch (e) {
-    void logAgentRun({
+    await logAgentRun({
       id: runId,
       requestType: `task:${task.mode}`,
       clientId: task.profile?.id || null,

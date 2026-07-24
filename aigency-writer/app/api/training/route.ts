@@ -66,8 +66,11 @@ This is a timed practice drill (${drill.minutes} minutes), not client work. Perf
     messages: [{ role: "user", content: drill.task }],
   });
   const promptVersionId = await ensurePromptVersion(system.map((b) => b.text).join("\n\n"));
+  // Hold the stream open until the log/spend write lands — the function
+  // is frozen the moment the response closes (see /api/write).
+  let logDone: Promise<void> = Promise.resolve();
   stream.on("finalMessage", (m) => {
-    void logAgentRun({
+    logDone = logAgentRun({
       id: runId,
       requestType: `drill:${drill.mode}`,
       clientId: body.profile?.id || null,
@@ -85,12 +88,14 @@ This is a timed practice drill (${drill.minutes} minutes), not client work. Perf
   const readable = new ReadableStream<Uint8Array>({
     start(controller) {
       stream.on("text", (text) => controller.enqueue(encoder.encode(text)));
-      stream.on("end", () => controller.close());
+      stream.on("end", () => {
+        logDone.catch(() => {}).finally(() => controller.close());
+      });
       stream.on("error", (err) => {
         controller.enqueue(
           encoder.encode(`\n\n[Drill error: ${err instanceof Error ? err.message : "unknown"}]`)
         );
-        controller.close();
+        logDone.catch(() => {}).finally(() => controller.close());
       });
     },
     cancel() {
