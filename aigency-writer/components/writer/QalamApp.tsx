@@ -6,13 +6,14 @@ import {
   ClipboardList,
   Gauge,
   Dumbbell,
-  Feather,
   Languages,
   PenTool,
   Users,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import OpsPanel from "./OpsPanel";
+import SpendPanel from "./SpendPanel";
 import TaskBoard from "./TaskBoard";
 import WriterStudio from "./WriterStudio";
 import TrainingPanel from "./TrainingPanel";
@@ -22,7 +23,7 @@ import { DEFAULT_PROFILE, type BrandProfile } from "@/lib/profiles";
 import { t, type UILang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-type Tab = "tasks" | "studio" | "training" | "brain" | "ops" | "profiles";
+type Tab = "tasks" | "studio" | "training" | "brain" | "costs" | "ops" | "profiles";
 
 const STORAGE_KEY = "qalam.profiles.v1";
 
@@ -75,20 +76,25 @@ export default function QalamApp() {
     { id: "studio", icon: PenTool, label: t("tabStudio", uiLang) },
     { id: "training", icon: Dumbbell, label: t("tabTraining", uiLang) },
     { id: "brain", icon: Brain, label: t("tabBrain", uiLang) },
+    { id: "costs", icon: Wallet, label: t("tabCosts", uiLang) },
     { id: "ops", icon: Gauge, label: t("tabOps", uiLang) },
     { id: "profiles", icon: Users, label: t("tabProfile", uiLang) },
   ];
 
   return (
     <div dir={uiLang === "ar" ? "rtl" : "ltr"} className="min-h-screen">
-      <header className="border-b border-ink-800/80 bg-ink-950/70 backdrop-blur">
+      <header className="border-b-2 border-ink-100 bg-ink-950/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-5 py-4">
-          <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-qalam/15 text-qalam shadow-glow">
-              <Feather size={20} />
-            </span>
+          <div className="flex items-center gap-3.5">
+            {/* The Aigency sun */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/aigency-mark.png"
+              alt="The Aigency"
+              className="h-11 w-11 select-none drop-shadow-[0_2px_6px_rgba(242,107,31,0.35)]"
+            />
             <div>
-              <h1 className="text-lg font-bold tracking-tight">
+              <h1 className="font-serif text-xl font-bold tracking-tight text-ink-100">
                 {brandName || (
                   <>
                     Qalam <span className="font-arabic text-qalam-soft">قَلَم</span>
@@ -120,15 +126,15 @@ export default function QalamApp() {
             </button>
           </div>
         </div>
-        <nav className="mx-auto flex max-w-6xl gap-1 px-5">
+        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-5">
           {tabs.map(({ id, icon: Icon, label }) => (
             <button
               key={id}
               onClick={() => setTab(id)}
               className={cn(
-                "inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm transition",
+                "inline-flex shrink-0 items-center gap-2 border-b-[3px] px-4 py-2.5 text-sm transition",
                 tab === id
-                  ? "border-qalam font-medium text-qalam-soft"
+                  ? "border-qalam font-semibold text-qalam-soft"
                   : "border-transparent text-ink-400 hover:text-ink-200"
               )}
             >
@@ -143,6 +149,7 @@ export default function QalamApp() {
         {tab === "studio" && <WriterStudio uiLang={uiLang} profile={activeProfile} />}
         {tab === "training" && <TrainingPanel uiLang={uiLang} profile={activeProfile} />}
         {tab === "brain" && <BrainPanel uiLang={uiLang} />}
+        {tab === "costs" && <SpendPanel uiLang={uiLang} />}
         {tab === "ops" && <OpsPanel uiLang={uiLang} />}
         {tab === "profiles" && (
           <ProfilePanel
@@ -154,8 +161,19 @@ export default function QalamApp() {
         )}
       </main>
 
-      <footer className="mx-auto max-w-6xl px-5 pb-8 text-center text-xs text-ink-600">
-        Aigency · Qalam — bilingual writer agent · {new Date().getFullYear()}
+      {/* The Aigency lockup lives on ink — its cream wordmark needs the dark band */}
+      <footer className="mt-12 border-t-2 border-ink-100 bg-[#161310]">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 py-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/aigency-lockup.png"
+            alt="The Aigency — A creative solutions AI studio"
+            className="h-36 w-auto select-none sm:h-44"
+          />
+          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#A79878]">
+            Qalam · قَلَم — bilingual writer agent · {new Date().getFullYear()}
+          </p>
+        </div>
       </footer>
     </div>
   );

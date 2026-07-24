@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { MODES, type ModeId } from "@/lib/ai/modes";
+import { estimateWriteUsd, fmtUsd } from "@/lib/costs";
 import { DIALECTS, type BrandProfile, type Dialect, type OutputLang } from "@/lib/profiles";
 import { t, type UILang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -242,22 +243,31 @@ export default function WriterStudio({
           />
           <div className="flex items-center justify-between pt-2">
             <span className="text-[11px] text-ink-500">⌘/Ctrl + Enter</span>
-            {busy ? (
-              <button
-                onClick={() => abortRef.current?.abort()}
-                className="inline-flex items-center gap-2 rounded-lg border border-ink-500 px-4 py-2 text-sm text-ink-200 hover:border-red-400 hover:text-red-400"
+            <div className="flex items-center gap-3">
+              <span
+                className="font-mono text-[11px] text-ink-500"
+                title={t("estimated", uiLang)}
               >
-                <Square size={14} /> {t("stop", uiLang)}
-              </button>
-            ) : (
-              <button
-                onClick={run}
-                disabled={!brief.trim()}
-                className="rounded-lg bg-qalam px-5 py-2 text-sm font-semibold text-ink-950 transition hover:bg-qalam-soft disabled:opacity-40"
-              >
-                {t("write", uiLang)}
-              </button>
-            )}
+                ≈ {fmtUsd(estimateWriteUsd({ briefChars: Math.max(40, brief.length), outputLang }))}{" "}
+                {t("estimated", uiLang)}
+              </span>
+              {busy ? (
+                <button
+                  onClick={() => abortRef.current?.abort()}
+                  className="inline-flex items-center gap-2 rounded-lg border border-ink-500 px-4 py-2 text-sm text-ink-200 hover:border-red-400 hover:text-red-600"
+                >
+                  <Square size={14} /> {t("stop", uiLang)}
+                </button>
+              ) : (
+                <button
+                  onClick={run}
+                  disabled={!brief.trim()}
+                  className="rounded-lg bg-qalam px-5 py-2 text-sm font-semibold text-ink-950 shadow-glow transition hover:bg-qalam-soft disabled:opacity-40 disabled:shadow-none"
+                >
+                  {t("write", uiLang)}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </section>

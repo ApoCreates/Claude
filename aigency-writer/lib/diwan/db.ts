@@ -10,6 +10,7 @@
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { createHash } from "crypto";
+import { recordSpend } from "../spend";
 import type { BrandProfile } from "../profiles";
 
 export const AGENT_NAME = "qalam"; // this deployment's agent (aql | qalam | lisan)
@@ -71,6 +72,16 @@ export async function logAgentRun(run: AgentRunLog): Promise<void> {
     "[diwan run]",
     JSON.stringify({ ...record, input: undefined, output: undefined })
   );
+  // Every run with token usage lands in the persistent spend ledger —
+  // logAgentRun is the single choke point all AI calls pass through.
+  if (run.tokens) {
+    await recordSpend({
+      runId: run.id,
+      requestType: run.requestType,
+      model: run.model,
+      tokens: run.tokens,
+    });
+  }
   const client = db();
   if (!client) return;
   const { error } = await client.from("agent_runs").insert(record);

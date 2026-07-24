@@ -18,6 +18,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { MODES, MODE_MAP, type ModeId } from "@/lib/ai/modes";
+import { estimateWriteUsd, fmtUsd } from "@/lib/costs";
 import { DIALECTS, type BrandProfile, type Dialect, type OutputLang } from "@/lib/profiles";
 import type { AgentTask, RecurringTask, TaskPriority, TaskStatus } from "@/lib/tasks/types";
 import { t, type UILang } from "@/lib/i18n";
@@ -26,14 +27,14 @@ import { CopyButton } from "./shared";
 
 const STATUS_STYLE: Record<TaskStatus, string> = {
   queued: "bg-ink-600/40 text-ink-200",
-  running: "bg-sky-400/15 text-sky-300",
+  running: "bg-sky-500/10 text-sky-700",
   review: "bg-qalam/15 text-qalam-soft",
   approved: "bg-teal-glow/15 text-teal-glow",
   archived: "bg-ink-700 text-ink-400",
 };
 
 const PRIORITY_COLOR: Record<TaskPriority, string> = {
-  high: "text-red-400",
+  high: "text-red-600",
   normal: "text-qalam-soft",
   low: "text-ink-400",
 };
@@ -332,6 +333,10 @@ export default function TaskBoard({
           )}
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-end gap-4">
+          <span className="font-mono text-[11px] text-ink-500">
+            ≈ {fmtUsd(estimateWriteUsd({ briefChars: Math.max(40, brief.length), outputLang }))}{" "}
+            {t("estimated", uiLang)}
+          </span>
           <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-300">
             <input
               type="checkbox"
@@ -406,7 +411,7 @@ export default function TaskBoard({
                   </button>
                   <button
                     onClick={() => deleteAutomation(rec.id)}
-                    className="rounded-md border border-ink-700 p-1.5 text-ink-500 hover:border-red-400 hover:text-red-400"
+                    className="rounded-md border border-ink-700 p-1.5 text-ink-500 hover:border-red-400 hover:text-red-600"
                     aria-label="Delete"
                   >
                     <Trash2 size={12} />
@@ -474,11 +479,11 @@ export default function TaskBoard({
                     </p>
 
                     {task.error && (
-                      <div className="mt-3 flex items-center gap-3 rounded-lg border border-red-400/40 bg-red-400/5 p-3 text-sm text-red-300">
+                      <div className="mt-3 flex items-center gap-3 rounded-lg border border-red-600/40 bg-red-500/5 p-3 text-sm text-red-700">
                         <span className="min-w-0 flex-1" dir="auto">⚠️ {task.error}</span>
                         <button
                           onClick={() => review(task, "requeue")}
-                          className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-red-400/50 px-3 py-1.5 text-xs hover:bg-red-400/10"
+                          className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-red-600/50 px-3 py-1.5 text-xs hover:bg-red-500/10"
                         >
                           <RotateCcw size={12} /> {t("retry", uiLang)}
                         </button>
@@ -486,7 +491,7 @@ export default function TaskBoard({
                     )}
 
                     {task.status === "running" && (
-                      <p className="mt-3 animate-pulse text-sm text-sky-300">{t("statusRunning", uiLang)}</p>
+                      <p className="mt-3 animate-pulse text-sm text-sky-700">{t("statusRunning", uiLang)}</p>
                     )}
 
                     {task.result && (

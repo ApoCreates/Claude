@@ -17,7 +17,7 @@ const SOURCE_BADGE: Record<string, { label: { en: string; ar: string }; cls: str
   coaching: { label: { en: "baked-in", ar: "مُدمج" }, cls: "bg-qalam/15 text-qalam-soft" },
   feedback: { label: { en: "client feedback", ar: "ملاحظة عميل" }, cls: "bg-teal-glow/15 text-teal-glow" },
   training: { label: { en: "training", ar: "تمرين" }, cls: "bg-purple-400/15 text-purple-300" },
-  research: { label: { en: "research", ar: "بحث" }, cls: "bg-sky-400/15 text-sky-300" },
+  research: { label: { en: "research", ar: "بحث" }, cls: "bg-sky-500/10 text-sky-700" },
 };
 
 /**
@@ -124,7 +124,7 @@ export default function BrainPanel({ uiLang }: { uiLang: UILang }) {
             {[...data.insights].reverse().map((i) => (
               <li key={i.id} className="rounded-lg border border-ink-700/70 bg-ink-950/60 p-3">
                 <div className="mb-1.5 flex items-center gap-2 text-[11px]">
-                  <span className="rounded-full bg-sky-400/15 px-2 py-0.5 font-medium text-sky-300">
+                  <span className="rounded-full bg-sky-500/10 px-2 py-0.5 font-medium text-sky-700">
                     {i.topic}
                   </span>
                   <span className="ms-auto text-ink-500">{i.date}</span>

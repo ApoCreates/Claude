@@ -51,6 +51,14 @@ This agent ships with the Diwan feedback + observability architecture as part of
 
 Setup: create a Supabase project → run `supabase/schema.sql` in the SQL editor (enable the `pg_cron` extension for weekly detection) → set `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`. Without them the agent runs fine and logs to console only. All API routes are plain JSON HTTP — directly callable from n8n for orchestration.
 
+## Cost metering (Spend tab)
+
+Every live Anthropic call — Studio, tasks, drills, research, feedback distillation — is priced to the cent from its real token usage (input/output, cache reads/writes, web searches) in `lib/costs.ts` and persisted as a spend ledger (`lib/spend.ts`). The **Spend** tab shows all-time totals, today / last-30-days, average cost per request, a daily chart, per-request-type breakdown, and the recent request log. The Studio's Write button and the task assign button both show a live **pre-flight cost estimate** that scales with the brief and language choice.
+
+## Design
+
+The UI follows The Aigency's design language (ai-gency.ai): cream paper background, warm ink text, the sun-orange accent, Playfair Display serif headings with Inter body and JetBrains Mono labels, and solid offset shadows. The Aigency sphere mark sits in the header and the full logo lockup lives on the dark footer band (`public/aigency-mark.png`, `public/aigency-lockup.png`).
+
 ## Customization per client (the sellable part)
 
 - **Client profiles** (Profiles tab): voice personality, formality and directness sliders, preferred Arabic register/dialect, locked EN⇄AR glossary, always/never red lines, and a voice sample to emulate. The active profile shapes every word.

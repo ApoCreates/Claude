@@ -23,6 +23,27 @@ import { SEED_INSIGHTS, SEED_LESSONS } from "../brain/seed";
 import type { FeedbackRecord, Insight, Lesson } from "../brain/types";
 import type { AgentTask, RecurringTask } from "../tasks/types";
 
+export interface SpendRecord {
+  at: string; // ISO timestamp
+  runId: string;
+  requestType: string;
+  model: string;
+  inputTokens: number;
+  outputTokens: number;
+  cacheWriteTokens: number;
+  cacheReadTokens: number;
+  webSearches: number;
+  usd: number;
+}
+
+export interface SpendState {
+  /** All-time totals — survive record trimming. */
+  totalUsd: number;
+  totalRuns: number;
+  /** Recent per-run records (capped; totals keep the full history). */
+  records: SpendRecord[];
+}
+
 export interface QalamState {
   tasks: AgentTask[];
   recurring: RecurringTask[];
@@ -30,6 +51,7 @@ export interface QalamState {
   insights: Insight[];
   feedback: FeedbackRecord[];
   lastResearchAt: string | null;
+  spend: SpendState;
 }
 
 const PREFIX = "qalam/state-";
@@ -43,6 +65,7 @@ export function defaultState(): QalamState {
     insights: [...SEED_INSIGHTS],
     feedback: [],
     lastResearchAt: null,
+    spend: { totalUsd: 0, totalRuns: 0, records: [] },
   };
 }
 

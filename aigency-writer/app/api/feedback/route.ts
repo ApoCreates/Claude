@@ -2,7 +2,8 @@ import { NextRequest } from "next/server";
 import { getClient, hasLiveAI, UTILITY_MODEL } from "@/lib/ai/client";
 import { buildLessonDistillPrompt } from "@/lib/ai/persona";
 import { addFeedback, addLesson } from "@/lib/brain/store";
-import { recordFeedback } from "@/lib/diwan/db";
+import { logAgentRun, recordFeedback } from "@/lib/diwan/db";
+import { newId } from "@/lib/store/persist";
 import type { LessonSource } from "@/lib/brain/types";
 
 export const runtime = "nodejs";
@@ -71,6 +72,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const client = getClient();
+    const started = Date.now();
     const res = await client.messages.create({
       model: UTILITY_MODEL,
       max_tokens: 300,
@@ -85,6 +87,16 @@ export async function POST(req: NextRequest) {
           }),
         },
       ],
+    });
+    void logAgentRun({
+      id: newId("run"),
+      requestType: "distill",
+      clientId: body.clientId,
+      input: { mode: body.mode, rating: body.rating },
+      status: "ok",
+      model: UTILITY_MODEL,
+      tokens: res.usage,
+      latencyMs: Date.now() - started,
     });
     const text = res.content
       .map((b) => (b.type === "text" ? b.text : ""))

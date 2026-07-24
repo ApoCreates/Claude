@@ -100,7 +100,7 @@ export default function ProfilePanel({
             {profiles.length > 1 && (
               <button
                 onClick={() => removeProfile(p.id)}
-                className="rounded-md border border-ink-700 p-2 text-ink-500 transition hover:border-red-400 hover:text-red-400"
+                className="rounded-md border border-ink-700 p-2 text-ink-500 transition hover:border-red-400 hover:text-red-600"
                 aria-label="Delete profile"
               >
                 <Trash2 size={13} />
@@ -205,7 +205,7 @@ export default function ProfilePanel({
                   onChange={(e) => patchGlossary(i, { ar: e.target.value })} />
                 <button
                   onClick={() => setDraft({ ...draft, glossary: draft.glossary.filter((_, gi) => gi !== i) })}
-                  className="rounded-md border border-ink-700 px-2 text-ink-500 hover:border-red-400 hover:text-red-400"
+                  className="rounded-md border border-ink-700 px-2 text-ink-500 hover:border-red-400 hover:text-red-600"
                 >
                   <Trash2 size={13} />
                 </button>
@@ -222,7 +222,7 @@ export default function ProfilePanel({
               onChange={(e) => setDraft({ ...draft, dos: e.target.value.split("\n").filter((x) => x.trim()) })} />
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-red-300">{uiLang === "ar" ? "أبدًا (سطر لكل قاعدة)" : "Never (one per line)"}</span>
+            <span className="mb-1 block text-red-700">{uiLang === "ar" ? "أبدًا (سطر لكل قاعدة)" : "Never (one per line)"}</span>
             <textarea className={cn(field, "min-h-[90px]")} dir="auto" value={draft.donts.join("\n")}
               onChange={(e) => setDraft({ ...draft, donts: e.target.value.split("\n").filter((x) => x.trim()) })} />
           </label>

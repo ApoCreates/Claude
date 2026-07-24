@@ -89,7 +89,7 @@ export default function OpsPanel({ uiLang }: { uiLang: UILang }) {
           {rows.slice(0, 8).map((r) => (
             <li key={r.key} className="flex items-center gap-2 text-sm">
               <span className="min-w-0 flex-1 truncate text-ink-300" dir="auto">{r.key}</span>
-              <span className={cn("font-medium", (r.avgRating ?? 5) < 3.5 ? "text-red-300" : "text-teal-glow")}>
+              <span className={cn("font-medium", (r.avgRating ?? 5) < 3.5 ? "text-red-700" : "text-teal-glow")}>
                 {r.avgRating ?? "—"}★
               </span>
               <span className="text-xs text-ink-500">×{r.count}</span>
@@ -159,7 +159,7 @@ export default function OpsPanel({ uiLang }: { uiLang: UILang }) {
                 {((metrics?.tickets || []) as { scope: Record<string, string>; avg_rating: number; rating_count: number; status: string; suspected_cause: string }[]).map((tk, i) => (
                   <li key={i} className="rounded-lg border border-ink-700 bg-ink-950/50 p-3 text-sm">
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-red-400/15 px-2 py-0.5 text-[11px] text-red-300">
+                      <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[11px] text-red-700">
                         {tk.avg_rating}★ ×{tk.rating_count}
                       </span>
                       <code className="text-xs text-ink-400">{JSON.stringify(tk.scope)}</code>
@@ -185,9 +185,9 @@ export default function OpsPanel({ uiLang }: { uiLang: UILang }) {
               const f = forms[q.id] || { action: "no_action" as Action, note: "", patch: "" };
               const needsPatch = f.action === "prompt_update" || f.action === "guardrail" || f.action === "knowledge_update";
               return (
-                <div key={q.id} className="rounded-lg border border-red-400/30 bg-ink-950/50 p-3">
+                <div key={q.id} className="rounded-lg border border-red-600/30 bg-ink-950/50 p-3">
                   <div className="flex flex-wrap items-center gap-2 text-sm">
-                    <span className="rounded-full bg-red-400/15 px-2 py-0.5 text-[11px] font-semibold text-red-300">
+                    <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold text-red-700">
                       {q.feedback?.rating}★
                     </span>
                     <span className="text-xs text-ink-400">{q.feedback?.request_type}</span>
