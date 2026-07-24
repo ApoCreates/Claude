@@ -186,6 +186,21 @@ export default function TaskBoard({
   }
 
   async function review(task: AgentTask, action: "approve" | "archive" | "requeue") {
+    if (action === "approve") {
+      void fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: task.mode,
+          rating: "up",
+          stars: 5,
+          runId: task.runId || task.id,
+          clientId: profile.id,
+          excerpt: task.result?.slice(0, 1500),
+          source: "feedback",
+        }),
+      });
+    }
     await fetch(`/api/tasks/${task.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -204,6 +219,9 @@ export default function TaskBoard({
       body: JSON.stringify({
         mode: task.mode,
         rating: "down",
+        stars: 2,
+        runId: task.runId || task.id,
+        clientId: profile.id,
         comment,
         excerpt: task.result?.slice(0, 1500),
         source: "feedback",

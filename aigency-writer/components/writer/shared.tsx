@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, ThumbsDown, ThumbsUp } from "lucide-react";
+import { Check, Copy, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { t, type UILang } from "@/lib/i18n";
 import type { LessonSource } from "@/lib/brain/types";
@@ -23,74 +23,92 @@ export function CopyButton({ text, lang }: { text: string; lang: UILang }) {
   );
 }
 
+/** Natively-authored Arabic star labels — no machine translation. */
+const STAR_LABELS: Record<UILang, string[]> = {
+  ar: ["ضعيف جدًا", "دون المستوى", "مقبول", "جيد", "ممتاز"],
+  en: ["Very poor", "Below par", "Acceptable", "Good", "Excellent"],
+};
+
 /**
- * The teaching control — attached to every piece of work the agent
- * produces (Studio outputs and Gym drills alike). A comment becomes a
- * distilled lesson in the agent's brain.
+ * The Diwan feedback control: one-tap 1–5 stars + optional free text.
+ * A tap records the rating immediately (Supabase feedback table via
+ * /api/feedback); a comment additionally becomes a distilled lesson.
+ * 1–2★ ratings are auto-flagged into the human review queue server-side.
  */
 export function FeedbackBox({
   mode,
   excerpt,
   source,
   lang,
+  runId,
+  clientId,
   compact,
 }: {
   mode: string;
   excerpt: string;
   source: LessonSource;
   lang: UILang;
+  runId?: string;
+  clientId?: string;
   compact?: boolean;
 }) {
-  const [rating, setRating] = useState<"up" | "down" | null>(null);
+  const [stars, setStars] = useState<number | null>(null);
+  const [hover, setHover] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
 
-  async function submit(r: "up" | "down") {
-    setRating(r);
-    if (!comment.trim()) {
-      // rating-only: record silently
-      await fetch("/api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, rating: r, excerpt, source }),
-      });
-      return;
-    }
-    setStatus("sending");
+  async function send(rating: number, withComment: boolean) {
+    if (withComment) setStatus("sending");
     await fetch("/api/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode, rating: r, comment, excerpt, source }),
+      body: JSON.stringify({
+        mode,
+        rating: rating >= 4 ? "up" : "down",
+        stars: rating,
+        runId,
+        clientId,
+        comment: withComment ? comment : undefined,
+        excerpt,
+        source,
+      }),
     });
-    setStatus("done");
+    if (withComment) setStatus("done");
   }
 
   return (
     <div className={cn("mt-3 rounded-lg border border-ink-700 bg-ink-900/60 p-3", compact && "p-2.5")}>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs text-ink-400">{t("feedbackPrompt", lang)}</span>
-        <div className="ms-auto flex gap-1.5">
-          <button
-            onClick={() => submit("up")}
-            className={cn(
-              "rounded-md border border-ink-600 p-1.5 transition hover:border-teal-glow hover:text-teal-glow",
-              rating === "up" && "border-teal-glow text-teal-glow"
-            )}
-            aria-label="Good"
-          >
-            <ThumbsUp size={14} />
-          </button>
-          <button
-            onClick={() => submit("down")}
-            className={cn(
-              "rounded-md border border-ink-600 p-1.5 transition hover:border-red-400 hover:text-red-400",
-              rating === "down" && "border-red-400 text-red-400"
-            )}
-            aria-label="Needs work"
-          >
-            <ThumbsDown size={14} />
-          </button>
+        <div className="ms-auto flex items-center gap-1" dir="ltr">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              onClick={() => {
+                setStars(n);
+                send(n, false);
+              }}
+              onMouseEnter={() => setHover(n)}
+              onMouseLeave={() => setHover(null)}
+              className="p-0.5 transition"
+              aria-label={STAR_LABELS[lang][n - 1]}
+              title={STAR_LABELS[lang][n - 1]}
+            >
+              <Star
+                size={18}
+                className={cn(
+                  "transition",
+                  (hover ?? stars ?? 0) >= n
+                    ? "fill-qalam text-qalam"
+                    : "text-ink-500"
+                )}
+              />
+            </button>
+          ))}
         </div>
+        {stars && (
+          <span className="text-xs text-qalam-soft">{STAR_LABELS[lang][stars - 1]}</span>
+        )}
       </div>
       <div className="mt-2 flex gap-2">
         <input
@@ -101,7 +119,7 @@ export function FeedbackBox({
           dir="auto"
         />
         <button
-          onClick={() => submit(rating || "down")}
+          onClick={() => send(stars ?? 2, true)}
           disabled={status === "sending" || !comment.trim()}
           className="shrink-0 rounded-md bg-qalam px-3 py-1.5 text-sm font-medium text-ink-950 transition hover:bg-qalam-soft disabled:opacity-40"
         >

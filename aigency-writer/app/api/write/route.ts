@@ -4,6 +4,13 @@ import { buildSystemBlocks } from "@/lib/ai/persona";
 import { isModeId } from "@/lib/ai/modes";
 import { demoWriteResponse } from "@/lib/ai/demo";
 import { getBrain } from "@/lib/brain/store";
+import {
+  ensurePromptVersion,
+  fetchActivePatches,
+  getClientConfig,
+  logAgentRun,
+} from "@/lib/diwan/db";
+import { newId } from "@/lib/store/persist";
 import type { BrandProfile, Dialect, OutputLang } from "@/lib/profiles";
 
 export const runtime = "nodejs";
@@ -26,7 +33,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { mode, brief, outputLang, dialect, profile, history = [] } = body;
+  const { mode, brief, outputLang, dialect, history = [] } = body;
   if (!mode || !isModeId(mode)) {
     return Response.json({ error: "Unknown mode" }, { status: 400 });
   }
@@ -34,14 +41,32 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Empty brief" }, { status: 400 });
   }
 
+  const runId = newId("run");
+  const started = Date.now();
+  // Server-authoritative tenant config wins over the profile the UI sent
+  const profile = (await getClientConfig(body.profile?.id)) || body.profile || null;
+  const clientId = profile?.id || null;
+
   if (!hasLiveAI()) {
     return new Response(demoWriteResponse(mode, outputLang || "both"), {
-      headers: { "Content-Type": "text/plain; charset=utf-8", "X-AI-Mode": "demo" },
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-AI-Mode": "demo",
+        "X-Run-Id": runId,
+      },
     });
   }
 
-  const brain = await getBrain();
-  const system = buildSystemBlocks({ mode, profile, outputLang: outputLang || "both", dialect, brain });
+  const [brain, patches] = await Promise.all([getBrain(), fetchActivePatches()]);
+  const system = buildSystemBlocks({
+    mode,
+    profile,
+    outputLang: outputLang || "both",
+    dialect,
+    brain,
+    patches,
+  });
+  const promptVersionId = await ensurePromptVersion(system.map((b) => b.text).join("\n\n"));
   const messages = [
     ...history.slice(-12).map((m) => ({ role: m.role, content: m.content })),
     { role: "user" as const, content: brief },
@@ -54,9 +79,36 @@ export async function POST(req: NextRequest) {
     system,
     messages,
   });
-  stream.on("finalMessage", (m) =>
-    console.log("[qalam usage] write", JSON.stringify(m.usage))
-  );
+  stream.on("finalMessage", (m) => {
+    const output = m.content
+      .map((b) => (b.type === "text" ? b.text : ""))
+      .join("");
+    void logAgentRun({
+      id: runId,
+      requestType: mode,
+      clientId,
+      input: { brief, outputLang, dialect, historyTurns: history.length },
+      output,
+      status: "ok",
+      model: DEFAULT_MODEL,
+      promptVersionId,
+      tokens: m.usage,
+      latencyMs: Date.now() - started,
+    });
+  });
+  stream.on("error", (err) => {
+    void logAgentRun({
+      id: runId,
+      requestType: mode,
+      clientId,
+      input: { brief, outputLang, dialect },
+      status: "error",
+      error: err instanceof Error ? `${err.message}\n${err.stack || ""}` : String(err),
+      model: DEFAULT_MODEL,
+      promptVersionId,
+      latencyMs: Date.now() - started,
+    });
+  });
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream<Uint8Array>({
@@ -76,6 +128,10 @@ export async function POST(req: NextRequest) {
   });
 
   return new Response(readable, {
-    headers: { "Content-Type": "text/plain; charset=utf-8", "X-AI-Mode": "live" },
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-AI-Mode": "live",
+      "X-Run-Id": runId,
+    },
   });
 }

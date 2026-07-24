@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { DEFAULT_MODEL, getClient, hasLiveAI } from "@/lib/ai/client";
 import { addInsights, getBrain } from "@/lib/brain/store";
 import { todayISO } from "@/lib/utils";
+import { logAgentRun } from "@/lib/diwan/db";
+import { newId } from "@/lib/store/persist";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -45,6 +47,8 @@ async function runResearch(): Promise<Response> {
     });
   }
 
+  const runId = newId("run");
+  const started = Date.now();
   const client = getClient();
   const res = await client.messages.create({
     model: DEFAULT_MODEL,
@@ -62,7 +66,19 @@ async function runResearch(): Promise<Response> {
     ],
   });
 
-  console.log("[qalam usage] research", JSON.stringify(res.usage));
+  const researchText = res.content
+    .map((b) => (b.type === "text" ? b.text : ""))
+    .join("");
+  void logAgentRun({
+    id: runId,
+    requestType: "research",
+    input: { kind: "daily-self-research" },
+    output: researchText,
+    status: "ok",
+    model: DEFAULT_MODEL,
+    tokens: res.usage,
+    latencyMs: Date.now() - started,
+  });
   const text = res.content
     .map((b) => (b.type === "text" ? b.text : ""))
     .join("")

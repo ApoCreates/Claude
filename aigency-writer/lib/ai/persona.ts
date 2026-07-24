@@ -61,6 +61,8 @@ export interface PromptContext {
   extra?: string;
   /** The agent's learned memory (routes load it from the brain store) */
   brain?: { lessons: Lesson[]; insights: Insight[] };
+  /** Human-approved prompt amendments/guardrails from the Diwan review queue */
+  patches?: string[];
 }
 
 function outputContract(lang: OutputLang, dialect?: Dialect): string {
@@ -125,6 +127,11 @@ export function buildSystemBlocks(ctx: PromptContext): SystemBlock[] {
     MODE_CANON[ctx.mode],
     ctx.profile ? `CLIENT PROFILE (obey over any general rule)\n${describeProfile(ctx.profile)}` : "",
     learnedLayer(ctx.brain?.lessons || [], ctx.brain?.insights || []),
+    ctx.patches?.length
+      ? `OPERATOR AMENDMENTS (human-approved via review; obey absolutely):\n${ctx.patches
+          .map((p) => `  • ${p}`)
+          .join("\n")}`
+      : "",
   ]
     .filter(Boolean)
     .join(SEP);

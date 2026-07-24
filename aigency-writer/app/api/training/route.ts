@@ -5,6 +5,8 @@ import { buildDailyPlan } from "@/lib/training/scenarios";
 import { demoDrillResponse } from "@/lib/ai/demo";
 import { todayISO } from "@/lib/utils";
 import { getBrain } from "@/lib/brain/store";
+import { ensurePromptVersion, fetchActivePatches, logAgentRun } from "@/lib/diwan/db";
+import { newId } from "@/lib/store/persist";
 import type { BrandProfile } from "@/lib/profiles";
 
 export const runtime = "nodejs";
@@ -43,12 +45,15 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const brain = await getBrain();
+  const runId = newId("run");
+  const started = Date.now();
+  const [brain, patches] = await Promise.all([getBrain(), fetchActivePatches()]);
   const system = buildSystemBlocks({
     mode: drill.mode,
     profile: body.profile,
     outputLang: drill.lang,
     brain,
+    patches,
     extra: `TRAINING GYM SESSION
 This is a timed practice drill (${drill.minutes} minutes), not client work. Perform the task at full professional quality, then add a 2–3 line self-review: name one thing you did deliberately and one thing a tough coach might challenge. Your coach will review this and correct you — corrections become permanent rules.`,
   });
@@ -60,9 +65,21 @@ This is a timed practice drill (${drill.minutes} minutes), not client work. Perf
     system,
     messages: [{ role: "user", content: drill.task }],
   });
-  stream.on("finalMessage", (m) =>
-    console.log("[qalam usage] drill", JSON.stringify(m.usage))
-  );
+  const promptVersionId = await ensurePromptVersion(system.map((b) => b.text).join("\n\n"));
+  stream.on("finalMessage", (m) => {
+    void logAgentRun({
+      id: runId,
+      requestType: `drill:${drill.mode}`,
+      clientId: body.profile?.id || null,
+      input: { drillId: drill.id, lang: drill.lang },
+      output: m.content.map((b) => (b.type === "text" ? b.text : "")).join(""),
+      status: "ok",
+      model: DEFAULT_MODEL,
+      promptVersionId,
+      tokens: m.usage,
+      latencyMs: Date.now() - started,
+    });
+  });
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream<Uint8Array>({
@@ -82,6 +99,10 @@ This is a timed practice drill (${drill.minutes} minutes), not client work. Perf
   });
 
   return new Response(readable, {
-    headers: { "Content-Type": "text/plain; charset=utf-8", "X-AI-Mode": "live" },
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-AI-Mode": "live",
+      "X-Run-Id": runId,
+    },
   });
 }

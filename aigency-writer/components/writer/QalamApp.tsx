@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   Brain,
   ClipboardList,
+  Gauge,
   Dumbbell,
   Feather,
   Languages,
@@ -11,6 +12,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import OpsPanel from "./OpsPanel";
 import TaskBoard from "./TaskBoard";
 import WriterStudio from "./WriterStudio";
 import TrainingPanel from "./TrainingPanel";
@@ -20,7 +22,7 @@ import { DEFAULT_PROFILE, type BrandProfile } from "@/lib/profiles";
 import { t, type UILang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-type Tab = "tasks" | "studio" | "training" | "brain" | "profiles";
+type Tab = "tasks" | "studio" | "training" | "brain" | "ops" | "profiles";
 
 const STORAGE_KEY = "qalam.profiles.v1";
 
@@ -73,6 +75,7 @@ export default function QalamApp() {
     { id: "studio", icon: PenTool, label: t("tabStudio", uiLang) },
     { id: "training", icon: Dumbbell, label: t("tabTraining", uiLang) },
     { id: "brain", icon: Brain, label: t("tabBrain", uiLang) },
+    { id: "ops", icon: Gauge, label: t("tabOps", uiLang) },
     { id: "profiles", icon: Users, label: t("tabProfile", uiLang) },
   ];
 
@@ -140,6 +143,7 @@ export default function QalamApp() {
         {tab === "studio" && <WriterStudio uiLang={uiLang} profile={activeProfile} />}
         {tab === "training" && <TrainingPanel uiLang={uiLang} profile={activeProfile} />}
         {tab === "brain" && <BrainPanel uiLang={uiLang} />}
+        {tab === "ops" && <OpsPanel uiLang={uiLang} />}
         {tab === "profiles" && (
           <ProfilePanel
             uiLang={uiLang}

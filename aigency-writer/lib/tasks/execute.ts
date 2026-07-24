@@ -9,6 +9,8 @@ import { DEFAULT_MODEL, getClient, hasLiveAI } from "../ai/client";
 import { buildSystemBlocks } from "../ai/persona";
 import { demoWriteResponse } from "../ai/demo";
 import { getBrain } from "../brain/store";
+import { ensurePromptVersion, fetchActivePatches, getClientConfig, logAgentRun } from "../diwan/db";
+import { newId } from "../store/persist";
 import { updateTask } from "./store";
 import type { AgentTask } from "./types";
 
@@ -20,11 +22,15 @@ export async function executeTask(task: AgentTask): Promise<AgentTask> {
     return (await updateTask(task.id, { status: "review", result }))!;
   }
 
+  const runId = newId("run");
+  const started = Date.now();
   try {
-    const brain = await getBrain();
+    const [brain, patches] = await Promise.all([getBrain(), fetchActivePatches()]);
+    const profile = (await getClientConfig(task.profile?.id)) || task.profile;
     const system = buildSystemBlocks({
       mode: task.mode,
-      profile: task.profile,
+      profile,
+      patches,
       outputLang: task.outputLang,
       dialect: task.dialect,
       brain,
@@ -56,7 +62,23 @@ Deliver the corrected version in full, and open with one line stating what you c
       messages: [{ role: "user", content: userContent }],
     });
 
-    console.log("[qalam usage] task", JSON.stringify(res.usage));
+    const promptVersionId = await ensurePromptVersion(system.map((b) => b.text).join("\n\n"));
+    const result0 = res.content
+      .map((b) => (b.type === "text" ? b.text : ""))
+      .join("")
+      .trim();
+    void logAgentRun({
+      id: runId,
+      requestType: `task:${task.mode}`,
+      clientId: task.profile?.id || null,
+      input: { taskId: task.id, title: task.title, brief: task.brief, revision: task.drafts.length },
+      output: result0,
+      status: "ok",
+      model: DEFAULT_MODEL,
+      promptVersionId,
+      tokens: res.usage,
+      latencyMs: Date.now() - started,
+    });
     const result = res.content
       .map((b) => (b.type === "text" ? b.text : ""))
       .join("")
@@ -65,9 +87,20 @@ Deliver the corrected version in full, and open with one line stating what you c
     return (await updateTask(task.id, {
       status: "review",
       result,
+      runId,
       revisionNote: undefined,
     }))!;
   } catch (e) {
+    void logAgentRun({
+      id: runId,
+      requestType: `task:${task.mode}`,
+      clientId: task.profile?.id || null,
+      input: { taskId: task.id, title: task.title },
+      status: "error",
+      error: e instanceof Error ? `${e.message}\n${e.stack || ""}` : String(e),
+      model: DEFAULT_MODEL,
+      latencyMs: Date.now() - started,
+    });
     return (await updateTask(task.id, {
       status: "queued",
       error: e instanceof Error ? e.message : "Unknown error",

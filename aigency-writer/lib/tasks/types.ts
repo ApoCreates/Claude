@@ -58,4 +58,6 @@ export interface AgentTask {
   recurringId?: string;
   /** Whether the deliverable was emailed (recurring tasks) */
   emailedTo?: string;
+  /** Diwan observability run id for the latest execution */
+  runId?: string;
 }

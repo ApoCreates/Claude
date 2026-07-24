@@ -36,6 +36,21 @@ Three loops feed one brain (`lib/brain/`):
 
 All lessons and insights are injected into every future system prompt. **Baking it into the code:** the Brain panel's *Export brain as code* downloads the current brain as `lib/brain/seed.ts` — commit it and the learning ships permanently with the product (runtime memory is in-process; the export is the durable path, with a clean seam to swap in KV/Postgres later).
 
+## Diwan platform architecture (feedback → product intelligence)
+
+This agent ships with the Diwan feedback + observability architecture as part of the core build (`supabase/schema.sql` + `lib/diwan/`):
+
+1. **Feedback capture** — every output carries a one-tap, natively-authored Arabic 1–5★ rating + free text, stored in Supabase `feedback` with output_id, agent, client, request_type, and the prompt/response reference.
+2. **Observability** — every run (Studio, tasks, drills, research) is a structured JSON row in `agent_runs`: brief, model, tokens, latency, prompt version, status; errors are rows too — no silent failures.
+3. **Pattern detection** — a weekly `pg_cron` job flags any agent/client/request_type segment averaging < 3.5★ over 5+ ratings into structured `improvement_tickets` with example outputs and a suspected cause.
+4. **Human-in-the-loop** — 1–2★ outputs auto-flag into a review queue (DB trigger); a reviewer resolves each flag in the Ops tab with one of: prompt update, knowledge-base update, guardrail rule, or no action — every resolution logged for traceability. Automation drafts, humans approve.
+5. **Prompt & knowledge iteration, no retraining** — every built system prompt is hash-versioned in `prompt_versions` (rating impact measurable per version); reviewer amendments live in `prompt_patches` and are injected at runtime.
+6. **Multi-tenant** — `client_configs` (tone, voice, guidelines, glossary) are injected at runtime, never hardcoded; RLS scopes tenant data.
+7. **Metrics dashboard** — the Ops tab exposes rating trend, volume, flag rate, resolution time, and per-prompt-version rating impact (award/investor-grade numbers).
+8. **Arabic-native** — all user-facing strings are hand-authored Arabic; no machine translation in the UI layer.
+
+Setup: create a Supabase project → run `supabase/schema.sql` in the SQL editor (enable the `pg_cron` extension for weekly detection) → set `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`. Without them the agent runs fine and logs to console only. All API routes are plain JSON HTTP — directly callable from n8n for orchestration.
+
 ## Customization per client (the sellable part)
 
 - **Client profiles** (Profiles tab): voice personality, formality and directness sliders, preferred Arabic register/dialect, locked EN⇄AR glossary, always/never red lines, and a voice sample to emulate. The active profile shapes every word.

@@ -14,6 +14,7 @@ type DrillState = {
   running: boolean;
   coached: boolean;
   approved: boolean;
+  runId?: string;
 };
 
 /**
@@ -61,6 +62,8 @@ export default function TrainingPanel({
         signal: ctrl.signal,
       });
       if (!res.body) throw new Error(res.statusText);
+      const runId = res.headers.get("X-Run-Id") || undefined;
+      patch(drillId, { runId });
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let acc = "";
@@ -86,6 +89,9 @@ export default function TrainingPanel({
       body: JSON.stringify({
         mode,
         rating: approve ? "up" : "down",
+        stars: approve ? 5 : 2,
+        runId: s?.runId,
+        clientId: profile.id,
         comment: note || undefined,
         excerpt: s?.output?.slice(0, 1500),
         source: "training",

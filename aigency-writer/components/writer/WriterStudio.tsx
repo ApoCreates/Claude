@@ -36,6 +36,7 @@ interface Turn {
   role: "user" | "assistant";
   content: string;
   mode: ModeId;
+  runId?: string;
 }
 
 export default function WriterStudio({
@@ -70,6 +71,7 @@ export default function WriterStudio({
         body: JSON.stringify({ mode, brief: userTurn.content, outputLang, dialect, profile, history }),
         signal: ctrl.signal,
       });
+      const runId = res.headers.get("X-Run-Id") || undefined;
       if (!res.ok || !res.body) {
         const err = await res.text().catch(() => "");
         setTurns((prev) => {
@@ -89,7 +91,7 @@ export default function WriterStudio({
         const chunk = acc;
         setTurns((prev) => {
           const next = [...prev];
-          next[next.length - 1] = { role: "assistant", content: chunk, mode };
+          next[next.length - 1] = { role: "assistant", content: chunk, mode, runId };
           return next;
         });
       }
@@ -215,6 +217,8 @@ export default function WriterStudio({
                       excerpt={turn.content.slice(0, 1500)}
                       source="feedback"
                       lang={uiLang}
+                      runId={turn.runId}
+                      clientId={profile.id}
                     />
                   </>
                 )}

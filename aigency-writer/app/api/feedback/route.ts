@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getClient, hasLiveAI, UTILITY_MODEL } from "@/lib/ai/client";
 import { buildLessonDistillPrompt } from "@/lib/ai/persona";
 import { addFeedback, addLesson } from "@/lib/brain/store";
+import { recordFeedback } from "@/lib/diwan/db";
 import type { LessonSource } from "@/lib/brain/types";
 
 export const runtime = "nodejs";
@@ -9,6 +10,10 @@ export const runtime = "nodejs";
 interface FeedbackBody {
   mode: string;
   rating: "up" | "down";
+  /** Diwan 1–5 star rating (preferred; rating up/down kept for compat) */
+  stars?: number;
+  runId?: string;
+  clientId?: string;
   comment?: string;
   excerpt?: string;
   /** "feedback" from the Studio, "training" from the Gym */
@@ -38,6 +43,16 @@ export async function POST(req: NextRequest) {
     rating: body.rating,
     comment: body.comment,
     excerpt: body.excerpt?.slice(0, 2000),
+  });
+
+  // Diwan feedback capture: stars + free text, tied to the run
+  void recordFeedback({
+    outputId: body.runId || "unknown",
+    rating: body.stars ?? (body.rating === "up" ? 5 : 2),
+    feedbackText: body.comment,
+    clientId: body.clientId,
+    requestType: body.mode,
+    promptResponse: body.excerpt ? { excerpt: body.excerpt.slice(0, 2000) } : undefined,
   });
 
   const comment = body.comment?.trim();
