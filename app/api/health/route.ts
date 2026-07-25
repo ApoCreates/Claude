@@ -4,6 +4,8 @@ import { MODEL_CASCADE } from "@/lib/models";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
+// Must run per-request — otherwise Next bakes the build-time result in.
+export const dynamic = "force-dynamic";
 
 // Diagnostic endpoint: reports whether the API key is visible to the
 // function and which Claude model actually answers. Never leaks the key —
