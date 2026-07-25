@@ -110,6 +110,58 @@ function Home() {
           </div>
         </section>
 
+        {/* The hundred suns */}
+        <section className="border-t border-hairline py-24">
+          <div className="flex flex-col gap-12 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-md">
+              <p className="eyebrow-accent mb-3">{d.grid.eyebrow}</p>
+              <h2 className="font-serif text-4xl sm:text-5xl">{d.grid.title}</h2>
+              <p className="mt-4 text-paper/70">{d.grid.body}</p>
+            </div>
+            <div className="grid w-full max-w-sm shrink-0 grid-cols-10 gap-2" dir="ltr" aria-hidden>
+              {Array.from({ length: 100 }, (_, i) => (
+                <div
+                  key={i}
+                  className="aspect-square rounded-full"
+                  style={{
+                    background: "radial-gradient(circle at 68% 26%, #FFCB58, #F2862A 45%, #B8341C 78%, #1A0408)",
+                    opacity: 0.35 + ((i % 10) + Math.floor(i / 10)) * 0.018,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* The method — learning science */}
+        <section className="border-t border-hairline py-24">
+          <p className="eyebrow-accent mb-3">{d.method.eyebrow}</p>
+          <h2 className="font-serif text-4xl sm:text-5xl">{d.method.title}</h2>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {d.method.items.map((m, i) => (
+              <div key={m.t} className="card p-6">
+                <p className="font-mono text-xs text-ochre">{["01", "02", "03", "04"][i]}</p>
+                <p className="mt-4 font-serif text-xl">{m.t}</p>
+                <p className="mt-2 text-sm leading-relaxed text-paper/70">{m.b}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* The loop — gamification */}
+        <section className="border-t border-hairline py-24">
+          <p className="eyebrow-accent mb-3">{d.loop.eyebrow}</p>
+          <h2 className="font-serif text-4xl sm:text-5xl">{d.loop.title}</h2>
+          <div className="mt-12 grid grid-cols-1 border border-hairline sm:grid-cols-2 lg:grid-cols-4">
+            {d.loop.items.map((m, i) => (
+              <div key={m.t} className={`p-6 ${i > 0 ? "border-t border-hairline sm:border-t-0 sm:border-s" : ""}`}>
+                <p className="font-serif text-2xl text-marigold">{m.t}</p>
+                <p className="mt-2 text-sm leading-relaxed text-paper/70">{m.b}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Pricing teaser */}
         <section className="border-t border-hairline py-24">
           <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">

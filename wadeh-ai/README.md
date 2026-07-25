@@ -15,7 +15,8 @@ Design language derives from **The Aigency design system v.3**: paper on ink at 
   - **Mastery quizzes** — 5 fresh questions per run (math and upper physics are procedurally generated, so they never repeat), immediate feedback with explanations, pass at 4/5.
   - **Rays (XP), daily streaks and daily quests** — answer 10 correctly, master a year, ask the tutor 3 questions; each quest pays bonus Rays.
   - **Spaced review queue** — missed questions come back inside future quizzes until beaten.
-- **Visual labs** (`TRY IT LIVE`) — interactive, per-year: number-line addition, fraction bars and a live function grapher for math; a float-or-sink density tank and an animated projectile launcher for physics.
+- **Visual labs** (`TRY IT LIVE`) — six subjects have hands-on interactives: number line / fraction bars / function grapher (math), float-or-sink density tank + animated projectile launcher (physics), a drag-the-decision-line classifier (AI), a latitude→climate globe (geography), a profit-curve lemonade stand (entrepreneurship), and an EN↔AR word-match game that pays Rays (languages).
+- **Adaptive placement** ("Find my year") — five adaptive questions on math/physics place the learner in the right school year and mark earlier years as mastered (with a Scholar upsell when placement exceeds the free tier).
 - **AI tutor in every lesson** — patient, Socratic, bilingual, age-calibrated to the school year, and able to **draw real graphs** in its answers via `PLOT` directives rendered by the client. Live Claude API when `ANTHROPIC_API_KEY` is set; graceful canned mode otherwise.
 - **Subscription** (`/pricing`) — region-aware pricing:
   | Plan | GCC | Levant | Unlocks |

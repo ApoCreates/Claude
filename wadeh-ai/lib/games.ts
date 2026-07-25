@@ -1,9 +1,11 @@
 // The wadehAI quiz engine.
-// Math and upper-level physics questions are generated procedurally, so every
-// quiz run is fresh (retrieval practice with unlimited variations). Conceptual
-// subjects draw from curated bilingual banks; the AI tutor extends them live.
+// Math (all years) and physics (years 6-10) draw from MULTIPLE procedural
+// templates per school year, so a five-question quiz mixes patterns and never
+// repeats. Early physics and conceptual subjects draw from curated bilingual
+// banks in banks.ts; the AI tutor extends everything live.
 
-import type { Bi, Lang } from "./curriculum";
+import type { Bi } from "./curriculum";
+import { BANKS, PHYSICS_EARLY_BANK } from "./banks";
 
 export interface QuizQ {
   q: Bi;
@@ -15,6 +17,7 @@ export interface QuizQ {
 export const XP_CORRECT = 10;
 export const XP_LEVEL_MASTERED = 50;
 export const XP_QUEST = 30;
+export const XP_LAB = 15;
 
 const ri = (a: number, b: number) => a + Math.floor(Math.random() * (b - a + 1));
 function pick<T>(arr: T[]): T {
@@ -38,562 +41,393 @@ function mk(q: Bi, correctVal: number | string, distractors: (number | string)[]
   };
 }
 
-// ---------------------------------------------------------------- Mathematics
+/** Same, but with bilingual text choices. */
+function mkText(q: Bi, choices: Bi[], correct: number, explain: Bi): QuizQ {
+  return { q, choices, correct, explain };
+}
 
-function mathQ(level: number): QuizQ {
-  switch (level) {
-    case 1: {
+// ---------------------------------------------------------------- Mathematics
+// Two to three templates per school year; one is chosen at random each time.
+
+const MATH_GENS: Record<number, (() => QuizQ)[]> = {
+  1: [
+    () => {
       const a = ri(2, 9), b = ri(2, 9);
       return mk(
         { en: `What is ${a} + ${b}?`, ar: `كم يساوي ${a} + ${b}؟` },
-        a + b,
-        [a + b + 1, a + b - 1, a + b + 2],
+        a + b, [a + b + 1, a + b - 1, a + b + 2],
         { en: `Count on from ${a}: ${b} more steps lands on ${a + b}.`, ar: `عُدّ ابتداءً من ${a}: بعد ${b} خطوات تصل إلى ${a + b}.` }
       );
-    }
-    case 2: {
+    },
+    () => {
+      const a = ri(6, 18), b = ri(1, a - 2);
+      return mk(
+        { en: `What is ${a} − ${b}?`, ar: `كم يساوي ${a} − ${b}؟` },
+        a - b, [a - b + 1, a - b - 1, a + b],
+        { en: `Count back ${b} from ${a} to reach ${a - b}.`, ar: `عُدّ تنازلياً ${b} خطوات من ${a} لتصل إلى ${a - b}.` }
+      );
+    },
+    () => {
+      const a = ri(2, 9), x = ri(1, 9);
+      return mk(
+        { en: `${a} + ▢ = ${a + x}. What goes in the box?`, ar: `${a} + ▢ = ${a + x}. ما العدد الناقص؟` },
+        x, [x + 1, x - 1, a],
+        { en: `Think: how far from ${a} to ${a + x}? Exactly ${x}.`, ar: `فكّر: كم الفرق بين ${a} و${a + x}؟ إنه ${x} تماماً.` }
+      );
+    },
+  ],
+  2: [
+    () => {
       const a = ri(120, 480), b = ri(110, 380);
       return mk(
         { en: `What is ${a} + ${b}?`, ar: `كم يساوي ${a} + ${b}؟` },
-        a + b,
-        [a + b + 10, a + b - 10, a + b + 100],
+        a + b, [a + b + 10, a + b - 10, a + b + 100],
         { en: `Add ones, then tens, then hundreds: ${a} + ${b} = ${a + b}.`, ar: `اجمع الآحاد ثم العشرات ثم المئات: ${a} + ${b} = ${a + b}.` }
       );
-    }
-    case 3: {
+    },
+    () => {
+      const b = ri(120, 400), a = b + ri(100, 400);
+      return mk(
+        { en: `What is ${a} − ${b}?`, ar: `كم يساوي ${a} − ${b}؟` },
+        a - b, [a - b + 10, a - b - 10, a - b + 100],
+        { en: `Subtract column by column: ${a} − ${b} = ${a - b}.`, ar: `اطرح عموداً عموداً: ${a} − ${b} = ${a - b}.` }
+      );
+    },
+    () => {
+      const a = ri(5, 45), b = ri(5, 45);
+      return mk(
+        { en: `A juice costs ${a} and a sandwich costs ${b}. How much together?`, ar: `ثمن العصير ${a} وثمن الشطيرة ${b}. كم المجموع؟` },
+        a + b, [a + b - 5, a + b + 5, Math.abs(a - b)],
+        { en: `Total price = ${a} + ${b} = ${a + b}.`, ar: `المجموع = ${a} + ${b} = ${a + b}.` }
+      );
+    },
+  ],
+  3: [
+    () => {
       const a = ri(3, 12), b = ri(3, 12);
       return mk(
         { en: `What is ${a} × ${b}?`, ar: `كم يساوي ${a} × ${b}؟` },
-        a * b,
-        [a * b + a, a * b - b, a * (b + 1)],
+        a * b, [a * b + a, a * b - b, a * (b + 1)],
         { en: `${a} groups of ${b} make ${a * b}.`, ar: `${a} مجموعات في كل منها ${b} تساوي ${a * b}.` }
       );
-    }
-    case 4: {
+    },
+    () => {
+      const b = ri(3, 9), q = ri(3, 9);
+      return mk(
+        { en: `What is ${b * q} ÷ ${b}?`, ar: `كم يساوي ${b * q} ÷ ${b}؟` },
+        q, [q + 1, q - 1, b],
+        { en: `How many ${b}s fit in ${b * q}? Exactly ${q}.`, ar: `كم مرة يدخل ${b} في ${b * q}؟ بالضبط ${q} مرات.` }
+      );
+    },
+    () => {
+      const g = ri(3, 6), n = ri(4, 8);
+      return mk(
+        { en: `${g * n} students form teams of ${g}. How many teams?`, ar: `${g * n} طالباً يشكّلون فرقاً من ${g}. كم فريقاً؟` },
+        n, [n + 1, n - 1, g],
+        { en: `${g * n} ÷ ${g} = ${n} teams.`, ar: `${g * n} ÷ ${g} = ${n} فرق.` }
+      );
+    },
+  ],
+  4: [
+    () => {
       const b = pick([2, 3, 4, 5]), k = pick([2, 3, 4]);
       return mk(
         { en: `Which fraction equals 1/${b}?`, ar: `أي كسر يساوي 1/${b}؟` },
-        `${k}/${b * k}`,
-        [`${k}/${b * k + 1}`, `${k + 1}/${b * k}`, `1/${b + k}`],
+        `${k}/${b * k}`, [`${k}/${b * k + 1}`, `${k + 1}/${b * k}`, `1/${b + k}`],
         { en: `Multiply top and bottom by ${k}: 1/${b} = ${k}/${b * k}.`, ar: `اضرب البسط والمقام في ${k}: إذن 1/${b} = ${k}/${b * k}.` }
       );
-    }
-    case 5: {
+    },
+    () => {
+      const b = pick([2, 3, 4, 6]), n = b * ri(3, 12);
+      return mk(
+        { en: `What is 1/${b} of ${n}?`, ar: `كم يساوي 1/${b} من ${n}؟` },
+        n / b, [n / b + 2, n / b - 1, n - b],
+        { en: `Divide by ${b}: ${n} ÷ ${b} = ${n / b}.`, ar: `اقسم على ${b}: ${n} ÷ ${b} = ${n / b}.` }
+      );
+    },
+    () => {
+      const a = ri(11, 89) / 10, b = ri(11, 89) / 10;
+      const s = (Math.round((a + b) * 10) / 10).toFixed(1);
+      return mk(
+        { en: `What is ${a.toFixed(1)} + ${b.toFixed(1)}?`, ar: `كم يساوي ${a.toFixed(1)} + ${b.toFixed(1)}؟` },
+        s, [(Number(s) + 0.1).toFixed(1), (Number(s) - 0.1).toFixed(1), (Number(s) + 1).toFixed(1)],
+        { en: `Line up the decimal points, then add: ${s}.`, ar: `حاذِ الفواصل العشرية ثم اجمع: ${s}.` }
+      );
+    },
+  ],
+  5: [
+    () => {
       const p = pick([10, 20, 25, 50]), n = pick([40, 60, 80, 120, 200]);
       return mk(
         { en: `What is ${p}% of ${n}?`, ar: `كم يساوي ${p}٪ من ${n}؟` },
-        (p * n) / 100,
-        [(p * n) / 100 + 5, (p * n) / 50, n - p],
+        (p * n) / 100, [(p * n) / 100 + 5, (p * n) / 50, n - p],
         { en: `${p}% means ${p}/100, so ${p}% of ${n} = ${(p * n) / 100}.`, ar: `${p}٪ تعني ${p}/100، إذن ${p}٪ من ${n} = ${(p * n) / 100}.` }
       );
-    }
-    case 6: {
+    },
+    () => {
+      const a = ri(1, 4), b = ri(1, 4), k = ri(3, 8);
+      return mk(
+        { en: `Split ${(a + b) * k} in the ratio ${a}:${b}. How big is the first share?`, ar: `اقسم ${(a + b) * k} بنسبة ${a}:${b}. كم يبلغ النصيب الأول؟` },
+        a * k, [b * k, a * k + k, (a + b) * k - 1],
+        { en: `${a + b} parts of size ${k} each; the first share is ${a} × ${k} = ${a * k}.`, ar: `${a + b} أجزاء حجم كل منها ${k}؛ النصيب الأول ${a} × ${k} = ${a * k}.` }
+      );
+    },
+    () => {
+      const n = pick([50, 80, 100, 120, 200]), p = pick([10, 20, 25, 50]);
+      const sale = n - (n * p) / 100;
+      return mk(
+        { en: `A ${n} jacket has a ${p}% discount. What is the sale price?`, ar: `سترة ثمنها ${n} عليها خصم ${p}٪. كم السعر بعد الخصم؟` },
+        sale, [sale + 5, (n * p) / 100, n - p],
+        { en: `Discount = ${(n * p) / 100}; price = ${n} − ${(n * p) / 100} = ${sale}.`, ar: `الخصم = ${(n * p) / 100}؛ السعر = ${n} − ${(n * p) / 100} = ${sale}.` }
+      );
+    },
+  ],
+  6: [
+    () => {
       const x = ri(-8, 12), a = ri(2, 9);
       return mk(
         { en: `Solve: x + ${a} = ${x + a}`, ar: `حُلّ: س + ${a} = ${x + a}` },
-        x,
-        [x + 1, x - 1, x + a],
+        x, [x + 1, x - 1, x + a],
         { en: `Subtract ${a} from both sides: x = ${x + a} − ${a} = ${x}.`, ar: `اطرح ${a} من الطرفين: س = ${x + a} − ${a} = ${x}.` }
       );
-    }
-    case 7: {
+    },
+    () => {
+      const a = ri(2, 9), b = ri(2, 9), c = ri(2, 9);
+      return mk(
+        { en: `What is ${a} + ${b} × ${c}?`, ar: `كم يساوي ${a} + ${b} × ${c}؟` },
+        a + b * c, [(a + b) * c, a + b + c, a * b + c],
+        { en: `Multiply first, then add: ${a} + ${b * c} = ${a + b * c}.`, ar: `الضرب قبل الجمع: ${a} + ${b * c} = ${a + b * c}.` }
+      );
+    },
+    () => {
+      const a = ri(3, 12), b = ri(1, 15);
+      return mk(
+        { en: `What is (−${a}) + ${b}?`, ar: `كم يساوي (−${a}) + ${b}؟` },
+        b - a, [a - b, -(a + b), a + b],
+        { en: `Start at −${a} and move ${b} to the right: you land on ${b - a}.`, ar: `ابدأ من −${a} وتحرك ${b} خطوات يميناً: تصل إلى ${b - a}.` }
+      );
+    },
+  ],
+  7: [
+    () => {
       const x = ri(2, 9), a = ri(1, 9);
       return mk(
         { en: `Solve: 2x + ${a} = ${2 * x + a}`, ar: `حُلّ: ٢س + ${a} = ${2 * x + a}` },
-        x,
-        [x + 1, x - 1, 2 * x],
+        x, [x + 1, x - 1, 2 * x],
         { en: `Subtract ${a}, then divide by 2: x = ${x}.`, ar: `اطرح ${a} ثم اقسم على ٢: س = ${x}.` }
       );
-    }
-    case 8: {
+    },
+    () => {
+      const m = ri(2, 6), c = ri(-5, 8), x = ri(2, 6);
+      return mk(
+        { en: `If y = ${m}x ${c >= 0 ? "+" : "−"} ${Math.abs(c)}, what is y when x = ${x}?`, ar: `إذا كانت ص = ${m}س ${c >= 0 ? "+" : "−"} ${Math.abs(c)}، فما قيمة ص عندما س = ${x}؟` },
+        m * x + c, [m * x - c, m * x + c + m, m + x + c],
+        { en: `y = ${m}·${x} ${c >= 0 ? "+" : "−"} ${Math.abs(c)} = ${m * x + c}.`, ar: `ص = ${m}×${x} ${c >= 0 ? "+" : "−"} ${Math.abs(c)} = ${m * x + c}.` }
+      );
+    },
+    () => {
+      const a = ri(2, 9), b = ri(a + 2, 20), k = b - a;
+      return mkText(
+        { en: `Solve the inequality: x + ${a} > ${b}`, ar: `حُلّ المتباينة: س + ${a} > ${b}` },
+        [
+          { en: `x > ${k}`, ar: `س > ${k}` },
+          { en: `x < ${k}`, ar: `س < ${k}` },
+          { en: `x > ${k + 2}`, ar: `س > ${k + 2}` },
+          { en: `x < ${k - 1}`, ar: `س < ${k - 1}` },
+        ],
+        0,
+        { en: `Subtract ${a} from both sides: x > ${k}. The inequality's direction doesn't change.`, ar: `اطرح ${a} من الطرفين: س > ${k}. اتجاه المتباينة لا يتغير.` }
+      );
+    },
+  ],
+  8: [
+    () => {
       const t = pick([[3, 4, 5], [6, 8, 10], [5, 12, 13], [9, 12, 15]]);
       return mk(
         { en: `A right triangle has legs ${t[0]} and ${t[1]}. How long is the hypotenuse?`, ar: `مثلث قائم ضلعاه القائمان ${t[0]} و${t[1]}. كم طول الوتر؟` },
-        t[2],
-        [t[2] + 1, t[0] + t[1], t[2] - 1],
+        t[2], [t[2] + 1, t[0] + t[1], t[2] - 1],
         { en: `Pythagoras: √(${t[0]}² + ${t[1]}²) = ${t[2]}.`, ar: `فيثاغورس: جذر (${t[0]}² + ${t[1]}²) = ${t[2]}.` }
       );
-    }
-    case 9: {
+    },
+    () => {
+      const x = ri(5, 15), y = ri(1, x - 1);
+      return mk(
+        { en: `Two numbers: sum ${x + y}, difference ${x - y}. What is the larger number?`, ar: `عددان: مجموعهما ${x + y} وفرقهما ${x - y}. ما العدد الأكبر؟` },
+        x, [y, x + 1, x - 1],
+        { en: `Larger = (sum + difference) ÷ 2 = ${x}.`, ar: `الأكبر = (المجموع + الفرق) ÷ ٢ = ${x}.` }
+      );
+    },
+    () => {
+      const k = ri(-5, 9), x = ri(2, 6);
+      return mk(
+        { en: `f(x) = x² ${k >= 0 ? "+" : "−"} ${Math.abs(k)}. What is f(${x})?`, ar: `د(س) = س² ${k >= 0 ? "+" : "−"} ${Math.abs(k)}. كم تساوي د(${x})؟` },
+        x * x + k, [x * x - k, 2 * x + k, (x + k) * (x + k)],
+        { en: `f(${x}) = ${x}² ${k >= 0 ? "+" : "−"} ${Math.abs(k)} = ${x * x + k}.`, ar: `د(${x}) = ${x}² ${k >= 0 ? "+" : "−"} ${Math.abs(k)} = ${x * x + k}.` }
+      );
+    },
+  ],
+  9: [
+    () => {
       const p = ri(1, 6), q = ri(1, 6);
       return mk(
         { en: `x² − ${p + q}x + ${p * q} = 0. One solution is x = ${p}. What is the other?`, ar: `س² − ${p + q}س + ${p * q} = 0. أحد الحلّين هو س = ${p}. فما الحل الآخر؟` },
-        q,
-        [q + 1, p + q, p * q],
+        q, [q + 1, p + q, p * q],
         { en: `The equation factors as (x − ${p})(x − ${q}) = 0, so x = ${q}.`, ar: `تتحلّل المعادلة إلى (س − ${p})(س − ${q}) = 0، إذن س = ${q}.` }
       );
-    }
-    default: {
+    },
+    () => {
+      const p = ri(2, 7), q = ri(2, 7);
+      return mk(
+        { en: `A quadratic has roots ${p} and ${q}: x² − ${p + q}x + C = 0. What is C?`, ar: `معادلة تربيعية جذراها ${p} و${q}: س² − ${p + q}س + جـ = 0. كم تساوي جـ؟` },
+        p * q, [p + q, p * q + p, p * q - q],
+        { en: `The constant term is the product of the roots: ${p} × ${q} = ${p * q}.`, ar: `الحد الثابت هو حاصل ضرب الجذرين: ${p} × ${q} = ${p * q}.` }
+      );
+    },
+    () => {
+      return mkText(
+        { en: "In a 3-4-5 right triangle, what is tan of the angle opposite the side of length 3?", ar: "في مثلث قائم أضلاعه 3-4-5، كم يساوي ظل الزاوية المقابلة للضلع 3؟" },
+        [num("3/4"), num("4/3"), num("3/5"), num("4/5")],
+        0,
+        { en: "tan = opposite ÷ adjacent = 3/4. (3/5 and 4/5 are sin and cos.)", ar: "الظل = المقابل ÷ المجاور = 3/4. (أما 3/5 و4/5 فهما الجيب وجيب التمام.)" }
+      );
+    },
+  ],
+  10: [
+    () => {
       const a = pick([2, 3]), first = ri(2, 5);
       const fourth = first * a * a * a;
       return mk(
         { en: `A sequence starts ${first}, ${first * a}, ${first * a * a}, … What is the 4th term?`, ar: `متتالية تبدأ بـ ${first}، ${first * a}، ${first * a * a}، … ما الحد الرابع؟` },
-        fourth,
-        [fourth + a, first * a * 3, fourth - a],
+        fourth, [fourth + a, first * a * 3, fourth - a],
         { en: `Each term is ×${a}: the 4th term is ${fourth}.`, ar: `كل حد يُضرب في ${a}: الحد الرابع هو ${fourth}.` }
       );
-    }
-  }
+    },
+    () => {
+      const p0 = pick([2, 5, 10]), n = ri(3, 5);
+      return mk(
+        { en: `A colony of ${p0} cells doubles every hour. How many after ${n} hours?`, ar: `مستعمرة من ${p0} خلايا تتضاعف كل ساعة. كم عددها بعد ${n} ساعات؟` },
+        p0 * 2 ** n, [p0 * 2 * n, p0 * 2 ** (n - 1), p0 * 2 ** n + p0],
+        { en: `${p0} × 2^${n} = ${p0 * 2 ** n} — that's exponential growth.`, ar: `${p0} × ٢^${n} = ${p0 * 2 ** n} — هذا هو النمو الأسّي.` }
+      );
+    },
+    () => {
+      const n = pick([10, 15, 20]);
+      return mk(
+        { en: `What is 1 + 2 + … + ${n}?`, ar: `كم يساوي ١ + ٢ + … + ${n}؟` },
+        (n * (n + 1)) / 2, [(n * (n - 1)) / 2, n * n, (n * (n + 1)) / 2 + n],
+        { en: `Gauss's trick: n(n+1)/2 = ${n}·${n + 1}/2 = ${(n * (n + 1)) / 2}.`, ar: `حيلة غاوس: ن(ن+١)/٢ = ${n}×${n + 1}/٢ = ${(n * (n + 1)) / 2}.` }
+      );
+    },
+  ],
+};
+
+function mathQ(level: number): QuizQ {
+  return pick(MATH_GENS[level] ?? MATH_GENS[10])();
 }
 
 // -------------------------------------------------------------------- Physics
 
-const PHYSICS_BANK: Record<number, QuizQ[]> = {
-  1: [
-    {
-      q: { en: "Which of these will float in water?", ar: "أي مما يلي يطفو على الماء؟" },
-      choices: [
-        { en: "A wooden spoon", ar: "ملعقة خشبية" },
-        { en: "A metal key", ar: "مفتاح معدني" },
-        { en: "A stone", ar: "حجر" },
-        { en: "A coin", ar: "قطعة نقود" },
-      ],
-      correct: 0,
-      explain: { en: "Wood is lighter than the same amount of water, so it floats.", ar: "الخشب أخف من كمية الماء المساوية له حجماً، لذلك يطفو." },
+const PHYSICS_GENS: Record<number, (() => QuizQ)[]> = {
+  6: [
+    () => {
+      const t = ri(2, 6), v = ri(3, 12);
+      return mk(
+        { en: `A falcon flies ${v * t} km in ${t} hours. What is its speed in km/h?`, ar: `يطير صقر ${v * t} كم في ${t} ساعات. ما سرعته بالكيلومتر في الساعة؟` },
+        v, [v + 1, v * t, v - 1],
+        { en: `Speed = distance ÷ time = ${v * t} ÷ ${t} = ${v} km/h.`, ar: `السرعة = المسافة ÷ الزمن = ${v * t} ÷ ${t} = ${v} كم/س.` }
+      );
     },
-    {
-      q: { en: "To make a toy car move, you must…", ar: "لتحريك سيارة لعبة يجب أن…" },
-      choices: [
-        { en: "Push or pull it", ar: "تدفعها أو تسحبها" },
-        { en: "Look at it", ar: "تنظر إليها" },
-        { en: "Name it", ar: "تسمّيها" },
-        { en: "Paint it", ar: "تلوّنها" },
-      ],
-      correct: 0,
-      explain: { en: "Things move when a force — a push or a pull — acts on them.", ar: "تتحرك الأشياء حين تؤثر فيها قوة — دفعٌ أو سحب." },
+    () => {
+      const v = ri(40, 120), t = ri(2, 5);
+      return mk(
+        { en: `A car travels at ${v} km/h for ${t} hours. How far does it go (km)?`, ar: `تسير سيارة بسرعة ${v} كم/س لمدة ${t} ساعات. كم المسافة المقطوعة (كم)؟` },
+        v * t, [v + t, v * t + 10, v * (t - 1)],
+        { en: `Distance = speed × time = ${v} × ${t} = ${v * t} km.`, ar: `المسافة = السرعة × الزمن = ${v} × ${t} = ${v * t} كم.` }
+      );
     },
   ],
-  2: [
-    {
-      q: { en: "Why is it hard to slide on a rough carpet?", ar: "لماذا يصعب الانزلاق على سجادة خشنة؟" },
-      choices: [
-        { en: "Friction is high", ar: "الاحتكاك كبير" },
-        { en: "The carpet is cold", ar: "السجادة باردة" },
-        { en: "Gravity is stronger", ar: "الجاذبية أقوى" },
-        { en: "The air pushes back", ar: "الهواء يقاوم" },
-      ],
-      correct: 0,
-      explain: { en: "Rough surfaces grip: high friction resists sliding.", ar: "الأسطح الخشنة تُمسك: الاحتكاك العالي يقاوم الانزلاق." },
+  7: [
+    () => {
+      const m = ri(2, 10), a = ri(2, 6);
+      return mk(
+        { en: `F = ma. A ${m} kg cart accelerates at ${a} m/s². What force acts on it (N)?`, ar: `ق = ك × ت. عربة كتلتها ${m} كغ وتسارعها ${a} م/ث². ما القوة المؤثرة عليها (نيوتن)؟` },
+        m * a, [m + a, m * a + 5, m * a - 2],
+        { en: `Force = mass × acceleration = ${m} × ${a} = ${m * a} N.`, ar: `القوة = الكتلة × التسارع = ${m} × ${a} = ${m * a} نيوتن.` }
+      );
     },
-    {
-      q: { en: "Which will a magnet attract?", ar: "أي شيء يجذبه المغناطيس؟" },
-      choices: [
-        { en: "An iron nail", ar: "مسمار حديدي" },
-        { en: "A plastic ruler", ar: "مسطرة بلاستيكية" },
-        { en: "A wooden pencil", ar: "قلم خشبي" },
-        { en: "A paper sheet", ar: "ورقة" },
-      ],
-      correct: 0,
-      explain: { en: "Magnets attract iron and steel, not plastic, wood or paper.", ar: "يجذب المغناطيس الحديد والفولاذ، لا البلاستيك أو الخشب أو الورق." },
+    () => {
+      const m = ri(2, 12);
+      return mk(
+        { en: `Taking g = 10 m/s², what is the weight of a ${m} kg bag (N)?`, ar: `باعتبار ج = ١٠ م/ث²، ما وزن حقيبة كتلتها ${m} كغ (نيوتن)؟` },
+        m * 10, [m, m * 10 + 10, m * 5],
+        { en: `Weight = mass × g = ${m} × 10 = ${m * 10} N. Mass and weight are different things!`, ar: `الوزن = الكتلة × ج = ${m} × ١٠ = ${m * 10} نيوتن. الكتلة والوزن شيئان مختلفان!` }
+      );
     },
   ],
-  3: [
-    {
-      q: { en: "A shadow forms because light…", ar: "يتكوّن الظل لأن الضوء…" },
-      choices: [
-        { en: "Travels in straight lines", ar: "ينتقل في خطوط مستقيمة" },
-        { en: "Is very hot", ar: "ساخن جداً" },
-        { en: "Moves slowly", ar: "يتحرك ببطء" },
-        { en: "Is yellow", ar: "أصفر اللون" },
-      ],
-      correct: 0,
-      explain: { en: "Light can't bend around an object, so a dark shape appears behind it.", ar: "لا يستطيع الضوء الالتفاف حول الجسم، فيظهر شكل مظلم خلفه." },
+  8: [
+    () => {
+      const i = ri(2, 6), r = ri(2, 8);
+      return mk(
+        { en: `V = IR. A current of ${i} A flows through ${r} Ω. What is the voltage (V)?`, ar: `ج = ت × م. يمر تيار ${i} أمبير في مقاومة ${r} أوم. ما الجهد (فولت)؟` },
+        i * r, [i + r, i * r + 2, i * r - 2],
+        { en: `Voltage = current × resistance = ${i} × ${r} = ${i * r} V.`, ar: `الجهد = التيار × المقاومة = ${i} × ${r} = ${i * r} فولت.` }
+      );
     },
-    {
-      q: { en: "Sound is made by…", ar: "ينشأ الصوت من…" },
-      choices: [
-        { en: "Vibrations", ar: "الاهتزازات" },
-        { en: "Light", ar: "الضوء" },
-        { en: "Shadows", ar: "الظلال" },
-        { en: "Heat", ar: "الحرارة" },
-      ],
-      correct: 0,
-      explain: { en: "Anything that vibrates pushes the air in waves we hear as sound.", ar: "كل ما يهتز يدفع الهواء في موجات نسمعها صوتاً." },
+    () => {
+      const i = ri(2, 6), r = ri(2, 8);
+      return mk(
+        { en: `A ${i * r} V battery drives a circuit of ${i} A. What is the resistance (Ω)?`, ar: `بطارية ${i * r} فولت تدفع تياراً قدره ${i} أمبير. كم المقاومة (أوم)؟` },
+        r, [i, r + 2, i * r],
+        { en: `R = V ÷ I = ${i * r} ÷ ${i} = ${r} Ω.`, ar: `م = ج ÷ ت = ${i * r} ÷ ${i} = ${r} أوم.` }
+      );
     },
   ],
-  4: [
-    {
-      q: { en: "When ice melts it becomes…", ar: "عندما يذوب الجليد يتحول إلى…" },
-      choices: [
-        { en: "Liquid water", ar: "ماء سائل" },
-        { en: "Steam only", ar: "بخار فقط" },
-        { en: "A new solid", ar: "مادة صلبة جديدة" },
-        { en: "Air", ar: "هواء" },
-      ],
-      correct: 0,
-      explain: { en: "Melting is the change from solid to liquid — same water, new state.", ar: "الانصهار تحوّل من الحالة الصلبة إلى السائلة — الماء نفسه بحالة جديدة." },
+  9: [
+    () => {
+      const f = pick([2, 4, 5, 10]), l = ri(2, 8);
+      return mk(
+        { en: `v = fλ. A wave has frequency ${f} Hz and wavelength ${l} m. What is its speed (m/s)?`, ar: `ع = د × ل. موجة ترددها ${f} هرتز وطولها الموجي ${l} م. ما سرعتها (م/ث)؟` },
+        f * l, [f + l, f * l + 3, f * l - 1],
+        { en: `Speed = frequency × wavelength = ${f} × ${l} = ${f * l} m/s.`, ar: `السرعة = التردد × الطول الموجي = ${f} × ${l} = ${f * l} م/ث.` }
+      );
     },
-    {
-      q: { en: "Wet clothes dry on a line because water…", ar: "تجف الملابس المبللة على الحبل لأن الماء…" },
-      choices: [
-        { en: "Evaporates", ar: "يتبخر" },
-        { en: "Freezes", ar: "يتجمد" },
-        { en: "Melts", ar: "ينصهر" },
-        { en: "Disappears forever", ar: "يختفي إلى الأبد" },
-      ],
-      correct: 0,
-      explain: { en: "Heat turns liquid water into invisible vapour that rises into the air.", ar: "تحوّل الحرارة الماء السائل إلى بخار غير مرئي يرتفع في الهواء." },
+    () => {
+      const f = pick([2, 4, 5, 10, 20]);
+      const t = 1 / f;
+      const tStr = t < 1 ? t.toFixed(f === 20 ? 2 : 1) : String(t);
+      return mk(
+        { en: `A wave has frequency ${f} Hz. What is its period (seconds)?`, ar: `موجة ترددها ${f} هرتز. كم زمنها الدوري (ثانية)؟` },
+        tStr, [String(f), (2 / f).toFixed(1), (1 / (f + 1)).toFixed(2)],
+        { en: `Period = 1 ÷ frequency = 1/${f} = ${tStr} s.`, ar: `الزمن الدوري = ١ ÷ التردد = ١/${f} = ${tStr} ث.` }
+      );
     },
   ],
-  5: [
-    {
-      q: { en: "A battery in a torch stores…", ar: "تخزّن البطارية في المصباح…" },
-      choices: [
-        { en: "Chemical energy", ar: "طاقة كيميائية" },
-        { en: "Sound energy", ar: "طاقة صوتية" },
-        { en: "Wind energy", ar: "طاقة رياح" },
-        { en: "Shadow energy", ar: "طاقة الظل" },
-      ],
-      correct: 0,
-      explain: { en: "The battery's chemical energy becomes electrical, then light.", ar: "تتحول الطاقة الكيميائية في البطارية إلى كهرباء ثم إلى ضوء." },
+  10: [
+    () => {
+      const m = ri(2, 8), v = ri(3, 9);
+      return mk(
+        { en: `p = mv. A ${m} kg ball moves at ${v} m/s. What is its momentum (kg·m/s)?`, ar: `ز = ك × ع. كرة كتلتها ${m} كغ تتحرك بسرعة ${v} م/ث. ما زخمها (كغ·م/ث)؟` },
+        m * v, [m + v, m * v + 4, m * v - 3],
+        { en: `Momentum = mass × velocity = ${m} × ${v} = ${m * v} kg·m/s.`, ar: `الزخم = الكتلة × السرعة = ${m} × ${v} = ${m * v} كغ·م/ث.` }
+      );
     },
-    {
-      q: { en: "For a bulb to light, the circuit must be…", ar: "لكي يضيء المصباح يجب أن تكون الدارة…" },
-      choices: [
-        { en: "Closed (complete)", ar: "مغلقة (مكتملة)" },
-        { en: "Open (broken)", ar: "مفتوحة (مقطوعة)" },
-        { en: "Wet", ar: "مبللة" },
-        { en: "Very long", ar: "طويلة جداً" },
-      ],
-      correct: 0,
-      explain: { en: "Current only flows around an unbroken loop.", ar: "لا يسري التيار إلا في حلقة غير مقطوعة." },
+    () => {
+      const m = pick([2, 4, 6, 8]), v = pick([2, 4, 6]);
+      return mk(
+        { en: `KE = ½mv². A ${m} kg drone flies at ${v} m/s. What is its kinetic energy (J)?`, ar: `ط = ½ك ع². طائرة مسيّرة كتلتها ${m} كغ تطير بسرعة ${v} م/ث. ما طاقتها الحركية (جول)؟` },
+        0.5 * m * v * v, [m * v, m * v * v, 0.5 * m * v],
+        { en: `KE = ½ × ${m} × ${v}² = ${0.5 * m * v * v} J.`, ar: `ط = ½ × ${m} × ${v}² = ${0.5 * m * v * v} جول.` }
+      );
     },
   ],
 };
 
 function physicsQ(level: number): QuizQ {
-  if (level <= 5) return pick(PHYSICS_BANK[level]);
-  switch (level) {
-    case 6: {
-      const t = ri(2, 6), v = ri(3, 12);
-      return mk(
-        { en: `A falcon flies ${v * t} km in ${t} hours. What is its speed in km/h?`, ar: `يطير صقر ${v * t} كم في ${t} ساعات. ما سرعته بالكيلومتر في الساعة؟` },
-        v,
-        [v + 1, v * t, v - 1],
-        { en: `Speed = distance ÷ time = ${v * t} ÷ ${t} = ${v} km/h.`, ar: `السرعة = المسافة ÷ الزمن = ${v * t} ÷ ${t} = ${v} كم/س.` }
-      );
-    }
-    case 7: {
-      const m = ri(2, 10), a = ri(2, 6);
-      return mk(
-        { en: `F = ma. A ${m} kg cart accelerates at ${a} m/s². What force acts on it (N)?`, ar: `ق = ك × ت. عربة كتلتها ${m} كغ وتسارعها ${a} م/ث². ما القوة المؤثرة عليها (نيوتن)؟` },
-        m * a,
-        [m + a, m * a + 5, m * a - 2],
-        { en: `Force = mass × acceleration = ${m} × ${a} = ${m * a} N.`, ar: `القوة = الكتلة × التسارع = ${m} × ${a} = ${m * a} نيوتن.` }
-      );
-    }
-    case 8: {
-      const i = ri(2, 6), r = ri(2, 8);
-      return mk(
-        { en: `V = IR. A current of ${i} A flows through ${r} Ω. What is the voltage (V)?`, ar: `ج = ت × م. يمر تيار ${i} أمبير في مقاومة ${r} أوم. ما الجهد (فولت)؟` },
-        i * r,
-        [i + r, i * r + 2, i * r - 2],
-        { en: `Voltage = current × resistance = ${i} × ${r} = ${i * r} V.`, ar: `الجهد = التيار × المقاومة = ${i} × ${r} = ${i * r} فولت.` }
-      );
-    }
-    case 9: {
-      const f = pick([2, 4, 5, 10]), l = ri(2, 8);
-      return mk(
-        { en: `v = fλ. A wave has frequency ${f} Hz and wavelength ${l} m. What is its speed (m/s)?`, ar: `ع = د × ل. موجة ترددها ${f} هرتز وطولها الموجي ${l} م. ما سرعتها (م/ث)؟` },
-        f * l,
-        [f + l, f * l + 3, f * l - 1],
-        { en: `Speed = frequency × wavelength = ${f} × ${l} = ${f * l} m/s.`, ar: `السرعة = التردد × الطول الموجي = ${f} × ${l} = ${f * l} م/ث.` }
-      );
-    }
-    default: {
-      const m = ri(2, 8), v = ri(3, 9);
-      return mk(
-        { en: `p = mv. A ${m} kg ball moves at ${v} m/s. What is its momentum (kg·m/s)?`, ar: `ز = ك × ع. كرة كتلتها ${m} كغ تتحرك بسرعة ${v} م/ث. ما زخمها (كغ·م/ث)؟` },
-        m * v,
-        [m + v, m * v + 4, m * v - 3],
-        { en: `Momentum = mass × velocity = ${m} × ${v} = ${m * v} kg·m/s.`, ar: `الزخم = الكتلة × السرعة = ${m} × ${v} = ${m * v} كغ·م/ث.` }
-      );
-    }
-  }
+  if (level <= 5) return pick(PHYSICS_EARLY_BANK[level]);
+  return pick(PHYSICS_GENS[level] ?? PHYSICS_GENS[10])();
 }
 
-// -------------------------------------------- Conceptual subjects (curated banks)
-
-interface TaggedQ extends QuizQ {
-  lv: number; // the school year this question is pitched at
-}
-
-const BANKS: Record<string, TaggedQ[]> = {
-  geography: [
-    {
-      lv: 3,
-      q: { en: "On a compass, the sun rises in the…", ar: "على البوصلة، تشرق الشمس من جهة…" },
-      choices: [{ en: "East", ar: "الشرق" }, { en: "West", ar: "الغرب" }, { en: "North", ar: "الشمال" }, { en: "South", ar: "الجنوب" }],
-      correct: 0,
-      explain: { en: "Earth spins toward the east, so the sun appears there first.", ar: "تدور الأرض نحو الشرق، فتظهر الشمس هناك أولاً." },
-    },
-    {
-      lv: 5,
-      q: { en: "Which strait connects the Gulf to the open ocean?", ar: "أي مضيق يصل الخليج بالمحيط المفتوح؟" },
-      choices: [{ en: "Hormuz", ar: "هرمز" }, { en: "Gibraltar", ar: "جبل طارق" }, { en: "Bosphorus", ar: "البوسفور" }, { en: "Malacca", ar: "ملقا" }],
-      correct: 0,
-      explain: { en: "The Strait of Hormuz links the Arabian Gulf to the Gulf of Oman and the Indian Ocean.", ar: "يصل مضيق هرمز الخليج العربي بخليج عُمان والمحيط الهندي." },
-    },
-    {
-      lv: 8,
-      q: { en: "Desertification means…", ar: "التصحّر يعني…" },
-      choices: [
-        { en: "Fertile land becoming desert", ar: "تحوّل الأرض الخصبة إلى صحراء" },
-        { en: "Deserts becoming forests", ar: "تحوّل الصحارى إلى غابات" },
-        { en: "Building cities in deserts", ar: "بناء المدن في الصحارى" },
-        { en: "Sand storms in winter", ar: "عواصف رملية شتوية" },
-      ],
-      correct: 0,
-      explain: { en: "Overgrazing, drought and misuse turn productive land into desert.", ar: "الرعي الجائر والجفاف وسوء الاستخدام تحوّل الأرض المنتجة إلى صحراء." },
-    },
-  ],
-  ai: [
-    {
-      lv: 2,
-      q: { en: "An algorithm is most like a…", ar: "الخوارزمية أشبه ما تكون بـ…" },
-      choices: [{ en: "Recipe", ar: "وصفة طبخ" }, { en: "Painting", ar: "لوحة" }, { en: "Song", ar: "أغنية" }, { en: "Ball", ar: "كرة" }],
-      correct: 0,
-      explain: { en: "Both are exact steps followed in order to get a result.", ar: "كلاهما خطوات دقيقة تُتَّبع بالترتيب للوصول إلى نتيجة." },
-    },
-    {
-      lv: 5,
-      q: { en: "In supervised learning, the model learns from…", ar: "في التعلّم الموجّه، يتعلم النموذج من…" },
-      choices: [
-        { en: "Labelled examples", ar: "أمثلة موسومة" },
-        { en: "Pure guessing", ar: "التخمين المحض" },
-        { en: "Its dreams", ar: "أحلامه" },
-        { en: "One example only", ar: "مثال واحد فقط" },
-      ],
-      correct: 0,
-      explain: { en: "Each training example comes with the right answer attached.", ar: "كل مثال تدريبي يأتي مرفقاً بالإجابة الصحيحة." },
-    },
-    {
-      lv: 7,
-      q: { en: "The best first move when an AI answer looks wrong is to…", ar: "أفضل خطوة أولى حين تبدو إجابة الذكاء الاصطناعي خاطئة هي…" },
-      choices: [
-        { en: "Verify it against a trusted source", ar: "التحقق منها من مصدر موثوق" },
-        { en: "Share it anyway", ar: "نشرها على أي حال" },
-        { en: "Assume it's right", ar: "افتراض صحتها" },
-        { en: "Delete the app", ar: "حذف التطبيق" },
-      ],
-      correct: 0,
-      explain: { en: "Models can hallucinate; verification is part of using AI well.", ar: "قد تهلوس النماذج؛ التحقق جزء من حسن استخدام الذكاء الاصطناعي." },
-    },
-  ],
-  gaming: [
-    {
-      lv: 3,
-      q: { en: "A game stays fun when challenge is…", ar: "تبقى اللعبة ممتعة حين يكون التحدي…" },
-      choices: [
-        { en: "Slightly above your skill", ar: "أعلى قليلاً من مهارتك" },
-        { en: "Impossible", ar: "مستحيلاً" },
-        { en: "Absent", ar: "غائباً" },
-        { en: "Random", ar: "عشوائياً تماماً" },
-      ],
-      correct: 0,
-      explain: { en: "That balance point is called 'flow' — hard enough to grip, fair enough to win.", ar: "تلك النقطة تسمى «الانسياب» — صعبة بما يكفي لتشدّك وعادلة بما يكفي لتفوز." },
-    },
-    {
-      lv: 8,
-      q: { en: "In game code, the player's score is stored in a…", ar: "في كود اللعبة، تُخزَّن نقاط اللاعب في…" },
-      choices: [{ en: "Variable", ar: "متغيّر" }, { en: "Shadow", ar: "ظل" }, { en: "Pixel", ar: "بكسل" }, { en: "Sound file", ar: "ملف صوتي" }],
-      correct: 0,
-      explain: { en: "A variable is a named box whose value can change as you play.", ar: "المتغيّر صندوق مسمّى تتغير قيمته أثناء اللعب." },
-    },
-    {
-      lv: 9,
-      q: { en: "The main goal of a playtest is to…", ar: "الهدف الأساسي من جلسة الاختبار هو…" },
-      choices: [
-        { en: "Watch where players struggle", ar: "مراقبة أين يتعثر اللاعبون" },
-        { en: "Prove you're right", ar: "إثبات أنك على حق" },
-        { en: "Win the game yourself", ar: "أن تفوز أنت باللعبة" },
-        { en: "Sell copies", ar: "بيع النسخ" },
-      ],
-      correct: 0,
-      explain: { en: "You learn most from watching real players get stuck — silently.", ar: "تتعلم أكثر من مشاهدة لاعبين حقيقيين يتعثرون — بصمت." },
-    },
-  ],
-  entrepreneurship: [
-    {
-      lv: 4,
-      q: { en: "You sell lemonade for 5 and each cup costs 2 to make. Your profit per cup is…", ar: "تبيع كوب الليمونادة بـ٥ وتكلفة صنعه ٢. ربحك من الكوب هو…" },
-      choices: [{ en: "3", ar: "3" }, { en: "7", ar: "7" }, { en: "2", ar: "2" }, { en: "5", ar: "5" }],
-      correct: 0,
-      explain: { en: "Profit = price − cost = 5 − 2 = 3.", ar: "الربح = السعر − التكلفة = ٥ − ٢ = ٣." },
-    },
-    {
-      lv: 7,
-      q: { en: "An MVP exists mainly to…", ar: "الهدف الأساسي من المنتج الأوّلي هو…" },
-      choices: [
-        { en: "Test your riskiest assumption", ar: "اختبار أخطر افتراضاتك" },
-        { en: "Impress investors with polish", ar: "إبهار المستثمرين بالإتقان" },
-        { en: "Include every feature", ar: "تضمين كل الميزات" },
-        { en: "Win design awards", ar: "الفوز بجوائز التصميم" },
-      ],
-      correct: 0,
-      explain: { en: "Build the smallest thing that tells you whether the idea works.", ar: "ابنِ أصغر شيء يخبرك إن كانت الفكرة تنجح." },
-    },
-    {
-      lv: 9,
-      q: { en: "Retention matters more than acquisition because…", ar: "الاحتفاظ بالعملاء أهم من اكتسابهم لأن…" },
-      choices: [
-        { en: "A leaky bucket never fills", ar: "الدلو المثقوب لا يمتلئ أبداً" },
-        { en: "Ads are cheap", ar: "الإعلانات رخيصة" },
-        { en: "New users pay more", ar: "المستخدمين الجدد يدفعون أكثر" },
-        { en: "It looks good in pitches", ar: "يبدو جيداً في العروض" },
-      ],
-      correct: 0,
-      explain: { en: "If customers keep leaving, no amount of new ones saves the business.", ar: "إذا استمر العملاء بالمغادرة، فلن ينقذ العملُ أيُّ عدد من الجدد." },
-    },
-  ],
-  leadership: [
-    {
-      lv: 3,
-      q: { en: "A good team role for someone who loves details is…", ar: "الدور المناسب في الفريق لمن يحب التفاصيل هو…" },
-      choices: [{ en: "Checker / quality lead", ar: "المدقّق / مسؤول الجودة" }, { en: "No role", ar: "بلا دور" }, { en: "Doing everything", ar: "فعل كل شيء" }, { en: "Watching only", ar: "المشاهدة فقط" }],
-      correct: 0,
-      explain: { en: "Great teams match roles to strengths.", ar: "الفرق العظيمة توائم الأدوار مع نقاط القوة." },
-    },
-    {
-      lv: 7,
-      q: { en: "In a conflict, the first thing to find is…", ar: "في أي خلاف، أول ما ينبغي البحث عنه هو…" },
-      choices: [
-        { en: "The real issue underneath", ar: "القضية الحقيقية الكامنة" },
-        { en: "Who to blame", ar: "من نلوم" },
-        { en: "Who is louder", ar: "من صوته أعلى" },
-        { en: "A way to avoid everyone", ar: "طريقة لتجنّب الجميع" },
-      ],
-      correct: 0,
-      explain: { en: "Arguments are usually about something deeper than the trigger.", ar: "الخلافات عادة حول شيء أعمق من شرارتها." },
-    },
-    {
-      lv: 9,
-      q: { en: "Servant leadership means the leader…", ar: "القيادة الخادمة تعني أن القائد…" },
-      choices: [
-        { en: "Puts the team's needs first", ar: "يقدّم احتياجات الفريق أولاً" },
-        { en: "Gives the most orders", ar: "يُصدر أكثر الأوامر" },
-        { en: "Takes the credit", ar: "يستأثر بالفضل" },
-        { en: "Avoids decisions", ar: "يتجنب القرارات" },
-      ],
-      correct: 0,
-      explain: { en: "Power is used to serve the people you lead, not yourself.", ar: "تُستخدم السلطة لخدمة من تقودهم، لا لخدمة نفسك." },
-    },
-  ],
-  "problem-solving": [
-    {
-      lv: 3,
-      q: { en: "The best first step with a big, scary problem is to…", ar: "أفضل خطوة أولى مع مشكلة كبيرة مخيفة هي…" },
-      choices: [
-        { en: "Break it into smaller pieces", ar: "تفكيكها إلى قطع أصغر" },
-        { en: "Give up", ar: "الاستسلام" },
-        { en: "Solve it all at once", ar: "حلها دفعة واحدة" },
-        { en: "Wait for luck", ar: "انتظار الحظ" },
-      ],
-      correct: 0,
-      explain: { en: "Decomposition turns one impossible task into many possible ones.", ar: "التفكيك يحوّل مهمة مستحيلة واحدة إلى مهام ممكنة عديدة." },
-    },
-    {
-      lv: 6,
-      q: { en: "A feedback loop is when…", ar: "حلقة التغذية الراجعة تحدث حين…" },
-      choices: [
-        { en: "An effect feeds back into its cause", ar: "تعود النتيجة لتؤثر في سببها" },
-        { en: "Two people argue", ar: "يتجادل شخصان" },
-        { en: "A plan is written twice", ar: "تُكتب الخطة مرتين" },
-        { en: "Music repeats", ar: "تتكرر الموسيقى" },
-      ],
-      correct: 0,
-      explain: { en: "Like a rumour: the more it spreads, the more people spread it.", ar: "كالإشاعة: كلما انتشرت أكثر، زاد من ينشرها." },
-    },
-    {
-      lv: 8,
-      q: { en: "Before running an experiment, a good solver writes down…", ar: "قبل إجراء التجربة، يكتب الحلّال الجيد…" },
-      choices: [
-        { en: "A hypothesis to test", ar: "فرضية للاختبار" },
-        { en: "The conclusion", ar: "الاستنتاج النهائي" },
-        { en: "Nothing at all", ar: "لا شيء إطلاقاً" },
-        { en: "Someone to blame", ar: "اسم من سيلومه" },
-      ],
-      correct: 0,
-      explain: { en: "A written hypothesis keeps the test honest.", ar: "الفرضية المكتوبة تُبقي الاختبار صادقاً." },
-    },
-  ],
-  "emotional-intelligence": [
-    {
-      lv: 2,
-      q: { en: "When anger feels huge, a first good tool is…", ar: "حين يشتد الغضب، أداة أولى جيدة هي…" },
-      choices: [
-        { en: "Slow belly breathing", ar: "تنفّس البطن البطيء" },
-        { en: "Shouting louder", ar: "الصراخ أعلى" },
-        { en: "Breaking something", ar: "كسر شيء ما" },
-        { en: "Blaming a friend", ar: "لوم صديق" },
-      ],
-      correct: 0,
-      explain: { en: "Slow breathing calms the body so the thinking brain can return.", ar: "التنفس البطيء يهدّئ الجسد ليعود العقل المفكر." },
-    },
-    {
-      lv: 5,
-      q: { en: "Reading the room mostly means noticing…", ar: "قراءة الموقف تعني غالباً ملاحظة…" },
-      choices: [
-        { en: "Tone and body language", ar: "النبرة ولغة الجسد" },
-        { en: "The furniture", ar: "الأثاث" },
-        { en: "The time", ar: "الوقت" },
-        { en: "Your phone", ar: "هاتفك" },
-      ],
-      correct: 0,
-      explain: { en: "Most of what people feel is said without words.", ar: "معظم ما يشعر به الناس يُقال بلا كلمات." },
-    },
-    {
-      lv: 6,
-      q: { en: "Resilience means…", ar: "المرونة النفسية تعني…" },
-      choices: [
-        { en: "Bouncing back after setbacks", ar: "النهوض بعد الكبوات" },
-        { en: "Never feeling sad", ar: "ألا تحزن أبداً" },
-        { en: "Avoiding all risk", ar: "تجنّب كل مخاطرة" },
-        { en: "Hiding feelings", ar: "إخفاء المشاعر" },
-      ],
-      correct: 0,
-      explain: { en: "Everyone falls; resilience is the getting up.", ar: "الكل يقع؛ المرونة هي النهوض." },
-    },
-  ],
-  languages: [
-    {
-      lv: 3,
-      q: { en: "Spaced repetition means reviewing words…", ar: "المراجعة المتباعدة تعني مراجعة الكلمات…" },
-      choices: [
-        { en: "At growing intervals over days", ar: "على فترات متزايدة عبر الأيام" },
-        { en: "Once and never again", ar: "مرة واحدة فقط" },
-        { en: "All in one night", ar: "كلها في ليلة واحدة" },
-        { en: "Only before exams", ar: "قبل الامتحانات فقط" },
-      ],
-      correct: 0,
-      explain: { en: "Memory strengthens most when you recall just before forgetting.", ar: "تقوى الذاكرة أكثر حين تتذكر قُبيل النسيان." },
-    },
-    {
-      lv: 5,
-      q: { en: "'Shadowing' a speaker means…", ar: "«محاكاة» المتحدث تعني…" },
-      choices: [
-        { en: "Repeating right behind their voice", ar: "الترديد خلف صوته مباشرة" },
-        { en: "Following them home", ar: "اتباعه إلى بيته" },
-        { en: "Writing their biography", ar: "كتابة سيرته" },
-        { en: "Staying silent", ar: "التزام الصمت" },
-      ],
-      correct: 0,
-      explain: { en: "You mimic rhythm and sounds in real time — the fastest route to accent and flow.", ar: "تحاكي الإيقاع والأصوات لحظياً — أسرع طريق للنطق والانسياب." },
-    },
-    {
-      lv: 6,
-      q: { en: "When you meet an unknown word while reading, first…", ar: "حين تقابل كلمة مجهولة أثناء القراءة، أولاً…" },
-      choices: [
-        { en: "Guess it from context", ar: "خمّنها من السياق" },
-        { en: "Stop reading", ar: "توقف عن القراءة" },
-        { en: "Skip the book", ar: "اترك الكتاب" },
-        { en: "Memorise the page", ar: "احفظ الصفحة" },
-      ],
-      correct: 0,
-      explain: { en: "Context carries most meanings; the dictionary comes second.", ar: "السياق يحمل معظم المعاني؛ والقاموس يأتي ثانياً." },
-    },
-  ],
-};
+// ------------------------------------------------------------------ Interface
 
 /** Produce one quiz question for a subject at a given level. */
 export function generateQuestion(subject: string, level: number): QuizQ {
@@ -602,7 +436,7 @@ export function generateQuestion(subject: string, level: number): QuizQ {
   const bank = BANKS[subject] ?? BANKS["problem-solving"];
   // Pick from the questions pitched nearest to this school year.
   const sorted = [...bank].sort((a, b) => Math.abs(a.lv - level) - Math.abs(b.lv - level));
-  return pick(sorted.slice(0, 2));
+  return pick(sorted.slice(0, 3));
 }
 
 export function generateQuiz(subject: string, level: number, count: number): QuizQ[] {

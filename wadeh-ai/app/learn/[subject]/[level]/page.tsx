@@ -13,6 +13,10 @@ import { TutorChat } from "@/components/TutorChat";
 import { QuizArena } from "@/components/QuizArena";
 import { MathLab } from "@/components/MathLab";
 import { PhysicsLab } from "@/components/PhysicsLab";
+import { AILab } from "@/components/AILab";
+import { GeoLab } from "@/components/GeoLab";
+import { BizLab } from "@/components/BizLab";
+import { WordMatch } from "@/components/WordMatch";
 
 export default function LevelPage({ params }: { params: { subject: string; level: string } }) {
   const subject = getSubject(params.subject);
@@ -84,6 +88,10 @@ function LevelView({ slug, n }: { slug: string; n: number }) {
 
             {slug === "math" && <MathLab level={n} />}
             {slug === "physics" && <PhysicsLab level={n} />}
+            {slug === "ai" && <AILab />}
+            {slug === "geography" && <GeoLab />}
+            {slug === "entrepreneurship" && <BizLab />}
+            {slug === "languages" && <WordMatch level={n} />}
 
             <QuizArena subject={slug} level={n} />
 

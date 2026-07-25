@@ -5,6 +5,7 @@ import { usePrefs } from "@/lib/prefs";
 import { t } from "@/lib/i18n";
 import { generateQuiz, XP_CORRECT, XP_LEVEL_MASTERED, type QuizQ } from "@/lib/games";
 import { QUIZ_LENGTH, PASS_SCORE } from "@/lib/curriculum";
+import { SunMark } from "./SunMark";
 import clsx from "clsx";
 
 interface ArenaQ extends QuizQ {
@@ -97,6 +98,11 @@ export function QuizArena({ subject, level }: { subject: string; level: number }
     return (
       <div className={clsx("card p-8", win && "border-marigold/70")}>
         <p className="eyebrow-accent mb-3">{d.lesson.quiz}</p>
+        {win && (
+          <div className="sun-rise mb-4">
+            <SunMark size={72} />
+          </div>
+        )}
         <p className="font-serif text-3xl">{win ? d.quiz.finishPass : d.quiz.finishFail}</p>
         <div className="mt-6 flex gap-10">
           <div>

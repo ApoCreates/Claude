@@ -38,7 +38,14 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 export const metadata: Metadata = {
   title: "wadehAI · واضح — Learn clearly",
   description:
-    "A bilingual AI learning platform for the GCC and the Levant. Ten subjects, ten levels each, in Arabic and English — with a patient AI tutor in every lesson.",
+    "A bilingual AI learning platform for the GCC and the Levant. Ten subjects × ten school years, in Arabic and English — with visual labs, quests, mastery quizzes and a patient AI tutor in every lesson.",
+  openGraph: {
+    title: "wadehAI · واضح — Learn clearly",
+    description:
+      "Ten subjects, ten school years each, in Arabic and English. Visual labs, daily quests, mastery quizzes, and a Socratic AI tutor — built for the GCC and the Levant.",
+    siteName: "wadehAI",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

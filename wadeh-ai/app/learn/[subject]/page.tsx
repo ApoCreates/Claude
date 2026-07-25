@@ -9,6 +9,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Guard } from "@/components/Guard";
 import { LevelPath } from "@/components/LevelPath";
+import { PlacementTest } from "@/components/PlacementTest";
 
 export default function SubjectPage({ params }: { params: { subject: string } }) {
   const subject = getSubject(params.subject);
@@ -47,6 +48,8 @@ function SubjectView({ slug }: { slug: string }) {
           <p className="eyebrow-accent mb-2">{d.subject.example}</p>
           <p className="font-serif text-lg leading-relaxed">{subject.regionExample[r][lang]}</p>
         </div>
+
+        {(slug === "math" || slug === "physics") && <PlacementTest subject={slug} />}
 
         <LevelPath subject={subject} />
 

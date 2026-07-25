@@ -54,6 +54,7 @@ interface PrefsCtx extends Prefs {
   addXp: (n: number) => void;
   recordCorrect: () => void;
   recordMastered: (subject: string, level: number) => void;
+  applyPlacement: (subject: string, startYear: number) => void;
   recordTutorAsk: () => void;
   addReview: (item: ReviewItem) => void;
   shiftReview: () => void;
@@ -159,6 +160,14 @@ export function PrefsProvider({ children }: { children: React.ReactNode }) {
           const cur = d.passed[subject] ?? [];
           const passed = cur.includes(level) ? d.passed : { ...d.passed, [subject]: [...cur, level] };
           return claimQuests({ ...d, passed, quest: { ...d.quest, mastered: d.quest.mastered + 1 } });
+        }),
+      // Placement marks all years before the recommended start as passed,
+      // without inflating the daily quest counters.
+      applyPlacement: (subject, startYear) =>
+        setPrefs((p) => {
+          const prior = Array.from({ length: Math.max(0, startYear - 1) }, (_, i) => i + 1);
+          const merged = Array.from(new Set([...(p.passed[subject] ?? []), ...prior]));
+          return { ...p, passed: { ...p.passed, [subject]: merged } };
         }),
       recordTutorAsk: () =>
         setPrefs((p) => {
