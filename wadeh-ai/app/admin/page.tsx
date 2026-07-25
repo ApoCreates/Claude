@@ -203,6 +203,34 @@ export default function AdminPage() {
           </ul>
         </div>
 
+        {/* Cost controls — how the tutor stays cheap */}
+        <div className="card mt-8 p-6">
+          <p className="eyebrow-accent mb-4">{ar ? "التكلفة والميزانية" : "COST & BUDGET"}</p>
+          <p className="text-sm leading-relaxed text-mute-light">
+            {ar
+              ? "المعلّم يجيب أولًا من داخل المنصّة: مكتبة أسئلة شائعة + ذاكرة للإجابات السابقة (بلا تكلفة). لا يُستدعى المفتاح المدفوع إلا عند عدم إيجاد إجابة جاهزة، ويستخدم عندها أرخص نموذج قادر (Haiku) بإجابة قصيرة — جزء من السنت للطلب الواحد."
+              : "The tutor answers from inside the app first — a library of common questions plus a memory of past answers (both free). The paid key is called only when no ready answer exists, and then uses the cheapest capable model (Haiku) with a short answer window — a fraction of a cent per call."}
+          </p>
+          <ul className="mt-4 space-y-2 text-sm text-mute-light">
+            <li className="border-t border-hairline pt-2">
+              <span className="font-mono text-[11px] text-marigold">MONTHLY_BUDGET_USD</span>{" "}
+              {ar
+                ? "— الحدّ الشهري (افتراضيًا 10$). عند تجاوزه يواصل المعلّم العمل من المحرّك المحلي بلا تكلفة."
+                : "— the soft monthly cap (defaults to $10). Past it, the tutor keeps working from the local engine at no cost."}
+            </li>
+            <li className="border-t border-hairline pt-2">
+              {ar
+                ? "الحدّ الحاسم: اضبط سقف إنفاق 10$ في Anthropic Console ← Billing ← Usage limits. هذا هو الضمان الفعلي."
+                : "Authoritative cap: set a $10 spend limit in Anthropic Console → Billing → Usage limits. That is the real guarantee."}
+            </li>
+            <li className="border-t border-hairline pt-2">
+              {ar
+                ? "افحص /api/health لرؤية الإنفاق التقديري والرصيد المتبقّي وعدد الإجابات المخزّنة."
+                : "Check /api/health for estimated spend, remaining budget, and how many answers are cached."}
+            </li>
+          </ul>
+        </div>
+
         <p className="mt-8">
           <Link href="/learn" className="btn-paper">
             {ar ? "إلى المنهج" : "To the curriculum"} <span aria-hidden>→</span>

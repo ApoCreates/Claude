@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { MODEL_CASCADE } from "@/lib/models";
 import { screenMessage, extractModelFlag, reportFlag, redirectReply, type FlagCategory } from "@/lib/moderation";
+import { findLocalAnswer, cacheKey, getCached, setCached } from "@/lib/answers";
+import { withinBudget, recordSpend, estimateCostUsd } from "@/lib/budget";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -107,22 +109,47 @@ export async function POST(request: Request) {
     return NextResponse.json({ reply: redirectReply(hit.category, req.lang, req.levelTitle), live: true });
   }
 
+  const lastQuestion = req.messages.filter((m) => m.role === "user").slice(-1)[0]?.content ?? "";
+
+  // Engine-first, cheapest-first. Most answers live inside the app for $0.
+  //   1) Curated library of common questions.
+  const local = findLocalAnswer(req.subject, req.lang, lastQuestion);
+  if (local) return NextResponse.json({ reply: local, live: true, source: "library" });
+
+  //   2) Cache of past live answers — identical repeats never re-bill.
+  const key = cacheKey(req.subject, req.level, req.lang, lastQuestion);
+  const cached = getCached(key);
+  if (cached) return NextResponse.json({ reply: cached, live: true, source: "cache" });
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ reply: cannedReply(req), live: false });
   }
 
+  //   3) Monthly soft cap — over budget, keep the tutor working from the
+  //      engine/canned mode instead of paying. (Authoritative cap lives in the
+  //      Anthropic Console; this just avoids overspend between here and there.)
+  if (!withinBudget()) {
+    return NextResponse.json({ reply: cannedReply(req), live: false, source: "budget", budgetCapped: true });
+  }
+
   const client = new Anthropic({ apiKey });
   let lastError = "";
-  // Try models newest-first so the tutor stays live on any account tier.
+  // Try cheapest-capable models first; a short answer window and trimmed
+  // history keep each paid generation to a fraction of a cent.
   for (const model of MODEL_CASCADE) {
     try {
       const response = await client.messages.create({
         model,
-        max_tokens: 1024,
+        max_tokens: 400,
         system: systemPrompt(req),
-        messages: req.messages.slice(-12).map((m) => ({ role: m.role, content: m.content })),
+        // Trimmed history keeps input tokens (and cost) low while preserving
+        // enough context for a coherent multi-step exchange.
+        messages: req.messages.slice(-6).map((m) => ({ role: m.role, content: m.content })),
       });
+      // Track estimated spend against the monthly cap.
+      const u = response.usage;
+      recordSpend(estimateCostUsd(model, u?.input_tokens ?? 0, u?.output_tokens ?? 0));
       const raw = response.content
         .filter((b): b is Anthropic.TextBlock => b.type === "text")
         .map((b) => b.text)
@@ -131,9 +158,11 @@ export async function POST(request: Request) {
       // strip it, report it, and hand the learner only the clean reply.
       const { clean, category } = extractModelFlag(raw);
       if (category) {
-        await flag(category, "model", req.messages.filter((m) => m.role === "user").slice(-1)[0]?.content ?? "");
+        await flag(category, "model", lastQuestion);
+      } else {
+        setCached(key, clean); // only cache safe, non-flagged answers
       }
-      return NextResponse.json({ reply: clean, live: true, model });
+      return NextResponse.json({ reply: clean, live: true, model, source: "api" });
     } catch (e) {
       lastError = e instanceof Error ? e.message.slice(0, 160) : "unknown";
     }

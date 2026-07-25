@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { MODEL_CASCADE } from "@/lib/models";
+import { MONTHLY_BUDGET_USD, spentThisMonthUsd, budgetRemainingUsd, callsThisMonth } from "@/lib/budget";
+import { cacheSize } from "@/lib/answers";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -14,10 +16,22 @@ export async function GET() {
   const key = process.env.ANTHROPIC_API_KEY;
   const envNames = Object.keys(process.env).filter((k) => /ANTHROPIC|CLAUDE/i.test(k));
 
+  // Best-effort, per warm instance. The authoritative cap is the Anthropic
+  // Console spend limit; this is the app-side soft guardrail.
+  const budget = {
+    monthlyCapUsd: MONTHLY_BUDGET_USD,
+    estimatedSpentUsd: Number(spentThisMonthUsd().toFixed(4)),
+    estimatedRemainingUsd: Number(budgetRemainingUsd().toFixed(4)),
+    paidCallsThisInstance: callsThisMonth(),
+    cachedAnswers: cacheSize(),
+    note: "Best-effort per-instance estimate. Authoritative cap = Anthropic Console spend limit.",
+  };
+
   if (!key) {
     return NextResponse.json({
       hasKey: false,
       matchingEnvNames: envNames,
+      budget,
       hint: "ANTHROPIC_API_KEY is not visible to the production function.",
     });
   }
@@ -41,5 +55,6 @@ export async function GET() {
     matchingEnvNames: envNames,
     attempts,
     live: attempts.some((a) => a.ok),
+    budget,
   });
 }
