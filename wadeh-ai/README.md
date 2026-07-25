@@ -7,10 +7,16 @@ Design language derives from **The Aigency design system v.3**: paper on ink at 
 ## Product
 
 - **The gate** (`/`) — language (EN/AR) and region (GCC/Levant) are chosen before entry; the whole app switches direction (RTL/LTR), fonts, examples and pricing accordingly.
-- **Curriculum** (`/learn`) — 10 subjects × 10 levels = 100 levels:
+- **Curriculum** (`/learn`) — 10 subjects × 10 levels, where **one level = one school year** (Year 1 → Year 10, ages ~6 to ~16). Every level carries a written year focus and four units, authored in both languages (`lib/levels/*.ts`):
   - *From education:* Mathematics, Physics, Geography, Artificial Intelligence, Game Design
   - *From real life:* Entrepreneurship, Leadership, Problem Solving, Emotional Intelligence, Learning Languages
-- **Lessons** (`/learn/[subject]/[level]`) — objectives, a region-flavoured worked example, practice, and a built-in **AI tutor** (patient, Socratic, bilingual). Live Claude API when `ANTHROPIC_API_KEY` is set; graceful canned mode otherwise.
+- **The learning loop** (Duolingo mechanics, set in daylight):
+  - **Level path** — a winding ladder of ten suns per subject; passing a year's mastery quiz lights the next sun (sequential unlock).
+  - **Mastery quizzes** — 5 fresh questions per run (math and upper physics are procedurally generated, so they never repeat), immediate feedback with explanations, pass at 4/5.
+  - **Rays (XP), daily streaks and daily quests** — answer 10 correctly, master a year, ask the tutor 3 questions; each quest pays bonus Rays.
+  - **Spaced review queue** — missed questions come back inside future quizzes until beaten.
+- **Visual labs** (`TRY IT LIVE`) — interactive, per-year: number-line addition, fraction bars and a live function grapher for math; a float-or-sink density tank and an animated projectile launcher for physics.
+- **AI tutor in every lesson** — patient, Socratic, bilingual, age-calibrated to the school year, and able to **draw real graphs** in its answers via `PLOT` directives rendered by the client. Live Claude API when `ANTHROPIC_API_KEY` is set; graceful canned mode otherwise.
 - **Subscription** (`/pricing`) — region-aware pricing:
   | Plan | GCC | Levant | Unlocks |
   |---|---|---|---|

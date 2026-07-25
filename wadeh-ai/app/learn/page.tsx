@@ -7,6 +7,7 @@ import { SUBJECTS, ROMAN } from "@/lib/curriculum";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Guard } from "@/components/Guard";
+import { QuestPanel } from "@/components/QuestPanel";
 
 export default function LearnPage() {
   return (
@@ -17,16 +18,21 @@ export default function LearnPage() {
 }
 
 function Learn() {
-  const { lang, completed } = usePrefs();
+  const { lang, passed } = usePrefs();
   const d = t(lang);
 
   return (
     <>
       <Nav />
       <main className="mx-auto max-w-6xl px-6 py-16">
-        <p className="eyebrow-accent mb-3">{d.curriculum.eyebrow}</p>
-        <h1 className="font-serif text-5xl">{d.curriculum.title}</h1>
-        <p className="mt-4 max-w-xl text-paper/70">{d.curriculum.body}</p>
+        <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
+          <div>
+            <p className="eyebrow-accent mb-3">{d.curriculum.eyebrow}</p>
+            <h1 className="font-serif text-5xl">{d.curriculum.title}</h1>
+            <p className="mt-4 max-w-xl text-paper/70">{d.curriculum.body}</p>
+          </div>
+          <QuestPanel />
+        </div>
 
         {(["education", "life"] as const).map((track) => (
           <section key={track} className="mt-14">
@@ -36,7 +42,7 @@ function Learn() {
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {SUBJECTS.filter((s) => s.track === track).map((s, i) => {
-                const doneCount = (completed[s.slug] ?? []).length;
+                const doneCount = (passed[s.slug] ?? []).length;
                 const pct = doneCount * 10;
                 return (
                   <Link key={s.slug} href={`/learn/${s.slug}`} className="card card-hover group p-6">

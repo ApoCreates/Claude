@@ -1,25 +1,42 @@
-// The wadehAI curriculum — 10 subjects × 10 levels, in two languages,
+// The wadehAI curriculum — 10 subjects, each with 10 levels where
+// one level = one school year (Year 1 … Year 10), in two languages,
 // with worked examples flavoured for each region (GCC / Levant).
+
+import { MATH_LEVELS } from "./levels/math";
+import { PHYSICS_LEVELS } from "./levels/physics";
+import { GEOGRAPHY_LEVELS } from "./levels/geography";
+import { AI_LEVELS } from "./levels/ai";
+import { GAMING_LEVELS } from "./levels/gaming";
+import { ENTREPRENEURSHIP_LEVELS } from "./levels/entrepreneurship";
+import { LEADERSHIP_LEVELS } from "./levels/leadership";
+import { PROBLEM_SOLVING_LEVELS } from "./levels/problem-solving";
+import { EQ_LEVELS } from "./levels/emotional-intelligence";
+import { LANGUAGES_LEVELS } from "./levels/languages";
 
 export type Track = "education" | "life";
 export type Region = "gcc" | "levant";
 export type Lang = "en" | "ar";
 
+export interface Bi {
+  en: string;
+  ar: string;
+}
+
 export interface Level {
-  n: number;
-  title: { en: string; ar: string };
+  n: number; // 1–10, equals the school year
+  title: Bi;
+  focus: Bi; // what this school year covers
+  units: Bi[]; // the year's four units
 }
 
 export interface Subject {
   slug: string;
   track: Track;
-  name: { en: string; ar: string };
-  tagline: { en: string; ar: string };
-  regionExample: Record<Region, { en: string; ar: string }>;
+  name: Bi;
+  tagline: Bi;
+  regionExample: Record<Region, Bi>;
   levels: Level[];
 }
-
-const L = (n: number, en: string, ar: string): Level => ({ n, title: { en, ar } });
 
 export const SUBJECTS: Subject[] = [
   {
@@ -27,8 +44,8 @@ export const SUBJECTS: Subject[] = [
     track: "education",
     name: { en: "Mathematics", ar: "الرياضيات" },
     tagline: {
-      en: "From counting patterns to modelling the real world.",
-      ar: "من عدّ الأنماط إلى نمذجة العالم الحقيقي.",
+      en: "Ten school years of maths, from counting to pre-calculus.",
+      ar: "عشر سنوات دراسية من الرياضيات، من العدّ إلى ما قبل التفاضل.",
     },
     regionExample: {
       gcc: {
@@ -40,26 +57,15 @@ export const SUBJECTS: Subject[] = [
         ar: "قِس المدرج الروماني في عمّان كمهندس روماني، أو ميل أدراج بيروت.",
       },
     },
-    levels: [
-      L(1, "Numbers & Patterns", "الأعداد والأنماط"),
-      L(2, "Fractions & Ratios", "الكسور والنسب"),
-      L(3, "Algebra Foundations", "أسس الجبر"),
-      L(4, "Geometry & Space", "الهندسة والفراغ"),
-      L(5, "Functions & Graphs", "الدوال والرسوم البيانية"),
-      L(6, "Trigonometry", "حساب المثلثات"),
-      L(7, "Probability & Statistics", "الاحتمالات والإحصاء"),
-      L(8, "Calculus I — Change", "التفاضل — دراسة التغيّر"),
-      L(9, "Calculus II — Accumulation", "التكامل — دراسة التراكم"),
-      L(10, "Mathematical Modelling", "النمذجة الرياضية"),
-    ],
+    levels: MATH_LEVELS,
   },
   {
     slug: "physics",
     track: "education",
     name: { en: "Physics", ar: "الفيزياء" },
     tagline: {
-      en: "The rules the universe actually runs on.",
-      ar: "القوانين التي يعمل بها الكون فعلاً.",
+      en: "From pushes and pulls to momentum and modern physics.",
+      ar: "من الدفع والسحب إلى الزخم والفيزياء الحديثة.",
     },
     regionExample: {
       gcc: {
@@ -71,26 +77,15 @@ export const SUBJECTS: Subject[] = [
         ar: "لماذا يحملك البحر الميت؟ الطفو والكثافة والضغط في أخفض نقطة على الأرض.",
       },
     },
-    levels: [
-      L(1, "Measurement & Units", "القياس والوحدات"),
-      L(2, "Motion", "الحركة"),
-      L(3, "Forces & Newton's Laws", "القوى وقوانين نيوتن"),
-      L(4, "Energy & Work", "الطاقة والشغل"),
-      L(5, "Waves & Sound", "الموجات والصوت"),
-      L(6, "Light & Optics", "الضوء والبصريات"),
-      L(7, "Electricity", "الكهرباء"),
-      L(8, "Magnetism", "المغناطيسية"),
-      L(9, "Thermodynamics", "الديناميكا الحرارية"),
-      L(10, "Modern Physics", "الفيزياء الحديثة"),
-    ],
+    levels: PHYSICS_LEVELS,
   },
   {
     slug: "geography",
     track: "education",
     name: { en: "Geography", ar: "الجغرافيا" },
     tagline: {
-      en: "Read the land, the water, the people — and the map between them.",
-      ar: "اقرأ الأرض والماء والبشر — والخريطة التي تجمعهم.",
+      en: "From your front door to satellites — ten years of reading the world.",
+      ar: "من باب بيتك إلى الأقمار الاصطناعية — عشر سنوات من قراءة العالم.",
     },
     regionExample: {
       gcc: {
@@ -102,26 +97,15 @@ export const SUBJECTS: Subject[] = [
         ar: "نهر الأردن وأرز لبنان، ولماذا أطعم الهلال الخصيب أولى المدن.",
       },
     },
-    levels: [
-      L(1, "Maps & Globes", "الخرائط والمجسّمات"),
-      L(2, "Landforms", "التضاريس"),
-      L(3, "Climate & Weather", "المناخ والطقس"),
-      L(4, "Water & Rivers", "المياه والأنهار"),
-      L(5, "Population & Cities", "السكان والمدن"),
-      L(6, "Resources & Economy", "الموارد والاقتصاد"),
-      L(7, "Our Region Up Close", "منطقتنا عن قرب"),
-      L(8, "Environment & Sustainability", "البيئة والاستدامة"),
-      L(9, "Geopolitics", "الجغرافيا السياسية"),
-      L(10, "GIS & Modern Mapping", "نظم المعلومات الجغرافية"),
-    ],
+    levels: GEOGRAPHY_LEVELS,
   },
   {
     slug: "ai",
     track: "education",
     name: { en: "Artificial Intelligence", ar: "الذكاء الاصطناعي" },
     tagline: {
-      en: "Understand the tools that will define your generation.",
-      ar: "افهم الأدوات التي ستحدّد ملامح جيلك.",
+      en: "From 'smart or not?' to building AI for your community.",
+      ar: "من «ذكي أم لا؟» إلى بناء ذكاء اصطناعي يخدم مجتمعك.",
     },
     regionExample: {
       gcc: {
@@ -133,26 +117,15 @@ export const SUBJECTS: Subject[] = [
         ar: "من شركات عمّان الناشئة إلى مهندسي بيروت: بناء منتجات ذكاء اصطناعي بموارد محدودة.",
       },
     },
-    levels: [
-      L(1, "What Is AI?", "ما هو الذكاء الاصطناعي؟"),
-      L(2, "Data & Patterns", "البيانات والأنماط"),
-      L(3, "How Machines Learn", "كيف تتعلّم الآلات"),
-      L(4, "Neural Networks", "الشبكات العصبية"),
-      L(5, "Language Models", "نماذج اللغة"),
-      L(6, "Computer Vision", "الرؤية الحاسوبية"),
-      L(7, "Prompting & Tools", "الموجّهات والأدوات"),
-      L(8, "Building AI Projects", "بناء مشاريع الذكاء الاصطناعي"),
-      L(9, "AI Ethics & Safety", "أخلاقيات الذكاء الاصطناعي وسلامته"),
-      L(10, "The Future of AI", "مستقبل الذكاء الاصطناعي"),
-    ],
+    levels: AI_LEVELS,
   },
   {
     slug: "gaming",
     track: "education",
     name: { en: "Game Design", ar: "تصميم الألعاب" },
     tagline: {
-      en: "Games are systems. Learn to build worlds people want to stay in.",
-      ar: "الألعاب أنظمة. تعلّم بناء عوالم يرغب الناس بالبقاء فيها.",
+      en: "From playground rules to shipping your first real game.",
+      ar: "من قواعد الساحة إلى إطلاق لعبتك الحقيقية الأولى.",
     },
     regionExample: {
       gcc: {
@@ -164,26 +137,15 @@ export const SUBJECTS: Subject[] = [
         ar: "صمّم نموذج لعبة يعيد سرد حكاية شعبية شامية — ميكانيكيات من حكايا جدّتك.",
       },
     },
-    levels: [
-      L(1, "Why Games Work", "لماذا تنجح الألعاب"),
-      L(2, "Genres & History", "أنواع الألعاب وتاريخها"),
-      L(3, "Rules & Mechanics", "القواعد والميكانيكيات"),
-      L(4, "Level Design", "تصميم المراحل"),
-      L(5, "Storytelling in Games", "السرد في الألعاب"),
-      L(6, "Art & Sound", "الفن والصوت"),
-      L(7, "Game Engines", "محركات الألعاب"),
-      L(8, "Scripting Basics", "أساسيات البرمجة"),
-      L(9, "Playtesting & Balance", "الاختبار والتوازن"),
-      L(10, "Ship Your First Game", "أطلق لعبتك الأولى"),
-    ],
+    levels: GAMING_LEVELS,
   },
   {
     slug: "entrepreneurship",
     track: "life",
     name: { en: "Entrepreneurship", ar: "ريادة الأعمال" },
     tagline: {
-      en: "Find a problem worth solving, then build the thing that solves it.",
-      ar: "اعثر على مشكلة تستحق الحل، ثم ابنِ ما يحلّها.",
+      en: "From a lemonade stand to launching a real venture.",
+      ar: "من بسطة الليمونادة إلى إطلاق مشروع حقيقي.",
     },
     regionExample: {
       gcc: {
@@ -195,26 +157,15 @@ export const SUBJECTS: Subject[] = [
         ar: "من زين إلى مكتوب: كيف بنى روّاد بلاد الشام شركات إقليمية برأس مال شحيح.",
       },
     },
-    levels: [
-      L(1, "The Entrepreneurial Mindset", "العقلية الريادية"),
-      L(2, "Problems Worth Solving", "مشكلات تستحق الحل"),
-      L(3, "From Idea to Value", "من الفكرة إلى القيمة"),
-      L(4, "Customers & Markets", "العملاء والأسواق"),
-      L(5, "Business Models", "نماذج الأعمال"),
-      L(6, "Money Basics", "أساسيات المال"),
-      L(7, "Building an MVP", "بناء المنتج الأوّلي"),
-      L(8, "Pitching & Storytelling", "العرض والإقناع"),
-      L(9, "Growth & Marketing", "النمو والتسويق"),
-      L(10, "Launch Your Venture", "أطلق مشروعك"),
-    ],
+    levels: ENTREPRENEURSHIP_LEVELS,
   },
   {
     slug: "leadership",
     track: "life",
     name: { en: "Leadership", ar: "القيادة" },
     tagline: {
-      en: "Leadership is a craft, not a title. Start practising it now.",
-      ar: "القيادة حِرفة لا لقب. ابدأ بممارستها الآن.",
+      en: "From being a good friend to writing your leadership philosophy.",
+      ar: "من أن تكون صديقاً طيباً إلى كتابة فلسفتك القيادية.",
     },
     regionExample: {
       gcc: {
@@ -226,26 +177,15 @@ export const SUBJECTS: Subject[] = [
         ar: "القيادة حين تشحّ الموارد: دروس من منظّمي المجتمع ورؤساء البلديات في بلاد الشام.",
       },
     },
-    levels: [
-      L(1, "Knowing Yourself", "معرفة الذات"),
-      L(2, "Communication", "التواصل"),
-      L(3, "Listening & Empathy", "الإصغاء والتعاطف"),
-      L(4, "Teams & Roles", "الفرق والأدوار"),
-      L(5, "Decision Making", "اتخاذ القرار"),
-      L(6, "Motivating Others", "تحفيز الآخرين"),
-      L(7, "Conflict & Resolution", "الخلاف وحلّه"),
-      L(8, "Leading Change", "قيادة التغيير"),
-      L(9, "Ethics & Responsibility", "الأخلاق والمسؤولية"),
-      L(10, "Your Leadership Style", "أسلوبك القيادي"),
-    ],
+    levels: LEADERSHIP_LEVELS,
   },
   {
     slug: "problem-solving",
     track: "life",
     name: { en: "Problem Solving", ar: "حل المشكلات" },
     tagline: {
-      en: "See clearly, break it down, test your way out.",
-      ar: "انظر بوضوح، فكّك المشكلة، وجرّب طريقك نحو الحل.",
+      en: "From puzzles and mazes to real regional challenges.",
+      ar: "من الألغاز والمتاهات إلى تحديات إقليمية حقيقية.",
     },
     regionExample: {
       gcc: {
@@ -257,26 +197,15 @@ export const SUBJECTS: Subject[] = [
         ar: "شحّ المياه في الأردن درس متقدّم في القيود. حُلّ نسخة منه بنفسك.",
       },
     },
-    levels: [
-      L(1, "Seeing the Problem Clearly", "رؤية المشكلة بوضوح"),
-      L(2, "Asking Better Questions", "طرح أسئلة أفضل"),
-      L(3, "Breaking Problems Down", "تفكيك المشكلات"),
-      L(4, "Creative Thinking", "التفكير الإبداعي"),
-      L(5, "Logic & Reasoning", "المنطق والاستدلال"),
-      L(6, "Systems Thinking", "التفكير المنظومي"),
-      L(7, "Deciding Under Uncertainty", "القرار في ظل الغموض"),
-      L(8, "Experiments & Iteration", "التجريب والتكرار"),
-      L(9, "Solving Together", "الحل الجماعي"),
-      L(10, "The Solver's Toolkit", "عدّة حلّال المشكلات"),
-    ],
+    levels: PROBLEM_SOLVING_LEVELS,
   },
   {
     slug: "emotional-intelligence",
     track: "life",
     name: { en: "Emotional Intelligence", ar: "الذكاء العاطفي" },
     tagline: {
-      en: "The quiet skill behind every strong student, friend and leader.",
-      ar: "المهارة الهادئة خلف كل طالب وصديق وقائد قوي.",
+      en: "From naming feelings to a personal charter for a balanced life.",
+      ar: "من تسمية المشاعر إلى ميثاق شخصي لحياة متوازنة.",
     },
     regionExample: {
       gcc: {
@@ -288,26 +217,15 @@ export const SUBJECTS: Subject[] = [
         ar: "الضيافة والعزاء والأفراح: الأعراف الاجتماعية الشامية درس متقدّم في التعاطف.",
       },
     },
-    levels: [
-      L(1, "Naming Emotions", "تسمية المشاعر"),
-      L(2, "Self-Awareness", "الوعي الذاتي"),
-      L(3, "Managing Strong Feelings", "إدارة المشاعر القوية"),
-      L(4, "Empathy", "التعاطف"),
-      L(5, "Reading the Room", "قراءة المواقف"),
-      L(6, "Healthy Relationships", "العلاقات الصحية"),
-      L(7, "Stress & Resilience", "التوتر والمرونة"),
-      L(8, "Motivation from Within", "الدافع الداخلي"),
-      L(9, "Emotional Courage", "الشجاعة العاطفية"),
-      L(10, "Living with Balance", "العيش بتوازن"),
-    ],
+    levels: EQ_LEVELS,
   },
   {
     slug: "languages",
     track: "life",
     name: { en: "Learning Languages", ar: "تعلّم اللغات" },
     tagline: {
-      en: "A method for learning any language — starting with your next one.",
-      ar: "منهجية لتعلّم أي لغة — بدءاً بلغتك القادمة.",
+      en: "From first sounds to real-world fluency — and a method for language three.",
+      ar: "من الأصوات الأولى إلى الطلاقة الحقيقية — ومنهجية للغة الثالثة.",
     },
     regionExample: {
       gcc: {
@@ -319,18 +237,7 @@ export const SUBJECTS: Subject[] = [
         ar: "العربية الشامية والفرنسية والإنجليزية والأرمنية: بلاد الشام متعددة اللغات منذ الأزل، وأنت كذلك.",
       },
     },
-    levels: [
-      L(1, "How Languages Work", "كيف تعمل اللغات"),
-      L(2, "Sounds & Listening", "الأصوات والاستماع"),
-      L(3, "Your First 500 Words", "أول ٥٠٠ كلمة"),
-      L(4, "Grammar Without Fear", "قواعد بلا خوف"),
-      L(5, "Speaking with Confidence", "التحدث بثقة"),
-      L(6, "Reading for Meaning", "القراءة للفهم"),
-      L(7, "Writing Clearly", "الكتابة بوضوح"),
-      L(8, "Culture & Expression", "الثقافة والتعبير"),
-      L(9, "Thinking in a New Language", "التفكير باللغة الجديدة"),
-      L(10, "Fluency in the Real World", "الطلاقة في الحياة الواقعية"),
-    ],
+    levels: LANGUAGES_LEVELS,
   },
 ];
 
@@ -340,5 +247,14 @@ export function getSubject(slug: string): Subject | undefined {
   return SUBJECTS.find((s) => s.slug === slug);
 }
 
+// Level n corresponds to school year n; typical ages are 5+n to 6+n.
+export function ageRange(n: number): string {
+  return `${5 + n}–${6 + n}`;
+}
+
 // Free plan unlocks levels 1–2 of every subject; paid plans unlock all ten.
 export const FREE_LEVELS = 2;
+
+// Mastery gate: score needed on a level quiz before the level counts as complete.
+export const QUIZ_LENGTH = 5;
+export const PASS_SCORE = 4;

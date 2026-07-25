@@ -8,7 +8,7 @@ import { Wordmark } from "./Wordmark";
 import clsx from "clsx";
 
 export function Nav() {
-  const { lang, region, setLang } = usePrefs();
+  const { lang, region, setLang, xp, streakDays } = usePrefs();
   const d = t(lang);
   const path = usePathname();
 
@@ -38,6 +38,11 @@ export function Nav() {
             </Link>
           ))}
           <span className="mx-2 hidden h-4 w-px bg-paper/20 sm:block" />
+          <span className="hidden px-2 font-mono text-[11px] uppercase tracking-label md:block" dir="ltr">
+            <span className="text-marigold">☀ {xp}</span>
+            <span className="mx-1 text-mute">·</span>
+            <span className="text-ochre">🔥 {streakDays}</span>
+          </span>
           <button
             onClick={() => setLang(lang === "en" ? "ar" : "en")}
             className="px-2 py-1 font-mono text-[11px] uppercase tracking-label text-mute-light hover:text-marigold"

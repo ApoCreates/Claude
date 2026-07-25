@@ -21,38 +21,46 @@ const REGION_LABEL = {
 
 function systemPrompt(req: TutorRequest): string {
   const regionText = req.region ? REGION_LABEL[req.region] : "the Arab world";
+  const age = 5 + req.level;
   const langText =
     req.lang === "ar"
       ? "Respond in Modern Standard Arabic (اللغة العربية الفصحى), clear and warm. You may quote English technical terms in parentheses when useful."
       : "Respond in clear, warm English. You may add the Arabic term in parentheses when it helps a bilingual learner.";
   return [
     "You are the wadehAI tutor — patient, encouraging, and Socratic. wadehAI (واضح, 'clear') is a bilingual learning platform for young people in the Arab world.",
-    `The learner is currently on: subject "${req.subjectName}" (${req.subject}), level ${req.level} of 10 — "${req.levelTitle}".`,
+    `The learner is on: subject "${req.subjectName}" (${req.subject}), Level ${req.level} of 10. Each level equals one school year, so this learner is roughly ${age}–${age + 1} years old and in school year ${req.level}. Their current topic is "${req.levelTitle}". Match your vocabulary, sentence length and examples to that age — never talk down, never overshoot.`,
     `The learner lives in ${regionText}. Whenever an example, analogy or word problem is possible, draw it from that region's daily life, landmarks, history or economy.`,
     langText,
-    "Rules: never mock a question. Never rush. Never just hand over the final answer to an exercise — guide with steps and questions so the learner reaches it. Keep answers under 200 words unless walking through a multi-step problem. If asked something inappropriate for a young learner or unrelated to learning, gently redirect to the lesson.",
+    "Teach visually and actively (evidence-based tutoring): prefer a concrete example over an abstract definition; use retrieval — end most replies with one short question that checks understanding; give immediate, specific feedback on the learner's attempts; break multi-step problems into one step per exchange.",
+    "You can DRAW GRAPHS. When a graph would genuinely help (functions, motion, growth, waves), append one directive on its own final line, exactly one of: 'PLOT linear m b' (y=mx+b), 'PLOT quad a b c' (y=ax²+bx+c), or 'PLOT sin A k' (y=A·sin(kx)), with numeric values. The app renders it as a real graph under your message. Use at most one per reply, and only when it truly clarifies.",
+    "Rules: never mock a question. Never rush. Never just hand over the final answer to an exercise — guide with steps and questions so the learner reaches it. Keep answers under 180 words unless walking through a multi-step problem. If asked something inappropriate for a young learner or unrelated to learning, gently redirect to the lesson.",
   ].join("\n\n");
 }
 
 // Canned fallback — makes the whole product demoable with no API key.
 function cannedReply(req: TutorRequest): string {
   const q = req.messages.filter((m) => m.role === "user").slice(-1)[0]?.content ?? "";
+  const plot = req.subject === "math" ? "\n\nPLOT linear 2 1" : req.subject === "physics" ? "\n\nPLOT quad -1 6 0" : "";
   if (req.lang === "ar") {
-    return [
-      `سؤال جميل. لنفكر فيه معاً ضمن درس «${req.levelTitle}».`,
-      `أولاً: ما الذي تعرفه مسبقاً عن هذا الموضوع؟ حاول صياغة «${q.slice(0, 60)}» بكلماتك الخاصة.`,
-      "ثانياً: قسّم السؤال إلى جزأين أصغر، وابدأ بالجزء الذي تشعر أنه أسهل.",
-      "ثالثاً: جرّب حلاً — حتى لو لم تكن متأكداً — وأخبرني بما توصلت إليه لنراجعه خطوة بخطوة.",
-      "(هذا وضع تجريبي دون اتصال — أضف ANTHROPIC_API_KEY لتفعيل المعلّم الحي.)",
-    ].join("\n\n");
+    return (
+      [
+        `سؤال جميل. لنفكر فيه معاً ضمن «${req.levelTitle}».`,
+        `أولاً: ما الذي تعرفه مسبقاً؟ حاول صياغة «${q.slice(0, 60)}» بكلماتك الخاصة.`,
+        "ثانياً: قسّم السؤال إلى جزأين أصغر، وابدأ بالأسهل.",
+        "ثالثاً: جرّب حلاً وأخبرني بما توصلت إليه لنراجعه خطوة بخطوة.",
+        "(هذا وضع تجريبي دون اتصال — أضف ANTHROPIC_API_KEY لتفعيل المعلّم الحي.)",
+      ].join("\n\n") + plot
+    );
   }
-  return [
-    `Good question. Let's think it through inside “${req.levelTitle}”.`,
-    `First: what do you already know here? Try restating “${q.slice(0, 60)}” in your own words.`,
-    "Second: split the question into two smaller parts and start with the easier one.",
-    "Third: attempt an answer — even an unsure one — and tell me what you got, so we can check it step by step.",
-    "(Canned offline mode — set ANTHROPIC_API_KEY to enable the live tutor.)",
-  ].join("\n\n");
+  return (
+    [
+      `Good question. Let's think it through inside “${req.levelTitle}”.`,
+      `First: what do you already know? Try restating “${q.slice(0, 60)}” in your own words.`,
+      "Second: split the question into two smaller parts and start with the easier one.",
+      "Third: attempt an answer and tell me what you got, so we can check it step by step.",
+      "(Canned offline mode — set ANTHROPIC_API_KEY to enable the live tutor.)",
+    ].join("\n\n") + plot
+  );
 }
 
 export async function POST(request: Request) {
