@@ -51,6 +51,7 @@ const ACCESS_DEFAULTS: AccessPrefs = {
 };
 
 interface Prefs {
+  uid: string; // anonymous device id — stable, used only for moderation reports
   lang: Lang;
   region: Region | null;
   plan: Plan;
@@ -88,7 +89,13 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 const freshQuest = (): QuestState => ({ date: today(), correct: 0, mastered: 0, tutor: 0, claimed: [] });
 
+const makeUid = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `u-${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
+
 const DEFAULTS: Prefs = {
+  uid: "",
   lang: "en",
   region: null,
   plan: "free",
@@ -116,10 +123,18 @@ export function PrefsProvider({ children }: { children: React.ReactNode }) {
       const raw = localStorage.getItem(KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        setPrefs({ ...DEFAULTS, ...parsed, access: { ...ACCESS_DEFAULTS, ...(parsed.access ?? {}) } });
+        setPrefs({
+          ...DEFAULTS,
+          ...parsed,
+          uid: parsed.uid || makeUid(),
+          access: { ...ACCESS_DEFAULTS, ...(parsed.access ?? {}) },
+        });
+      } else {
+        setPrefs((p) => ({ ...p, uid: makeUid() }));
       }
     } catch {
-      // corrupted storage — fall back to defaults
+      // corrupted storage — fall back to defaults (with a fresh device id)
+      setPrefs((p) => ({ ...p, uid: makeUid() }));
     }
     setReady(true);
   }, []);
