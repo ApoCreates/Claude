@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { MODEL_CASCADE } from "@/lib/models";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -75,21 +76,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ reply: cannedReply(req), live: false });
   }
 
-  try {
-    const client = new Anthropic({ apiKey });
-    const response = await client.messages.create({
-      model: "claude-sonnet-5",
-      max_tokens: 1024,
-      system: systemPrompt(req),
-      messages: req.messages.slice(-12).map((m) => ({ role: m.role, content: m.content })),
-    });
-    const reply = response.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("\n");
-    return NextResponse.json({ reply, live: true });
-  } catch {
-    // Any API failure degrades gracefully to canned mode.
-    return NextResponse.json({ reply: cannedReply(req), live: false });
+  const client = new Anthropic({ apiKey });
+  let lastError = "";
+  // Try models newest-first so the tutor stays live on any account tier.
+  for (const model of MODEL_CASCADE) {
+    try {
+      const response = await client.messages.create({
+        model,
+        max_tokens: 1024,
+        system: systemPrompt(req),
+        messages: req.messages.slice(-12).map((m) => ({ role: m.role, content: m.content })),
+      });
+      const reply = response.content
+        .filter((b): b is Anthropic.TextBlock => b.type === "text")
+        .map((b) => b.text)
+        .join("\n");
+      return NextResponse.json({ reply, live: true, model });
+    } catch (e) {
+      lastError = e instanceof Error ? e.message.slice(0, 160) : "unknown";
+    }
   }
+  // All models failed — degrade gracefully, but say why (no secrets).
+  return NextResponse.json({ reply: cannedReply(req), live: false, errorHint: lastError });
 }
