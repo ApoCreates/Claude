@@ -33,7 +33,7 @@ function Slider({ label, value, min, max, step = 1, onChange }: { label: string;
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-2 w-full accent-[#FFCB58]"
+        className="mt-2 w-full accent-[#C4612A]"
       />
     </label>
   );
@@ -53,12 +53,12 @@ function NumberLine({ lang }: { lang: "en" | "ar" }) {
       </div>
       <div dir="ltr">
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full border border-hairline bg-ink">
-          <line x1={10} y1={60} x2={W - 10} y2={60} stroke="rgba(244,239,229,0.4)" strokeWidth="1.5" />
+          <line x1={10} y1={60} x2={W - 10} y2={60} stroke="rgba(21,20,15,0.45)" strokeWidth="1.5" />
           {Array.from({ length: max + 1 }, (_, i) => (
             <g key={i}>
-              <line x1={sx(i)} y1={55} x2={sx(i)} y2={65} stroke="rgba(244,239,229,0.4)" strokeWidth="1" />
+              <line x1={sx(i)} y1={55} x2={sx(i)} y2={65} stroke="rgba(21,20,15,0.45)" strokeWidth="1" />
               {i % 5 === 0 && (
-                <text x={sx(i)} y={80} textAnchor="middle" fontSize="9" fill="#A39B8B" fontFamily="monospace">
+                <text x={sx(i)} y={80} textAnchor="middle" fontSize="9" fill="#8A8272" fontFamily="monospace">
                   {i}
                 </text>
               )}
@@ -67,7 +67,7 @@ function NumberLine({ lang }: { lang: "en" | "ar" }) {
           {/* first jump */}
           <path d={`M ${sx(0)} 58 Q ${sx(a / 2)} 18 ${sx(a)} 58`} fill="none" stroke="#C4612A" strokeWidth="2" />
           {/* second jump */}
-          <path d={`M ${sx(a)} 58 Q ${sx(a + b / 2)} 18 ${sx(Math.min(a + b, max))} 58`} fill="none" stroke="#FFCB58" strokeWidth="2" />
+          <path d={`M ${sx(a)} 58 Q ${sx(a + b / 2)} 18 ${sx(Math.min(a + b, max))} 58`} fill="none" stroke="#A87D2A" strokeWidth="2" />
           <circle cx={sx(Math.min(a + b, max))} cy={60} r={5} fill="#FFCB58" />
         </svg>
       </div>

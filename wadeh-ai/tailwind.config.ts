@@ -1,24 +1,33 @@
 import type { Config } from "tailwindcss";
 
-// wadehAI palette — derived from The Aigency design system v.3.
-// Two colours carry every composition (paper / ink) at roughly 70/20/10.
-// Ochre is the default accent. Never #FFF, never #000.
+// wadehAI palette — derived from The Aigency design system v.3, set in its
+// "on paper" mode: Paper #F4EFE5 carries the page, Ink #15140F carries the
+// type, and Ochre is the one accent. Never #FFF, never #000.
+//
+// NOTE ON TOKEN NAMES: the app was first built ink-first, so components use
+// `bg-ink` for surfaces and `text-paper` for type. The daylight flip happens
+// HERE, at the token layer: `ink` now resolves to paper values (surfaces) and
+// `paper` to ink values (type). Read tokens as roles — surface/text — not hues.
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./lib/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        paper: "#F4EFE5",
-        "paper-deep": "#E9E2D3",
-        ink: "#15140F",
-        "ink-panel": "#1D1A13",
-        "ink-lift": "#242017",
-        mute: "#6E685D",
-        "mute-light": "#A39B8B",
+        // type + dark fills (was Paper cream)
+        paper: "#15140F",
+        "paper-deep": "#2A2620",
+        // surfaces (was Ink near-black)
+        ink: "#F4EFE5",
+        "ink-panel": "#ECE5D4",
+        "ink-lift": "#E4DCC8",
+        mute: "#8A8272",
+        "mute-light": "#6E685D",
         ochre: "#C4612A",
         dusk: "#8B2E1F",
-        gold: "#D9A24A",
-        marigold: "#FFCB58",
+        gold: "#A87D2A",
+        // the active accent for borders, highlights and primary buttons —
+        // ochre-family in daylight (marigold text is illegible on paper)
+        marigold: "#C4612A",
       },
       fontFamily: {
         serif: ["var(--font-fraunces)", "var(--font-amiri)", "Georgia", "serif"],
@@ -26,8 +35,8 @@ const config: Config = {
         mono: ["var(--font-jetbrains)", "ui-monospace", "monospace"],
       },
       borderColor: {
-        hairline: "rgba(244, 239, 229, 0.14)",
-        "hairline-strong": "rgba(244, 239, 229, 0.28)",
+        hairline: "rgba(21, 20, 15, 0.16)",
+        "hairline-strong": "rgba(21, 20, 15, 0.34)",
       },
       letterSpacing: {
         label: "0.22em",

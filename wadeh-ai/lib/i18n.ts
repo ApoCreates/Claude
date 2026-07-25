@@ -189,6 +189,20 @@ export const DICT = {
       title: "100 school-year levels.",
       body: "Ten subjects × ten years, from age 6 to 16. Every sun you light stays lit.",
     },
+    sprint: {
+      eyebrow: "DAILY ARCADE",
+      title: "Sun Sprint",
+      tagline: "60 seconds. Every subject. Combo multipliers. Beat your best.",
+      pageBody:
+        "A cross-subject lightning round: questions arrive from all ten subjects at your level, and consecutive correct answers build a ×2, ×3… combo. Mixing subjects — interleaving — is one of the strongest tricks in learning science, disguised as an arcade game.",
+      start: "Start the sprint",
+      score: "SCORE",
+      answered: "ANSWERED",
+      best: "PERSONAL BEST",
+      newBest: "New personal best!",
+      timeUp: "Time's up!",
+      again: "Run it again",
+    },
     footer: {
       line1: "wadehAI · واضح",
       line2: "Clear learning for the Arab world.",
@@ -381,6 +395,20 @@ export const DICT = {
       eyebrow: "الشموس المئة",
       title: "١٠٠ مستوى — سنة دراسية لكل مستوى.",
       body: "عشر مواد × عشر سنوات، من عمر ٦ إلى ١٦. كل شمس تضيئها تبقى مضيئة.",
+    },
+    sprint: {
+      eyebrow: "لعبة اليوم",
+      title: "سباق الشمس",
+      tagline: "٦٠ ثانية. كل المواد. مضاعفات متتالية. اكسر رقمك.",
+      pageBody:
+        "جولة برق عبر المواد: تصلك الأسئلة من المواد العشر كلها في مستواك، والإجابات الصحيحة المتتالية تبني مضاعفاً ×٢ ثم ×٣… خلط المواد — «التداخل» — من أقوى حيل علم التعلّم، متنكّراً في هيئة لعبة.",
+      start: "ابدأ السباق",
+      score: "النقاط",
+      answered: "أسئلة أُجيبت",
+      best: "رقمك الشخصي",
+      newBest: "رقم شخصي جديد!",
+      timeUp: "انتهى الوقت!",
+      again: "أعد الكرّة",
     },
     footer: {
       line1: "wadehAI · واضح",

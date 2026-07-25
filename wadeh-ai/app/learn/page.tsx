@@ -8,6 +8,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Guard } from "@/components/Guard";
 import { QuestPanel } from "@/components/QuestPanel";
+import { SunSprint } from "@/components/SunSprint";
 
 export default function LearnPage() {
   return (
@@ -32,6 +33,10 @@ function Learn() {
             <p className="mt-4 max-w-xl text-paper/70">{d.curriculum.body}</p>
           </div>
           <QuestPanel />
+        </div>
+
+        <div className="mt-8">
+          <SunSprint />
         </div>
 
         {(["education", "life"] as const).map((track) => (

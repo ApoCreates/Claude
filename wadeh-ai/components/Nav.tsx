@@ -15,6 +15,7 @@ export function Nav() {
   const links = [
     { href: "/home", label: d.nav.home },
     { href: "/learn", label: d.nav.curriculum },
+    { href: "/sprint", label: d.sprint.title },
     { href: "/pricing", label: d.nav.pricing },
   ];
 

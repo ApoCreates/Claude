@@ -44,6 +44,7 @@ interface Prefs {
   streakLast: string; // YYYY-MM-DD of last active day
   quest: QuestState;
   review: ReviewItem[]; // missed questions waiting for spaced review
+  bestSprint: number; // personal best in the Sun Sprint
 }
 
 interface PrefsCtx extends Prefs {
@@ -58,6 +59,7 @@ interface PrefsCtx extends Prefs {
   recordTutorAsk: () => void;
   addReview: (item: ReviewItem) => void;
   shiftReview: () => void;
+  recordSprint: (score: number) => void;
   reset: () => void;
 }
 
@@ -75,6 +77,7 @@ const DEFAULTS: Prefs = {
   streakLast: "",
   quest: freshQuest(),
   review: [],
+  bestSprint: 0,
 };
 
 const KEY = "wadehai:prefs:v2";
@@ -177,6 +180,8 @@ export function PrefsProvider({ children }: { children: React.ReactNode }) {
       addReview: (item) =>
         setPrefs((p) => ({ ...p, review: [...p.review, item].slice(-30) })),
       shiftReview: () => setPrefs((p) => ({ ...p, review: p.review.slice(1) })),
+      recordSprint: (score) =>
+        setPrefs((p) => touchStreak({ ...withDay(p), bestSprint: Math.max(p.bestSprint, score) })),
       reset: () => setPrefs(DEFAULTS),
     };
   }, [prefs, ready]);

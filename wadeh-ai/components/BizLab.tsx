@@ -32,11 +32,11 @@ export function BizLab() {
       <div className="mb-4 grid grid-cols-2 gap-4">
         <label className="block" dir="ltr">
           <span className="eyebrow">{lang === "ar" ? "سعر الكوب" : "Price per cup"}: {price}</span>
-          <input type="range" min={1} max={12} step={0.5} value={price} onChange={(e) => setPrice(Number(e.target.value))} className="mt-2 w-full accent-[#FFCB58]" />
+          <input type="range" min={1} max={12} step={0.5} value={price} onChange={(e) => setPrice(Number(e.target.value))} className="mt-2 w-full accent-[#C4612A]" />
         </label>
         <label className="block" dir="ltr">
           <span className="eyebrow">{lang === "ar" ? "تكلفة الكوب" : "Cost per cup"}: {cost}</span>
-          <input type="range" min={0.5} max={5} step={0.5} value={cost} onChange={(e) => setCost(Number(e.target.value))} className="mt-2 w-full accent-[#FFCB58]" />
+          <input type="range" min={0.5} max={5} step={0.5} value={cost} onChange={(e) => setCost(Number(e.target.value))} className="mt-2 w-full accent-[#C4612A]" />
         </label>
       </div>
 
@@ -48,7 +48,7 @@ export function BizLab() {
           <p className="eyebrow mt-1">{lang === "ar" ? "أكواب تُباع" : "CUPS SOLD"}</p>
         </div>
         <div>
-          <p className="font-serif text-3xl" style={{ color: prof > 0 ? "#FFCB58" : "#8B2E1F" }}>{Math.round(prof)}</p>
+          <p className="font-serif text-3xl" style={{ color: prof > 0 ? "#C4612A" : "#8B2E1F" }}>{Math.round(prof)}</p>
           <p className="eyebrow mt-1">{lang === "ar" ? "الربح" : "PROFIT"}</p>
         </div>
         <div>
