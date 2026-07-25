@@ -1,9 +1,18 @@
 import { NextRequest } from "next/server";
-import { DEFAULT_MODEL, getClient, hasLiveAI } from "@/lib/ai/client";
+import { getClient, hasLiveAI, UTILITY_MODEL } from "@/lib/ai/client";
 import { addInsights, getBrain } from "@/lib/brain/store";
 import { todayISO } from "@/lib/utils";
+import { EST_RESEARCH_RUN_USD, RESEARCH_MONTHLY_BUDGET_USD } from "@/lib/costs";
 import { logAgentRun } from "@/lib/diwan/db";
+import { getMonthSpendByType } from "@/lib/spend";
 import { newId } from "@/lib/store/persist";
+
+/**
+ * Research runs on Haiku: distilling search results into one-line craft
+ * insights doesn't need Sonnet, and it costs ~3–5× less — which is what
+ * lets research stay DAILY inside the hard monthly budget.
+ */
+const RESEARCH_MODEL = process.env.ANTHROPIC_RESEARCH_MODEL || UTILITY_MODEL;
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -47,21 +56,38 @@ async function runResearch(): Promise<Response> {
     });
   }
 
+  // HARD BUDGET GUARD — cron and manual triggers alike. If this run
+  // could push month-to-date research spend past the cap, skip it and
+  // say so; never silently burn credit.
+  const spentThisMonth = await getMonthSpendByType("research");
+  if (spentThisMonth + EST_RESEARCH_RUN_USD > RESEARCH_MONTHLY_BUDGET_USD) {
+    console.log(
+      `[research] skipped — monthly budget reached ($${spentThisMonth.toFixed(2)} of $${RESEARCH_MONTHLY_BUDGET_USD})`
+    );
+    return Response.json({
+      ok: true,
+      skipped: "monthly-research-budget",
+      spentUsd: Math.round(spentThisMonth * 100) / 100,
+      budgetUsd: RESEARCH_MONTHLY_BUDGET_USD,
+      message: "Research paused until next month — the monthly research budget is used up.",
+    });
+  }
+
   const runId = newId("run");
   const started = Date.now();
   const client = getClient();
   const res = await client.messages.create({
-    model: DEFAULT_MODEL,
-    max_tokens: 2400,
+    model: RESEARCH_MODEL,
+    max_tokens: 1600,
     messages: [{ role: "user", content: RESEARCH_PROMPT }],
-    // Server-side web search tool — lets the agent read today's web.
-    // Dynamic-filtering web search (Sonnet 4.6+): results are filtered
-    // before they reach the context window — fewer wasted input tokens.
+    // Server-side web search: 3 searches balance freshness vs cost —
+    // search-result content bills as input tokens, which is also why
+    // this runs on Haiku.
     tools: [
       {
-        type: "web_search_20260209",
+        type: "web_search_20250305",
         name: "web_search",
-        max_uses: 4,
+        max_uses: 3,
       } as never,
     ],
   });
@@ -69,13 +95,13 @@ async function runResearch(): Promise<Response> {
   const researchText = res.content
     .map((b) => (b.type === "text" ? b.text : ""))
     .join("");
-  void logAgentRun({
+  await logAgentRun({
     id: runId,
     requestType: "research",
     input: { kind: "daily-self-research" },
     output: researchText,
     status: "ok",
-    model: DEFAULT_MODEL,
+    model: RESEARCH_MODEL,
     tokens: res.usage,
     latencyMs: Date.now() - started,
   });

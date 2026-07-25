@@ -26,6 +26,7 @@ interface Summary {
     webSearches: number;
     usd: number;
   }[];
+  research?: { monthUsd: number; budgetUsd: number };
 }
 
 const card = "rounded-xl border border-ink-700 bg-ink-900 p-5";
@@ -77,6 +78,27 @@ export default function SpendPanel({ uiLang }: { uiLang: UILang }) {
           <RefreshCw size={14} className={cn(loading && "animate-spin")} />
         </button>
       </div>
+
+      {/* Research budget meter — the hard monthly cap on the knowledge garden */}
+      {data?.research && (
+        <div className={cn(card, "flex flex-wrap items-center gap-4")}>
+          <span className="section-label">/ {t("cResearchBudget", uiLang)}</span>
+          <div dir="ltr" className="h-2.5 min-w-32 max-w-xs flex-1 overflow-hidden rounded-full bg-ink-800">
+            <div
+              className={cn(
+                "h-full rounded-full",
+                data.research.monthUsd / data.research.budgetUsd > 0.85 ? "bg-red-600" : "bg-qalam"
+              )}
+              style={{
+                width: `${Math.min(100, (data.research.monthUsd / data.research.budgetUsd) * 100)}%`,
+              }}
+            />
+          </div>
+          <span className="font-mono text-sm text-ink-200">
+            {fmtUsd(data.research.monthUsd)} / {fmtUsd(data.research.budgetUsd)}
+          </span>
+        </div>
+      )}
 
       {data && data.totalRuns === 0 && (
         <div className={cn(card, "text-sm text-ink-400")}>{t("cEmpty", uiLang)}</div>

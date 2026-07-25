@@ -54,6 +54,9 @@ operator with an error. Automation drafts, humans approve.
 - Cost metering: every model call is priced from real usage via
   `lib/costs.ts` + persisted spend ledger; show a pre-flight estimate
   next to any button that spends money.
+- Web-search research is HARD-CAPPED monthly (default $5, env
+  `QALAM_RESEARCH_BUDGET_USD`), enforced from the ledger before every
+  run, and runs on the cheap utility model — never on the writing model.
 - Persistence is fail-closed: a storage read error must abort a mutation,
   never silently persist defaults over real data (see
   `aigency-writer/lib/store/persist.ts`).

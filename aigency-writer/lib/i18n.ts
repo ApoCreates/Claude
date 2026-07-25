@@ -183,6 +183,7 @@ export const STRINGS = {
     en: "No spend recorded yet — costs appear after the first live request.",
     ar: "لا إنفاق مسجّل بعد — تظهر التكاليف بعد أول طلب فعلي.",
   },
+  cResearchBudget: { en: "Research budget (month)", ar: "ميزانية البحث (الشهر)" },
   cTokens: { en: "Tokens (in / out)", ar: "الرموز (دخل / خرج)" },
   cCache: { en: "Cache (read / write)", ar: "الذاكرة (قراءة / كتابة)" },
   cCost: { en: "Cost", ar: "التكلفة" },

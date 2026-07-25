@@ -43,6 +43,15 @@ export async function recordSpend(input: {
   }
 }
 
+/** Month-to-date spend for one request type (e.g. "research"). */
+export async function getMonthSpendByType(requestType: string): Promise<number> {
+  const spend = (await readState()).spend;
+  const month = new Date().toISOString().slice(0, 7);
+  return spend.records
+    .filter((r) => r.requestType === requestType && r.at.slice(0, 7) === month)
+    .reduce((a, r) => a + r.usd, 0);
+}
+
 export interface SpendSummary {
   totalUsd: number;
   totalRuns: number;

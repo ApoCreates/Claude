@@ -22,6 +22,17 @@ export const PRICING: Record<string, ModelPricing> = {
 
 export const WEB_SEARCH_USD = 0.01; // $10 per 1000 searches
 
+/**
+ * Hard monthly budget for self-research (the knowledge garden).
+ * Enforced from the real spend ledger before every research run — cron
+ * and manual alike. Raise only via env (operator decision, not code).
+ */
+export const RESEARCH_MONTHLY_BUDGET_USD = Number(
+  process.env.QALAM_RESEARCH_BUDGET_USD || 5
+);
+/** Worst-case estimate for one Haiku research run (guard margin). */
+export const EST_RESEARCH_RUN_USD = 0.12;
+
 const FALLBACK = PRICING["claude-sonnet-4-6"];
 
 export function pricingFor(model: string | undefined | null): ModelPricing {
