@@ -6,17 +6,20 @@ import { t } from "@/lib/i18n";
 import { generateQuestion, XP_CORRECT, type QuizQ } from "@/lib/games";
 import { SUBJECTS, FREE_LEVELS } from "@/lib/curriculum";
 import { SunMark } from "./SunMark";
+import { playSfx } from "@/lib/sound";
 import clsx from "clsx";
 
 const DURATION = 60; // seconds
+const CALM_QUESTIONS = 12; // calm mode swaps the clock for a fixed set
 
 // The Sun Sprint — a 60-second cross-subject arcade round. Questions arrive
 // from every subject the learner has access to (interleaving, the most
 // under-used trick in learning science). Consecutive correct answers build a
 // combo multiplier; a miss resets it. Score feeds Rays and a personal best.
 export function SunSprint() {
-  const { lang, plan, passed, recordCorrect, addXp, recordSprint, bestSprint } = usePrefs();
+  const { lang, plan, passed, access, recordCorrect, addXp, recordSprint, bestSprint } = usePrefs();
   const d = t(lang);
+  const calm = access.calm;
 
   const [phase, setPhase] = useState<"idle" | "run" | "done">("idle");
   const [timeLeft, setTimeLeft] = useState(DURATION);
@@ -48,16 +51,19 @@ export function SunSprint() {
     setTimeLeft(DURATION);
     nextQuestion();
     if (timer.current) clearInterval(timer.current);
-    timer.current = setInterval(() => {
-      setTimeLeft((s) => {
-        if (s <= 1) {
-          if (timer.current) clearInterval(timer.current);
-          setPhase("done");
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
+    // Calm mode replaces the countdown with a fixed, unhurried question set.
+    if (!calm) {
+      timer.current = setInterval(() => {
+        setTimeLeft((s) => {
+          if (s <= 1) {
+            if (timer.current) clearInterval(timer.current);
+            setPhase("done");
+            return 0;
+          }
+          return s - 1;
+        });
+      }, 1000);
+    }
   };
 
   // Persist the run when it ends.
@@ -65,6 +71,7 @@ export function SunSprint() {
     if (phase === "done") {
       recordSprint(score);
       if (score > 0) addXp(Math.round(score / 2));
+      if (score >= bestSprint && score > 0) playSfx("fanfare", access.sound);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
@@ -77,7 +84,9 @@ export function SunSprint() {
     if (!q || selected !== null) return;
     setSelected(i);
     const right = i === q.quiz.correct;
-    setAnswered((n) => n + 1);
+    const count = answered + 1;
+    setAnswered(count);
+    playSfx(right ? "correct" : "wrong", access.sound);
     if (right) {
       setScore((s) => s + XP_CORRECT * mult);
       setCombo((c) => c + 1);
@@ -85,8 +94,12 @@ export function SunSprint() {
     } else {
       setCombo(0);
     }
-    // Brief beat to show the verdict, then next question.
-    setTimeout(nextQuestion, 550);
+    // Brief beat to show the verdict, then continue.
+    if (calm && count >= CALM_QUESTIONS) {
+      setTimeout(() => setPhase("done"), 650);
+    } else {
+      setTimeout(nextQuestion, 550);
+    }
   };
 
   if (phase === "idle") {
@@ -151,19 +164,21 @@ export function SunSprint() {
 
   return (
     <div className="card p-8">
-      {/* countdown hairline */}
+      {/* progress hairline: countdown normally, question count in calm mode */}
       <div className="mb-1 h-1 w-full bg-paper/10">
         <div
           className="h-1 bg-ochre transition-all duration-1000 ease-linear"
-          style={{ width: `${(timeLeft / DURATION) * 100}%` }}
+          style={{ width: `${calm ? (answered / CALM_QUESTIONS) * 100 : (timeLeft / DURATION) * 100}%` }}
         />
       </div>
       <div className="mt-4 flex flex-wrap items-baseline justify-between gap-2">
         <p className="font-mono text-[11px] uppercase tracking-label">
           <span className="text-ochre">{d.sprint.score} {score}</span>
-          {combo >= 3 && <span className="ms-3 text-dusk">🔥 ×{mult}</span>}
+          {!calm && combo >= 3 && <span className="ms-3 text-dusk">🔥 ×{mult}</span>}
         </p>
-        <p className="font-serif text-3xl tabular-nums text-paper">{timeLeft}s</p>
+        <p className="font-serif text-3xl tabular-nums text-paper">
+          {calm ? `${answered}/${CALM_QUESTIONS}` : `${timeLeft}s`}
+        </p>
       </div>
 
       {q && (

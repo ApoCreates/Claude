@@ -18,6 +18,9 @@ Design language derives from **The Aigency design system v.3**: paper on ink at 
 - **Visual labs** (`TRY IT LIVE`) — six subjects have hands-on interactives: number line / fraction bars / function grapher (math), float-or-sink density tank + animated projectile launcher (physics), a drag-the-decision-line classifier (AI), a latitude→climate globe (geography), a profit-curve lemonade stand (entrepreneurship), and an EN↔AR word-match game that pays Rays (languages).
 - **Adaptive placement** ("Find my year") — five adaptive questions on math/physics place the learner in the right school year and mark earlier years as mastered (with a Scholar upsell when placement exceeds the free tier).
 - **AI tutor in every lesson** — patient, Socratic, bilingual, age-calibrated to the school year, and able to **draw real graphs** in its answers via `PLOT` directives rendered by the client. Live Claude API when `ANTHROPIC_API_KEY` is set; graceful canned mode otherwise.
+- **Generated artwork** — the ten subject illustrations in `public/art/` were generated with the Higgsfield connector (soul_2) from a single brand brief (mid-century print, paper/ochre/marigold/oxblood palette) and optimized to ≤130 KB webp.
+- **Audio** — synthesized WebAudio sound effects (correct/wrong/mastery/target-hit) and a generative **focus-music loop**; bilingual **read-aloud** everywhere via the browser speech engine. No audio files, no royalties, works offline. Every sound has an on-screen text counterpart.
+- **Accessibility** (♿ panel in the nav, persisted): read-aloud (blind/early readers), larger text and high contrast (low vision), **calm mode** — no timers, no combos, no animations (autism-friendly; Sun Sprint becomes a fixed 12-question set), sound on/off, focus music, visible keyboard focus, `prefers-reduced-motion` respected, bilingual alt text on all artwork.
 - **Subscription** (`/pricing`) — region-aware pricing:
   | Plan | GCC | Levant | Unlocks |
   |---|---|---|---|

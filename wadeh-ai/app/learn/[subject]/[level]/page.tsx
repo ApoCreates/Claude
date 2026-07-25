@@ -11,6 +11,7 @@ import { Footer } from "@/components/Footer";
 import { Guard } from "@/components/Guard";
 import { TutorChat } from "@/components/TutorChat";
 import { QuizArena } from "@/components/QuizArena";
+import { SpeakButton } from "@/components/SpeakButton";
 import { MathLab } from "@/components/MathLab";
 import { PhysicsLab } from "@/components/PhysicsLab";
 import { AILab } from "@/components/AILab";
@@ -66,7 +67,10 @@ function LevelView({ slug, n }: { slug: string; n: number }) {
           {/* Left column: the year's syllabus, local lens, lab, quiz */}
           <div className="space-y-6">
             <div className="card p-8">
-              <p className="eyebrow-accent mb-3">{d.lesson.thisYear}</p>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="eyebrow-accent">{d.lesson.thisYear}</p>
+                <SpeakButton text={`${level.title[lang]}. ${level.focus[lang]}`} />
+              </div>
               <p className="font-serif text-xl leading-relaxed">{level.focus[lang]}</p>
               <div className="mt-6 border-t border-hairline pt-5">
                 <p className="eyebrow mb-4">{d.lesson.units}</p>

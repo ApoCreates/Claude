@@ -1,22 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePrefs } from "@/lib/prefs";
 import { t } from "@/lib/i18n";
 import { generateQuiz, XP_CORRECT, XP_LEVEL_MASTERED, type QuizQ } from "@/lib/games";
 import { QUIZ_LENGTH, PASS_SCORE } from "@/lib/curriculum";
 import { SunMark } from "./SunMark";
+import { SpeakButton } from "./SpeakButton";
+import { playSfx } from "@/lib/sound";
+import { speak } from "@/lib/speech";
 import clsx from "clsx";
 
 interface ArenaQ extends QuizQ {
   fromReview?: boolean;
 }
 
+// Reads each new question aloud when the read-aloud setting is on.
+function AutoRead({ text, idx, enabled, lang }: { text: string; idx: number; enabled: boolean; lang: "en" | "ar" }) {
+  useEffect(() => {
+    if (enabled) speak(text, lang);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx, enabled]);
+  return null;
+}
+
 // The mastery quiz: fresh questions every run, immediate feedback with an
 // explanation, XP per correct answer, and missed questions entering the
 // spaced-review queue. Passing (4/5) is what unlocks the next school year.
 export function QuizArena({ subject, level }: { subject: string; level: number }) {
-  const { lang, recordCorrect, recordMastered, addXp, addReview, shiftReview, review, passed } = usePrefs();
+  const { lang, access, recordCorrect, recordMastered, addXp, addReview, shiftReview, review, passed } = usePrefs();
   const d = t(lang);
 
   const [questions, setQuestions] = useState<ArenaQ[] | null>(null);
@@ -50,6 +62,7 @@ export function QuizArena({ subject, level }: { subject: string; level: number }
     const q = questions[idx];
     const right = selected === q.correct;
     setChecked(true);
+    playSfx(right ? "correct" : "wrong", access.sound);
     if (right) {
       setScore((s) => s + 1);
       setEarned((e) => e + XP_CORRECT);
@@ -71,6 +84,7 @@ export function QuizArena({ subject, level }: { subject: string; level: number }
         recordMastered(subject, level);
         addXp(XP_LEVEL_MASTERED);
         setEarned((e) => e + XP_LEVEL_MASTERED);
+        playSfx("fanfare", access.sound);
       }
       setFinished(true);
     } else {
@@ -131,7 +145,11 @@ export function QuizArena({ subject, level }: { subject: string; level: number }
         </p>
       </div>
       {q.fromReview && <p className="mb-3 font-mono text-[10px] uppercase tracking-label text-dusk">↻ {d.quiz.reviewTag}</p>}
-      <p className="font-serif text-2xl leading-snug">{q.q[lang]}</p>
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-serif text-2xl leading-snug">{q.q[lang]}</p>
+        <SpeakButton text={q.q[lang]} />
+      </div>
+      <AutoRead text={q.q[lang]} idx={idx} enabled={access.readAloud && access.sound} lang={lang} />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         {q.choices.map((c, i) => {

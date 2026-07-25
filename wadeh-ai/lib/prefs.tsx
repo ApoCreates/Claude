@@ -33,6 +33,23 @@ export interface ReviewItem {
   q: QuizQ;
 }
 
+// Accessibility choices — tickable, persistent, applied app-wide.
+export interface AccessPrefs {
+  sound: boolean; // SFX + read-aloud voices allowed
+  readAloud: boolean; // auto-read questions/lessons (blind & early readers)
+  largeText: boolean; // low vision
+  highContrast: boolean; // low vision
+  calm: boolean; // autism-friendly: no timers, no combos, no animations
+}
+
+const ACCESS_DEFAULTS: AccessPrefs = {
+  sound: true,
+  readAloud: false,
+  largeText: false,
+  highContrast: false,
+  calm: false,
+};
+
 interface Prefs {
   lang: Lang;
   region: Region | null;
@@ -45,6 +62,7 @@ interface Prefs {
   quest: QuestState;
   review: ReviewItem[]; // missed questions waiting for spaced review
   bestSprint: number; // personal best in the Sun Sprint
+  access: AccessPrefs;
 }
 
 interface PrefsCtx extends Prefs {
@@ -60,6 +78,7 @@ interface PrefsCtx extends Prefs {
   addReview: (item: ReviewItem) => void;
   shiftReview: () => void;
   recordSprint: (score: number) => void;
+  setAccess: (patch: Partial<AccessPrefs>) => void;
   reset: () => void;
 }
 
@@ -78,6 +97,7 @@ const DEFAULTS: Prefs = {
   quest: freshQuest(),
   review: [],
   bestSprint: 0,
+  access: ACCESS_DEFAULTS,
 };
 
 const KEY = "wadehai:prefs:v2";
@@ -91,7 +111,10 @@ export function PrefsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setPrefs({ ...DEFAULTS, ...JSON.parse(raw) });
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setPrefs({ ...DEFAULTS, ...parsed, access: { ...ACCESS_DEFAULTS, ...(parsed.access ?? {}) } });
+      }
     } catch {
       // corrupted storage — fall back to defaults
     }
@@ -107,6 +130,14 @@ export function PrefsProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = prefs.lang;
     document.documentElement.dir = prefs.lang === "ar" ? "rtl" : "ltr";
   }, [prefs.lang]);
+
+  // Accessibility choices apply as root classes that CSS responds to.
+  useEffect(() => {
+    const el = document.documentElement;
+    el.classList.toggle("a11y-large", prefs.access.largeText);
+    el.classList.toggle("a11y-contrast", prefs.access.highContrast);
+    el.classList.toggle("a11y-calm", prefs.access.calm);
+  }, [prefs.access]);
 
   const value = useMemo<PrefsCtx>(() => {
     // Roll the quest board and streak forward when a new day starts.
@@ -182,6 +213,7 @@ export function PrefsProvider({ children }: { children: React.ReactNode }) {
       shiftReview: () => setPrefs((p) => ({ ...p, review: p.review.slice(1) })),
       recordSprint: (score) =>
         setPrefs((p) => touchStreak({ ...withDay(p), bestSprint: Math.max(p.bestSprint, score) })),
+      setAccess: (patch) => setPrefs((p) => ({ ...p, access: { ...p.access, ...patch } })),
       reset: () => setPrefs(DEFAULTS),
     };
   }, [prefs, ready]);

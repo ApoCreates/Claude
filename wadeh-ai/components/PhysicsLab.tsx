@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePrefs } from "@/lib/prefs";
 import { t } from "@/lib/i18n";
 import { XP_LAB } from "@/lib/games";
+import { playSfx } from "@/lib/sound";
 
 // The physics lab adapts to the school year:
 //   Years 1–5  → a float-or-sink tank driven by density
@@ -75,7 +76,7 @@ function FloatTank({ lang }: { lang: "en" | "ar" }) {
 }
 
 function Projectile({ lang }: { lang: "en" | "ar" }) {
-  const { addXp } = usePrefs();
+  const { addXp, access } = usePrefs();
   const [angle, setAngle] = useState(45);
   const [speed, setSpeed] = useState(16);
   const [flying, setFlying] = useState(false);
@@ -124,6 +125,7 @@ function Projectile({ lang }: { lang: "en" | "ar" }) {
         const off = landAt - target;
         const hit = Math.abs(off) <= 3;
         setVerdict({ hit, off });
+        playSfx(hit ? "hit" : "wrong", access.sound);
         if (hit) {
           setHits((h) => h + 1);
           addXp(XP_LAB);

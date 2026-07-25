@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { Guard } from "@/components/Guard";
 import { QuestPanel } from "@/components/QuestPanel";
 import { SunSprint } from "@/components/SunSprint";
+import { SubjectArt } from "@/components/SubjectArt";
 
 export default function LearnPage() {
   return (
@@ -50,7 +51,9 @@ function Learn() {
                 const doneCount = (passed[s.slug] ?? []).length;
                 const pct = doneCount * 10;
                 return (
-                  <Link key={s.slug} href={`/learn/${s.slug}`} className="card card-hover group p-6">
+                  <Link key={s.slug} href={`/learn/${s.slug}`} className="card card-hover group overflow-hidden">
+                    <SubjectArt subject={s} className="border-0 border-b border-hairline" />
+                    <div className="p-6 pt-5">
                     <div className="flex items-baseline justify-between">
                       <p className="font-mono text-xs text-ochre">
                         {ROMAN[track === "education" ? i : i + 5]} · {s.slug.toUpperCase()}
@@ -68,6 +71,7 @@ function Learn() {
                     <p className="mt-3 text-sm text-gold">
                       {doneCount > 0 ? d.curriculum.continue : d.curriculum.start} <span aria-hidden>→</span>
                     </p>
+                    </div>
                   </Link>
                 );
               })}

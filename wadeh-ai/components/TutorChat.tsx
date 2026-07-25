@@ -5,6 +5,7 @@ import { usePrefs } from "@/lib/prefs";
 import { t } from "@/lib/i18n";
 import type { Level, Subject } from "@/lib/curriculum";
 import { MiniPlot, parsePlotDirective } from "./MiniPlot";
+import { SpeakButton } from "./SpeakButton";
 import clsx from "clsx";
 
 interface Msg {
@@ -122,6 +123,7 @@ export function TutorChat({ subject, level }: { subject: Subject; level: Level }
               {plots.map((p, j) => (
                 <MiniPlot key={j} fn={p.fn} label={p.label} height={170} />
               ))}
+              <SpeakButton text={text} />
             </div>
           );
         })}

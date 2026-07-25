@@ -10,6 +10,7 @@ import { Footer } from "@/components/Footer";
 import { Guard } from "@/components/Guard";
 import { LevelPath } from "@/components/LevelPath";
 import { PlacementTest } from "@/components/PlacementTest";
+import { SubjectArt } from "@/components/SubjectArt";
 
 export default function SubjectPage({ params }: { params: { subject: string } }) {
   const subject = getSubject(params.subject);
@@ -44,7 +45,11 @@ function SubjectView({ slug }: { slug: string }) {
         </div>
         <p className="mt-4 max-w-xl text-lg text-paper/75">{subject.tagline[lang]}</p>
 
-        <div className="card mt-10 p-6">
+        <div className="mt-8">
+          <SubjectArt subject={subject} priority />
+        </div>
+
+        <div className="card mt-6 p-6">
           <p className="eyebrow-accent mb-2">{d.subject.example}</p>
           <p className="font-serif text-lg leading-relaxed">{subject.regionExample[r][lang]}</p>
         </div>

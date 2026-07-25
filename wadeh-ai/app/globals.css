@@ -77,6 +77,53 @@ html[lang="ar"] .eyebrow {
   }
 }
 
+/* ---------------------------------------------------------- Accessibility */
+
+/* Larger text for low vision — everything scales with the root. */
+html.a11y-large {
+  font-size: 115%;
+}
+
+/* High contrast: deepen secondary text and strengthen hairlines.
+   Accessibility outranks the palette here. */
+html.a11y-contrast body {
+  color: #0d0c08;
+}
+html.a11y-contrast .text-mute-light,
+html.a11y-contrast .eyebrow {
+  color: #3f3b31 !important;
+}
+html.a11y-contrast .text-mute {
+  color: #55503f !important;
+}
+html.a11y-contrast .text-gold {
+  color: #7a5a1c !important;
+}
+html.a11y-contrast .card,
+html.a11y-contrast .border-hairline {
+  border-color: rgba(21, 20, 15, 0.55) !important;
+}
+
+/* Calm mode (autism-friendly): no animation, no motion pressure. */
+html.a11y-calm *,
+html.a11y-calm *::before,
+html.a11y-calm *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sun-rise {
+    animation: none;
+  }
+}
+
+/* Visible keyboard focus everywhere — never removed, only styled. */
+:focus-visible {
+  outline: 2px solid #c4612a;
+  outline-offset: 2px;
+}
+
 /* The sunrise — mastery celebration. A warm lift, never a glow. */
 @keyframes sun-rise {
   from {
