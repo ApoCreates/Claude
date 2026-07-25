@@ -46,7 +46,7 @@ export interface FlagRecord {
 const RULES: { category: FlagCategory; re: RegExp }[] = [
   {
     category: "violence_weapons",
-    re: /(how (do|can|to)|make|build|buy|get|craft)[^.?!]{0,40}\b(bombs?|explosives?|grenades?|guns?|firearms?|silencers?|poison(s|ous)?|napalm)\b|\b(hurt|kill|attack|beat up)\b[^.?!]{0,30}\b(someone|him|her|them|my (friend|brother|sister|classmate|teacher))\b/i,
+    re: /(how (do|can|to)|make|build|buy|get|craft)[^.?!]{0,40}\b(weapons?|bombs?|explosives?|grenades?|guns?|firearms?|silencers?|poison(s|ous)?|napalm|knife|knives)\b|\b(hurt|kill|attack|beat up|stab|shoot)\b[^.?!]{0,30}\b(someone|somebody|him|her|them|my (friend|brother|sister|classmate|teacher))\b/i,
   },
   {
     category: "violence_weapons",
