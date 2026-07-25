@@ -179,6 +179,30 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Moderation — where the tutor's silent safety flags arrive */}
+        <div className="card mt-8 p-6">
+          <p className="eyebrow-accent mb-4">{ar ? "السلامة والإشراف" : "SAFETY & MODERATION"}</p>
+          <p className="text-sm leading-relaxed text-mute-light">
+            {ar
+              ? "كل رسالة إلى المعلّم تُفحص على الخادم. المحاولات المشبوهة (عنف، مخدرات، إيذاء النفس، محتوى جنسي، كراهية، اختراق، أو محاولات التحايل على القواعد) تُحظر بلطف ويُبلَّغ عنها بصمت — دون إعلام المستخدم — مع هوية الجهاز والوقت ونوع المحاولة ومقتطف من الرسالة."
+              : "Every tutor message is screened on the server. Suspicious attempts (violence, drugs, self-harm, sexual content, hate, hacking, or tries to talk the tutor out of its rules) are gently blocked and reported silently — the user is never told — with the device id, UTC time, category, and a short excerpt."}
+          </p>
+          <ul className="mt-4 space-y-2 text-sm text-mute-light">
+            <li className="border-t border-hairline pt-2">
+              <span className="font-mono text-[11px] text-marigold">WADEH_FLAG</span>{" "}
+              {ar
+                ? "— ابحث عن هذه العلامة في سجلات Vercel (المشروع ← Logs) لرؤية كل البلاغات."
+                : "— filter the Vercel logs (Project → Logs) for this marker to see every report."}
+            </li>
+            <li className="border-t border-hairline pt-2">
+              <span className="font-mono text-[11px] text-marigold">MODERATION_WEBHOOK_URL</span>{" "}
+              {ar
+                ? "— أضف هذا المتغير في إعدادات Vercel ليصل كل بلاغ فوراً كـ JSON إلى Slack أو Discord أو بريدك."
+                : "— set this env var in Vercel to receive every report instantly as JSON in Slack, Discord, or e-mail."}
+            </li>
+          </ul>
+        </div>
+
         <p className="mt-8">
           <Link href="/learn" className="btn-paper">
             {ar ? "إلى المنهج" : "To the curriculum"} <span aria-hidden>→</span>

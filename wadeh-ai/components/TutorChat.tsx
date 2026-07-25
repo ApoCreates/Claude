@@ -28,7 +28,7 @@ function splitReply(content: string): { text: string; plots: { fn: (x: number) =
 }
 
 export function TutorChat({ subject, level }: { subject: Subject; level: Level }) {
-  const { lang, region, recordTutorAsk } = usePrefs();
+  const { lang, region, uid, recordTutorAsk } = usePrefs();
   const d = t(lang);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -60,6 +60,7 @@ export function TutorChat({ subject, level }: { subject: Subject; level: Level }
           level: level.n,
           lang,
           region,
+          uid,
         }),
       });
       const data = await res.json();
