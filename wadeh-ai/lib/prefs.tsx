@@ -63,6 +63,7 @@ interface Prefs {
   review: ReviewItem[]; // missed questions waiting for spaced review
   bestSprint: number; // personal best in the Sun Sprint
   access: AccessPrefs;
+  tourDone: boolean; // the first-entry guided tour has been completed
 }
 
 interface PrefsCtx extends Prefs {
@@ -79,6 +80,7 @@ interface PrefsCtx extends Prefs {
   shiftReview: () => void;
   recordSprint: (score: number) => void;
   setAccess: (patch: Partial<AccessPrefs>) => void;
+  setTourDone: (done: boolean) => void;
   reset: () => void;
 }
 
@@ -98,6 +100,7 @@ const DEFAULTS: Prefs = {
   review: [],
   bestSprint: 0,
   access: ACCESS_DEFAULTS,
+  tourDone: false,
 };
 
 const KEY = "wadehai:prefs:v2";
@@ -214,6 +217,7 @@ export function PrefsProvider({ children }: { children: React.ReactNode }) {
       recordSprint: (score) =>
         setPrefs((p) => touchStreak({ ...withDay(p), bestSprint: Math.max(p.bestSprint, score) })),
       setAccess: (patch) => setPrefs((p) => ({ ...p, access: { ...p.access, ...patch } })),
+      setTourDone: (tourDone) => setPrefs((p) => ({ ...p, tourDone })),
       reset: () => setPrefs(DEFAULTS),
     };
   }, [prefs, ready]);

@@ -7,6 +7,7 @@ import { t } from "@/lib/i18n";
 import type { Lang, Region } from "@/lib/curriculum";
 import { SunMark } from "@/components/SunMark";
 import { Wordmark } from "@/components/Wordmark";
+import { Tour } from "@/components/Tour";
 import clsx from "clsx";
 
 // The gate. Language and region are chosen here — before anything else.
@@ -54,6 +55,7 @@ export default function GatePage() {
 
   return (
     <main className="flex min-h-screen flex-col">
+      <Tour />
       <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center px-6 py-16">
         <div className="mb-10 flex items-center justify-between">
           <Wordmark />

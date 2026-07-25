@@ -203,6 +203,36 @@ export const DICT = {
       timeUp: "Time's up!",
       again: "Run it again",
     },
+    tour: {
+      title: "A 60-SECOND TOUR",
+      skip: "Skip",
+      next: "Next",
+      back: "Back",
+      done: "Start learning",
+      replay: "Tour",
+      steps: [
+        {
+          t: "Welcome to wadehAI · واضح",
+          b: "A patient AI school for the Arab world — ten subjects, ten school years each, in Arabic and English. 'Wadeh' means clear, and clear is the whole point.",
+        },
+        {
+          t: "Choose your world first",
+          b: "Pick your language and your region — the Gulf or the Levant. Every lesson, example and price adapts: physics in Amman isn't taught like physics in Dubai.",
+        },
+        {
+          t: "Climb the suns",
+          b: "Each subject is a ladder of ten suns — one per school year. Pass a year's mastery quiz (4 of 5) and the next sun lights up. No gaps, no skipping.",
+        },
+        {
+          t: "Learn by playing",
+          b: "Earn Rays for right answers, keep a daily streak, clear quests, race the 60-second Sun Sprint, and play the labs — launch projectiles, train an AI, place cities, match words.",
+        },
+        {
+          t: "Made for every learner",
+          b: "The ♿ Access panel adds read-aloud voices, larger text, high contrast and a calm mode with no timers. And a patient AI tutor sits in every lesson — it never just gives you the answer.",
+        },
+      ],
+    },
     access: {
       title: "Accessibility",
       button: "Access",
@@ -429,6 +459,36 @@ export const DICT = {
       newBest: "رقم شخصي جديد!",
       timeUp: "انتهى الوقت!",
       again: "أعد الكرّة",
+    },
+    tour: {
+      title: "جولة في ٦٠ ثانية",
+      skip: "تخطَّ",
+      next: "التالي",
+      back: "السابق",
+      done: "ابدأ التعلّم",
+      replay: "الجولة",
+      steps: [
+        {
+          t: "أهلاً بك في واضح · wadehAI",
+          b: "مدرسة ذكاء اصطناعي صبورة للعالم العربي — عشر مواد، وعشر سنوات دراسية لكل مادة، بالعربية والإنجليزية. «واضح» هو الاسم، والوضوح هو الفكرة كلها.",
+        },
+        {
+          t: "اختر عالمك أولاً",
+          b: "اختر لغتك ومنطقتك — الخليج أو بلاد الشام. كل درس ومثال وسعر يتكيّف معك: فيزياء عمّان لا تُدرَّس كفيزياء دبي.",
+        },
+        {
+          t: "اصعد سُلّم الشموس",
+          b: "كل مادة سُلّم من عشر شموس — شمس لكل سنة دراسية. اجتز اختبار إتقان السنة (٤ من ٥) لتضيء الشمس التالية. لا فجوات ولا قفز.",
+        },
+        {
+          t: "تعلّم باللعب",
+          b: "اكسب الأشعة بالإجابات الصحيحة، وحافظ على مواظبتك اليومية، وأنجز المهام، وسابق في «سباق الشمس»، والعب المختبرات — أطلق المقذوفات ودرّب ذكاءً اصطناعياً وضع المدن وطابق الكلمات.",
+        },
+        {
+          t: "صُنع لكل متعلم",
+          b: "لوحة التيسير ♿ تضيف القراءة الصوتية والنص الأكبر والتباين العالي والوضع الهادئ بلا مؤقتات. ومعلّم ذكي صبور في كل درس — لا يعطيك الجواب جاهزاً أبداً.",
+        },
+      ],
     },
     access: {
       title: "تيسير الاستخدام",

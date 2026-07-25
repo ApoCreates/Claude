@@ -18,7 +18,11 @@ export function Footer() {
             <p className="text-sm text-mute-light">{d.footer.line2}</p>
           </div>
         </div>
-        <p className="eyebrow">{d.footer.madeIn}</p>
+        <p className="eyebrow">
+          {d.footer.madeIn}
+          <span className="mx-2 text-mute">·</span>
+          <a href="/admin" className="hover:text-marigold">ADMIN</a>
+        </p>
       </div>
     </footer>
   );

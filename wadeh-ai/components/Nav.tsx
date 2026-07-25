@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { usePrefs } from "@/lib/prefs";
 import { t } from "@/lib/i18n";
 import { Wordmark } from "./Wordmark";
@@ -9,9 +9,10 @@ import { AccessPanel } from "./AccessPanel";
 import clsx from "clsx";
 
 export function Nav() {
-  const { lang, region, setLang, xp, streakDays } = usePrefs();
+  const { lang, region, setLang, xp, streakDays, setTourDone } = usePrefs();
   const d = t(lang);
   const path = usePathname();
+  const router = useRouter();
 
   const links = [
     { href: "/home", label: d.nav.home },
@@ -45,6 +46,16 @@ export function Nav() {
             <span className="mx-1 text-mute">·</span>
             <span className="text-ochre">🔥 {streakDays}</span>
           </span>
+          <button
+            onClick={() => {
+              setTourDone(false);
+              router.push("/");
+            }}
+            className="px-2 py-1 font-mono text-[11px] uppercase tracking-label text-mute-light hover:text-marigold"
+            aria-label={d.tour.title}
+          >
+            ？{d.tour.replay}
+          </button>
           <AccessPanel />
           <button
             onClick={() => setLang(lang === "en" ? "ar" : "en")}
