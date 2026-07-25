@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* wadehAI — set in daylight. Paper on ink, ochre accent, never #FFF, never #000. */
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background: #15140f;
+  color: #f4efe5;
+}
+
+::selection {
+  background: #c4612a;
+  color: #f4efe5;
+}
+
+/* Arabic gets its own faces: Amiri for display serif, Plex Arabic for UI. */
+html[lang="ar"] .font-serif {
+  font-family: var(--font-amiri), var(--font-fraunces), serif;
+}
+html[lang="ar"] body,
+html[lang="ar"] .font-sans {
+  font-family: var(--font-plex-arabic), var(--font-inter-tight), sans-serif;
+}
+/* Mono eyebrows stay latin-flavoured but inherit Arabic gracefully. */
+html[lang="ar"] .eyebrow {
+  letter-spacing: 0.08em;
+}
+
+@layer components {
+  /* JetBrains Mono label — the design system's mono eyebrow. */
+  .eyebrow {
+    @apply font-mono text-[11px] font-medium uppercase tracking-label text-mute-light;
+  }
+  .eyebrow-accent {
+    @apply font-mono text-[11px] font-medium uppercase tracking-label text-ochre;
+  }
+
+  /* Card pattern — mono index, Fraunces title, hairline meta.
+     Hover lifts the border to marigold. Never a glow, never a shadow on type. */
+  .card {
+    @apply border border-hairline bg-ink-panel transition-colors duration-300;
+  }
+  .card-hover:hover {
+    @apply border-marigold/60;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-sans text-sm font-medium transition-colors duration-200;
+  }
+  .btn-primary {
+    @apply btn bg-marigold text-ink hover:bg-gold;
+  }
+  .btn-ghost {
+    @apply btn border border-hairline-strong text-paper hover:border-marigold/70;
+  }
+  .btn-paper {
+    @apply btn bg-paper text-ink hover:bg-paper-deep;
+  }
+
+  /* A nod to print: the cut line. Use to separate, fold, or detach. */
+  .cutline {
+    @apply relative border-t border-dashed border-hairline-strong;
+  }
+  .cutline-scissor::before {
+    content: "✂";
+    @apply absolute -top-3 text-gold text-sm;
+    inset-inline-start: 1.5rem;
+  }
+
+  .hairline-row {
+    @apply border-t border-hairline;
+  }
+}
+
+/* Thin, quiet scrollbars for the tutor panel. */
+.tutor-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.tutor-scroll::-webkit-scrollbar-thumb {
+  background: rgba(244, 239, 229, 0.18);
+}
