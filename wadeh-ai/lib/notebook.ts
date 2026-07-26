@@ -3657,7 +3657,108 @@ const ENTREPRENEURSHIP_10: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Problem Solving · Year 5 · Logic & Clues ----
+// Age ~10-11. The truth table earns its place here: "or" meaning *at least one*
+// is the single idea that trips learners up for years afterwards.
+const PROBLEM_SOLVING_5: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("‘Maybe' is a real answer", "«ربما» جواب حقيقي"),
+    paras: [
+      bi(
+        "Logic asks one question about every statement: **can I prove it from what I already know?** If yes, it's true. If it contradicts what I know, it's false. And if neither — it's **maybe**, which is an honest answer, not a failed one.",
+        "يسأل المنطق سؤالاً واحداً عن كل عبارة: **هل أستطيع إثباتها ممّا أعرفه؟** فإن استطعت فهي صواب. وإن ناقضت ما أعرفه فهي خطأ. وإن لم يكن هذا ولا ذاك فهي **ربما** — وهو جواب صادق لا جواب فاشل."
+      ),
+      bi(
+        "Most wrong answers aren't wrong reasoning — they're **‘maybe' upgraded to ‘true'** because it felt likely. A detective who guesses is just a person with an opinion.",
+        "معظم الأجوبة الخاطئة ليست استدلالاً خاطئاً، بل **«ربما» رُقِّيت إلى «صواب»** لأنها بدت مرجّحة. والمحقّق الذي يخمّن مجرّد شخص لديه رأي."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("What ‘and' and ‘or' really mean", "ما تعنيه «و» و«أو» حقاً"),
+    flow: [
+      { text: bi("List what's certain", "اسرد ما هو مؤكّد"), tone: "force" },
+      { text: bi("Cross out the impossible", "اشطب المستحيل"), tone: "mass" },
+      { text: bi("What's left is true", "ما بقي هو الصواب"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("A", "أ"), bi("B", "ب"), bi("A and B", "أ و ب"), bi("A or B", "أ أو ب")],
+      rows: [
+        [bi("true", "صواب"), bi("true", "صواب"), bi("true", "صواب"), bi("true", "صواب")],
+        [bi("true", "صواب"), bi("false", "خطأ"), bi("false", "خطأ"), bi("true", "صواب")],
+        [bi("false", "خطأ"), bi("true", "صواب"), bi("false", "خطأ"), bi("true", "صواب")],
+        [bi("false", "خطأ"), bi("false", "خطأ"), bi("false", "خطأ"), bi("false", "خطأ")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Three little words with exact jobs", "ثلاث كلمات صغيرة بمهام دقيقة"),
+    paras: [
+      bi(
+        "Logic writes ‘and', ‘or' and ‘not' as symbols so nobody can argue about what was meant:",
+        "يكتب المنطق «و» و«أو» و«ليس» رموزاً حتى لا يختلف أحد على المقصود:"
+      ),
+      bi(
+        "The trap is **‘or'**. In everyday speech ‘tea or coffee?' means *pick one*. In logic, ‘or' is true when **at least one** is true — including both. So ‘she plays chess or swims' stays true for someone who does both.",
+        "والفخّ هو **«أو»**. ففي الكلام اليومي «شاي أم قهوة؟» تعني *اختر واحداً*. أما في المنطق فـ«أو» صواب حين يكون **واحد على الأقل** صواباً — بما في ذلك كلاهما. فقولك «تلعب الشطرنج أو تسبح» يظلّ صواباً لمن تفعل الاثنتين."
+      ),
+    ],
+    math: [
+      "A \\land B \\;\\;\\text{(and)} \\qquad A \\lor B \\;\\;\\text{(or)} \\qquad \\lnot A \\;\\;\\text{(not)}",
+      "A \\lor B \\;\\text{ is true when } \\textbf{at least one} \\text{ is true}",
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("An elimination grid, solved", "شبكة استبعاد، محلولة"),
+    paras: [
+      bi(
+        "Salma, Yusuf and Dana each joined a different club: chess, swimming or art. **Clue 1:** Dana is not in art. **Clue 2:** Yusuf is in neither art nor swimming.",
+        "انضمّ كلٌّ من سلمى ويوسف ودانة إلى ناد مختلف: الشطرنج أو السباحة أو الرسم. **القرينة ١:** دانة ليست في الرسم. **القرينة ٢:** يوسف ليس في الرسم ولا في السباحة."
+      ),
+      bi(
+        "Start with the clue that removes the most. Clue 2 leaves Yusuf only one option, so **Yusuf → chess**. Chess is now taken, and clue 1 rules out art for Dana, so **Dana → swimming**. Only art is left, so **Salma → art**. Notice you never needed a clue about Salma at all.",
+        "ابدأ بالقرينة التي تحذف الأكثر. فالقرينة ٢ لا تترك ليوسف إلا خياراً واحداً، إذاً **يوسف ← الشطرنج**. وقد شُغل الشطرنج، والقرينة ١ تستبعد الرسم عن دانة، إذاً **دانة ← السباحة**. ولم يبقَ إلا الرسم، إذاً **سلمى ← الرسم**. ولاحظ أنك لم تحتج قرينة عن سلمى إطلاقاً."
+      ),
+      bi(
+        "Now the trick question: *‘A farmer has 12 sheep and all but 7 run away. How many are left?'* Read the exact words, not the shape of the question — ‘all but 7' **is** the answer: **7**. Trick questions don't test cleverness; they test whether you slowed down.",
+        "والآن السؤال الخادع: *«لدى مزارع ١٢ خروفاً، وهربت كلّها إلا ٧. فكم بقي؟»* اقرأ الكلمات بدقّة لا شكل السؤال — فـ«كلها إلا ٧» **هي** الجواب: **٧**. والأسئلة الخادعة لا تختبر الذكاء، بل تختبر هل تمهّلت."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "‘Omar has a cat or a dog' — is that true for someone who has both? And if you know only ‘Layla is not in the red team', can you say which team she *is* in, or is the honest answer ‘maybe'?",
+        "«عمر لديه قطة أو كلب» — أصوابٌ هذا لمن يملك الاثنين؟ وإن كنت تعرف فقط أن «ليلى ليست في الفريق الأحمر»، أتستطيع تحديد فريقها، أم أن الجواب الصادق «ربما»؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Prove it, disprove it, or say ‘maybe' — cross out the impossible before you guess, and remember that ‘or' means at least one.",
+        "أثبتها أو ادحضها أو قل «ربما» — اشطب المستحيل قبل أن تخمّن، وتذكّر أن «أو» تعني واحداً على الأقل."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "problem-solving-5": PROBLEM_SOLVING_5,
   "entrepreneurship-10": ENTREPRENEURSHIP_10,
   "emotional-intelligence-1": EQ_1,
   "languages-1": LANGUAGES_1,
