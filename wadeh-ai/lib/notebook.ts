@@ -2082,7 +2082,102 @@ const LEADERSHIP_9: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Math · Year 6 · Algebra Foundations ----
+const MATH_6: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("A letter isn't a mystery — it's a placeholder", "الحرف ليس لغزاً بل موضعٌ محجوز"),
+    paras: [
+      bi(
+        "People think $x$ means ‘something hidden'. It doesn't. A letter is just **a box you haven't filled yet** — the same box you've used since Year 1 when you wrote $3 + \\square = 7$.",
+        "يظنّ الناس أن $x$ تعني «شيئاً مخفياً». وليست كذلك. فالحرف مجرّد **صندوق لم تملأه بعد** — الصندوق نفسه الذي استعملته منذ السنة الأولى حين كتبت $3 + \\square = 7$."
+      ),
+      bi(
+        "What changes this year is bigger than the letter: you stop answering ‘what is the total?' and start answering **‘what is the rule?'**. One rule handles the 5th case and the 500th at the same time — that's why algebra is worth the trouble.",
+        "لكنّ ما يتغيّر هذا العام أكبر من الحرف: تكفّ عن الإجابة عن «كم المجموع؟» وتبدأ الإجابة عن **«ما القاعدة؟»**. فقاعدة واحدة تتكفّل بالحالة الخامسة والخمسمئة معاً — ولهذا يستحقّ الجبر عناءه."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Reading a sequence in three moves", "قراءة متتالية في ثلاث حركات"),
+    flow: [
+      { text: bi("Find the step", "جِد الخطوة"), tone: "force" },
+      { text: bi("Work back to term zero", "ارجع إلى الحدّ صفر"), tone: "mass" },
+      { text: bi("Write the rule", "اكتب القاعدة"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Sequence", "المتتالية"), bi("Step", "الخطوة"), bi("Rule for term $n$", "قاعدة الحدّ $n$")],
+      rows: [
+        [bi("3, 7, 11, 15…", "٣، ٧، ١١، ١٥…"), bi("+4", "‎+٤"), bi("$4n - 1$", "$4n - 1$")],
+        [bi("5, 10, 15, 20…", "٥، ١٠، ١٥، ٢٠…"), bi("+5", "‎+٥"), bi("$5n$", "$5n$")],
+        [bi("20, 17, 14, 11…", "٢٠، ١٧، ١٤، ١١…"), bi("−3", "‎−٣"), bi("$23 - 3n$", "$23 - 3n$")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The rule of a linear sequence", "قاعدة المتتالية الخطية"),
+    paras: [
+      bi(
+        "In a **linear sequence** every term rises (or falls) by the same **step** $d$. The step multiplies $n$; then you adjust so that $n = 1$ gives the first term — which is the same as asking what term *zero* would have been:",
+        "في **المتتالية الخطية** يزيد كل حدّ (أو ينقص) بالخطوة نفسها $d$. فالخطوة تضرب في $n$، ثم تضبط ليعطي $n = 1$ الحدَّ الأول — وهو نفسه سؤالك عن قيمة الحدّ *صفر*:"
+      ),
+      bi(
+        "And the balance rule from equations still holds everywhere: whatever you do to one side, do to the other.",
+        "وقاعدة التوازن في المعادلات تبقى سارية في كل مكان: ما تفعله بطرف افعله بالآخر."
+      ),
+    ],
+    math: ["\\text{term}(n) = dn + (\\text{first} - d)"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Seating a long majlis", "ترتيب مجلس طويل"),
+    paras: [
+      bi(
+        "One square table seats **6**. Push a second table against it and only **4** more people fit — two seats are lost where the tables meet. Three tables seat 14, four seat 18.",
+        "طاولة مربّعة واحدة تتّسع لـ**٦**. وإن ضممت إليها ثانية اتّسعت لـ**٤** إضافيين فقط — إذ يُفقد مقعدان عند التقاء الطاولتين. فثلاث طاولات تتّسع لـ١٤، وأربع لـ١٨."
+      ),
+      bi(
+        "The step is 4, and term zero would be $6 - 4 = 2$. So the rule is $\\text{seats} = 4t + 2$. Check it: $t = 1 \\Rightarrow 6$ ✓, $t = 3 \\Rightarrow 14$ ✓.",
+        "الخطوة ٤، والحدّ صفر يساوي $6 - 4 = 2$. فالقاعدة $\\text{المقاعد} = 4t + 2$. تحقّق: $t = 1 \\Rightarrow 6$ ✓، و$t = 3 \\Rightarrow 14$ ✓."
+      ),
+      bi(
+        "Now the question counting alone can't answer: **42 guests are coming — how many tables?** Solve $4t + 2 = 42$: subtract 2 from both sides, $4t = 40$, divide by 4, $t = \\mathbf{10}$. No drawing, no counting.",
+        "والآن سؤال لا يجيب عنه العدّ وحده: **سيأتي ٤٢ ضيفاً — فكم طاولة؟** حُلّ $4t + 2 = 42$: اطرح ٢ من الطرفين فيصير $4t = 40$، ثم اقسم على ٤ فيكون $t = \\mathbf{10}$. بلا رسم ولا عدّ."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "Find the rule for 8, 13, 18, 23… and use it to get the 20th term. Then solve $3x - 5 = 16$, saying what you did to both sides each time.",
+        "جِد قاعدة ٨، ١٣، ١٨، ٢٣… ثم استخدمها لإيجاد الحدّ العشرين. ثم حُلّ $3x - 5 = 16$ ذاكراً ما فعلته بالطرفين في كل خطوة."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "A letter is an unfilled box; find the step, work back to term zero, and one rule answers every case — then keep the equation balanced while you undo it.",
+        "الحرف صندوق لم يُملأ؛ جِد الخطوة، وارجع إلى الحدّ صفر، فتُجيب قاعدة واحدة عن كل الحالات — ثم أبقِ المعادلة متوازنة وأنت تفكّها."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "math-6": MATH_6,
   "leadership-9": LEADERSHIP_9,
   "gaming-8": GAMING_8,
   "problem-solving-3": PROBLEM_SOLVING_3,
