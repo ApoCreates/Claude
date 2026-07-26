@@ -6,11 +6,13 @@ import { t } from "@/lib/i18n";
 import type { Level, Subject } from "@/lib/curriculum";
 import { MiniPlot, parsePlotDirective } from "./MiniPlot";
 import { SpeakButton } from "./SpeakButton";
+import { detectAbuse, maskAbuse, civilityNudge } from "@/lib/civility";
 import clsx from "clsx";
 
 interface Msg {
   role: "user" | "assistant";
   content: string;
+  mask?: string; // when set, render this (stars) instead of the raw content
 }
 
 /** Split a tutor reply into text and any PLOT directives it drew. */
@@ -43,7 +45,13 @@ export function TutorChat({ subject, level }: { subject: Subject; level: Level }
   const send = async () => {
     const text = input.trim();
     if (!text || busy) return;
-    const next = [...messages, { role: "user" as const, content: text }];
+    // Rude/abusive messages are masked to stars in the box the instant they're
+    // sent — the raw text is still sent so the tutor can respond kindly.
+    const abusive = detectAbuse(text);
+    const userMsg: Msg = abusive
+      ? { role: "user", content: text, mask: maskAbuse(text) }
+      : { role: "user", content: text };
+    const next = [...messages, userMsg];
     setMessages(next);
     setInput("");
     setBusy(true);
@@ -112,8 +120,16 @@ export function TutorChat({ subject, level }: { subject: Subject; level: Level }
         {messages.map((m, i) => {
           if (m.role === "user") {
             return (
-              <div key={i} className="ms-auto max-w-[90%] whitespace-pre-wrap bg-paper px-4 py-3 text-sm leading-relaxed text-ink">
-                {m.content}
+              <div key={i} className="ms-auto flex max-w-[90%] flex-col items-end gap-1.5">
+                <div className="whitespace-pre-wrap bg-paper px-4 py-3 text-sm leading-relaxed text-ink">
+                  {m.mask ?? m.content}
+                </div>
+                {m.mask && (
+                  <p className="flex items-center gap-1.5 border border-marigold/40 bg-marigold/10 px-3 py-1.5 text-xs text-marigold">
+                    <span aria-hidden>🌟</span>
+                    {civilityNudge(lang)}
+                  </p>
+                )}
               </div>
             );
           }

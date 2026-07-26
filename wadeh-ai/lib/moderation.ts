@@ -22,6 +22,7 @@ export type FlagCategory =
   | "hate"
   | "hacking_privacy"
   | "jailbreak_manipulation"
+  | "abuse_profanity"
   | "other_unsafe";
 
 export interface FlagHit {
@@ -121,6 +122,7 @@ const CATEGORIES: FlagCategory[] = [
   "hate",
   "hacking_privacy",
   "jailbreak_manipulation",
+  "abuse_profanity",
   "other_unsafe",
 ];
 

@@ -4,6 +4,7 @@ import { MODEL_CASCADE } from "@/lib/models";
 import { screenMessage, extractModelFlag, reportFlag, redirectReply, type FlagCategory } from "@/lib/moderation";
 import { findLocalAnswer, cacheKey, getCached, setCached } from "@/lib/answers";
 import { withinBudget, recordSpend, estimateCostUsd } from "@/lib/budget";
+import { detectAbuse, civilityReply } from "@/lib/civility";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -110,6 +111,18 @@ export async function POST(request: Request) {
   }
 
   const lastQuestion = req.messages.filter((m) => m.role === "user").slice(-1)[0]?.content ?? "";
+
+  // Civility screen: rude / abusive / profane messages get a warm redirect
+  // (never engage the insult), are logged quietly for moderators, and cost
+  // nothing. The client masks the message to stars on its side.
+  if (detectAbuse(lastQuestion)) {
+    await flag("abuse_profanity", "heuristic", lastQuestion);
+    return NextResponse.json({
+      reply: civilityReply(req.lang, req.levelTitle),
+      live: true,
+      masked: true,
+    });
+  }
 
   // Engine-first, cheapest-first. Most answers live inside the app for $0.
   //   1) Curated library of common questions.
