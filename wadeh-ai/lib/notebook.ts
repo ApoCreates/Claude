@@ -7,10 +7,17 @@
 // syllabus so the format is consistent everywhere.
 
 import type { Bi, Subject, Level } from "./curriculum";
+import { METHODS, type Method } from "./methods";
 
 export interface FlowNode {
   text: Bi;
   tone: "force" | "mass" | "accel";
+}
+
+export interface Technique {
+  emoji: string;
+  name: Bi;
+  blurb: Bi;
 }
 
 export interface NoteCard {
@@ -21,6 +28,7 @@ export interface NoteCard {
   math?: string[]; // display-mode LaTeX (language-neutral)
   flow?: FlowNode[]; // a small left-to-right flowchart
   table?: { head: Bi[]; rows: Bi[][] };
+  techniques?: Technique[]; // multi-modal "learn it your way" prompts
 }
 
 const bi = (en: string, ar: string): Bi => ({ en, ar });
@@ -204,8 +212,36 @@ function autoDeck(subject: Subject, level: Level): NoteCard[] {
   return cards;
 }
 
+// The six modes we spotlight on every lesson — drawing, singing, movement,
+// story, real-life relevance and a keepsake trophy. Pulled from the 150 so the
+// library and the lessons stay one system.
+const SPOTLIGHT_EMOJI: Record<string, string> = {
+  "dual-coding": "✏️",
+  "melody-mnemonic": "🎵",
+  "act-it-out": "🤸",
+  "become-concept": "📖",
+  "indirect-analogy": "🌍",
+  "take-home-trophy": "🏆",
+};
+
+function methodsCard(): NoteCard {
+  const byId = (id: string) => METHODS.find((m) => m.id === id) as Method;
+  const picks = ["dual-coding", "melody-mnemonic", "act-it-out", "become-concept", "indirect-analogy", "take-home-trophy"].map(byId);
+  return {
+    icon: "🌈",
+    label: { en: "Learn It Your Way", ar: "تعلّمها بطريقتك" },
+    sub: { en: "Six senses on one idea", ar: "ستّ حواسّ على فكرة واحدة" },
+    techniques: picks.map((p) => ({ emoji: SPOTLIGHT_EMOJI[p.id], name: p.name, blurb: p.blurb })),
+  };
+}
+
 export function buildDeck(subject: Subject, level: Level): NoteCard[] {
-  return FLAGSHIPS[`${subject.slug}-${level.n}`] ?? autoDeck(subject, level);
+  const base = FLAGSHIPS[`${subject.slug}-${level.n}`] ?? autoDeck(subject, level);
+  // Weave the multi-modal card in before the closing summary card.
+  const deck = [...base];
+  const insertAt = Math.max(0, deck.length - 1);
+  deck.splice(insertAt, 0, methodsCard());
+  return deck;
 }
 
 // Which lessons are fully hand-authored (used to badge them in the UI).
