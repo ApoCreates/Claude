@@ -64,7 +64,10 @@ const BANK: Record<string, KEntry[]> = {
   ],
   geography: [
     e(2, ["what is a map", "ما هي الخريطة"], "A map is a **drawing of a place seen from above**, shrunk to fit paper. It uses symbols and a key so you can find your way.", "الخريطة **رسم لمكانٍ من الأعلى**، مصغّر ليناسب الورقة. تستخدم رموزاً ومفتاحاً لتهتدي بها."),
-    e(4, ["what causes seasons", "why do we have seasons", "لماذا الفصول", "سبب الفصول"], "Seasons come from Earth's **tilt** as it orbits the Sun. The half tilted toward the Sun gets direct rays — longer, warmer days (summer); the other half leans away (winter).", "تنشأ الفصول من **ميل** الأرض وهي تدور حول الشمس. النصف المائل نحو الشمس يتلقّى أشعة مباشرة — أيام أطول وأدفأ (صيف)، والآخر يميل بعيداً (شتاء)."),
+    e(2, ["what causes seasons", "why do we have seasons", "لماذا الفصول", "سبب الفصول"], "Seasons come from Earth's **tilt** as it orbits the Sun. The half tilted toward the Sun gets direct rays — longer, warmer days (summer); the other half leans away (winter).", "تنشأ الفصول من **ميل** الأرض وهي تدور حول الشمس. النصف المائل نحو الشمس يتلقّى أشعة مباشرة — أيام أطول وأدفأ (صيف)، والآخر يميل بعيداً (شتاء)."),
+    e(2, ["what is an oasis", "what is a desert", "ما هي الواحة", "ما هي الصحراء"], "A desert is land that gets **very little rain** — under about 250 mm a year. An **oasis** is a green patch inside it where underground water reaches the surface, which is why old towns and trade stops grew exactly there.", "الصحراء أرض **قليلة المطر** جداً — أقلّ من نحو ٢٥٠ ملم سنوياً. و**الواحة** بقعة خضراء داخلها يصل فيها الماء الجوفي إلى السطح، ولذلك نشأت البلدات القديمة ومحطات التجارة في تلك المواضع بالذات."),
+    e(3, ["what are the cardinal directions", "how do you read a compass", "الجهات الأصلية", "كيف أقرأ البوصلة"], "North, East, South, West — a compass needle points north, so with north known every other direction follows. On a map north is normally up, and the **scale** tells you how much real ground each centimetre stands for.", "شمال وشرق وجنوب وغرب — تشير إبرة البوصلة إلى الشمال، ومتى عُرف الشمال عُرفت بقية الجهات. والشمال في الخريطة إلى الأعلى عادةً، و**مقياس الرسم** يخبرك كم أرضاً حقيقية يمثّل كل سنتيمتر."),
+    e(4, ["what is climate", "climate vs weather", "ما هو المناخ", "الفرق بين المناخ والطقس"], "Weather is what's happening **today**; climate is the **average pattern over many years**. The Gulf has a hot desert climate; the Levant has hot summers and mild, wet winters.", "الطقس ما يحدث **اليوم**؛ والمناخ **النمط المتوسّط عبر سنوات**. للخليج مناخ صحراوي حارّ، ولبلاد الشام صيف حارّ وشتاء معتدل ممطر."),
     // Year 4 is "Water & Weather" in the curriculum, so the water cycle and its
     // stages are baked at Year 4 — not above it.
     e(4, ["what is the water cycle", "دورة الماء", "دورة المياه"], "Water **evaporates** from seas, **condenses** into clouds, **falls** as rain or snow, and **flows** back to the sea — a loop powered by the Sun. Earth never makes new water; it moves the same water forever.", "الماء **يتبخّر** من البحار، و**يتكاثف** غيوماً، و**يهطل** مطراً أو ثلجاً، و**يجري** عائداً للبحر — دورة تحرّكها الشمس. الأرض لا تصنع ماءً جديداً، بل تُحرّك الماء نفسه إلى الأبد."),
@@ -72,7 +75,10 @@ const BANK: Record<string, KEntry[]> = {
     e(4, ["what is condensation", "ما هو التكاثف", "التكاثف"], "Condensation is vapour cooling back into **tiny droplets**. You see it as mist on a cold glass — and high in the sky those droplets gather into clouds.", "التكاثف هو تبرّد البخار ليعود **قطرات صغيرة**. تراه ضباباً على كوب بارد — وفي أعالي السماء تتجمّع تلك القطرات غيوماً."),
     e(5, ["why is water precious", "water scarcity", "لماذا الماء ثمين", "شح المياه"], "Most of Earth's water is salty sea water; only a tiny share is fresh and reachable. In the Gulf and the Levant rain is rare, so people rely on groundwater, dams and desalination — every litre is worth saving.", "معظم ماء الأرض مالح، ونصيب صغير جداً منه عذب ويمكن الوصول إليه. وفي الخليج وبلاد الشام المطر نادر، لذا يعتمد الناس على المياه الجوفية والسدود والتحلية — وكل لتر يستحقّ التوفير."),
     e(7, ["what is groundwater", "what is an aquifer", "المياه الجوفية", "الخزان الجوفي"], "Groundwater is rain that soaked down and is stored in the spaces inside rock, in a layer called an **aquifer**. Wells reach it — but if we pump faster than rain refills it, the aquifer runs down.", "المياه الجوفية مطرٌ تسرّب إلى الأسفل واختزن في مسامات الصخر، في طبقة تُسمّى **الخزان الجوفي**. تصل إليه الآبار — لكن إن ضخخنا أسرع مما يُعيده المطر، ينضب الخزان."),
-    e(8, ["what is climate", "climate vs weather", "ما هو المناخ", "الفرق بين المناخ والطقس"], "Weather is what's happening **today**; climate is the **average pattern over many years**. The Gulf has a hot desert climate; the Levant has hot summers and mild, wet winters.", "الطقس ما يحدث **اليوم**؛ والمناخ **النمط المتوسّط عبر سنوات**. للخليج مناخ صحراوي حارّ، ولبلاد الشام صيف حارّ وشتاء معتدل ممطر."),
+    e(6, ["why do cities grow where they do", "لماذا تنشأ المدن في أماكنها"], "Cities grow where something makes staying easier than moving on: **water, a safe harbour, a crossing point, or a trade route**. Every old city in our region sits on at least one of those — and modern ones add airports and pipelines to the list.", "تنشأ المدن حيث يجعل شيءٌ البقاءَ أسهل من الرحيل: **ماء، أو مرفأ آمن، أو معبر، أو طريق تجارة**. وكل مدينة قديمة في منطقتنا تقوم على واحد منها على الأقل — وتضيف الحديثة المطارات وخطوط الأنابيب."),
+    e(7, ["what is a natural resource", "ما هو المورد الطبيعي", "الموارد الطبيعية"], "A natural resource is anything useful we take from the earth: oil, gas, water, sunlight, fish, stone. The important split is **renewable** (sun, wind — they return) versus **non-renewable** (oil, gas — once burned, gone for our lifetimes).", "المورد الطبيعي كل ما ننتفع به مما تجود به الأرض: نفط وغاز وماء وشمس وسمك وحجر. والفرق المهم بين **المتجدّد** (الشمس والرياح — تعود) و**غير المتجدّد** (النفط والغاز — إن احترق فقد انتهى في أعمارنا)."),
+    e(7, ["what is economic diversification", "why diversify the economy", "التنويع الاقتصادي", "لماذا تنويع الاقتصاد"], "Diversification means **earning from many sources instead of one**. A country living on a single export rises and falls with its price; adding tourism, logistics, industry and technology steadies the income — measured as the share of GDP that is non-oil.", "التنويع يعني **الكسب من مصادر متعدّدة لا من مصدر واحد**. فالبلد الذي يعيش على تصدير واحد يصعد ويهبط مع سعره؛ وإضافة السياحة واللوجستيات والصناعة والتقنية تُثبّت الدخل — ويُقاس بنسبة الناتج المحلي غير النفطي."),
+    e(8, ["what is climate change", "تغير المناخ"], "Climate change is a **long-term shift in the average pattern**, driven mainly by greenhouse gases trapping heat. For our region it shows up as hotter summers, less predictable rain and rising seas — which is why desalination, solar and shade-first city design matter here more than most places.", "تغيّر المناخ **تحوّل طويل الأمد في النمط المتوسّط**، سببه الرئيس غازات دفيئة تحبس الحرارة. ويظهر في منطقتنا صيفاً أشدّ حرّاً، ومطراً أقلّ انتظاماً، وبحاراً ترتفع — ولذلك تهمّ هنا التحلية والطاقة الشمسية وتصميم المدن المظلّلة أكثر من معظم الأماكن."),
   ],
   ai: [
     e(1, ["is it smart", "what makes something smart", "ما الذكاء"], "Something seems ‘smart’ when it can **notice, decide and get better with practice**. A calculator follows fixed rules; a smart helper learns from examples.", "يبدو الشيء «ذكياً» حين **يلاحظ ويقرّر ويتحسّن بالممارسة**. الآلة الحاسبة تتبع قواعد ثابتة، أما المساعد الذكي فيتعلّم من الأمثلة."),
@@ -200,13 +206,24 @@ const contentTokens = (s: string): string[] =>
  * words are present in the question. The token path makes matching robust to
  * phrasing ("how to remember words" vs "how do I remember words?").
  */
-function triggerMatches(normalizedQuestion: string, trigger: string): boolean {
-  if (normalizedQuestion.includes(normalizeQuestion(trigger))) return true;
+/**
+ * How well a trigger matches, as the number of content words it pins down —
+ * 0 means no match. Specificity matters: "what is climate change" must not be
+ * answered by the broader "what is climate" entry when a climate-change entry
+ * exists, so the caller compares scores before comparing levels.
+ */
+function triggerScore(normalizedQuestion: string, trigger: string): number {
   const tt = contentTokens(trigger);
-  if (tt.length === 0) return false;
+  if (tt.length === 0) return 0;
+  if (normalizedQuestion.includes(normalizeQuestion(trigger))) return tt.length;
   const qt = new Set(contentTokens(normalizedQuestion));
-  return tt.every((t) => qt.has(t));
+  return tt.every((t) => qt.has(t)) ? tt.length : 0;
 }
+
+function entryScore(normalizedQuestion: string, entry: KEntry): number {
+  return entry.triggers.reduce((m, tr) => Math.max(m, triggerScore(normalizedQuestion, tr)), 0);
+}
+
 
 /**
  * Find a baked answer for a learner on `level`. Only returns content pitched at
@@ -220,10 +237,23 @@ export function findKnowledge(subject: string, level: number, lang: "en" | "ar",
   const n = normalizeQuestion(question);
   if (n.length < 3) return null;
   let best: KEntry | null = null;
+  let bestScore = 0;
   for (const entry of bank) {
     if (entry.level > level) continue; // gate: above the learner's year
-    if (entry.triggers.some((tr) => triggerMatches(n, tr))) {
-      if (!best || entry.level > best.level) best = entry;
+    const score = entryScore(n, entry);
+    if (score === 0) continue;
+    // Most specific match wins; ties go to the most advanced year allowed.
+    if (!best || score > bestScore || (score === bestScore && entry.level > best.level)) {
+      best = entry;
+      bestScore = score;
+    }
+  }
+  // A more specific entry sitting above the learner's year should gate rather
+  // than be silently answered by a broader one ("climate change" vs "climate").
+  if (best) {
+    for (const entry of bank) {
+      if (entry.level <= level) continue;
+      if (entryScore(n, entry) > bestScore) return null;
     }
   }
   return best ? best.answer[lang] : null;
@@ -237,11 +267,18 @@ export function findAdvancedOnly(subject: string, level: number, question: strin
   const bank = BANK[subject];
   if (!bank) return null;
   const n = normalizeQuestion(question);
+  // Only an above-level entry at least as specific as anything already allowed
+  // is worth gating on — otherwise a broad higher-year entry would block a
+  // question the learner's own year answers well.
+  let allowedBest = 0;
+  for (const entry of bank) {
+    if (entry.level <= level) allowedBest = Math.max(allowedBest, entryScore(n, entry));
+  }
   let hi: number | null = null;
   for (const entry of bank) {
-    if (entry.triggers.some((tr) => triggerMatches(n, tr))) {
-      if (entry.level > level && (hi === null || entry.level < hi)) hi = entry.level;
-    }
+    if (entry.level <= level) continue;
+    if (entryScore(n, entry) <= allowedBest) continue;
+    if (hi === null || entry.level < hi) hi = entry.level;
   }
   return hi;
 }

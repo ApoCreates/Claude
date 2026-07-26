@@ -1341,7 +1341,102 @@ const PHYSICS_8: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Geography · Year 7 · Resources & Economy ----
+const GEOGRAPHY_7: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("A resource is only worth what it can become", "المورد لا يساوي إلا ما يمكن أن يصير إليه"),
+    paras: [
+      bi(
+        "Oil sat under this region for millions of years and was worth nothing — until engines were invented that wanted it. A resource has no value on its own; value appears when someone needs it and can reach it.",
+        "رقد النفط تحت هذه المنطقة ملايين السنين ولم يكن يساوي شيئاً — حتى اختُرعت محرّكات تطلبه. فالمورد لا قيمة له بذاته؛ وإنما تظهر القيمة حين يحتاجه أحد ويستطيع بلوغه."
+      ),
+      bi(
+        "That cuts both ways. What one invention makes precious, another can make ordinary — so a country earning from a single resource is holding a rope it doesn't control the other end of.",
+        "وهذا سيف ذو حدّين. فما يجعله اختراعٌ ثميناً قد يجعله آخر عادياً — والبلد الذي يكسب من مورد واحد يمسك حبلاً لا يملك طرفه الآخر."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("From under the ground to a steady income", "من باطن الأرض إلى دخل ثابت"),
+    flow: [
+      { text: bi("Extract the resource", "استخرج المورد"), tone: "force" },
+      { text: bi("Add value here, not abroad", "أضف القيمة هنا لا في الخارج"), tone: "mass" },
+      { text: bi("Earn from many sources", "اكسب من مصادر متعدّدة"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Resource", "المورد"), bi("Renewable?", "متجدّد؟"), bi("What limits it", "ما الذي يحدّه")],
+      rows: [
+        [bi("Oil & gas", "النفط والغاز"), bi("No", "لا"), bi("Runs out; price set elsewhere", "ينفد؛ وسعره يُحدَّد في الخارج")],
+        [bi("Groundwater", "المياه الجوفية"), bi("Very slowly", "ببطء شديد"), bi("Refills over centuries, not years", "يتجدّد عبر قرون لا سنوات")],
+        [bi("Sunlight", "ضوء الشمس"), bi("Yes", "نعم"), bi("Needs land, panels and storage", "يحتاج أرضاً وألواحاً وتخزيناً")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Measuring diversification", "قياس التنويع"),
+    paras: [
+      bi(
+        "**Diversification** is earning from many sources rather than one. Geographers measure it as the share of a country's total output (GDP) that comes from a given sector:",
+        "**التنويع** هو الكسب من مصادر متعدّدة لا من واحد. ويقيسه الجغرافيون بنسبة ما يأتي من قطاع معيّن من إجمالي ناتج البلد:"
+      ),
+      bi(
+        "A falling oil share is the headline number every Gulf economic plan is aiming at.",
+        "وانخفاض نسبة النفط هو الرقم الذي تستهدفه كل خطة اقتصادية خليجية."
+      ),
+    ],
+    math: ["\\text{share} = \\frac{\\text{sector output}}{\\text{total GDP}} \\times 100\\%"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Reading a country's diversification", "قراءة تنويع بلد"),
+    paras: [
+      bi(
+        "Take an imaginary Gulf state. Total output is **400 billion** this year, of which **160 billion** comes from oil. The oil share is $\\frac{160}{400} \\times 100\\% = 40\\%$ — so 60% is already non-oil.",
+        "خذ دولة خليجية متخيّلة. إجمالي الناتج هذا العام **٤٠٠ مليار**، منها **١٦٠ مليار** من النفط. فنسبة النفط $\\frac{160}{400} \\times 100\\% = 40\\%$ — أي أن ٦٠٪ صارت غير نفطية."
+      ),
+      bi(
+        "Ten years on, oil income is unchanged at 160 but the rest has grown, taking total output to **640**. New oil share: $\\frac{160}{640} \\times 100\\% = 25\\%$.",
+        "وبعد عشر سنوات، بقي دخل النفط ١٦٠ كما هو لكن نما ما سواه فبلغ الإجمالي **٦٤٠**. فالنسبة الجديدة: $\\frac{160}{640} \\times 100\\% = 25\\%$."
+      ),
+      bi(
+        "Notice what happened: **the country diversified without pumping one barrel less**. Diversification is usually growing everything else, not shrinking the resource.",
+        "لاحظ ما جرى: **تنوّع البلد دون أن يضخّ برميلاً واحداً أقلّ**. فالتنويع غالباً تنمية كل ما عدا المورد، لا تقليص المورد."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A country's total output is 250 billion, with 75 billion from tourism. What share is tourism? And name one reason a trade route can matter more to an economy than a mine.",
+        "إجمالي ناتج بلد ٢٥٠ ملياراً، منها ٧٥ ملياراً من السياحة. ما نسبة السياحة؟ وسمِّ سبباً واحداً يجعل طريق تجارة أهمّ لاقتصاد من منجم."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "A resource is worth only what someone needs it for — so measure the share each sector earns, and grow the others rather than waiting on one price.",
+        "لا يساوي المورد إلا ما يحتاجه أحد لأجله — فقِس نسبة ما يكسبه كل قطاع، وأنمِ سواه بدل انتظار سعر واحد."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "geography-7": GEOGRAPHY_7,
   "physics-8": PHYSICS_8,
   "math-9": MATH_9,
   "gaming-4": GAMING_4,
