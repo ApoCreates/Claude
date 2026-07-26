@@ -3467,7 +3467,101 @@ const LANGUAGES_1: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Emotional Intelligence · Year 1 · Naming Feelings ----
+// Age ~6. The maths stays inside counting-to-ten territory on purpose: the
+// diary card is a real reason to count, not a maths lesson smuggled in.
+const EQ_1: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Feelings are visitors, not owners", "المشاعر ضيوف لا أصحاب بيت"),
+    paras: [
+      bi(
+        "A feeling is something that **visits** you. It knocks, it comes in, it sits with you for a while — and then it goes again. Happy visits. Sad visits. Angry visits. None of them moves in forever.",
+        "الشعور شيء **يزورك**. يطرق الباب، ويدخل، ويجلس معك قليلاً — ثم يمضي. يزورك الفرح، ويزورك الحزن، ويزورك الغضب. ولا أحد منهم يسكن عندك للأبد."
+      ),
+      bi(
+        "And here is the magic: the moment you **say its name** out loud — *‘I feel angry'* — the feeling gets a little smaller. A visitor with a name is much easier to sit with than a stranger you can't describe.",
+        "وإليك السحر: في اللحظة التي **تقول فيها اسمه** بصوت مسموع — *«أنا غاضب»* — يصغر الشعور قليلاً. فالضيف الذي تعرف اسمه أسهل من غريب لا تستطيع وصفه."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Your body tells you first", "جسدك يخبرك أولاً"),
+    flow: [
+      { text: bi("Feel it in your body", "اشعر به في جسدك"), tone: "force" },
+      { text: bi("Say its name", "قل اسمه"), tone: "mass" },
+      { text: bi("Choose what to do", "اختر ماذا تفعل"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Feeling", "الشعور"), bi("Where you might feel it", "أين قد تشعر به"), bi("It may be saying", "قد يقول لك")],
+      rows: [
+        [bi("Happy", "فرِح"), bi("Light chest, quick feet", "صدر خفيف وقدمان سريعتان"), bi("More of this, please", "المزيد من هذا من فضلك")],
+        [bi("Sad", "حزين"), bi("Heavy eyes, slow body", "عينان ثقيلتان وجسد بطيء"), bi("Something mattered to me", "شيء ما كان يهمّني")],
+        [bi("Angry", "غاضب"), bi("Hot face, tight hands", "وجه ساخن ويدان مشدودتان"), bi("That felt unfair", "هذا بدا ظالماً")],
+        [bi("Scared", "خائف"), bi("Fast heart, tummy flip", "قلب سريع ومعدة تنقلب"), bi("Careful here", "انتبه هنا")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("A diary you can count", "دفتر تستطيع عدّه"),
+    paras: [
+      bi(
+        "A **feelings diary** is a page where you draw or write one feeling you had. Do it **once in the morning and once at night**, and by the end of five days you can count how many you have caught:",
+        "**دفتر المشاعر** صفحة ترسم فيها أو تكتب شعوراً واحداً مرّ بك. افعلها **مرّة في الصباح ومرّة في الليل**، وبعد خمسة أيام تستطيع أن تعدّ كم شعوراً اصطدت:"
+      ),
+    ],
+    math: ["\\text{feelings named} = 2 \\times \\text{days}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("One real moment, step by step", "لحظة حقيقية، خطوة بخطوة"),
+    paras: [
+      bi(
+        "You build a tall tower of blocks. Your little brother runs past and knocks it over. Your face goes hot and your hands squeeze shut.",
+        "تبني برجاً عالياً من المكعّبات. يمرّ أخوك الصغير راكضاً فيسقطه. يسخن وجهك وتنغلق يداك بقوّة."
+      ),
+      bi(
+        "**Feel it:** hot face, tight hands. **Name it:** *‘I feel angry, because I worked hard on that.'* **Choose:** breathe out slowly — one, two, three — then ask for help to build it again.",
+        "**اشعر به:** وجه ساخن ويدان مشدودتان. **سمِّه:** *«أنا غاضب، لأنني تعبت عليه».* **اختر:** ازفر ببطء — واحد، اثنان، ثلاثة — ثم اطلب المساعدة لبنائه من جديد."
+      ),
+      bi(
+        "Now count the diary. Two feelings a day for five days: 2, 4, 6, 8, 10 — that is $2 \\times 5 = \\mathbf{10}$ feelings you can already name. Ten is a lot for one small week!",
+        "والآن عُدّ الدفتر. شعوران كل يوم لخمسة أيام: ٢، ٤، ٦، ٨، ١٠ — أي $2 \\times 5 = \\mathbf{10}$ مشاعر تعرف تسميتها. وعشرة كثير في أسبوع صغير!"
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "Someone hides your favourite toy and laughs. Where do you feel it in your body, and what is the feeling's name? Then say the whole sentence: *‘I feel ___ because ___.'*",
+        "يخبّئ أحدهم لعبتك المفضّلة ويضحك. أين تشعر بذلك في جسدك، وما اسم الشعور؟ ثم قل الجملة كاملة: *«أشعر بـ ___ لأن ___».*"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Every feeling is a visitor that comes and goes — feel it in your body, say its name, and only then choose what to do.",
+        "كل شعور ضيف يأتي ويمضي — اشعر به في جسدك، وقل اسمه، وعندها فقط اختر ماذا تفعل."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "emotional-intelligence-1": EQ_1,
   "languages-1": LANGUAGES_1,
   "ai-2": AI_2,
   "geography-2": GEOGRAPHY_2,
