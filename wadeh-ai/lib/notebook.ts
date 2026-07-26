@@ -3103,7 +3103,98 @@ const MATH_1: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Physics · Year 1 · The World Around Us ----
+const PHYSICS_1: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Science starts with noticing", "العلم يبدأ بالملاحظة"),
+    paras: [
+      bi(
+        "A scientist is someone who **notices and then checks**. You already do it: the metal spoon feels cold and the wooden one doesn't, even though they've been sitting on the same table all morning. That's a real question hiding in your kitchen.",
+        "العالِم من **يلاحظ ثم يتحقّق**. وأنت تفعل ذلك سلفاً: الملعقة المعدنية باردة والخشبية ليست كذلك، مع أنهما على الطاولة نفسها طوال الصباح. وهذا سؤال حقيقي مختبئ في مطبخك."
+      ),
+      bi(
+        "Every push and every pull moves something in your world. Opening a door is a **pull**. Kicking a ball is a **push**. Before you know any big words, you can say what made a thing move — and that is where physics begins.",
+        "وكل دفعة وكل سحبة تحرّك شيئاً في عالمك. ففتح الباب **سحب**، وركل الكرة **دفع**. وقبل أن تعرف أي كلمات كبيرة تستطيع أن تقول ما الذي حرّك الشيء — ومن هنا تبدأ الفيزياء."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Testing fairly", "الاختبار العادل"),
+    flow: [
+      { text: bi("Notice something", "لاحِظ شيئاً"), tone: "force" },
+      { text: bi("Change one thing only", "غيّر شيئاً واحداً فقط"), tone: "mass" },
+      { text: bi("Watch what happens", "وراقب ما يحدث"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("You wonder", "تتساءل"), bi("Unfair test", "اختبار غير عادل"), bi("Fair test", "اختبار عادل")],
+      rows: [
+        [bi("Which ball rolls further?", "أي كرة تتدحرج أبعد؟"), bi("Push one harder", "تدفع إحداهما أقوى"), bi("Let both roll down the same ramp", "دَعهما تتدحرجان من المنحدر نفسه")],
+        [bi("Does wood float?", "أيطفو الخشب؟"), bi("One in a bowl, one in the sea", "واحد في وعاء وآخر في البحر"), bi("Both in the same bowl of water", "كلاهما في وعاء الماء نفسه")],
+        [bi("Which coat is warmer?", "أي معطف أدفأ؟"), bi("Wear one outside, one inside", "ترتدي واحداً خارجاً وآخر داخلاً"), bi("Same weather, same day, same hour", "الطقس نفسه واليوم نفسه والساعة نفسها")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Sorting and counting what you found", "تصنيف ما وجدت وعدّه"),
+    paras: [
+      bi(
+        "A **fair test** changes **one thing** and keeps everything else the same — otherwise you never know which change caused what. And when you've sorted your objects into two groups, counting one group tells you the other:",
+        "**الاختبار العادل** يغيّر **شيئاً واحداً** ويُبقي ما عداه كما هو — وإلا لن تعرف أي تغيير سبّب ماذا. ومتى صنّفت أشياءك إلى مجموعتين، أخبرك عدُّ إحداهما بعدد الأخرى:"
+      ),
+    ],
+    math: ["\\text{sinkers} = \\text{all objects} - \\text{floaters}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("A bowl of water and twelve things", "وعاء ماء واثنا عشر شيئاً"),
+    paras: [
+      bi(
+        "You collect **12 things** from around the house and drop them one at a time into the same bowl. **7 float**. How many sank? $12 - 7 = \\mathbf{5}$ — you didn't even need to count them again.",
+        "تجمع **١٢ شيئاً** من أرجاء البيت وتُسقطها واحداً واحداً في الوعاء نفسه. فيطفو **٧**. فكم غرق؟ $12 - 7 = \\mathbf{5}$ — ولم تحتج حتى إلى إعادة العدّ."
+      ),
+      bi(
+        "Now look at your two groups. The floaters are mostly light-for-their-size things: a cork, a leaf, an empty bottle. The sinkers are heavy-for-their-size: a coin, a stone, a key.",
+        "والآن انظر إلى مجموعتيك. فالطافيات في الغالب خفيفة قياساً بحجمها: فلّينة وورقة وقارورة فارغة. والغارقات ثقيلة قياساً بحجمها: قطعة نقود وحجر ومفتاح."
+      ),
+      bi(
+        "Then try the surprise: an empty closed bottle floats, but fill it with water and it sinks. **Same bottle, same size** — so it can't be about size alone. Noticing that puzzle now is what makes Year 7 easy later.",
+        "ثم جرّب المفاجأة: القارورة الفارغة المغلقة تطفو، فإذا ملأتها بالماء غرقت. **القارورة نفسها والحجم نفسه** — فلا يمكن أن يكون الأمر عن الحجم وحده. وملاحظتك هذا اللغز الآن هي ما يجعل السنة السابعة سهلة لاحقاً."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "You test 15 objects and 6 sink — how many floated? And is opening a drawer a push or a pull?",
+        "تختبر ١٥ شيئاً فيغرق ٦ — فكم طفا؟ وهل فتح الدرج دفعٌ أم سحب؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Notice something odd, change only one thing when you test it, sort what you find into groups — and let the surprises be your next question.",
+        "لاحِظ أمراً غريباً، وغيّر شيئاً واحداً فقط حين تختبره، وصنّف ما تجده مجموعات — واجعل المفاجآت سؤالك التالي."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "physics-1": PHYSICS_1,
   "math-1": MATH_1,
   "leadership-4": LEADERSHIP_4,
   "gaming-2": GAMING_2,
