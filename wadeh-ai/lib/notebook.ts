@@ -1528,7 +1528,102 @@ const AI_8: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Languages · Year 6 · Reading for Meaning ----
+const LANGUAGES_6: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Stop looking up every word", "كُفَّ عن البحث عن كل كلمة"),
+    paras: [
+      bi(
+        "A dictionary lookup costs you about ten seconds and, worse, it drops the thread of the story. Do it every line and you are no longer reading — you are decoding, and decoding is exhausting enough that most learners quit the book.",
+        "يكلّفك البحث في المعجم نحو عشر ثوانٍ، والأسوأ أنه يقطع خيط الحكاية. وإن فعلته كل سطر لم تعد تقرأ، بل تفكّ رموزاً — وفكّ الرموز مرهق حتى ليترك معظم المتعلّمين الكتاب."
+      ),
+      bi(
+        "The skill of this year is **reading through** an unknown word: use the sentence around it, the shape of the word, and what the story already told you. You will be right often enough — and the book stays alive.",
+        "ومهارة هذا العام أن **تقرأ متجاوزاً** الكلمة المجهولة: استعن بالجملة حولها، وبنية الكلمة، وما أخبرتك به الحكاية سلفاً. وستصيب في الغالب — ويبقى الكتاب حيّاً."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Three ways to read, chosen on purpose", "ثلاث طرق للقراءة تُختار عن قصد"),
+    flow: [
+      { text: bi("Skim for the shape", "اقرأ سريعاً للهيكل"), tone: "force" },
+      { text: bi("Scan for one fact", "امسح بحثاً عن معلومة"), tone: "mass" },
+      { text: bi("Read closely for meaning", "اقرأ متأنياً للفهم"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("You want…", "تريد…"), bi("Do this", "افعل هذا"), bi("Speed", "السرعة")],
+      rows: [
+        [bi("The gist of an article", "فكرة المقال العامة"), bi("Read titles, first lines, last line", "اقرأ العناوين والأسطر الأولى والأخير"), bi("Very fast", "سريع جداً")],
+        [bi("One date or name", "تاريخ أو اسم واحد"), bi("Sweep for the shape of it, ignore the rest", "امسح بحثاً عن شكله وتجاهل الباقي"), bi("Fast", "سريع")],
+        [bi("To follow a story", "متابعة حكاية"), bi("Read on; guess unknown words from context", "واصل القراءة وخمّن المجهول من السياق"), bi("Steady", "متزن")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Coverage — why the right book matters more than effort", "التغطية — لماذا الكتاب المناسب أهم من الجهد"),
+    paras: [
+      bi(
+        "**Coverage** is the share of words on a page you already know. Reading researchers find that comfortable independent reading needs roughly **98%** coverage; below about 95%, comprehension falls away fast no matter how hard you try.",
+        "**التغطية** نسبة الكلمات التي تعرفها سلفاً في الصفحة. ويجد باحثو القراءة أن القراءة المستقلة المريحة تحتاج نحو **٩٨٪** تغطية؛ وتحت ٩٥٪ تقريباً ينهار الفهم بسرعة مهما اجتهدت."
+      ),
+      bi(
+        "So you can count, before you commit to a book, how often it will stop you:",
+        "فتستطيع أن تحسب، قبل أن تلتزم بكتاب، كم مرّة سيوقفك:"
+      ),
+    ],
+    math: ["\\text{unknown words per page} = \\text{words per page} \\times (1 - \\text{coverage})"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Choosing between two books", "الاختيار بين كتابين"),
+    paras: [
+      bi(
+        "A page holds about **250 words**. In a graded reader you know 98% of them: $250 \\times 0.02 = \\mathbf{5}$ unknown words per page — one every fifty words, easy to ride past.",
+        "تحمل الصفحة نحو **٢٥٠ كلمة**. وفي قراءة متدرّجة تعرف ٩٨٪ منها: $250 \\times 0.02 = \\mathbf{5}$ كلمات مجهولة في الصفحة — واحدة كل خمسين كلمة، يسهل تجاوزها."
+      ),
+      bi(
+        "In the novel you *wish* you could read, you know 90%: $250 \\times 0.10 = \\mathbf{25}$ unknown words per page — one every ten words. That's roughly **four minutes of lookups per page**, and the story dies.",
+        "وفي الرواية التي *تتمنّى* قراءتها تعرف ٩٠٪: $250 \\times 0.10 = \\mathbf{25}$ كلمة مجهولة في الصفحة — واحدة كل عشر كلمات. أي نحو **أربع دقائق بحث لكل صفحة**، فتموت الحكاية."
+      ),
+      bi(
+        "The lesson isn't that the novel is too hard forever. Read the easy books now: each one lifts your coverage, and the novel quietly becomes a 98% book.",
+        "والدرس ليس أن الرواية عصيّة إلى الأبد. اقرأ الكتب السهلة الآن: فكلٌّ منها يرفع تغطيتك، وتصير الرواية بهدوء كتاب ٩٨٪."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A page has 300 words and you know 95% of them. How many will stop you? And which reading mode would you use to find a train departure time on a timetable?",
+        "صفحة فيها ٣٠٠ كلمة وتعرف ٩٥٪ منها. كم كلمة ستوقفك؟ وأي طريقة قراءة تستخدم لتجد موعد مغادرة قطار في جدول؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Guess from context instead of stopping, choose books where you already know about 98% of the words, and pick your reading mode — skim, scan or read — on purpose.",
+        "خمّن من السياق بدل التوقّف، واختر كتباً تعرف نحو ٩٨٪ من كلماتها، واختر طريقة قراءتك — سريعة أو ماسحة أو متأنية — عن قصد."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "languages-6": LANGUAGES_6,
   "ai-8": AI_8,
   "geography-7": GEOGRAPHY_7,
   "physics-8": PHYSICS_8,
