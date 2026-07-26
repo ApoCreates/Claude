@@ -3757,7 +3757,110 @@ const PROBLEM_SOLVING_5: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Gaming · Year 6 · Art & Sound ----
+// Age ~11-12. The pixel-count arithmetic is the honest reason pixel artists
+// work small, so it carries the Formal Definition card.
+const GAMING_6: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("The player feels the game before they read it", "يشعر اللاعب باللعبة قبل أن يقرأها"),
+    paras: [
+      bi(
+        "Long before a player understands your rules, the **colours and the sound have already told them how to feel**: safe or hunted, playful or serious, morning or midnight. Art isn't decoration on top of a game — it is the first instruction the game gives.",
+        "قبل أن يفهم اللاعب قواعدك بوقت طويل، تكون **الألوان والأصوات قد أخبرته كيف يشعر**: آمن أم مُطارَد، مرح أم جادّ، صباح أم منتصف ليل. فالفنّ ليس زينة فوق اللعبة، بل أول تعليمة تعطيها اللعبة."
+      ),
+      bi(
+        "That's why **consistency beats quality**. One simple style used everywhere looks like a world; beautiful pieces in three different styles look like a folder of files.",
+        "ولهذا **الاتّساق يتقدّم على الإتقان**. فأسلوب بسيط واحد مستعمل في كل مكان يبدو عالماً؛ أما قطع جميلة بثلاثة أساليب فتبدو مجلّد ملفات."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Colour, mood and what players expect", "اللون والمزاج وما يتوقّعه اللاعب"),
+    flow: [
+      { text: bi("Choose the mood", "اختر المزاج"), tone: "force" },
+      { text: bi("Pick a small palette", "اختر لوحة صغيرة"), tone: "mass" },
+      { text: bi("Match the sound", "طابِق الصوت"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Colour", "اللون"), bi("Common feeling", "الشعور الشائع"), bi("Players often expect", "يتوقّع اللاعبون غالباً")],
+      rows: [
+        [bi("Warm sand / gold", "رملي دافئ / ذهبي"), bi("Safe, home", "أمان، بيت"), bi("A town, a save point", "بلدة أو نقطة حفظ")],
+        [bi("Deep blue", "أزرق غامق"), bi("Night, cold, alone", "ليل، برد، وحدة"), bi("Slower, careful play", "لعب أبطأ وأكثر حذراً")],
+        [bi("Green", "أخضر"), bi("Growth, life", "نموّ وحياة"), bi("Healing, nature", "شفاء أو طبيعة")],
+        [bi("Sharp red", "أحمر حادّ"), bi("Danger, urgency", "خطر واستعجال"), bi("Damage, a timer", "ضرر أو مؤقّت")],
+      ],
+    },
+    paras: [
+      bi(
+        "These are **conventions, not rules** — they come from games and films players have already seen, and they differ between cultures. White means mourning in some places and weddings in others. Use the convention, or break it on purpose and teach the player the new meaning early.",
+        "هذه **أعراف لا قوانين** — مصدرها ألعاب وأفلام رآها اللاعبون سلفاً، وتختلف بين الثقافات. فالأبيض حِداد في أماكن وزفاف في أخرى. استعمل العُرف، أو اكسره عن قصد وعلّم اللاعب المعنى الجديد مبكراً."
+      ),
+    ],
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Why pixel artists work small", "لماذا يعمل فنّانو البكسل بمساحات صغيرة"),
+    paras: [
+      bi(
+        "A sprite is a grid, and every square is a decision you have to make by hand. The count grows with **both** sides at once, so doubling the width doubles the height's work too:",
+        "الكائن شبكة، وكل مربّع قرار تتّخذه بيدك. والعدد يكبر بـ**الضلعين معاً**، فمضاعفة العرض تضاعف عمل الطول أيضاً:"
+      ),
+    ],
+    math: [
+      "\\text{pixels} = \\text{width} \\times \\text{height}",
+      "16 \\times 16 = 256 \\qquad 64 \\times 64 = 4096",
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("An oasis scene, decided on purpose", "مشهد واحة، مقرَّر عن قصد"),
+    paras: [
+      bi(
+        "You're making a desert-oasis level. **Mood:** relief after a hard crossing. **Palette:** four colours only — sand, deep palm green, water blue, and one warm gold for anything the player can pick up. Because gold appears nowhere else, players learn in about three seconds that gold means *take me*.",
+        "تصنع مرحلة واحة صحراوية. **المزاج:** راحة بعد عبور شاقّ. **اللوحة:** أربعة ألوان فقط — رملي، وأخضر نخيل غامق، وأزرق ماء، وذهبي دافئ واحد لكل ما يمكن التقاطه. ولأن الذهبي لا يظهر في مكان آخر يتعلّم اللاعبون في نحو ثلاث ثوانٍ أن الذهبي يعني *خُذني*."
+      ),
+      bi(
+        "**Size:** at $16 \\times 16 = 256$ pixels a palm tree takes an afternoon. At $64 \\times 64 = 4096$ it's $4096 \\div 256 = \\mathbf{16}$ times the squares — the same tree becomes a week. Small isn't a limitation you accept sadly; it's what lets one person finish a whole world.",
+        "**الحجم:** عند $16 \\times 16 = 256$ بكسل تأخذ النخلة عصراً واحداً. وعند $64 \\times 64 = 4096$ تصير المربّعات $4096 \\div 256 = \\mathbf{16}$ ضعفاً — فالنخلة نفسها تصير أسبوعاً. والصِّغَر ليس قيداً تقبله مُكرهاً، بل ما يتيح لشخص واحد إتمام عالم كامل."
+      ),
+      bi(
+        "**Sound:** give every important action one short sound, and keep the music quieter than the effects — a player must hear the danger over the melody. A three-second oud phrase looping under the oasis says ‘you are somewhere from here' faster than any signpost.",
+        "**الصوت:** اجعل لكل فعل مهمّ صوتاً قصيراً واحداً، وأبقِ الموسيقى أخفض من المؤثّرات — فعلى اللاعب أن يسمع الخطر فوق اللحن. وجملة عود من ثلاث ثوانٍ تدور تحت الواحة تقول «أنت في مكان من هنا» أسرع من أي لافتة."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "How many pixels are in a $32 \\times 32$ sprite, and how many times bigger is that than $16 \\times 16$? Then name the one colour you'd reserve so that it always means ‘danger' in your game.",
+        "كم بكسلاً في كائن $32 \\times 32$، وكم ضعفاً هو من $16 \\times 16$؟ ثم سمِّ اللون الوحيد الذي ستحجزه ليعني «خطر» دائماً في لعبتك."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Colour and sound tell the player how to feel before the rules do — so pick a small palette, reserve a colour for meaning, keep effects above the music, and stay consistent rather than fancy.",
+        "اللون والصوت يخبران اللاعب كيف يشعر قبل القواعد — فاختر لوحة صغيرة، واحجز لوناً لمعنى، وأبقِ المؤثّرات فوق الموسيقى، وكن متّسقاً لا فخماً."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "gaming-6": GAMING_6,
   "problem-solving-5": PROBLEM_SOLVING_5,
   "entrepreneurship-10": ENTREPRENEURSHIP_10,
   "emotional-intelligence-1": EQ_1,
