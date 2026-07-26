@@ -499,7 +499,108 @@ const GEOGRAPHY_4: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: AI · Year 5 · How Machines Learn ----
+const AI_5: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Learning from examples, not rules", "التعلّم من الأمثلة لا من القواعد"),
+    paras: [
+      bi(
+        "Nobody can write down every rule for what a cat looks like. So instead of **telling** the computer, we **show** it — thousands of pictures labelled 'cat' and 'not cat' — and it works out the pattern itself.",
+        "لا أحد يستطيع كتابة كل قاعدة تصف شكل القطة. لذا بدل أن **نُخبر** الحاسوب، **نُريه** — آلاف الصور موسومة بـ«قطة» و«ليست قطة» — فيستنتج النمط بنفسه."
+      ),
+      bi(
+        "That's machine learning: the computer finds the rule from the examples, instead of a human writing the rule.",
+        "هذا هو تعلّم الآلة: الحاسوب يكتشف القاعدة من الأمثلة، بدل أن يكتبها الإنسان."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Three ways a machine can learn", "ثلاث طرق تتعلّم بها الآلة"),
+    flow: [
+      { text: bi("Examples in", "أمثلة تدخل"), tone: "force" },
+      { text: bi("Find the pattern", "اكتشاف النمط"), tone: "mass" },
+      { text: bi("Predict the new one", "تنبّؤ بالجديد"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Type", "النوع"), bi("What it gets", "ما يحصل عليه"), bi("Everyday example", "مثال يومي")],
+      rows: [
+        [
+          bi("Supervised", "موجّه"),
+          bi("Examples WITH labels", "أمثلة مع عناوين"),
+          bi("Sorting photos of dates vs olives", "فرز صور التمر والزيتون"),
+        ],
+        [
+          bi("Unsupervised", "غير موجّه"),
+          bi("Examples with NO labels", "أمثلة بلا عناوين"),
+          bi("Grouping shoppers by habits", "تجميع المتسوّقين حسب عاداتهم"),
+        ],
+        [
+          bi("Reinforcement", "بالتعزيز"),
+          bi("Rewards for good moves", "مكافآت على الحركات الجيدة"),
+          bi("Learning to win a game", "تعلّم الفوز في لعبة"),
+        ],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The exact wording exams expect", "الصياغة الدقيقة التي تطلبها الامتحانات"),
+    paras: [
+      bi(
+        "**Machine learning** is the study of algorithms that improve their performance at a task through experience, rather than through explicitly programmed rules.",
+        "**تعلّم الآلة** هو دراسة الخوارزميات التي تُحسّن أداءها في مهمة ما عبر الخبرة، بدل القواعد المبرمجة صراحةً."
+      ),
+      bi("The model learns a function that maps inputs to outputs:", "يتعلّم النموذج دالّة تربط المدخلات بالمخرجات:"),
+    ],
+    math: ["f(x) \\approx y", "\\text{accuracy} = \\frac{\\text{correct predictions}}{\\text{total predictions}}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Measure how well it learned", "قِس مدى جودة تعلّمه"),
+    paras: [
+      bi(
+        "You train a model to tell **dates from olives** using 200 photos from a Gulf market. On 50 new photos it gets 46 right.",
+        "درّبت نموذجاً ليميّز **التمر عن الزيتون** بـ200 صورة من سوق خليجي. وعلى 50 صورة جديدة أصاب 46."
+      ),
+      bi("Accuracy $= \\frac{46}{50} = 0.92 = 92\\%$.", "الدقة $= \\frac{46}{50} = 0.92 = 92\\%$."),
+      bi(
+        "The 4 mistakes matter most: if they're all dark olives mistaken for dates, the model learned **colour** instead of **shape** — so we add more varied examples.",
+        "الأخطاء الأربعة هي الأهم: إن كانت كلها زيتوناً داكناً حُسب تمراً، فالنموذج تعلّم **اللون** بدل **الشكل** — لذا نضيف أمثلة أكثر تنوّعاً."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A model gets 18 of 20 predictions right. What is its accuracy as a percentage? And is grouping songs you've never labelled supervised or unsupervised?",
+        "نموذج أصاب 18 من 20 تنبّؤاً. ما دقّته كنسبة مئوية؟ وهل تجميع أغانٍ لم تُوسَم من قبل تعلّم موجّه أم غير موجّه؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Machine learning finds the rule from examples — labelled (supervised), unlabelled (unsupervised), or learned by reward (reinforcement).",
+        "تعلّم الآلة يكتشف القاعدة من الأمثلة — موسومة (موجّه)، أو بلا وسم (غير موجّه)، أو بالمكافأة (بالتعزيز)."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "ai-5": AI_5,
   "physics-10": PHYSICS_10,
   "physics-7": PHYSICS_7,
   "physics-5": PHYSICS_5,
