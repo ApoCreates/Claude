@@ -288,11 +288,131 @@ const PHYSICS_7: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Math · Year 3 · Multiplication & Division ----
+const MATH_3: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Fast adding, fair sharing", "جمع سريع، قسمة عادلة"),
+    paras: [
+      bi("Multiplication is **fast adding of equal groups**. $5 \\times 6$ means six groups of five — instead of $5+5+5+5+5+5$.", "الضرب هو **جمع سريع لمجموعات متساوية**. $5 \\times 6$ تعني ست مجموعات من خمسة — بدل $5+5+5+5+5+5$."),
+      bi("Division is the opposite — **sharing fairly**. $30 \\div 6$ asks: split 30 into 6 equal groups; each gets 5.", "القسمة عكسه — **مشاركة عادلة**. $30 \\div 6$ تسأل: وزّع 30 على 6 مجموعات متساوية؛ لكلٍّ 5."),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Groups make it clear", "المجموعات توضّح"),
+    flow: [
+      { text: bi("Equal groups", "مجموعات متساوية"), tone: "force" },
+      { text: bi("Repeated add", "جمع متكرّر"), tone: "mass" },
+      { text: bi("Product  a × b", "الناتج  a × b"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Idea", "الفكرة"), bi("Means", "تعني"), bi("Example", "مثال")],
+      rows: [
+        [bi("×", "×"), bi("groups of", "مجموعات من"), bi("5×6 = 30", "٥×٦ = ٣٠")],
+        [bi("÷", "÷"), bi("shared into", "مقسوم على"), bi("30÷6 = 5", "٣٠÷٦ = ٥")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("A handy rule", "قاعدة مفيدة"),
+    paras: [bi("Order doesn't change a product, and division undoes multiplication:", "الترتيب لا يغيّر الناتج، والقسمة تُلغي الضرب:")],
+    math: ["a \\times b = b \\times a", "a \\times b = c \\;\\Rightarrow\\; c \\div b = a"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Count the groups", "عُدّ المجموعات"),
+    paras: [
+      bi("A box holds 6 rows of 5 dates. How many dates? $6 \\times 5 = 30$.", "صندوق فيه 6 صفوف من 5 تمرات. كم تمرة؟ $6 \\times 5 = 30$."),
+      bi("Share 30 dates among 6 friends: $30 \\div 6 = 5$ each. Multiplication and division are two sides of one coin.", "وزّع 30 تمرة على 6 أصدقاء: $30 \\div 6 = 5$ لكلٍّ. الضرب والقسمة وجهان لعملة واحدة."),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("Try it yourself", "جرّب بنفسك"),
+    paras: [bi("What is $7 \\times 8$? And then $56 \\div 8$? (They're linked!)", "كم $7 \\times 8$؟ ثم $56 \\div 8$؟ (مترابطتان!)")],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [bi("Multiplication is fast adding of equal groups; division shares them back — each undoes the other.", "الضرب جمع سريع لمجموعات متساوية، والقسمة تعيد توزيعها — كلٌّ يُلغي الآخر.")],
+  },
+];
+
+// ---- Flagship: Physics · Year 5 · Energy Everywhere ----
+const PHYSICS_5: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Energy in many costumes", "الطاقة بأزياء متعددة"),
+    paras: [
+      bi("**Energy** is the ability to make something happen — to move, heat, light or sound. It comes in many forms.", "**الطاقة** هي القدرة على إحداث شيء — حركة أو حرارة أو ضوء أو صوت. وتأتي بأشكال متعددة."),
+      bi("The big idea: energy is **never lost, only changed** from one form to another.", "الفكرة الكبرى: الطاقة **لا تُفقد، بل تتحوّل** من شكل إلى آخر."),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("One form becomes another", "شكل يتحوّل إلى آخر"),
+    flow: [
+      { text: bi("Stored", "مخزّنة"), tone: "force" },
+      { text: bi("Moving", "حركة"), tone: "mass" },
+      { text: bi("Heat / Light / Sound", "حرارة/ضوء/صوت"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Form", "الشكل"), bi("Example", "مثال")],
+      rows: [
+        [bi("Movement", "حركة"), bi("A rolling ball", "كرة تتدحرج")],
+        [bi("Stored", "مخزّنة"), bi("A stretched spring", "زنبرك مشدود")],
+        [bi("Electrical", "كهربائية"), bi("A battery", "بطارية")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The law of energy", "قانون الطاقة"),
+    paras: [
+      bi("**Conservation of energy:** in any change, the total energy before equals the total energy after — it only shifts form.", "**حفظ الطاقة:** في أي تغيّر، مجموع الطاقة قبل = مجموعها بعد — تتغيّر صورتها فقط."),
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Follow the energy", "تتبّع الطاقة"),
+    paras: [
+      bi("A battery lights a bulb. Trace it: **chemical** energy (battery) → **electrical** (wires) → **light + heat** (bulb).", "بطارية تُضيء مصباحاً. تتبّعها: طاقة **كيميائية** (البطارية) ← **كهربائية** (الأسلاك) ← **ضوء + حرارة** (المصباح)."),
+      bi("None vanished — it just wore three costumes on the way.", "لم يفنَ شيء — بل ارتدت الطاقة ثلاثة أزياء في الطريق."),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("Try it yourself", "جرّب بنفسك"),
+    paras: [bi("When you rub your hands together, movement energy turns into what? (Feel your palms!)", "عندما تفرك يديك، إلى ماذا تتحوّل طاقة الحركة؟ (تحسّس راحتيك!)")],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [bi("Energy is the power to make things happen; it is never lost, only changed from one form to another.", "الطاقة قدرة على إحداث الأشياء؛ لا تُفقد أبداً، بل تتحوّل من شكل إلى آخر.")],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
   "physics-10": PHYSICS_10,
   "physics-7": PHYSICS_7,
+  "physics-5": PHYSICS_5,
   "math-7": MATH_7,
   "math-4": MATH_4,
+  "math-3": MATH_3,
 };
 
 // Auto-generated deck for every other lesson — built from the year's focus and
