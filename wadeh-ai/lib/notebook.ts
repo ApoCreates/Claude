@@ -2919,7 +2919,102 @@ const GAMING_2: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Leadership · Year 4 · Responsibility & Trust ----
+const LEADERSHIP_4: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Nobody decides to trust you in one day", "لا أحد يقرّر الوثوق بك في يوم"),
+    paras: [
+      bi(
+        "People don't choose to trust you because you asked them to. They watch: did you bring back the book? did you turn up when you said? did you tell the truth when it would have been easier not to? Trust is a **running total** of small answers.",
+        "لا يقرّر الناس الوثوق بك لأنك طلبت ذلك، بل يراقبون: أأعدتَ الكتاب؟ أحضرتَ في الموعد الذي قلته؟ أصدقتَ حين كان الكذب أسهل؟ فالثقة **مجموع متراكم** من إجابات صغيرة."
+      ),
+      bi(
+        "That's why **small duties matter more than big promises**. Feeding the class fish every day says more about you than announcing you'll organise the whole trip — because everyone can see whether the fish got fed.",
+        "ولهذا **المهام الصغيرة أهم من الوعود الكبيرة**. فإطعامك سمك الصف كل يوم يقول عنك أكثر من إعلانك تنظيم الرحلة كلها — لأن الجميع يرى أأُطعمت السمكة أم لا."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("What a small duty tells people", "ماذا تقول المهمة الصغيرة عنك"),
+    flow: [
+      { text: bi("Promise something small", "عِد بشيء صغير"), tone: "force" },
+      { text: bi("Do it, every time", "افعله في كل مرّة"), tone: "mass" },
+      { text: bi("Say so when you can't", "وقُل حين لا تستطيع"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("What you do", "ما تفعله"), bi("What people conclude", "ما يستنتجه الناس"), bi("Next thing they'll ask you", "ما سيطلبونه منك بعده")],
+      rows: [
+        [bi("Return what you borrow", "تُعيد ما تستعير"), bi("‘Things are safe with them'", "«الأشياء آمنة معه»"), bi("Something that matters more", "شيء أهمّ")],
+        [bi("Finish the boring part", "تُنهي الجزء الممل"), bi("‘They don't quit halfway'", "«لا ينسحب في المنتصف»"), bi("To lead a piece of it", "أن تقود جزءاً منه")],
+        [bi("Say ‘I forgot' early", "تقول «نسيت» مبكراً"), bi("‘They tell me the truth'", "«يصدقني»"), bi("To be told things first", "أن تُخبَر أولاً")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Why one broken promise costs so much", "لماذا يكلّف وعدٌ مكسور هذا الثمن"),
+    paras: [
+      bi(
+        "**Trust is earned in drops and lost in buckets.** Keeping a promise adds a little; breaking one takes away a lot, because people don't just lose the promise — they start wondering about all the others.",
+        "**الثقة تُكسب قطرة قطرة وتُفقد دفعة واحدة.** فالوفاء بوعد يضيف قليلاً، وكسره يأخذ كثيراً، لأن الناس لا يفقدون ذلك الوعد وحده، بل يبدؤون التساؤل عن البقيّة."
+      ),
+      bi(
+        "Imagine a rough score — not a real measurement, just a way to see the shape: each promise kept is +1, each one broken is −5.",
+        "تخيّل نتيجةً تقريبية — ليست قياساً حقيقياً بل طريقة لرؤية الشكل: كل وعد تفي به ‎+١، وكل وعد تكسره ‎−٥."
+      ),
+    ],
+    math: ["\\text{trust} \\approx (\\text{promises kept}) - 5 \\times (\\text{promises broken})"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Four good weeks and one Thursday", "أربعة أسابيع جيدة وخميس واحد"),
+    paras: [
+      bi(
+        "You promise to bring the football every day. For **four days** you do it: that's $4 \\times 1 = 4$ points. On Friday you forget: $4 - 5 = \\mathbf{-1}$ — you're *below* where you started, and the team plans without you next week.",
+        "تَعِد بإحضار الكرة كل يوم. وتفعل ذلك **أربعة أيام**: أي $4 \\times 1 = 4$ نقاط. وفي الجمعة تنسى: $4 - 5 = \\mathbf{-1}$ — فتصير *دون* نقطة البداية، ويخطّط الفريق من دونك الأسبوع المقبل."
+      ),
+      bi(
+        "That feels unfair, and it is — but it's how people actually work. It also shows the repair: you don't win it back with an apology, you win it back with **the next four days**.",
+        "يبدو ذلك ظالماً، وهو كذلك — لكنه ما يفعله الناس فعلاً. وهو يُظهر العلاج أيضاً: لا تستعيدها باعتذار، بل تستعيدها بـ**الأيام الأربعة التالية**."
+      ),
+      bi(
+        "And here's the trick good leaders use: **promise less**. Say ‘I'll bring it Sunday and Tuesday' instead of ‘every day'. A small promise you always keep beats a big one you mostly keep.",
+        "وإليك حيلة القادة الجيّدين: **عِد بأقلّ**. قل «سأحضرها الأحد والثلاثاء» بدل «كل يوم». فوعد صغير تفي به دائماً خير من كبير تفي به غالباً."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "Using the rough score, what do six kept promises and one broken one come to? And name one small duty at home you could promise for a week — and actually keep.",
+        "بالنتيجة التقريبية، كم يبلغ مجموع ستة وعود موفاة ووعدٍ مكسور؟ وسمِّ مهمة صغيرة في البيت تَعِد بها أسبوعاً — وتفي بها فعلاً."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Trust is a running total built from small kept promises — so promise less than you can do, say early when you can't, and repair with days rather than words.",
+        "الثقة مجموع متراكم من وعود صغيرة موفاة — فعِد بأقلّ مما تستطيع، وقل مبكراً حين لا تستطيع، وأصلِح بالأيام لا بالكلام."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "leadership-4": LEADERSHIP_4,
   "gaming-2": GAMING_2,
   "problem-solving-10": PROBLEM_SOLVING_10,
   "entrepreneurship-2": ENTREPRENEURSHIP_2,
