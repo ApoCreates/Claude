@@ -118,10 +118,46 @@ const BANK: Record<string, KEntry[]> = {
     e(6, ["what is stress", "how to handle stress", "ما هو التوتر", "كيف أتعامل مع التوتر"], "Stress is your body getting ready for a challenge — useful in small doses, harmful when it never switches off. Sleep, movement, and naming the worry out loud are what actually lower it.", "التوتر استعداد جسدك لتحدٍّ — مفيد بجرعات صغيرة، ضارّ حين لا ينطفئ. والنوم والحركة وتسمية القلق بصوت عالٍ هي ما يخفّضه فعلاً."),
   ],
   languages: [
-    e(1, ["how do i learn new words", "how to remember words", "كيف أتعلم كلمات"], "Learn words in **small groups tied to pictures**, say them **out loud**, and use each one in a sentence the same day. Review yesterday's before adding new.", "تعلّم الكلمات في **مجموعات صغيرة مرتبطة بصور**، وانطقها **بصوت عالٍ**، واستخدم كلّاً في جملة في اليوم نفسه. راجِع كلمات الأمس قبل الجديد."),
-    e(5, ["how do i learn a language", "how to learn new language", "كيف اتعلم لغة"], "The fastest way: **a little, every day, out loud**. Small word-sets, say them aloud, use them immediately, and review yesterday's first — that's how memory sticks.", "أسرع طريقة: **القليل، كل يوم، بصوت مسموع**. مجموعات صغيرة، انطقها، استخدمها فوراً، وراجِع الأمس أولاً — هكذا تثبت في الذاكرة."),
+    // Levels follow lib/levels/languages.ts: Y1 Sounds & First Words ·
+    // Y2 Everyday Phrases · Y3 Your First 500 Words · Y4 Grammar Without Fear ·
+    // Y5 Speaking with Confidence · Y6 Reading for Meaning · Y7 Writing Clearly ·
+    // Y8 Culture & Expression · Y9 Thinking in a New Language · Y10 Fluency.
+    e(1, ["how do i learn a language", "how to learn new language", "كيف اتعلم لغة"], "The fastest way is **a little, every day, out loud**. Listening and copying sounds comes before rules — babies learn a language years before they learn any grammar.", "أسرع طريقة هي **القليل، كل يوم، بصوت مسموع**. والاستماع وتقليد الأصوات يسبق القواعد — فالأطفال يتعلّمون اللغة قبل سنوات من تعلّم أي قاعدة."),
+    // The vocabulary method (spaced repetition) is Y3 "Your First 500 Words".
+    // Triggers are short distinctive SUBSTRINGS, not full phrasings — "how to
+    // remember words" would miss "how do I remember words?".
+    e(3, ["remember words", "memorise words", "memorize words", "learn new words", "أحفظ الكلمات", "أتعلم كلمات", "حفظ الكلمات"], "Learn words in **small groups tied to pictures**, say them **out loud**, and use each in a sentence the same day. Then review on a spacing schedule — after 1, 3, 7 and 30 days — so you revisit each word just before you'd forget it.", "تعلّم الكلمات في **مجموعات صغيرة مرتبطة بصور**، وانطقها **بصوت عالٍ**، واستخدم كلّاً في جملة في اليوم نفسه. ثم راجِع بجدول متباعد — بعد ١ و٣ و٧ و٣٠ يوماً — لتعود إلى الكلمة قبيل أن تنساها."),
+    e(3, ["what are high frequency words", "الكلمات الأكثر تكرارا"], "A small core of words does most of the work: the commonest ~1000 words cover roughly **85% of everyday conversation**. Learn those first — they buy you the most understanding per word.", "نواة صغيرة من الكلمات تؤدّي معظم العمل: أشيع ١٠٠٠ كلمة تغطّي نحو **٨٥٪ من الحديث اليومي**. تعلّمها أولاً — فهي تمنحك أكبر فهم مقابل كل كلمة."),
+    e(4, ["do i need grammar", "why is grammar hard", "هل أحتاج القواعد", "لماذا القواعد صعبة"], "Grammar is the **pattern behind sentences you already say**, not a list to memorise first. Learn phrases, notice the pattern, then name it — that order makes grammar feel obvious instead of frightening.", "القواعد هي **النمط خلف جمل تقولها أصلاً**، لا قائمة تُحفظ أولاً. تعلّم العبارات، ولاحظ النمط، ثم سمِّه — هذا الترتيب يجعل القواعد بديهية بدل أن تكون مخيفة."),
+    e(5, ["im afraid to speak", "how to speak confidently", "أخاف أن أتحدث", "كيف أتحدث بثقة"], "Mistakes are how speaking gets built — people understand you long before your grammar is correct. Speak slowly, use the words you have, and treat every correction as a free lesson.", "الأخطاء هي ما يُبنى به التحدّث — يفهمك الناس قبل أن تصحّ قواعدك بوقت طويل. تحدّث ببطء، واستخدم ما لديك من كلمات، واعتبر كل تصحيح درساً مجانياً."),
+    e(9, ["how do i think in another language", "التفكير باللغة"], "You start thinking in a language when you stop translating. Practise by naming things around you directly in the new language, and by talking to yourself about simple daily plans.", "تبدأ التفكير بلغة حين تتوقّف عن الترجمة. تدرّب بتسمية ما حولك مباشرةً باللغة الجديدة، وبالحديث مع نفسك عن خططك اليومية البسيطة."),
   ],
 };
+
+// Filler words that carry no topic meaning — ignored when matching so that
+// "how do I remember words?" still matches a "remember words" trigger.
+const STOP = new Set([
+  "a", "an", "the", "is", "are", "was", "were", "do", "does", "did", "i", "you", "we", "my", "me",
+  "to", "of", "in", "on", "for", "it", "its", "this", "that", "what", "whats", "how", "why", "when",
+  "can", "could", "should", "would", "please", "tell", "explain", "about", "and", "or", "some",
+  "ما", "هو", "هي", "ماذا", "كيف", "لماذا", "هل", "من", "في", "على", "عن", "إلى", "الى", "أن", "ان", "لي", "لك",
+]);
+
+const contentTokens = (s: string): string[] =>
+  normalizeQuestion(s).split(" ").filter((w) => w.length > 1 && !STOP.has(w));
+
+/**
+ * A trigger matches when it appears as a substring OR when all of its content
+ * words are present in the question. The token path makes matching robust to
+ * phrasing ("how to remember words" vs "how do I remember words?").
+ */
+function triggerMatches(normalizedQuestion: string, trigger: string): boolean {
+  if (normalizedQuestion.includes(normalizeQuestion(trigger))) return true;
+  const tt = contentTokens(trigger);
+  if (tt.length === 0) return false;
+  const qt = new Set(contentTokens(normalizedQuestion));
+  return tt.every((t) => qt.has(t));
+}
 
 /**
  * Find a baked answer for a learner on `level`. Only returns content pitched at
@@ -137,7 +173,7 @@ export function findKnowledge(subject: string, level: number, lang: "en" | "ar",
   let best: KEntry | null = null;
   for (const entry of bank) {
     if (entry.level > level) continue; // gate: above the learner's year
-    if (entry.triggers.some((tr) => n.includes(normalizeQuestion(tr)))) {
+    if (entry.triggers.some((tr) => triggerMatches(n, tr))) {
       if (!best || entry.level > best.level) best = entry;
     }
   }
@@ -154,7 +190,7 @@ export function findAdvancedOnly(subject: string, level: number, question: strin
   const n = normalizeQuestion(question);
   let hi: number | null = null;
   for (const entry of bank) {
-    if (entry.triggers.some((tr) => n.includes(normalizeQuestion(tr)))) {
+    if (entry.triggers.some((tr) => triggerMatches(n, tr))) {
       if (entry.level > level && (hi === null || entry.level < hi)) hi = entry.level;
     }
   }

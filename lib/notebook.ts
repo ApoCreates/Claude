@@ -875,7 +875,99 @@ const PROBLEM_SOLVING_7: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Languages · Year 3 · Your First 500 Words ----
+const LANGUAGES_3: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Not all words are worth the same", "ليست كل الكلمات متساوية القيمة"),
+    paras: [
+      bi(
+        "A language has tens of thousands of words — but you don't need them. A small core of **high-frequency words** does most of the work: the commonest ~1000 words cover roughly **85% of everyday conversation**.",
+        "في اللغة عشرات آلاف الكلمات — لكنك لا تحتاجها. فنواة صغيرة من **الكلمات عالية التكرار** تؤدّي معظم العمل: أشيع ١٠٠٠ كلمة تغطّي نحو **٨٥٪ من الحديث اليومي**."
+      ),
+      bi(
+        "The trick isn't learning more words — it's **not forgetting** the ones you met. That's what spaced repetition does: review a word just as you're about to forget it, and each review makes the memory last longer.",
+        "والحيلة ليست تعلّم كلمات أكثر — بل **ألّا تنسى** ما قابلته. وهذا ما تفعله المراجعة المتباعدة: راجِع الكلمة قبيل أن تنساها، فتطيل كل مراجعة عمر الذاكرة."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("The forgetting curve, beaten", "منحنى النسيان، مهزوماً"),
+    flow: [
+      { text: bi("Meet the word", "قابِل الكلمة"), tone: "force" },
+      { text: bi("Review just before forgetting", "راجِع قبيل النسيان"), tone: "mass" },
+      { text: bi("Interval grows", "يتّسع الفاصل"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Review", "المراجعة"), bi("After", "بعد"), bi("Why", "لماذا")],
+      rows: [
+        [bi("1st", "الأولى"), bi("1 day", "يوم"), bi("Memory is fresh but fragile", "الذاكرة طازجة لكنها هشّة")],
+        [bi("2nd", "الثانية"), bi("3 days", "٣ أيام"), bi("Recall is starting to fade", "بدأ الاسترجاع يخفت")],
+        [bi("3rd", "الثالثة"), bi("7 days", "٧ أيام"), bi("Effort makes it stick harder", "الجهد يرسّخها أكثر")],
+        [bi("4th", "الرابعة"), bi("30 days", "٣٠ يوماً"), bi("Nearly permanent", "شبه دائمة")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Two ideas that do the work", "فكرتان تؤدّيان العمل"),
+    paras: [
+      bi(
+        "**High-frequency vocabulary** is the set of words that appear most often in real use. **Spaced repetition** is reviewing material at increasing intervals, timed near the point of forgetting, because effortful recall strengthens memory more than re-reading.",
+        "**المفردات عالية التكرار** هي الكلمات الأكثر ظهوراً في الاستعمال الحقيقي. و**المراجعة المتباعدة** هي المراجعة على فترات متزايدة قرب نقطة النسيان، لأن الاسترجاع بجهد يقوّي الذاكرة أكثر من إعادة القراءة."
+      ),
+    ],
+    math: ["\\text{days} = \\frac{500}{7} \\approx 72"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("How long is 500 words, really?", "كم يستغرق ٥٠٠ كلمة فعلاً؟"),
+    paras: [
+      bi(
+        "You learn **7 new words a day** and review the old ones. How long to reach your first 500?",
+        "تتعلّم **٧ كلمات جديدة يومياً** وتراجع القديمة. كم تحتاج لبلوغ أول ٥٠٠؟"
+      ),
+      bi(
+        "$\\frac{500}{7} \\approx 72$ days — about **ten weeks**. One summer holiday.",
+        "$\\frac{500}{7} \\approx 72$ يوماً — نحو **عشرة أسابيع**. عطلة صيف واحدة."
+      ),
+      bi(
+        "Now the honest part: without review you'd forget most of them. With the 1–3–7–30 schedule above, each word costs only about **four short reviews** to keep for good.",
+        "والآن الجزء الصادق: بلا مراجعة ستنسى معظمها. ومع جدول ١–٣–٧–٣٠ أعلاه، تكلّفك كل كلمة نحو **أربع مراجعات قصيرة** لتبقى للأبد."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "If you learned 10 words a day instead of 7, how many days to 500? And if you met a word on Sunday, on which days would you review it using 1–3–7–30?",
+        "لو تعلّمت ١٠ كلمات يومياً بدل ٧، فكم يوماً تحتاج لبلوغ ٥٠٠؟ ولو قابلت كلمة يوم الأحد، ففي أي أيام تراجعها وفق ١–٣–٧–٣٠؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Learn the words that appear most, and review them just before you'd forget — a few words a day beats a thousand words once.",
+        "تعلّم الكلمات الأكثر وروداً، وراجعها قبيل أن تنساها — كلمات قليلة كل يوم تتفوّق على ألف كلمة مرة واحدة."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "languages-3": LANGUAGES_3,
   "problem-solving-7": PROBLEM_SOLVING_7,
   "emotional-intelligence-3": EQ_3,
   "entrepreneurship-5": ENTREPRENEURSHIP_5,
