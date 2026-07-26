@@ -2270,7 +2270,98 @@ const PHYSICS_3: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Geography · Year 9 · The Connected World ----
+const GEOGRAPHY_9: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Some places matter more than their size", "أماكن تفوق أهميتها حجمها"),
+    paras: [
+      bi(
+        "Look at a world map of shipping and you won't see an even spread — you'll see threads pulled tight through a few narrow gaps. A **chokepoint** is a place where geography forces enormous traffic through a small opening.",
+        "انظر إلى خريطة الملاحة العالمية فلن ترى انتشاراً متساوياً، بل خيوطاً تُشدّ عبر بضع فجوات ضيّقة. و**الممرّ الحرج** موضع تُجبر فيه الجغرافيا حركةً هائلة على المرور من فتحة صغيرة."
+      ),
+      bi(
+        "That's why our region sits at the centre of world politics: **Hormuz, Bab al-Mandab and Suez** are three of the handful that matter. A country doesn't need a big army to matter if the world's cargo must pass its coastline.",
+        "ولهذا تقع منطقتنا في قلب السياسة العالمية: **هرمز وباب المندب والسويس** ثلاثة من حفنة تهمّ العالم. فالبلد لا يحتاج جيشاً كبيراً ليكون مهماً إن كانت بضائع العالم مضطرّة للمرور بساحله."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Why narrow water buys influence", "لماذا يشتري الماء الضيّق نفوذاً"),
+    flow: [
+      { text: bi("Narrow water", "ماء ضيّق"), tone: "force" },
+      { text: bi("Concentrated traffic", "حركة مكثّفة"), tone: "mass" },
+      { text: bi("Outsized influence", "نفوذ يفوق الحجم"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Chokepoint", "الممرّ"), bi("Connects", "يصل بين"), bi("If it closes", "إن أُغلق")],
+      rows: [
+        [bi("Hormuz", "هرمز"), bi("The Gulf ↔ the Indian Ocean", "الخليج ↔ المحيط الهندي"), bi("Most Gulf oil exports have no sea exit", "معظم صادرات نفط الخليج بلا منفذ بحري")],
+        [bi("Bab al-Mandab", "باب المندب"), bi("The Red Sea ↔ the Indian Ocean", "البحر الأحمر ↔ المحيط الهندي"), bi("Suez traffic must turn back", "حركة السويس تعود أدراجها")],
+        [bi("Suez", "السويس"), bi("The Mediterranean ↔ the Red Sea", "المتوسط ↔ البحر الأحمر"), bi("Europe–Asia ships go round Africa", "سفن أوروبا–آسيا تدور حول إفريقيا")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Costing a detour", "حساب كلفة الالتفاف"),
+    paras: [
+      bi(
+        "A **chokepoint** is a narrow passage that carries a disproportionate share of world trade, so closing it is felt globally. Its value is measurable: it equals the detour everyone would otherwise sail. Ships move at a steady cruising speed in **knots** (nautical miles per hour), so:",
+        "**الممرّ الحرج** ممرّ ضيّق يحمل حصّة غير متناسبة من تجارة العالم، فيُشعَر بإغلاقه عالمياً. وقيمته قابلة للقياس: فهي تساوي الالتفاف الذي كان الجميع سيبحره لولاه. وتسير السفن بسرعة ثابتة بالـ**عقدة** (ميل بحري في الساعة)، ومن ثمّ:"
+      ),
+    ],
+    math: ["\\text{extra days} = \\frac{\\text{extra nautical miles}}{\\text{speed in knots} \\times 24}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Suez, or the long way round Africa", "السويس أم الطريق الطويل حول إفريقيا"),
+    paras: [
+      bi(
+        "A tanker sails from the Gulf to Rotterdam. Through Suez the voyage is roughly **6,400 nautical miles**; around the Cape of Good Hope it is roughly **11,200** — about **4,800 nautical miles** further. (Figures are approximate and vary by exact ports.)",
+        "ناقلة تبحر من الخليج إلى روتردام. فعبر السويس تبلغ الرحلة نحو **٦٬٤٠٠ ميل بحري**، وحول رأس الرجاء الصالح نحو **١١٬٢٠٠** — أي أطول بنحو **٤٬٨٠٠ ميل بحري**. (والأرقام تقريبية وتختلف بحسب الموانئ.)"
+      ),
+      bi(
+        "At a cruising speed of 15 knots: $\\frac{4800}{15 \\times 24} = \\frac{4800}{360} \\approx \\mathbf{13}$ extra days at sea — each way. Add fuel, crew wages and cargo arriving a fortnight late.",
+        "وبسرعة إبحار ١٥ عقدة: $\\frac{4800}{15 \\times 24} = \\frac{4800}{360} \\approx \\mathbf{13}$ يوماً إضافياً في البحر — في كل اتجاه. أضف إليها الوقود وأجور الطاقم وبضاعة تصل متأخّرة أسبوعين."
+      ),
+      bi(
+        "That number *is* the canal's power. Geography didn't give Egypt the shipping — it gave it the **alternative**, and the alternative costs thirteen days. This is what people mean when they say geography drives politics.",
+        "هذا الرقم *هو* قوّة القناة. فالجغرافيا لم تمنح مصر الملاحة، بل منحتها **البديل** — وكلفة البديل ثلاثة عشر يوماً. وهذا ما يعنيه القول إن الجغرافيا تحرّك السياسة."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A detour adds 3,600 nautical miles and the ship cruises at 20 knots — how many extra days? And name one reason a country beside a chokepoint may still have little influence over it.",
+        "التفافٌ يضيف ٣٬٦٠٠ ميل بحري والسفينة تبحر بـ٢٠ عقدة — كم يوماً إضافياً؟ وسمِّ سبباً قد يجعل بلداً مجاوراً لممرّ حرج قليل النفوذ عليه رغم ذلك."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Chokepoints concentrate the world's traffic into a few narrow seas, and their power equals the detour they save — which is why our region's straits shape global politics.",
+        "الممرّات الحرجة تحشد حركة العالم في بحار ضيّقة معدودة، وقوّتها تساوي الالتفاف الذي توفّره — ولهذا تصوغ مضائق منطقتنا السياسة العالمية."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "geography-9": GEOGRAPHY_9,
   "physics-3": PHYSICS_3,
   "math-6": MATH_6,
   "leadership-9": LEADERSHIP_9,
