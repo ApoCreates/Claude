@@ -2360,7 +2360,102 @@ const GEOGRAPHY_9: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: AI · Year 10 · Frontier AI & Your Future ----
+const AI_10: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("The jump from answering to acting", "القفزة من الإجابة إلى الفعل"),
+    paras: [
+      bi(
+        "A chatbot answers and stops. An **agent** is given tools and a loop: it decides a step, takes it, looks at the result, and decides again. The difference isn't intelligence — it's that an agent's mistakes **land in the world** instead of on a screen.",
+        "روبوت المحادثة يجيب ويتوقّف. أما **الوكيل** فيُمنح أدوات وحلقة: يقرّر خطوة، وينفّذها، وينظر في النتيجة، ثم يقرّر من جديد. والفارق ليس في الذكاء، بل في أن أخطاء الوكيل **تقع في العالم** لا على الشاشة."
+      ),
+      bi(
+        "So the frontier question isn't ‘can it do this?' but **‘how would we know if it got it wrong?'**. That's why the fastest-growing skill around AI is not building models — it's defining the task precisely, checking the output, and owning the consequence.",
+        "فسؤال الحدود ليس «أيستطيع فعل هذا؟» بل **«كيف نعرف أنه أخطأ؟»**. ولهذا فإن أسرع المهارات نموّاً حول الذكاء الاصطناعي ليست بناء النماذج، بل تحديد المهمة بدقّة، وفحص المخرجات، وتحمّل التبعة."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("The agent loop, and where it breaks", "حلقة الوكيل وأين تنكسر"),
+    flow: [
+      { text: bi("Decide a step", "قرّر خطوة"), tone: "force" },
+      { text: bi("Take the action", "نفّذ الفعل"), tone: "mass" },
+      { text: bi("Check the result", "افحص النتيجة"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("System", "النظام"), bi("What it does", "ما يفعله"), bi("What can go wrong", "ما قد يسوء")],
+      rows: [
+        [bi("Chatbot", "روبوت محادثة"), bi("Answers once", "يجيب مرّة"), bi("A wrong answer you can read", "جواب خاطئ تستطيع قراءته")],
+        [bi("Reasoning model", "نموذج استدلال"), bi("Works through steps first", "يخطو خطوات قبل الجواب"), bi("Confident reasoning built on a wrong fact", "استدلال واثق على معلومة خاطئة")],
+        [bi("Agent", "وكيل"), bi("Acts, then re-plans", "يفعل ثم يعيد التخطيط"), bi("Small errors compounding unseen", "أخطاء صغيرة تتراكم دون أن تُرى")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Why long tasks are hard", "لماذا تصعب المهام الطويلة"),
+    paras: [
+      bi(
+        "If every step must succeed for the whole task to succeed, reliability **multiplies** — it doesn't average. A chain of $n$ steps each right with probability $p$ finishes correctly with probability:",
+        "إن كان نجاح المهمة كلّها يستلزم نجاح كل خطوة، فإن الموثوقية **تتضاعف ضرباً** لا متوسّطاً. فسلسلة من $n$ خطوة تصيب كلٌّ منها باحتمال $p$ تنتهي صحيحةً باحتمال:"
+      ),
+      bi(
+        "This is the single most useful piece of maths for judging any claim about autonomous systems.",
+        "وهذه أنفع قطعة رياضية للحكم على أي ادّعاء بشأن الأنظمة ذاتية التشغيل."
+      ),
+    ],
+    math: ["P(\\text{success}) = p^{n}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("The 95% agent that fails most of the time", "وكيل بدقّة ٩٥٪ يفشل في معظم الأحيان"),
+    paras: [
+      bi(
+        "An agent books a school trip in **10 steps**, each correct **95%** of the time. Sounds excellent. But $0.95^{10} \\approx 0.60$ — it completes the whole booking correctly only about **60%** of the time.",
+        "وكيل يحجز رحلة مدرسية في **١٠ خطوات**، تصيب كلٌّ منها **٩٥٪** من المرّات. يبدو ممتازاً. لكن $0.95^{10} \\approx 0.60$ — أي يُتمّ الحجز كلّه بشكل صحيح في نحو **٦٠٪** فقط."
+      ),
+      bi(
+        "Stretch it to **20 steps** and $0.95^{20} \\approx 0.36$: it now fails roughly two times in three. Nothing got worse — the chain just got longer.",
+        "ومدّها إلى **٢٠ خطوة** فيكون $0.95^{20} \\approx 0.36$: أي يفشل نحو مرّتين من ثلاث. ولم يسُؤ شيء، وإنما طالت السلسلة فحسب."
+      ),
+      bi(
+        "Now invert it. To finish 10 steps correctly **90%** of the time you need $p = \\sqrt[10]{0.9} \\approx 0.99$ per step. That gap between 95% and 99% is most of the engineering — and it's why serious systems add checkpoints where a human confirms before the chain continues.",
+        "والآن اعكسها. لتُتمّ عشر خطوات بشكل صحيح في **٩٠٪** من المرّات تحتاج $p = \\sqrt[10]{0.9} \\approx 0.99$ لكل خطوة. وتلك الفجوة بين ٩٥٪ و٩٩٪ هي معظم الهندسة — ولهذا تضيف الأنظمة الجادّة نقاط تحقّق يؤكّد عندها إنسانٌ قبل أن تستمر السلسلة."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "An agent runs 5 steps at 90% each — what's the chance the whole task is right? And for your community capstone, name one step you would *not* let it take without a human confirming.",
+        "وكيل ينفّذ ٥ خطوات بدقّة ٩٠٪ لكلٍّ — فما احتمال صحّة المهمة كلها؟ ولمشروعك الختامي، سمِّ خطوة واحدة *لن* تدعه ينفّذها دون تأكيد إنسان."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Agents act instead of answering, so reliability multiplies down the chain — judge them by $p^{n}$, and put a human checkpoint wherever a wrong step would be expensive to undo.",
+        "الوكلاء يفعلون لا يجيبون، فتتضاعف الموثوقية ضرباً على طول السلسلة — احكم عليهم بـ$p^{n}$، وضع نقطة تحقّق بشرية حيثما كان التراجع عن خطوة خاطئة مكلفاً."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "ai-10": AI_10,
   "geography-9": GEOGRAPHY_9,
   "physics-3": PHYSICS_3,
   "math-6": MATH_6,
