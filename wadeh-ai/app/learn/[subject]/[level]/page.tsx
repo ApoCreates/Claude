@@ -10,6 +10,7 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Guard } from "@/components/Guard";
 import { TutorChat } from "@/components/TutorChat";
+import { StudyNotebook } from "@/components/StudyNotebook";
 import { QuizArena } from "@/components/QuizArena";
 import { SpeakButton } from "@/components/SpeakButton";
 import { MathLab } from "@/components/MathLab";
@@ -64,8 +65,10 @@ function LevelView({ slug, n }: { slug: string; n: number }) {
         </p>
 
         <div className="mt-12 grid gap-8 lg:grid-cols-2">
-          {/* Left column: the year's syllabus, local lens, lab, quiz */}
+          {/* Left column: the study notebook, syllabus, local lens, lab, quiz */}
           <div className="space-y-6">
+            <StudyNotebook subject={subject} level={level} />
+
             <div className="card p-8">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <p className="eyebrow-accent">{d.lesson.thisYear}</p>
