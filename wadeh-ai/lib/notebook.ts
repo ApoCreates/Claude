@@ -3193,7 +3193,102 @@ const PHYSICS_1: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Geography · Year 2 · Land, Sea & Sky ----
+const GEOGRAPHY_2: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("The land has shapes, and they have names", "لليابسة أشكال، ولها أسماء"),
+    paras: [
+      bi(
+        "Look out of any window and the ground is not flat everywhere. It rises into **mountains**, dips into **valleys**, stretches into **plains**, and stops at the **coast** where the sea begins. Each shape has a name, and naming them is how a geographer starts.",
+        "انظر من أي نافذة تجد الأرض ليست مستوية في كل مكان. فهي ترتفع **جبالاً**، وتنخفض **أودية**، وتمتدّ **سهولاً**، وتنتهي عند **الساحل** حيث يبدأ البحر. ولكل شكل اسم، وتسميتها هي أول ما يفعله الجغرافي."
+      ),
+      bi(
+        "Above all those shapes the sky keeps changing. **Weather** is what the sky is doing today — hot, windy, rainy. The **seasons** are the bigger pattern the weather follows all year round.",
+        "وفوق تلك الأشكال كلها تتبدّل السماء دوماً. فـ**الطقس** ما تفعله السماء اليوم — حرّ أو ريح أو مطر. و**الفصول** هي النمط الأكبر الذي يتبعه الطقس على مدار السنة."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Naming what you can see", "تسمية ما تراه"),
+    flow: [
+      { text: bi("Look at the shape", "انظر إلى الشكل"), tone: "force" },
+      { text: bi("Give it its name", "أعطِه اسمه"), tone: "mass" },
+      { text: bi("Ask why it's there", "واسأل لماذا هو هناك"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Shape", "الشكل"), bi("What it looks like", "كيف يبدو"), bi("Name", "الاسم")],
+      rows: [
+        [bi("Land much higher than around it", "أرض أعلى بكثير ممّا حولها"), bi("Rocky, cool at the top", "صخري وبارد في أعلاه"), bi("Mountain", "جبل")],
+        [bi("Low land between two high parts", "أرض منخفضة بين مرتفعين"), bi("Often green, sometimes a river", "غالباً خضراء وفيها نهر أحياناً"), bi("Valley", "وادٍ")],
+        [bi("Where land meets the sea", "حيث تلتقي اليابسة بالبحر"), bi("Sand or rocks, waves", "رمل أو صخر وأمواج"), bi("Coast", "ساحل")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Why deserts are hot AND cold", "لماذا الصحراء حارّة وباردة معاً"),
+    paras: [
+      bi(
+        "A **desert** is land that gets very little rain. With almost no clouds, the sun pours straight down by day — and at night the heat escapes just as easily, because there are no clouds to hold it in.",
+        "**الصحراء** أرض قليلة المطر جداً. ومع انعدام الغيوم تقريباً تصبّ الشمس أشعتها نهاراً — وفي الليل تهرب الحرارة بالسهولة نفسها، إذ لا غيوم تحبسها."
+      ),
+      bi(
+        "So you can measure how big that daily swing is by subtracting (real deserts vary a lot from day to day — this is just how you'd measure yours):",
+        "فتستطيع قياس مقدار ذلك التبدّل اليومي بالطرح (والصحارى الحقيقية تختلف كثيراً من يوم لآخر — وهذه طريقة قياس صحرائك فحسب):"
+      ),
+    ],
+    math: ["\\text{swing} = \\text{day temperature} - \\text{night temperature}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("A day and a night in the desert", "يوم وليلة في الصحراء"),
+    paras: [
+      bi(
+        "One afternoon the thermometer reads **42°C**. That same night it reads **18°C**. The swing is $42 - 18 = \\mathbf{24}$ degrees — in one day!",
+        "بعد ظهر أحد الأيام يسجّل المِقياس **٤٢°م**. وفي الليلة نفسها يسجّل **١٨°م**. فالتبدّل $42 - 18 = \\mathbf{24}$ درجة — في يوم واحد!"
+      ),
+      bi(
+        "Now compare a day by the coast: **34°C** in the afternoon, **28°C** at night — a swing of only $34 - 28 = \\mathbf{6}$ degrees. The sea heats up and cools down slowly, so it keeps the coast steady.",
+        "والآن قارن يوماً على الساحل: **٣٤°م** بعد الظهر و**٢٨°م** ليلاً — أي تبدّل $34 - 28 = \\mathbf{6}$ درجات فقط. فالبحر يسخن ويبرد ببطء، فيُبقي الساحل معتدلاً."
+      ),
+      bi(
+        "That's why desert travellers carry a warm cloak in summer, and why so many towns grew on coasts and at oases — the water nearby makes life gentler.",
+        "ولهذا يحمل مسافر الصحراء عباءة دافئة في الصيف، ولهذا نشأت بلدات كثيرة على السواحل وعند الواحات — فالماء القريب يجعل الحياة ألطف."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "If the day is 39°C and the night is 21°C, what is the swing? And what do we call low land lying between two mountains?",
+        "إن كان النهار ٣٩°م والليل ٢١°م، فكم التبدّل؟ وماذا نسمّي الأرض المنخفضة بين جبلين؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Land has named shapes — mountain, valley, plain, coast — weather is today while seasons are the year's pattern, and water nearby keeps a place from swinging hot to cold.",
+        "لليابسة أشكال مسمّاة — جبل ووادٍ وسهل وساحل — والطقس هو اليوم بينما الفصول نمط السنة، والماء القريب يمنع المكان من التأرجح بين الحرّ والبرد."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "geography-2": GEOGRAPHY_2,
   "physics-1": PHYSICS_1,
   "math-1": MATH_1,
   "leadership-4": LEADERSHIP_4,
