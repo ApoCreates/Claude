@@ -1154,7 +1154,101 @@ const GAMING_4: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Math · Year 9 · Sin, Cos & Tan ----
+const MATH_9: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Measuring what you cannot reach", "قياس ما لا تستطيع بلوغه"),
+    paras: [
+      bi(
+        "You cannot climb a minaret with a tape measure. But stand back, measure how far you are, point at the top and measure the angle — and the triangle gives you the height.",
+        "لا تستطيع تسلّق مئذنة ومعك شريط قياس. لكن ابتعد، وقِس بُعدك، وصوّب نحو القمة وقِس الزاوية — فيمنحك المثلث الارتفاع."
+      ),
+      bi(
+        "That works because **every right triangle with the same angle has the same shape**. Double the size and the sides double together, so the *ratio* between two sides never changes. Those fixed ratios are sine, cosine and tangent.",
+        "ينجح ذلك لأن **كل مثلث قائم بالزاوية نفسها له الشكل نفسه**. ضاعف الحجم فتتضاعف الأضلاع معاً، وتبقى *النسبة* بين ضلعين ثابتة. وهذه النسب الثابتة هي الجيب وجيب التمام والظل."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Naming the three sides, then choosing the ratio", "تسمية الأضلاع الثلاثة ثم اختيار النسبة"),
+    flow: [
+      { text: bi("Mark the angle θ", "حدّد الزاوية θ"), tone: "force" },
+      { text: bi("Name opp · adj · hyp", "سمِّ المقابل والمجاور والوتر"), tone: "mass" },
+      { text: bi("Pick the ratio with your two sides", "اختر النسبة التي فيها ضلعاك"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("You know / want", "تعرف / تريد"), bi("Use", "استخدم"), bi("Ratio", "النسبة")],
+      rows: [
+        [bi("Opposite & hypotenuse", "المقابل والوتر"), bi("sine (SOH)", "الجيب (جا)"), bi("sin θ = opp ÷ hyp", "جا θ = المقابل ÷ الوتر")],
+        [bi("Adjacent & hypotenuse", "المجاور والوتر"), bi("cosine (CAH)", "جيب التمام (جتا)"), bi("cos θ = adj ÷ hyp", "جتا θ = المجاور ÷ الوتر")],
+        [bi("Opposite & adjacent", "المقابل والمجاور"), bi("tangent (TOA)", "الظل (ظا)"), bi("tan θ = opp ÷ adj", "ظا θ = المقابل ÷ المجاور")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The three ratios", "النسب الثلاث"),
+    paras: [
+      bi(
+        "For an acute angle $\\theta$ in a right triangle, with *opposite* the side facing $\\theta$, *adjacent* the side beside it, and *hypotenuse* the longest side:",
+        "لزاوية حادّة $\\theta$ في مثلث قائم، حيث *المقابل* الضلع المواجه لـ$\\theta$، و*المجاور* الضلع الملاصق، و*الوتر* أطول الأضلاع:"
+      ),
+    ],
+    math: [
+      "\\sin\\theta = \\frac{\\text{opp}}{\\text{hyp}} \\qquad \\cos\\theta = \\frac{\\text{adj}}{\\text{hyp}} \\qquad \\tan\\theta = \\frac{\\text{opp}}{\\text{adj}}",
+      "\\text{height} = d \\cdot \\tan\\theta",
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("How tall is the minaret?", "كم يبلغ ارتفاع المئذنة؟"),
+    paras: [
+      bi(
+        "You stand **50 m** from the base of a minaret. Looking up at the top, the angle from the ground is **38°**. Your eyes are **1.6 m** above the ground.",
+        "تقف على بُعد **٥٠ م** من قاعدة مئذنة. وحين تنظر إلى قمتها تكون الزاوية عن الأفق **٣٨°**. وارتفاع عينيك عن الأرض **١٫٦ م**."
+      ),
+      bi(
+        "You know the *adjacent* side (50 m) and want the *opposite* — so use tangent: $\\tan 38° = \\frac{h}{50}$, giving $h = 50 \\times \\tan 38° \\approx 50 \\times 0.781 = 39.1$ m.",
+        "أنت تعرف الضلع *المجاور* (٥٠ م) وتريد *المقابل* — فاستخدم الظل: $\\tan 38° = \\frac{h}{50}$، ومنه $h = 50 \\times \\tan 38° \\approx 50 \\times 0.781 = 39.1$ م."
+      ),
+      bi(
+        "Don't forget your own height: the minaret is $39.1 + 1.6 \\approx \\mathbf{40.7}$ m. The most common mistake in this question isn't the trigonometry — it's leaving out the 1.6.",
+        "ولا تنسَ طولك: ارتفاع المئذنة $39.1 + 1.6 \\approx \\mathbf{40.7}$ م. وأشهر خطأ في هذا السؤال ليس في حساب المثلثات، بل في نسيان الـ١٫٦."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A ramp rises 1.2 m over a horizontal run of 8 m. Which ratio finds the angle — and roughly what is it? (Hint: you have opposite and adjacent.)",
+        "منحدر يرتفع ١٫٢ م على امتداد أفقي ٨ م. أي نسبة تجد الزاوية — وكم تقريباً؟ (تلميح: لديك المقابل والمجاور.)"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Same angle means same shape, so the side ratios are fixed — label opp, adj and hyp, pick the ratio holding your two sides, and an angle plus one length gives you the rest.",
+        "الزاوية نفسها تعني الشكل نفسه، فتثبت نسب الأضلاع — سمِّ المقابل والمجاور والوتر، واختر النسبة التي تضمّ ضلعيك، فتمنحك زاوية وطول واحد كل ما تبقّى."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "math-9": MATH_9,
   "gaming-4": GAMING_4,
   "leadership-6": LEADERSHIP_6,
   "languages-3": LANGUAGES_3,
