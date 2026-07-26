@@ -966,7 +966,102 @@ const LANGUAGES_3: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Leadership · Year 6 · Motivating Others ----
+const LEADERSHIP_6: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("You can't order energy", "لا يمكنك أن تأمر بالحماس"),
+    paras: [
+      bi(
+        "You can order someone to *attend*. You cannot order them to *care*. Motivation isn't pushed from outside — a leader's job is to build the conditions where it grows on its own.",
+        "تستطيع أن تأمر أحداً بـ*الحضور*، ولا تستطيع أن تأمره بـ*الاهتمام*. الدافع لا يُدفع من الخارج — ومهمّة القائد أن يهيّئ الظروف التي ينمو فيها وحده."
+      ),
+      bi(
+        "Two things do most of the work: **praise the action, not the person** ('you organised those lists clearly' beats 'you're clever'), and **make the goal small enough to picture**.",
+        "أمران يؤدّيان معظم العمل: **امدح الفعل لا الشخص** («رتّبت هذه القوائم بوضوح» أفضل من «أنت ذكي»)، و**اجعل الهدف صغيراً بما يكفي لتخيّله**."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Praise that lands vs praise that fades", "مديح يثبت ومديح يتبخّر"),
+    flow: [
+      { text: bi("Name the action", "سمِّ الفعل"), tone: "force" },
+      { text: bi("Show its effect", "أظهِر أثره"), tone: "mass" },
+      { text: bi("Share the goal", "شارِك الهدف"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Instead of…", "بدلاً من…"), bi("Say…", "قل…"), bi("Why it works", "لماذا ينجح")],
+      rows: [
+        [bi("‘You're smart’", "«أنت ذكي»"), bi("‘You kept trying three ways’", "«جرّبت ثلاث طرق»"), bi("Praises effort they can repeat", "يمدح جهداً يمكن تكراره")],
+        [bi("‘Good job’", "«أحسنت»"), bi("‘Your list saved us an hour’", "«قائمتك وفّرت علينا ساعة»"), bi("Shows the real effect", "يُظهر الأثر الحقيقي")],
+        [bi("‘Do more’", "«اعمل أكثر»"), bi("‘We need 4 bags each’", "«نحتاج ٤ أكياس لكلٍّ منّا»"), bi("A share you can picture", "نصيب يمكن تخيّله")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Where motivation comes from", "من أين يأتي الدافع"),
+    paras: [
+      bi(
+        "**Intrinsic motivation** comes from inside — interest, mastery, meaning. **Extrinsic motivation** comes from outside — marks, prizes, pressure. Extrinsic works fast but fades; intrinsic is slower to build and lasts.",
+        "**الدافع الداخلي** يأتي من الداخل — الاهتمام والإتقان والمعنى. و**الدافع الخارجي** من الخارج — الدرجات والجوائز والضغط. الخارجي سريع لكنه يخبو، والداخلي أبطأ في البناء لكنه يدوم."
+      ),
+      bi(
+        "A shared goal divides into a personal share — that's what turns 'we should help' into 'I know what to do':",
+        "والهدف المشترك ينقسم إلى نصيب شخصي — وهذا ما يحوّل «علينا أن نساعد» إلى «أعرف ما أفعل»:"
+      ),
+    ],
+    math: ["\\text{share} = \\frac{\\text{goal}}{\\text{people}}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Leading a real school clean-up", "قيادة حملة نظافة مدرسية"),
+    paras: [
+      bi(
+        "Your school wants the yard cleared before the parents' evening: about **40 bags** of litter, and **12 volunteers** turned up. 'Let's clean the yard!' will not move them.",
+        "تريد مدرستك تنظيف الساحة قبل حفل أولياء الأمور: نحو **٤٠ كيساً** من النفايات، وحضر **١٢ متطوّعاً**. وعبارة «هيا ننظّف الساحة!» لن تحرّكهم."
+      ),
+      bi(
+        "Divide it: $\\frac{40}{12} \\approx 3.3$ — so **4 bags each** and you're done early. Suddenly the job has a visible end.",
+        "قسّمها: $\\frac{40}{12} \\approx 3.3$ — أي **٤ أكياس لكل شخص** وتنتهون مبكراً. فجأة صار للمهمة نهاية مرئية."
+      ),
+      bi(
+        "Then praise the action as it happens: not 'good team!' but 'Layla, you took the far corner nobody wanted — that's the hard half done.'",
+        "ثم امدح الفعل حال حدوثه: ليس «فريق رائع!» بل «ليلى، أخذتِ الزاوية البعيدة التي تجنّبها الجميع — بذلك أُنجز النصف الصعب»."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "If 60 chairs must be stacked by 15 helpers, what's each person's share? And rewrite 'you're a star!' as praise for a specific action.",
+        "إن كان على ١٥ مساعداً ترتيب ٦٠ كرسياً، فما نصيب كل شخص؟ وأعد صياغة «أنت نجم!» مديحاً لفعل محدّد."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "You can't command motivation — praise the action instead of the person, and cut the shared goal into a share each person can picture.",
+        "لا تستطيع أن تأمر بالدافع — امدح الفعل لا الشخص، وقسّم الهدف المشترك إلى نصيب يستطيع كلٌّ تخيّله."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "leadership-6": LEADERSHIP_6,
   "languages-3": LANGUAGES_3,
   "problem-solving-7": PROBLEM_SOLVING_7,
   "emotional-intelligence-3": EQ_3,
