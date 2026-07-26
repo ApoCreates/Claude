@@ -2548,7 +2548,102 @@ const LANGUAGES_9: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Emotional Intelligence · Year 9 · Emotional Courage ----
+const EQ_9: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Avoidance isn't free — it's paid in instalments", "التجنّب ليس مجانياً بل يُدفع أقساطاً"),
+    paras: [
+      bi(
+        "The conversation you're dreading takes about ten minutes. Avoiding it doesn't cost nothing — it costs a small tax every day: rehearsing it in your head, steering round that person, the sentence you almost sent and deleted.",
+        "الحديث الذي تخشاه يستغرق نحو عشر دقائق. وتجنّبه ليس بلا كلفة، بل يكلّفك ضريبة صغيرة كل يوم: تكراره في رأسك، والالتفاف حول ذلك الشخص، والرسالة التي كدت ترسلها ثم محوتها."
+      ),
+      bi(
+        "**Emotional courage** isn't the absence of that fear — it's doing the ten minutes while still feeling it. And the thing you most avoid saying is usually the thing that ends the problem: ‘I didn't understand', ‘that hurt me', ‘I was wrong'.",
+        "و**الشجاعة العاطفية** ليست غياب ذلك الخوف، بل أن تُنجز العشر دقائق وأنت تشعر به. وأكثر ما تتجنّب قوله هو غالباً ما يُنهي المشكلة: «لم أفهم»، «هذا آلمني»، «كنت مخطئاً»."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("What you fear vs what usually happens", "ما تخشاه مقابل ما يحدث عادةً"),
+    flow: [
+      { text: bi("Name the thing", "سمِّ الأمر"), tone: "force" },
+      { text: bi("Say your part", "قل ما يخصّك"), tone: "mass" },
+      { text: bi("Ask for theirs", "واسأل عمّا يخصّهم"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("You fear", "تخشى"), bi("Usually happens", "يحدث عادةً"), bi("Opener that works", "افتتاحية تنجح")],
+      rows: [
+        [bi("‘They'll be furious'", "«سيغضبون»"), bi("Relief — they noticed too", "ارتياح — فقد لاحظوا هم أيضاً"), bi("‘Can I say something awkward?'", "«أيمكنني قول شيء محرج؟»")],
+        [bi("‘I'll look weak'", "«سأبدو ضعيفاً»"), bi("They trust you more, not less", "تزداد ثقتهم بك لا تقلّ"), bi("‘I got this wrong'", "«أخطأت في هذا»")],
+        [bi("‘I'll be the only one'", "«سأكون الوحيد»"), bi("Others were waiting for a first voice", "كان غيرك ينتظر صوتاً أول"), bi("‘I see it differently'", "«أنا أراها بشكل مختلف»")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Counting what avoidance costs", "حساب كلفة التجنّب"),
+    paras: [
+      bi(
+        "**Vulnerability** here means saying the true thing when hiding is safer. It reads as strength because it can't be faked cheaply — anyone can perform confidence; only someone secure admits a mistake.",
+        "**الهشاشة** هنا أن تقول الصادق حين يكون الاختباء أأمن. وتُقرأ قوةً لأنها لا تُصطنع بثمن بخس — فكل أحد يستطيع تمثيل الثقة، ولا يعترف بالخطأ إلا واثق."
+      ),
+      bi(
+        "To compare honestly, price both sides. The conversation is a one-off cost; the avoidance repeats (both numbers are your own estimates, not measurements):",
+        "ولتقارن بصدق، سعّر الطرفين. فالحديث كلفة لمرّة واحدة، أما التجنّب فيتكرّر (والرقمان تقديرك أنت لا قياس):"
+      ),
+    ],
+    math: ["\\text{cost of avoiding} = \\text{daily dread} \\times \\text{days}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Ten minutes against a month", "عشر دقائق في مواجهة شهر"),
+    paras: [
+      bi(
+        "A friend keeps borrowing your things and not returning them. Saying so costs maybe **10 minutes** of discomfort. Avoiding it costs perhaps **5 minutes** of irritation and rehearsal a day.",
+        "صديق يستعير أغراضك ولا يعيدها. قول ذلك يكلّفك نحو **١٠ دقائق** من الحرج. أما تجنّبه فيكلّفك ربما **٥ دقائق** من الضيق والتكرار الذهني يومياً."
+      ),
+      bi(
+        "Over a month: $5 \\times 30 = \\mathbf{150}$ minutes — two and a half hours spent *not* having a ten-minute conversation. And the friendship quietly cools the whole time.",
+        "وعلى شهر: $5 \\times 30 = \\mathbf{150}$ دقيقة — ساعتان ونصف تُنفَق في *عدم* إجراء حديث من عشر دقائق. وتفتر الصداقة بهدوء طوال المدّة."
+      ),
+      bi(
+        "The numbers are estimates, not measurements — but the shape is always the same: the brave thing is **cheap and once**, the avoidant thing is **cheap each time and endless**. That asymmetry is the whole argument.",
+        "والأرقام تقديرات لا قياسات — لكن الشكل واحد دائماً: الشجاع **رخيص ولمرّة**، والمتجنِّب **رخيص في كل مرّة وبلا نهاية**. وهذا التفاوت هو الحجّة كلها."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "If avoiding something costs you 8 minutes a day for three weeks, what have you spent? And write the first sentence of a conversation you've been putting off — just the first one.",
+        "إن كان تجنّب أمرٍ يكلّفك ٨ دقائق يومياً لثلاثة أسابيع، فكم أنفقت؟ واكتب الجملة الأولى لحديث تؤجّله — الأولى فقط."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Courage isn't feeling no fear — it's paying the one-off cost instead of the daily one, and saying the true sentence you keep swallowing.",
+        "الشجاعة ليست انعدام الخوف، بل أن تدفع الكلفة مرّةً بدل أن تدفعها كل يوم، وأن تقول الجملة الصادقة التي تظلّ تبتلعها."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "emotional-intelligence-9": EQ_9,
   "languages-9": LANGUAGES_9,
   "ai-10": AI_10,
   "geography-9": GEOGRAPHY_9,
