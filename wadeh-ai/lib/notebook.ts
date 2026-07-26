@@ -3560,7 +3560,105 @@ const EQ_1: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Entrepreneurship · Year 10 · Launch Your Venture ----
+// Capstone year. The runway formula is the one piece of arithmetic that decides
+// whether a launch survives, so it carries the Formal Definition card.
+const ENTREPRENEURSHIP_10: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Launch is when the guessing stops", "الإطلاق حين يتوقّف التخمين"),
+    paras: [
+      bi(
+        "Everything before launch is an opinion. The interviews, the plan, the beautiful deck — all of it is **your best guess about strangers**. Launch is the first day the world is allowed to answer, and its answer outranks every guess you made.",
+        "كل ما يسبق الإطلاق رأي. المقابلات والخطة والعرض الأنيق — كلها **أفضل تخمينك عن غرباء**. والإطلاق أول يوم يُسمح فيه للعالم بالجواب، وجوابه يعلو على كل تخمين قدّمته."
+      ),
+      bi(
+        "So launch **small and early**, on purpose. A quiet launch to thirty real people teaches you more than three more months of planning — and it teaches it while you still have the time and money to act on what you learn.",
+        "فأطلق **صغيراً ومبكراً**، عن قصد. فإطلاق هادئ لثلاثين شخصاً حقيقياً يعلّمك أكثر من ثلاثة أشهر إضافية من التخطيط — ويعلّمك إياه ولديك بعدُ وقتٌ ومالٌ للتصرّف بما تعلّمت."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("The four gates, and who pays for each", "البوابات الأربع، ومن يموّل كلاً منها"),
+    flow: [
+      { text: bi("Research", "بحث"), tone: "force" },
+      { text: bi("MVP", "منتج أوّلي"), tone: "mass" },
+      { text: bi("Pitch", "عرض"), tone: "mass" },
+      { text: bi("Launch", "إطلاق"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Funding path", "مسار التمويل"), bi("What you give up", "ما تتنازل عنه"), bi("Usually fits when", "يناسب عادةً حين")],
+      rows: [
+        [bi("Your own savings", "مدّخراتك"), bi("Nothing but your risk", "لا شيء سوى مخاطرتك"), bi("The first MVP is cheap", "يكون المنتج الأوّلي رخيصاً")],
+        [bi("Family & friends", "العائلة والأصدقاء"), bi("A relationship, if it fails", "علاقة، إن أخفق المشروع"), bi("You can explain the risk honestly", "تستطيع شرح المخاطرة بصدق")],
+        [bi("Grant or accelerator", "منحة أو مسرّعة"), bi("Time, reporting, sometimes equity", "وقتاً وتقارير وأحياناً حصّة"), bi("You need mentors more than cash", "تحتاج مرشدين أكثر من المال")],
+        [bi("Angel investor", "مستثمر ملاك"), bi("A slice of ownership", "شريحة من الملكية"), bi("Customers already repeat", "يعود العملاء فعلاً")],
+        [bi("Venture capital", "رأس مال جريء"), bi("Ownership and control", "الملكية والسيطرة"), bi("Growth is proven and fast", "يكون النمو مثبتاً وسريعاً")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Runway — the number that sets your deadline", "المدرج — الرقم الذي يحدّد مهلتك"),
+    paras: [
+      bi(
+        "**Burn** is what you spend each month; **runway** is how many months of it your cash can survive. Runway is not a financial detail — it is the real deadline behind every decision you make after launch.",
+        "**الحرق** ما تنفقه كل شهر، و**المدرج** عدد الأشهر التي يصمد فيها نقدك. والمدرج ليس تفصيلاً مالياً، بل هو المهلة الحقيقية خلف كل قرار تتخذه بعد الإطلاق."
+      ),
+    ],
+    math: [
+      "\\text{runway (months)} = \\frac{\\text{cash on hand}}{\\text{monthly burn} - \\text{monthly revenue}}",
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("A student venture, counted honestly", "مشروع طالب، محسوب بصدق"),
+    paras: [
+      bi(
+        "You launch a weekend tutoring service. You have **9,000** saved, you spend **1,500** a month (materials, transport, a small ad budget), and in month one you earn **600**. The currency doesn't matter — the arithmetic is the same everywhere.",
+        "تُطلق خدمة دروس في العطلة. لديك **٩٠٠٠** مدّخرة، وتنفق **١٥٠٠** شهرياً (مواد ومواصلات وميزانية إعلان صغيرة)، وتكسب في الشهر الأول **٦٠٠**. والعملة لا تهمّ — فالحساب نفسه في كل مكان."
+      ),
+      bi(
+        "Net burn is $1500 - 600 = 900$ a month, so $\\text{runway} = 9000 \\div 900 = \\mathbf{10}$ months. Now raise revenue to 1,100: net burn falls to 400 and runway stretches to $9000 \\div 400 = \\mathbf{22.5}$ months. **A 500 rise in revenue bought you more than a year** — which is why founders chase revenue before they chase investors.",
+        "صافي الحرق $1500 - 600 = 900$ شهرياً، إذاً $\\text{المدرج} = 9000 \\div 900 = \\mathbf{10}$ أشهر. والآن ارفع الإيراد إلى ١١٠٠: يهبط صافي الحرق إلى ٤٠٠ ويمتدّ المدرج إلى $9000 \\div 400 = \\mathbf{22.5}$ شهراً. **زيادة ٥٠٠ في الإيراد اشترت لك أكثر من سنة** — ولهذا يلاحق المؤسّسون الإيراد قبل أن يلاحقوا المستثمرين."
+      ),
+      bi(
+        "These numbers are an illustration, not a forecast — the point is the shape of the curve, not the digits. And the region has real places to take a venture next: Hub71 and in5 in the UAE, Monsha'at in Saudi Arabia, Berytech in Lebanon, Oasis500 in Jordan. Their terms and programmes change, so check each one directly before you plan around it.",
+        "هذه الأرقام توضيحية لا تنبؤية — فالمقصود شكل المنحنى لا الأرقام. وفي المنطقة أماكن حقيقية تأخذ إليها مشروعك: «حب ٧١» و«in5» في الإمارات، و«منشآت» في السعودية، و«بيريتك» في لبنان، و«أويسس ٥٠٠» في الأردن. وشروطها وبرامجها تتغيّر، فتحقّق من كل منها مباشرة قبل أن تبني خطتك عليها."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "You hold 12,000, burn 2,000 a month and earn 800. What is your runway? Then say which is worth more to you next month: cutting 400 of spending, or adding 400 of revenue — and why they are not the same thing.",
+        "تملك ١٢٠٠٠، وتحرق ٢٠٠٠ شهرياً، وتكسب ٨٠٠. فما مدرجك؟ ثم قل أيّهما أثمن لك الشهر القادم: خفض ٤٠٠ من الإنفاق أم إضافة ٤٠٠ إلى الإيراد — ولماذا ليسا الشيء نفسه."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Launch early and small so the world can correct you while you can still afford it — and know your runway, because it is the deadline every other decision answers to.",
+        "أطلق مبكراً وصغيراً ليصحّحك العالم وأنت قادر بعدُ على التصحيح — واعرف مدرجك، فهو المهلة التي تخضع لها كل قراراتك الأخرى."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "entrepreneurship-10": ENTREPRENEURSHIP_10,
   "emotional-intelligence-1": EQ_1,
   "languages-1": LANGUAGES_1,
   "ai-2": AI_2,
