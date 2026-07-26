@@ -1060,7 +1060,102 @@ const LEADERSHIP_6: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Gaming · Year 4 · Level & World Design ----
+const GAMING_4: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("A good level teaches without saying a word", "المرحلة الجيدة تعلّم دون كلمة واحدة"),
+    paras: [
+      bi(
+        "The first screen of a great game never says 'press right to walk'. It puts you in a tiny safe room with one door on the right — and you learn the control by needing it.",
+        "الشاشة الأولى في أي لعبة عظيمة لا تقول «اضغط يميناً للمشي». بل تضعك في غرفة صغيرة آمنة لها باب واحد إلى اليمين — فتتعلّم التحكّم لأنك احتجته."
+      ),
+      bi(
+        "That's the level designer's real job: arrange the space so the player **discovers** the rule, then meets it again when it's dangerous, then must combine it with something else.",
+        "تلك هي مهمة مصمّم المراحل الحقيقية: رتّب المكان ليكتشف اللاعب القاعدة **بنفسه**، ثم يلاقيها ثانيةً وقد صارت خطرة، ثم يضطرّ لدمجها بغيرها."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("The teach → test → twist ladder", "سلّم: علّم ← اختبر ← فاجئ"),
+    flow: [
+      { text: bi("Teach it safely", "علّمها بأمان"), tone: "force" },
+      { text: bi("Test it for real", "اختبرها بجدّ"), tone: "mass" },
+      { text: bi("Twist it", "اقلبها مفاجأة"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Designer's trick", "حيلة المصمّم"), bi("What the player feels", "ما يشعر به اللاعب"), bi("Where you've seen it", "أين رأيتها")],
+      rows: [
+        [bi("Light or colour on the exit", "ضوء أو لون عند المخرج"), bi("‘I just know where to go’", "«أعرف إلى أين أذهب»"), bi("A bright doorway in a dark room", "باب مضيء في غرفة مظلمة")],
+        [bi("A harmless first enemy", "عدو أول غير مؤذٍ"), bi("Confidence, not fear", "ثقة لا خوف"), bi("The slowest creature comes first", "أبطأ مخلوق يأتي أولاً")],
+        [bi("A coin just off the path", "قطعة نقود خارج الطريق قليلاً"), bi("Curiosity — ‘what else is hidden?’", "فضول — «ماذا يختبئ أيضاً؟»"), bi("Secret ledges above the road", "حوافّ سرّية فوق الطريق")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The difficulty curve", "منحنى الصعوبة"),
+    paras: [
+      bi(
+        "A **difficulty curve** is how hard the game gets from the first level to the last. Too flat and players get bored; too steep and they quit. Designers usually raise it in **even steps**, with an easy level after each big fight to let players breathe.",
+        "**منحنى الصعوبة** هو مقدار ازدياد صعوبة اللعبة من المرحلة الأولى إلى الأخيرة. إن كان مسطّحاً مَلّ اللاعبون، وإن كان حادّاً انسحبوا. ولذلك يرفعه المصمّمون بـ**خطوات متساوية**، مع مرحلة سهلة بعد كل معركة كبيرة ليلتقط اللاعب أنفاسه."
+      ),
+      bi(
+        "If you know the first level's difficulty, the last one's, and how many levels you have, the step between them is:",
+        "إذا عرفت صعوبة المرحلة الأولى والأخيرة وعدد المراحل، فإن الخطوة بينها هي:"
+      ),
+    ],
+    math: ["\\text{step} = \\frac{\\text{last} - \\text{first}}{\\text{levels} - 1}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Designing a 10-level desert runner", "تصميم لعبة عدْو صحراوية من ١٠ مراحل"),
+    paras: [
+      bi(
+        "Your game has **10 levels**. Level 1 should be gentle — say **2 obstacles** — and the final level should feel like a storm: **20 obstacles**.",
+        "لعبتك من **١٠ مراحل**. المرحلة الأولى لطيفة — لنقل **عقبتان** — والأخيرة كالعاصفة: **٢٠ عقبة**."
+      ),
+      bi(
+        "Steps between them: $\\frac{20 - 2}{10 - 1} = \\frac{18}{9} = 2$. So each level adds **2 more obstacles**: 2, 4, 6, 8, 10, 12, 14, 16, 18, 20.",
+        "الخطوة بينها: $\\frac{20 - 2}{10 - 1} = \\frac{18}{9} = 2$. أي تضيف كل مرحلة **عقبتين**: ٢، ٤، ٦، ٨، ١٠، ١٢، ١٤، ١٦، ١٨، ٢٠."
+      ),
+      bi(
+        "Now break the pattern on purpose: make level 6 a short, wide, obstacle-light stretch. Players will remember it as 'the fast one' — and level 7 will feel harder than the numbers say.",
+        "ثم اكسر النمط عمداً: اجعل المرحلة السادسة قصيرة واسعة قليلة العقبات. سيتذكّرها اللاعبون بأنها «السريعة» — وستبدو السابعة أصعب ممّا تقوله الأرقام."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "Your friend's game has 7 levels, starting at 3 enemies and ending at 21. What's the step between levels? And name one way to teach a new control without any text on screen.",
+        "لعبة صديقك من ٧ مراحل، تبدأ بـ٣ أعداء وتنتهي بـ٢١. ما الخطوة بين المراحل؟ وسمِّ طريقة واحدة لتعليم تحكّم جديد دون أي نص على الشاشة."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Build the space so it teaches, raise the difficulty in even steps, then break the pattern once so the player feels the climb.",
+        "ابنِ المكان ليعلّم، وارفع الصعوبة بخطوات متساوية، ثم اكسر النمط مرّة ليشعر اللاعب بالصعود."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "gaming-4": GAMING_4,
   "leadership-6": LEADERSHIP_6,
   "languages-3": LANGUAGES_3,
   "problem-solving-7": PROBLEM_SOLVING_7,
