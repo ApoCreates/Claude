@@ -1989,7 +1989,101 @@ const GAMING_8: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Leadership · Year 9 · Ethics & Service ----
+const LEADERSHIP_9: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("The hard ones are right against right", "الصعبة منها حقٌّ في مواجهة حقّ"),
+    paras: [
+      bi(
+        "Choosing between right and wrong is not a dilemma; it's just courage. The genuinely hard choices are **right against right**: staying loyal to a friend *and* telling the truth, being merciful *and* being fair, helping now *and* building for later.",
+        "الاختيار بين الحق والباطل ليس معضلة، بل شجاعة فحسب. أما الخيارات الصعبة حقاً فهي **حقٌّ في مواجهة حقّ**: الوفاء لصديق *و*قول الصدق، والرحمة *و*العدل، والعون الآن *و*البناء للغد."
+      ),
+      bi(
+        "When both sides are good, you cannot follow a rule — you weigh. Leaders are trusted not because they always pick correctly, but because they can **say out loud which good they sacrificed and why**.",
+        "وحين يكون الطرفان خيراً فلا قاعدة تتبعها، بل تُوازن. ويُوثَق بالقادة لا لأنهم يصيبون دائماً، بل لأنهم **يقولون جهراً أي خيرٍ ضحّوا به ولماذا**."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Three tests before you decide", "ثلاثة اختبارات قبل أن تقرّر"),
+    flow: [
+      { text: bi("Name both goods", "سمِّ الخيرين"), tone: "force" },
+      { text: bi("Run the three tests", "أجرِ الاختبارات الثلاثة"), tone: "mass" },
+      { text: bi("Decide, and say why", "قرّر، وقل السبب"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Test", "الاختبار"), bi("The question", "السؤال"), bi("What it catches", "ما الذي يكشفه")],
+      rows: [
+        [bi("Daylight", "ضوء النهار"), bi("Would I be at ease if everyone knew?", "أأرتاح لو علم الجميع؟"), bi("Choices that need hiding", "خيارات تحتاج إخفاءً")],
+        [bi("Swap places", "تبادل المواقع"), bi("Would I accept this from the other side?", "أأقبلها لو كنت في الطرف الآخر؟"), bi("Rules you apply only to others", "قواعد تطبّقها على غيرك فقط")],
+        [bi("Ten years", "عشر سنوات"), bi("Who still benefits after I'm gone?", "من ينتفع بها بعد رحيلي؟"), bi("Wins that borrow from the future", "مكاسب تقترض من المستقبل")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Service, measured honestly", "الخدمة مقيسةً بصدق"),
+    paras: [
+      bi(
+        "**Servant leadership** asks not what the group owes you but what it needs from you; its test is whether the people you led became more capable. Service projects deserve the same honesty — effort is not impact, so measure both:",
+        "**القيادة الخادمة** لا تسأل ماذا تدين لك المجموعة بل ماذا تحتاج منك؛ واختبارها أن يصير من قدتَهم أقدر. ومشاريع الخدمة تستحق الصدق نفسه — فالجهد ليس أثراً، فقِس الاثنين:"
+      ),
+    ],
+    math: [
+      "\\text{volunteer-hours} = \\text{people} \\times \\text{hours each}",
+      "\\text{impact per hour} = \\frac{\\text{result}}{\\text{volunteer-hours}}",
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Two service projects, one Saturday", "مشروعا خدمة في سبتٍ واحد"),
+    paras: [
+      bi(
+        "**Project A**: 30 students clean a beach for 3 hours. That's $30 \\times 3 = 90$ volunteer-hours, and they collect 180 bags — $\\frac{180}{90} = \\mathbf{2}$ bags per hour worked.",
+        "**المشروع أ**: ثلاثون طالباً ينظّفون شاطئاً ٣ ساعات. أي $30 \\times 3 = 90$ ساعة تطوّع، ويجمعون ١٨٠ كيساً — $\\frac{180}{90} = \\mathbf{2}$ كيس لكل ساعة عمل."
+      ),
+      bi(
+        "**Project B**: 6 students spend 5 hours ($6 \\times 5 = 30$ hours) building bins and a rota that keeps that beach clean every week. On the day it collects nothing.",
+        "**المشروع ب**: ستة طلاب يقضون ٥ ساعات ($6 \\times 5 = 30$ ساعة) في صنع حاويات ووضع جدول مناوبات يُبقي الشاطئ نظيفاً كل أسبوع. وفي اليوم نفسه لا يجمع شيئاً."
+      ),
+      bi(
+        "By the day's numbers A wins and B looks like a failure. Run the **ten-year test**: A's beach is dirty again by Friday; B's is still clean next year. Measure what you actually want — and beware the project that photographs well precisely because it changes nothing.",
+        "بأرقام اليوم يفوز «أ» ويبدو «ب» فاشلاً. أجرِ **اختبار العشر سنوات**: شاطئ «أ» يعود متّسخاً بحلول الجمعة، وشاطئ «ب» يبقى نظيفاً العام المقبل. قِس ما تريده فعلاً — واحذر المشروع الذي يصلح للصورة تحديداً لأنه لا يغيّر شيئاً."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "12 volunteers work 4 hours and tutor 24 children. What's the impact per volunteer-hour? And name the two goods in conflict when a friend asks you to hide their mistake from the team.",
+        "اثنا عشر متطوّعاً يعملون ٤ ساعات ويدرّسون ٢٤ طفلاً. ما الأثر لكل ساعة تطوّع؟ وسمِّ الخيرين المتعارضين حين يطلب صديق أن تخفي خطأه عن الفريق."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Real dilemmas pit one good against another — name both, test them in daylight, swapped places and ten years, then say which you chose and why.",
+        "المعضلات الحقيقية تضع خيراً في مواجهة خير — فسمِّ الاثنين، واختبرهما في ضوء النهار، وبتبادل المواقع، وبعشر سنوات، ثم قل أيّهما اخترت ولماذا."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "leadership-9": LEADERSHIP_9,
   "gaming-8": GAMING_8,
   "problem-solving-3": PROBLEM_SOLVING_3,
   "entrepreneurship-8": ENTREPRENEURSHIP_8,
