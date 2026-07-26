@@ -1806,7 +1806,98 @@ const ENTREPRENEURSHIP_8: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Problem Solving · Year 3 · Step by Step ----
+const PROBLEM_SOLVING_3: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Big problems are small problems hiding together", "المشكلات الكبيرة مشكلات صغيرة مختبئة معاً"),
+    paras: [
+      bi(
+        "‘Tidy the whole classroom' sounds impossible, so nobody starts. But look closer: it's really *put the books on the shelf*, then *chairs under the desks*, then *pencils in the box*. Each of those is easy.",
+        "«رتّب الصف كلّه» تبدو مستحيلة فلا يبدأ أحد. لكن انظر عن قرب: هي في الحقيقة *ضع الكتب على الرفّ*، ثم *الكراسي تحت الطاولات*، ثم *الأقلام في العلبة*. وكلٌّ منها سهل."
+      ),
+      bi(
+        "That's the trick called **breaking it down**. A big problem is scary because you can't picture the end. Small pieces aren't scary, because you can see yourself finishing each one.",
+        "هذه الحيلة اسمها **التفكيك**. المشكلة الكبيرة مخيفة لأنك لا تتخيّل نهايتها. أما القطع الصغيرة فليست مخيفة، لأنك ترى نفسك تُنهي كلّاً منها."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Three steps that work on everything", "ثلاث خطوات تصلح لكل شيء"),
+    flow: [
+      { text: bi("Split it into pieces", "قسّمها إلى قطع"), tone: "force" },
+      { text: bi("Put them in order", "رتّبها"), tone: "mass" },
+      { text: bi("Tick each one off", "ضع علامة على كل واحدة"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Sounds too big", "تبدو أكبر من اللازم"), bi("Really it's…", "وهي في الحقيقة…"), bi("First tiny step", "أول خطوة صغيرة")],
+      rows: [
+        [bi("‘Write a story'", "«اكتب قصة»"), bi("Who? Where? What goes wrong?", "من؟ أين؟ ما الذي يسوء؟"), bi("Name one character", "سمِّ شخصية واحدة")],
+        [bi("‘Learn the times tables'", "«احفظ جداول الضرب»"), bi("Twelve small tables, not one big one", "اثنا عشر جدولاً صغيراً لا جدول كبير"), bi("Do the 2s today", "ابدأ بجدول ٢ اليوم")],
+        [bi("‘Clean my room'", "«نظّف غرفتي»"), bi("Clothes, then books, then floor", "الملابس ثم الكتب ثم الأرض"), bi("Pick up the clothes", "اجمع الملابس")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Sharing a job out", "توزيع العمل"),
+    paras: [
+      bi(
+        "**Breaking down** means turning one big job into a list of small jobs you can finish. When the job repeats — pages, boxes, questions — you can work out today's piece by dividing:",
+        "**التفكيك** أن تحوّل عملاً كبيراً إلى قائمة أعمال صغيرة تستطيع إنهاءها. وحين يتكرّر العمل — صفحات أو صناديق أو أسئلة — تعرف نصيب اليوم بالقسمة:"
+      ),
+    ],
+    math: ["\\text{each day} = \\frac{\\text{whole job}}{\\text{days you have}}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("A 60-page book before Sunday", "كتاب من ٦٠ صفحة قبل الأحد"),
+    paras: [
+      bi(
+        "Your teacher gives you a **60-page** book to finish in **5 days**. Sixty pages feels enormous. Divide it: $\\frac{60}{5} = \\mathbf{12}$ pages a day.",
+        "أعطاك معلّمك كتاباً من **٦٠ صفحة** لتنهيه في **٥ أيام**. ستّون صفحة تبدو هائلة. اقسمها: $\\frac{60}{5} = \\mathbf{12}$ صفحة في اليوم."
+      ),
+      bi(
+        "Twelve pages is about fifteen minutes — smaller than one football match. The book didn't shrink; you just stopped carrying all of it at once.",
+        "واثنتا عشرة صفحة نحو خمس عشرة دقيقة — أقصر من مباراة كرة. لم يصغر الكتاب، لكنك كففت عن حمله كلّه دفعةً واحدة."
+      ),
+      bi(
+        "And if you miss a day? Don't panic — just divide what's left again: 48 pages in 4 days is still 12 a day.",
+        "وإن فاتك يوم؟ لا تفزع — أعد قسمة ما بقي: ٤٨ صفحة في ٤ أيام تبقى ١٢ في اليوم."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "You must learn 24 new words in 6 days. How many each day? And break ‘make a poster about camels' into three small steps.",
+        "عليك تعلّم ٢٤ كلمة جديدة في ٦ أيام. كم كلمة في اليوم؟ وفكِّك «اصنع ملصقاً عن الإبل» إلى ثلاث خطوات صغيرة."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Split the big job into small ones, put them in order, and finish one at a time — dividing tells you exactly how much today's piece is.",
+        "قسّم العمل الكبير إلى أعمال صغيرة، ورتّبها، وأنهِ واحدة في كل مرّة — والقسمة تخبرك بالضبط كم نصيب اليوم."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "problem-solving-3": PROBLEM_SOLVING_3,
   "entrepreneurship-8": ENTREPRENEURSHIP_8,
   "emotional-intelligence-6": EQ_6,
   "languages-6": LANGUAGES_6,
