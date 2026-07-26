@@ -2732,7 +2732,105 @@ const ENTREPRENEURSHIP_2: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Problem Solving · Year 10 · The Solver's Toolkit ----
+const PROBLEM_SOLVING_10: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Estimate the size before you propose anything", "قدّر الحجم قبل أن تقترح شيئاً"),
+    paras: [
+      bi(
+        "Ten years of tools come down to one habit: **find out how big the problem is before choosing a solution**. Is this a thousand-litre problem or a million-litre one? The answer decides whether the right move is a poster campaign or new plumbing.",
+        "تتلخّص أدوات عشر سنوات في عادة واحدة: **اعرف حجم المشكلة قبل أن تختار الحل**. أهي مشكلة ألف لتر أم مليون لتر؟ فالجواب يقرّر أالحلُّ حملةُ ملصقات أم سباكةٌ جديدة."
+      ),
+      bi(
+        "You almost never have exact data, and waiting for it is its own failure. So estimate deliberately: pick numbers you can defend, do the arithmetic, and **say out loud which numbers you guessed** — an estimate you can argue with beats a certainty nobody checked.",
+        "ونادراً ما تملك بيانات دقيقة، وانتظارها فشلٌ بذاته. فقدّر عن قصد: اختر أرقاماً تستطيع الدفاع عنها، وأجرِ الحساب، و**قل جهراً أي الأرقام خمّنتها** — فتقديرٌ يمكن مجادلته خير من يقينٍ لم يراجعه أحد."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Testing a proposal before you build it", "اختبار المقترح قبل بنائه"),
+    flow: [
+      { text: bi("Estimate the size", "قدّر الحجم"), tone: "force" },
+      { text: bi("Find the leverage point", "جِد نقطة الرافعة"), tone: "mass" },
+      { text: bi("Test it small", "اختبره صغيراً"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Proposal", "المقترح"), bi("What it quietly assumes", "ما يفترضه ضمناً"), bi("Cheap test", "اختبار رخيص")],
+      rows: [
+        [bi("An awareness campaign", "حملة توعية"), bi("People know but don't care", "الناس يعرفون ولا يبالون"), bi("Ask ten people what they already know", "اسأل عشرة عمّا يعرفونه")],
+        [bi("New equipment", "معدّات جديدة"), bi("The old equipment is the cause", "المعدّات القديمة هي السبب"), bi("Measure one week before changing anything", "قِس أسبوعاً قبل تغيير شيء")],
+        [bi("A new rule", "قاعدة جديدة"), bi("Someone will enforce it", "أن أحداً سيطبّقها"), bi("Name that person before proposing it", "سمِّ ذلك الشخص قبل الاقتراح")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Scale first, then leverage", "الحجم أولاً ثم الرافعة"),
+    paras: [
+      bi(
+        "An **order-of-magnitude estimate** answers ‘roughly how big?' from numbers you can justify — not to be exact, but to rule things out. A total is usually people × rate × time; the saving is that total times the fraction your idea removes:",
+        "**تقدير رتبة المقدار** يجيب عن «كم تقريباً؟» بأرقام تستطيع تبريرها — لا ليكون دقيقاً بل ليستبعد الاحتمالات. والإجمالي غالباً عدد × معدّل × زمن، والتوفير هو ذلك الإجمالي مضروباً في النسبة التي تزيلها فكرتك:"
+      ),
+      bi(
+        "The **leverage point** is where a small change moves a large number — and you find it by comparing savings per unit of effort, not by which idea sounds most impressive.",
+        "و**نقطة الرافعة** حيث يحرّك تغييرٌ صغير رقماً كبيراً — وتجدها بمقارنة التوفير لكل وحدة جهد، لا باختيار الفكرة الأكثر إبهاراً."
+      ),
+    ],
+    math: [
+      "\\text{total} = \\text{people} \\times \\text{rate} \\times \\text{time}",
+      "\\text{saving} = \\text{total} \\times \\text{fraction removed}",
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Water wasted at your school", "الماء المهدور في مدرستك"),
+    paras: [
+      bi(
+        "Say **500 students** each leave a tap running about **2 minutes** a day, and a tap flows roughly **8 litres a minute** (real taps vary — measure yours with a bottle and a timer). Daily total: $500 \\times 2 \\times 8 = \\mathbf{8{,}000}$ litres.",
+        "لنقل إن **٥٠٠ طالب** يترك كلٌّ منهم الصنبور جارياً نحو **دقيقتين** يومياً، وأن الصنبور يعطي نحو **٨ لترات في الدقيقة** (والصنابير تختلف — فقِس صنبورك بقارورة وساعة). الإجمالي اليومي: $500 \\times 2 \\times 8 = \\mathbf{8{,}000}$ لتر."
+      ),
+      bi(
+        "Across a 180-day school year that's about **1.44 million litres**. Now compare two proposals: a poster campaign that might cut 20% ($\\approx 288{,}000$ L) against push-taps that close themselves, cutting perhaps 80% ($\\approx 1.15$ million L).",
+        "وعلى عام دراسي من ١٨٠ يوماً يصير ذلك نحو **١٫٤٤ مليون لتر**. والآن قارن مقترحين: حملة ملصقات قد تخفض ٢٠٪ ($\\approx 288{,}000$ لتر) مقابل صنابير ذاتية الإغلاق تخفض ربما ٨٠٪ ($\\approx 1.15$ مليون لتر)."
+      ),
+      bi(
+        "Every number here is an estimate, and a jury should attack them — that's the point. But the *shape* survives: this is a plumbing problem wearing a behaviour problem's clothes, and no amount of persuasion beats a tap that shuts itself.",
+        "وكل رقم هنا تقدير، وعلى اللجنة أن تهاجمه — وهذا هو المقصود. لكن *الشكل* يصمد: فهذه مشكلة سباكة ترتدي ثوب مشكلة سلوك، ولا يغلب الإقناعُ صنبوراً يُغلق نفسه."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "300 people each idle a car engine 4 minutes a day. Estimate the yearly total in engine-minutes, then name the number you'd measure first to check yourself.",
+        "٣٠٠ شخص يُبقي كلٌّ محرّك سيارته دائراً ٤ دقائق يومياً. قدّر الإجمالي السنوي بدقائق التشغيل، ثم سمِّ الرقم الذي ستقيسه أولاً للتحقّق من نفسك."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Estimate the size with numbers you can defend, name your guesses out loud, then pick the change that saves most per unit of effort — and test it small before you build it.",
+        "قدّر الحجم بأرقام تستطيع الدفاع عنها، وسمِّ تخميناتك جهراً، ثم اختر التغيير الأكثر توفيراً لكل وحدة جهد — واختبره صغيراً قبل أن تبنيه."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "problem-solving-10": PROBLEM_SOLVING_10,
   "entrepreneurship-2": ENTREPRENEURSHIP_2,
   "emotional-intelligence-9": EQ_9,
   "languages-9": LANGUAGES_9,
