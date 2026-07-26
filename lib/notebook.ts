@@ -406,6 +406,99 @@ const PHYSICS_5: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Geography · Year 4 · Water & Weather ----
+const GEOGRAPHY_4: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Water goes in a circle", "الماء يدور في حلقة"),
+    paras: [
+      bi(
+        "The water you drank today is older than the dinosaurs. Earth never makes new water — it just keeps **moving the same water around** in a loop called the **water cycle**.",
+        "الماء الذي شربته اليوم أقدم من الديناصورات. الأرض لا تصنع ماءً جديداً — بل **تُحرّك الماء نفسه** في حلقة تُسمّى **دورة الماء**."
+      ),
+      bi(
+        "The Sun heats the sea and lifts water into the air (**evaporation**). High up it cools into clouds (**condensation**), falls as rain or snow (**precipitation**), and flows back to the sea (**collection**).",
+        "تُسخّن الشمس البحر فترفع الماء إلى الهواء (**تبخّر**). وفي الأعلى يبرد ليصير غيوماً (**تكاثف**)، ثم يهطل مطراً أو ثلجاً (**هطول**)، ويجري عائداً إلى البحر (**تجمّع**)."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("One loop, four stages", "حلقة واحدة، أربع مراحل"),
+    flow: [
+      { text: bi("Evaporation ☀", "تبخّر ☀"), tone: "force" },
+      { text: bi("Condensation ☁", "تكاثف ☁"), tone: "mass" },
+      { text: bi("Precipitation 🌧 → Collection", "هطول 🌧 ← تجمّع"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Stage", "المرحلة"), bi("What happens", "ماذا يحدث"), bi("Where you see it", "أين تراها")],
+      rows: [
+        [bi("Evaporation", "التبخّر"), bi("Liquid → vapour", "سائل ← بخار"), bi("A puddle drying up", "بركة ماء تجفّ")],
+        [bi("Condensation", "التكاثف"), bi("Vapour → droplets", "بخار ← قطرات"), bi("Mist on a cold glass", "ضباب على كوب بارد")],
+        [bi("Precipitation", "الهطول"), bi("Droplets fall", "القطرات تسقط"), bi("Rain, snow, hail", "مطر، ثلج، بَرَد")],
+        [bi("Collection", "التجمّع"), bi("Water gathers", "الماء يتجمّع"), bi("Rivers, wadis, aquifers", "أنهار وأودية ومياه جوفية")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The exact wording exams expect", "الصياغة الدقيقة التي تطلبها الامتحانات"),
+    paras: [
+      bi(
+        "**The water cycle** is the continuous movement of water between the oceans, atmosphere and land, driven by energy from the Sun and by gravity.",
+        "**دورة الماء** هي الحركة المستمرّة للماء بين المحيطات والغلاف الجوي واليابسة، تدفعها طاقة الشمس وقوة الجاذبية."
+      ),
+      bi("Over a long period the water balance of a place is:", "وعلى مدى فترة طويلة، يكون ميزان الماء لمكانٍ ما:"),
+    ],
+    math: ["P = E + R + \\Delta S"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Water where you live", "الماء حيث تعيش"),
+    paras: [
+      bi(
+        "A rooftop in Amman measures 8 m by 5 m. In one storm, 20 mm of rain falls. How much water could the family harvest?",
+        "سطح منزل في عمّان مساحته 8 م × 5 م. في عاصفة واحدة هطل 20 مم من المطر. كم لتراً يمكن أن تجمع العائلة؟"
+      ),
+      bi(
+        "Area $= 8 \\times 5 = 40\\ \\text{m}^2$. Depth $= 20\\ \\text{mm} = 0.02\\ \\text{m}$. Volume $= 40 \\times 0.02 = 0.8\\ \\text{m}^3$.",
+        "المساحة $= 8 \\times 5 = 40\\ \\text{م}^2$. العمق $= 20\\ \\text{مم} = 0.02\\ \\text{م}$. الحجم $= 40 \\times 0.02 = 0.8\\ \\text{م}^3$."
+      ),
+      bi(
+        "Since $1\\ \\text{m}^3 = 1000$ litres, that is **800 litres** from one storm — in a region where every litre counts.",
+        "وبما أن $1\\ \\text{م}^3 = 1000$ لتر، فذلك **800 لتر** من عاصفة واحدة — في منطقة يُحسب فيها كل لتر."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A courtyard is 10 m by 4 m and 15 mm of rain falls. How many litres land on it? (Hint: area × depth, then ×1000.)",
+        "فناء أبعاده 10 م × 4 م وهطل عليه 15 مم من المطر. كم لتراً سقط عليه؟ (تلميح: المساحة × العمق، ثم ×1000.)"
+      ),
+      bi("Try it, then ask the tutor to check your steps.", "جرّبها، ثم اطلب من المعلّم أن يتحقّق من خطواتك."),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "The Sun lifts water, the sky cools it, gravity drops it, and the land returns it — the same water, forever in a loop.",
+        "الشمس ترفع الماء، والسماء تبرّده، والجاذبية تُسقطه، واليابسة تعيده — الماء نفسه، في حلقة لا تنتهي."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
   "physics-10": PHYSICS_10,
   "physics-7": PHYSICS_7,
@@ -413,6 +506,7 @@ const FLAGSHIPS: Record<string, NoteCard[]> = {
   "math-7": MATH_7,
   "math-4": MATH_4,
   "math-3": MATH_3,
+  "geography-4": GEOGRAPHY_4,
 };
 
 // Auto-generated deck for every other lesson — built from the year's focus and
