@@ -1896,7 +1896,101 @@ const PROBLEM_SOLVING_3: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Gaming · Year 8 · Scripting & Logic ----
+const GAMING_8: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("The game doesn't know anything you didn't store", "لا تعرف اللعبة شيئاً لم تخزّنه أنت"),
+    paras: [
+      bi(
+        "A game has no memory of its own. If the score is to survive from one frame to the next, *you* must keep it in a **variable** — a labelled box the game can change while it runs.",
+        "لا ذاكرة للعبة من تلقاء نفسها. فإن أردت للنقاط أن تبقى من إطار إلى الذي يليه، فعليك *أنت* حفظها في **متغيّر** — صندوق مُعنوَن تستطيع اللعبة تغييره أثناء تشغيلها."
+      ),
+      bi(
+        "Everything else is three moves on those boxes: **change** them (`score = score + 1`), **ask** about them (`if health <= 0`), and **repeat** something (`spawn one enemy every 2 seconds`). Every game you've played is those three, layered.",
+        "وكل ما عدا ذلك ثلاث حركات على تلك الصناديق: **التغيير** (`score = score + 1`)، و**السؤال** (`if health <= 0`)، و**التكرار** (`ولّد عدواً كل ثانيتين`). وكل لعبة لعبتها هي هذه الثلاث متراكبة."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Reading a bug backwards from the symptom", "قراءة الخلل رجوعاً من العَرَض"),
+    flow: [
+      { text: bi("Store it in a variable", "خزّنه في متغيّر"), tone: "force" },
+      { text: bi("Ask a condition", "اسأل شرطاً"), tone: "mass" },
+      { text: bi("Repeat with a loop", "كرّر بحلقة"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("What you see", "ما تراه"), bi("Usual cause", "السبب المعتاد"), bi("Where to look", "أين تبحث")],
+      rows: [
+        [bi("Score jumps by 2, not 1", "النقاط تقفز ٢ لا ١"), bi("Two things add on the same touch", "شيئان يضيفان عند اللمسة نفسها"), bi("Both collision handlers", "معالِجا التصادم كلاهما")],
+        [bi("A reward never appears", "المكافأة لا تظهر أبداً"), bi("An earlier condition catches it first", "شرط سابق يلتقطها أولاً"), bi("The order of your if-checks", "ترتيب شروطك")],
+        [bi("Game freezes on start", "اللعبة تتجمّد عند البدء"), bi("A loop with no way out", "حلقة بلا مخرج"), bi("The loop's stop condition", "شرط توقّف الحلقة")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Balancing with numbers, not feelings", "الموازنة بالأرقام لا بالإحساس"),
+    paras: [
+      bi(
+        "Once health and damage are variables, balance becomes arithmetic. The number of hits an enemy survives is its health divided by your damage, **rounded up** — because a final hit that only removes half the remaining health still kills it.",
+        "متى صارت الصحة والضرر متغيّرات، صارت الموازنة حساباً. فعدد الضربات التي يصمدها العدو هو صحّته مقسومة على ضررك **مُقرَّباً للأعلى** — لأن ضربةً أخيرة تزيل نصف ما بقي تقتله أيضاً."
+      ),
+    ],
+    math: [
+      "\\text{hits} = \\left\\lceil \\frac{\\text{health}}{\\text{damage}} \\right\\rceil",
+      "\\text{damage needed} = \\frac{\\text{health}}{\\text{hits you want}}",
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Tuning a boss, then finding the bug", "ضبط زعيم ثم اكتشاف الخلل"),
+    paras: [
+      bi(
+        "Your boss has **100 health**; the sword does **15**. Hits to kill: $\\lceil \\frac{100}{15} \\rceil = \\lceil 6.67 \\rceil = \\mathbf{7}$. Playtesters say the fight drags, and you want it over in **5**: $\\frac{100}{5} = \\mathbf{20}$ damage.",
+        "زعيمك بـ**١٠٠ صحة**، والسيف يُحدث **١٥**. فعدد الضربات: $\\lceil \\frac{100}{15} \\rceil = \\lceil 6.67 \\rceil = \\mathbf{7}$. ويقول المختبرون إن النزال يطول، وتريده في **٥**: $\\frac{100}{5} = \\mathbf{20}$ ضرراً."
+      ),
+      bi(
+        "You raise the damage — and now the victory screen never shows. Your code reads: `if health <= 20 → play hurt sound`, then `if health <= 0 → win`. At 20 damage the boss lands on exactly 0 and the *first* condition catches it.",
+        "فترفع الضرر — ولا تظهر شاشة الفوز بعدها أبداً. إذ يقول كودك: `if health <= 20 → شغّل صوت الإصابة`، ثم `if health <= 0 → فوز`. وعند ضرر ٢٠ يهبط الزعيم إلى الصفر بالضبط فيلتقطه الشرط *الأول*."
+      ),
+      bi(
+        "The fix isn't more code — it's **order**. Check the most specific condition first (`health <= 0`), then the general one. Nearly every ‘it just doesn't trigger' bug is a question asked in the wrong order.",
+        "والعلاج ليس مزيداً من الكود بل **الترتيب**. افحص الشرط الأخصّ أولاً (`health <= 0`) ثم الأعمّ. فمعظم أخطاء «لا يعمل ببساطة» سؤالٌ طُرح بترتيب خاطئ."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "An enemy has 45 health and your arrow does 8. How many hits? And why would `if score > 100 → bronze` placed before `if score > 500 → gold` never award gold?",
+        "عدوّ بصحة ٤٥ وسهمك يُحدث ٨. كم ضربة؟ ولماذا لا يمنح `if score > 100 → برونزية` الموضوع قبل `if score > 500 → ذهبية` ذهبيةً أبداً؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Store what must survive in variables, ask the most specific question first, and balance with arithmetic — hits are health over damage, rounded up.",
+        "خزّن ما يجب أن يبقى في متغيّرات، واسأل الشرط الأخصّ أولاً، ووازِن بالحساب — فالضربات هي الصحة على الضرر مُقرَّبةً للأعلى."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "gaming-8": GAMING_8,
   "problem-solving-3": PROBLEM_SOLVING_3,
   "entrepreneurship-8": ENTREPRENEURSHIP_8,
   "emotional-intelligence-6": EQ_6,
