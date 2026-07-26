@@ -599,7 +599,98 @@ const AI_5: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Entrepreneurship · Year 5 · Customers & Value ----
+const ENTREPRENEURSHIP_5: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("People buy a better day", "الناس تشتري يوماً أفضل"),
+    paras: [
+      bi(
+        "Nobody wants a drill — they want a **hole in the wall**. Nobody wants karak tea — they want **five warm minutes before work**. Customers don't buy your product, they hire it to do a **job** for them.",
+        "لا أحد يريد مثقاباً — بل يريد **ثقباً في الجدار**. ولا أحد يريد شاي كرك — بل يريد **خمس دقائق دافئة قبل العمل**. العميل لا يشتري منتجك، بل «يوظّفه» ليؤدّي له **مهمة**."
+      ),
+      bi(
+        "So the first question isn't 'what shall I sell?' — it's **'whose day am I making better, and how much is that worth to them?'**",
+        "لذا فالسؤال الأول ليس «ماذا أبيع؟» بل **«يوم مَن سأجعله أفضل، وكم يساوي ذلك عنده؟»**"
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("From person to promise", "من الشخص إلى الوعد"),
+    flow: [
+      { text: bi("Who? (segment)", "مَن؟ (الشريحة)"), tone: "force" },
+      { text: bi("What job?", "أي مهمة؟"), tone: "mass" },
+      { text: bi("Value promise", "وعد القيمة"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Segment", "الشريحة"), bi("The job they hire you for", "المهمة التي يوظّفونك لها"), bi("What they'll pay for", "ما يدفعون مقابله")],
+      rows: [
+        [bi("Students", "الطلاب"), bi("Cheap, fast, between classes", "رخيص وسريع بين المحاضرات"), bi("Low price", "السعر المنخفض")],
+        [bi("Office workers", "الموظفون"), bi("Reliable morning ritual", "طقس صباحي موثوق"), bi("Speed & consistency", "السرعة والثبات")],
+        [bi("Families", "العائلات"), bi("A treat everyone agrees on", "متعة يتفق عليها الجميع"), bi("Size & comfort", "الحجم والراحة")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The exact wording exams expect", "الصياغة الدقيقة التي تطلبها الامتحانات"),
+    paras: [
+      bi(
+        "A **value proposition** is the specific benefit a customer segment gains, minus what it costs them in money and effort. A **segment** is a group who hire your product for the same job.",
+        "**وعد القيمة** هو المنفعة المحدّدة التي تحصل عليها شريحة من العملاء، مطروحاً منها ما يكلّفهم من مال وجهد. و**الشريحة** مجموعة يوظّفون منتجك للمهمة نفسها."
+      ),
+    ],
+    math: ["\\text{Value} = \\text{Benefit} - (\\text{Price} + \\text{Effort})", "\\text{Profit} = n \\times (\\text{Price} - \\text{Cost})"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("More customers isn't always more money", "العملاء الأكثر ليسوا دائماً مالاً أكثر"),
+    paras: [
+      bi(
+        "You sell karak tea near a university. Each cup costs you **1.5** to make. Students: **40 cups/day at 3**. Office workers: **15 cups/day at 6**.",
+        "تبيع شاي الكرك قرب جامعة. تكلفة الكوب **1.5**. الطلاب: **40 كوباً يومياً بـ3**. الموظفون: **15 كوباً يومياً بـ6**."
+      ),
+      bi(
+        "Students: $40 \\times (3 - 1.5) = 60$. Office workers: $15 \\times (6 - 1.5) = 67.5$.",
+        "الطلاب: $40 \\times (3 - 1.5) = 60$. الموظفون: $15 \\times (6 - 1.5) = 67.5$."
+      ),
+      bi(
+        "The smaller segment earns **more** — because the job they're hiring you for (a reliable morning ritual) is worth more to them. Value beats volume.",
+        "الشريحة الأصغر تربح **أكثر** — لأن المهمة التي يوظّفونك لها (طقس صباحي موثوق) تساوي عندهم أكثر. القيمة تتفوّق على الكمّ."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A third segment: 8 taxi drivers a day who would pay 8 per cup. Same 1.5 cost — what's the daily profit, and does it beat the office workers?",
+        "شريحة ثالثة: 8 سائقي أجرة يومياً يدفعون 8 للكوب. التكلفة نفسها 1.5 — ما الربح اليومي؟ وهل يتفوّق على الموظفين؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Customers hire your product to do a job; find the segment whose job is worth the most, and promise them exactly that.",
+        "العميل يوظّف منتجك لأداء مهمة؛ فابحث عن الشريحة التي تساوي مهمتها الأكثر، وعِدها بذلك تحديداً."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "entrepreneurship-5": ENTREPRENEURSHIP_5,
   "ai-5": AI_5,
   "physics-10": PHYSICS_10,
   "physics-7": PHYSICS_7,
