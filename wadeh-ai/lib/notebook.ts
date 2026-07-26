@@ -2176,7 +2176,102 @@ const MATH_6: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Physics · Year 3 · Light & Sound ----
+const PHYSICS_3: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Light goes straight; sound is a shiver", "الضوء يمضي مستقيماً، والصوت رعشة"),
+    paras: [
+      bi(
+        "Light only travels in **straight lines**. That one fact explains shadows: your body blocks the light, and the dark shape behind you is exactly the part of the wall the light couldn't reach. It's also why you can't see around a corner.",
+        "لا ينتقل الضوء إلا في **خطوط مستقيمة**. وهذه الحقيقة وحدها تفسّر الظلال: جسمك يحجب الضوء، والشكل المعتم خلفك هو تحديداً الجزء الذي لم يبلغه الضوء من الجدار. ولهذا أيضاً لا ترى خلف الزاوية."
+      ),
+      bi(
+        "Sound is different — it's something **shaking**. Put your hand on your throat and hum: that tickle is your voice shaking the air, and the air shakes your friend's eardrum. Stop the shaking and the sound stops instantly.",
+        "أما الصوت فمختلف — إنه شيء **يهتزّ**. ضع يدك على حنجرتك وطنطِن: تلك الدغدغة هي صوتك يهزّ الهواء، والهواء يهزّ طبلة أذن صاحبك. وأوقِف الاهتزاز يتوقّف الصوت فوراً."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("What the shaking decides", "ما الذي يقرّره الاهتزاز"),
+    flow: [
+      { text: bi("Something shakes", "شيء يهتزّ"), tone: "force" },
+      { text: bi("The air carries it", "الهواء ينقله"), tone: "mass" },
+      { text: bi("Your ear feels it", "أذنك تشعر به"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("You hear", "تسمع"), bi("The shaking is…", "الاهتزاز…"), bi("Try it", "جرّبه")],
+      rows: [
+        [bi("A loud sound", "صوتاً عالياً"), bi("Bigger", "أكبر"), bi("Tap the drum harder", "اضرب الطبل أقوى")],
+        [bi("A high squeak", "صريراً حادّاً"), bi("Faster", "أسرع"), bi("Pluck the short, tight string", "انقر الوتر القصير المشدود")],
+        [bi("A deep boom", "دويّاً غليظاً"), bi("Slower", "أبطأ"), bi("Pluck the long, loose string", "انقر الوتر الطويل المرتخي")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Light wins the race", "الضوء يفوز بالسباق"),
+    paras: [
+      bi(
+        "Light is unimaginably fast — it crosses a room before you can think. Sound is slow enough to catch: about **330 metres every second**. That gap is why you *see* lightning first and *hear* thunder after.",
+        "الضوء سريع بما لا يُتخيّل — يعبر الغرفة قبل أن تفكّر. أما الصوت فبطيء بما يكفي لتلحقه: نحو **٣٣٠ متراً كل ثانية**. وهذه الفجوة سبب أنك *ترى* البرق أولاً ثم *تسمع* الرعد."
+      ),
+      bi(
+        "Since 3 seconds of sound is roughly one kilometre, you can measure a storm by counting:",
+        "وبما أن ثلاث ثوانٍ من الصوت نحو كيلومتر واحد، فتستطيع قياس بُعد العاصفة بالعدّ:"
+      ),
+    ],
+    math: ["\\text{distance in km} \\approx \\frac{\\text{seconds counted}}{3}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("How far away is the storm?", "كم تبعد العاصفة؟"),
+    paras: [
+      bi(
+        "You see a flash of lightning. You count slowly — one, two, three… — and the thunder arrives on **9**. Divide: $\\frac{9}{3} = \\mathbf{3}$ kilometres away.",
+        "ترى وميض برق. فتعدّ ببطء — واحد، اثنان، ثلاثة… — ويصل الرعد عند **٩**. اقسم: $\\frac{9}{3} = \\mathbf{3}$ كيلومترات."
+      ),
+      bi(
+        "A few minutes later the next flash comes and thunder arrives on **3** — that's $\\frac{3}{3} = 1$ km. The storm is **coming closer**, and you knew it just by counting.",
+        "وبعد دقائق يأتي الوميض التالي ويصل الرعد عند **٣** — أي $\\frac{3}{3} = 1$ كيلومتر. فالعاصفة **تقترب**، وعرفت ذلك بالعدّ وحده."
+      ),
+      bi(
+        "The lightning and the thunder happened at the *same moment*. Only the messengers travel at different speeds.",
+        "والبرق والرعد حدثا في *اللحظة نفسها*. وإنما يختلف رسولاهما في السرعة."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "You count 12 seconds after a flash — how far is the storm? And is your shadow longer when the torch is close to you or far away? Try it and see.",
+        "عددتَ ١٢ ثانية بعد الوميض — فكم تبعد العاصفة؟ وهل يطول ظلّك حين يقترب المصباح منك أم حين يبتعد؟ جرّب وانظر."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Light travels straight and arrives at once, so shadows are the light's missing shape; sound is shaking that takes about 3 seconds to cross a kilometre.",
+        "الضوء يمضي مستقيماً ويصل فوراً، فالظلال هي شكل الضوء الغائب؛ والصوت اهتزاز يستغرق نحو ثلاث ثوانٍ ليقطع كيلومتراً."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "physics-3": PHYSICS_3,
   "math-6": MATH_6,
   "leadership-9": LEADERSHIP_9,
   "gaming-8": GAMING_8,
