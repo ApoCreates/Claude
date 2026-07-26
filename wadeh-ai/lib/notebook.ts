@@ -3377,7 +3377,98 @@ const AI_2: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Languages · Year 1 · Sounds & First Words ----
+const LANGUAGES_1: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("A language is a music before it is a lesson", "اللغة موسيقى قبل أن تكون درساً"),
+    paras: [
+      bi(
+        "Before you knew a single rule, you learned to speak by **copying sounds** you heard. That is still how it works. A new language isn't a wall of words — it's a new tune your mouth can learn to hum.",
+        "قبل أن تعرف قاعدة واحدة تعلّمت الكلام بـ**تقليد الأصوات** التي سمعتها. وهكذا يجري الأمر إلى اليوم. فاللغة الجديدة ليست جداراً من الكلمات، بل لحنٌ جديد يستطيع فمك أن يتعلّم ترديده."
+      ),
+      bi(
+        "So start with the words people actually say to each other every day: **hello, thank you, please, my name is…**. Say one of them to a real person and something wonderful happens — they answer, and you understood.",
+        "فابدأ بالكلمات التي يقولها الناس فعلاً كل يوم: **مرحباً، شكراً، من فضلك، اسمي…**. وقل واحدة منها لشخص حقيقي فيحدث أمر جميل — يجيبك، وتكون قد فهمت."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Hello around the world", "مرحباً حول العالم"),
+    flow: [
+      { text: bi("Listen carefully", "استمع جيداً"), tone: "force" },
+      { text: bi("Copy the sound", "قلّد الصوت"), tone: "mass" },
+      { text: bi("Say it to someone", "وقُلها لأحد"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Language", "اللغة"), bi("Hello", "مرحباً"), bi("It sounds like", "يُلفظ")],
+      rows: [
+        [bi("English", "الإنجليزية"), bi("Hello", "Hello"), bi("heh-LOH", "هِلـ‍وْ")],
+        [bi("French", "الفرنسية"), bi("Bonjour", "Bonjour"), bi("bon-ZHOOR", "بونجور")],
+        [bi("Swahili", "السواحيلية"), bi("Jambo", "Jambo"), bi("JAM-bo", "جامبو")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("A few words every day", "كلمات قليلة كل يوم"),
+    paras: [
+      bi(
+        "Nobody learns a language in one afternoon, and nobody needs to. **A few words every day** beats a hundred words once, because your brain keeps what it meets again and again. To see how fast it adds up, multiply:",
+        "لا أحد يتعلّم لغة في عصر واحد، ولا حاجة إلى ذلك. **كلمات قليلة كل يوم** تتفوّق على مئة كلمة مرّة واحدة، لأن عقلك يحتفظ بما يلقاه مراراً. ولترى كم تتراكم بسرعة، اضرب:"
+      ),
+    ],
+    math: ["\\text{words} = \\text{words each day} \\times \\text{days}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Two words a day", "كلمتان كل يوم"),
+    paras: [
+      bi(
+        "Learn just **2 words a day** for one week. Count in twos: 2, 4, 6, 8, 10, 12, 14 — that's $2 \\times 7 = \\mathbf{14}$ words, more than the days in the week!",
+        "تعلّم **كلمتين فقط كل يوم** لأسبوع واحد. عُدّ بالاثنينات: ٢، ٤، ٦، ٨، ١٠، ١٢، ١٤ — أي $2 \\times 7 = \\mathbf{14}$ كلمة، أكثر من أيام الأسبوع!"
+      ),
+      bi(
+        "And here is the trick that makes them stick: **put them in a song**. A tune carries words along with it — that's why you can sing a whole rhyme you never sat down to memorise.",
+        "وإليك الحيلة التي تُثبّتها: **ضعها في أغنية**. فاللحن يحمل الكلمات معه — ولهذا تستطيع إنشاد نشيد كامل لم تجلس لحفظه قط."
+      ),
+      bi(
+        "Try it: sing your two new words to a tune you already know, then teach them to someone at home. Teaching a word is the fastest way to keep it.",
+        "جرّب: غنِّ كلمتيك الجديدتين على لحن تعرفه، ثم علّمهما أحداً في البيت. فتعليم الكلمة أسرع طريقة للاحتفاظ بها."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "If you learn 3 words a day for 5 days, how many words is that? And say ‘hello' out loud in two languages that aren't your own.",
+        "إن تعلّمت ٣ كلمات يومياً لخمسة أيام، فكم كلمة؟ وقل «مرحباً» بصوت عالٍ بلغتين غير لغتك."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Copy the sounds first, start with the words people say every day, learn a few each day rather than many at once — and sing them so they stay.",
+        "قلّد الأصوات أولاً، وابدأ بالكلمات التي يقولها الناس كل يوم، وتعلّم قليلاً كل يوم لا كثيراً دفعةً واحدة — وغنِّها لتبقى."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "languages-1": LANGUAGES_1,
   "ai-2": AI_2,
   "geography-2": GEOGRAPHY_2,
   "physics-1": PHYSICS_1,
