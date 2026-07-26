@@ -689,7 +689,104 @@ const ENTREPRENEURSHIP_5: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Emotional Intelligence · Year 3 · Understanding Others ----
+// Note: no KaTeX here on purpose — forcing an equation into empathy would be
+// bad teaching. The "formal definition" card carries precise vocabulary instead.
+const EQ_3: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Two steps, always in order", "خطوتان، بهذا الترتيب دائماً"),
+    paras: [
+      bi(
+        "Empathy has two steps, and most people skip the first. **Step 1: notice** — the face, the voice, the shoulders, the words. **Step 2: imagine** — what would make *me* look like that?",
+        "للتعاطف خطوتان، ويتخطّى معظم الناس الأولى. **الخطوة ١: لاحِظ** — الوجه والنبرة والكتفين والكلمات. **الخطوة ٢: تخيّل** — ما الذي قد يجعلني *أنا* أبدو هكذا؟"
+      ),
+      bi(
+        "Empathy is **not** agreeing, and it is **not** fixing. You can understand someone completely and still disagree — understanding first is what makes the disagreement kind.",
+        "التعاطف **ليس** موافقةً، و**ليس** إصلاحاً. يمكنك أن تفهم شخصاً تماماً وتظلّ مختلفاً معه — والفهم أولاً هو ما يجعل الاختلاف لطيفاً."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Where the clues hide", "أين تختبئ الإشارات"),
+    flow: [
+      { text: bi("Notice the clues", "لاحِظ الإشارات"), tone: "force" },
+      { text: bi("Imagine their world", "تخيّل عالمهم"), tone: "mass" },
+      { text: bi("Respond, don't fix", "استجب ولا تُصلح"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Clue", "الإشارة"), bi("What to look for", "ما تبحث عنه"), bi("Might mean", "قد تعني")],
+      rows: [
+        [bi("Face", "الوجه"), bi("Eyes down, tight mouth", "عينان للأسفل، فم مشدود"), bi("Sad or ashamed", "حزن أو خجل")],
+        [bi("Voice", "النبرة"), bi("Quieter or sharper than usual", "أهدأ أو أحدّ من المعتاد"), bi("Tired or angry", "تعب أو غضب")],
+        [bi("Body", "الجسد"), bi("Turned away, arms closed", "مُدار بعيداً، ذراعان مغلقتان"), bi("Wants space", "يريد مساحة")],
+        [bi("Words", "الكلمات"), bi("‘I'm fine’ said fast", "«أنا بخير» بسرعة"), bi("Often the opposite", "غالباً العكس")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Three words people mix up", "ثلاث كلمات يخلط بينها الناس"),
+    paras: [
+      bi(
+        "**Cognitive empathy** — understanding what someone thinks. **Emotional empathy** — feeling something of what they feel. **Compassion** — empathy plus the wish to help.",
+        "**التعاطف المعرفي** — أن تفهم ما يفكّر فيه الآخر. **التعاطف الوجداني** — أن تشعر بشيء ممّا يشعر به. **الرحمة** — تعاطف تصحبه رغبة في المساعدة."
+      ),
+      bi(
+        "You need all three: understanding without feeling is cold, feeling without action is just sadness.",
+        "تحتاج الثلاثة معاً: الفهم بلا شعور بارد، والشعور بلا فعل مجرّد حزن."
+      ),
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("One real moment, step by step", "لحظة حقيقية، خطوة بخطوة"),
+    paras: [
+      bi(
+        "At a family gathering, your cousin who always jokes sits alone at the edge of the majlis, phone down, not eating.",
+        "في لمّة عائلية، ابن عمّك الذي يمزح دائماً يجلس وحده على طرف المجلس، هاتفه مقلوب، ولا يأكل."
+      ),
+      bi(
+        "**Notice:** three clues — alone (unusual for him), phone down, not eating. **Imagine:** what makes *me* go quiet in a crowd? Bad news, or being told off before arriving.",
+        "**لاحِظ:** ثلاث إشارات — وحده (غير معتاد منه)، الهاتف مقلوب، لا يأكل. **تخيّل:** ما الذي يجعلني *أنا* أصمت وسط الناس؟ خبر سيّئ، أو عتاب قبل الحضور."
+      ),
+      bi(
+        "**Respond, don't fix:** don't say 'cheer up!' Sit beside him and say, *'You're quiet today — want company, or want me to leave you a bit?'* You gave him back the choice.",
+        "**استجب ولا تُصلح:** لا تقل «ابتهج!». اجلس بجانبه وقل: *«أنت هادئ اليوم — تريد رفقة أم أتركك قليلاً؟»* لقد أعدت إليه حقّ الاختيار."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "Your friend says 'I'm fine' but says it fast and won't look at you. Which two clues did you notice — and what's one sentence that gives them the choice?",
+        "يقول صديقك «أنا بخير» لكن بسرعة ودون أن ينظر إليك. ما الإشارتان اللتان لاحظتهما — وما الجملة التي تمنحه حقّ الاختيار؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Empathy is noticing the clues, then imagining the world behind them — understand first, and never rush to fix.",
+        "التعاطف أن تلاحظ الإشارات ثم تتخيّل العالم خلفها — افهم أولاً، ولا تتعجّل الإصلاح."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "emotional-intelligence-3": EQ_3,
   "entrepreneurship-5": ENTREPRENEURSHIP_5,
   "ai-5": AI_5,
   "physics-10": PHYSICS_10,
