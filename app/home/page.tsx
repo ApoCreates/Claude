@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePrefs } from "@/lib/prefs";
 import { t, PRICING } from "@/lib/i18n";
 import { SUBJECTS, ROMAN } from "@/lib/curriculum";
+import { FAMILIES, METHOD_COUNT } from "@/lib/methods";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Guard } from "@/components/Guard";
@@ -144,6 +146,44 @@ function Home() {
                 <p className="mt-4 font-serif text-xl">{m.t}</p>
                 <p className="mt-2 text-sm leading-relaxed text-paper/70">{m.b}</p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* The 150 ways — the method engine */}
+        <section className="border-t border-hairline py-24">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="eyebrow-accent mb-3">{lang === "ar" ? "لا نهاية لطرق التعلّم" : "Infinite ways to learn"}</p>
+              <h2 className="max-w-2xl font-serif text-4xl sm:text-5xl">
+                {lang === "ar"
+                  ? `${METHOD_COUNT} طريقة تجعل الدرس يلتصق`
+                  : `${METHOD_COUNT} ways to make a lesson stick`}
+              </h2>
+            </div>
+            <Link href="/methods" className="btn-paper shrink-0">
+              {lang === "ar" ? "استكشف الطريقة" : "Explore the method"} <span aria-hidden>→</span>
+            </Link>
+          </div>
+          <p className="mt-4 max-w-2xl text-paper/70">
+            {lang === "ar"
+              ? "رسم وغناء وحركة وقصة ولعب وحواس — ننسج في كل حصّة عدة طرق للتعلّم، مبنية على علم التعلّم الحديث، فيجد كل عقل بابه."
+              : "Drawing, singing, movement, story, play, the senses — every class weaves several ways to learn, grounded in modern learning science, so every mind finds its door."}
+          </p>
+          <div className="mt-10 overflow-hidden border border-hairline">
+            <Image src="/art/methods/hero.webp" alt="" width={1400} height={787} className="h-auto w-full" />
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {FAMILIES.map((f, i) => (
+              <Link
+                key={f.key}
+                href={`/methods#${f.key}`}
+                className="card card-hover group p-5"
+              >
+                <p className="font-mono text-xs text-ochre">{String(i + 1).padStart(2, "0")}</p>
+                <p className="mt-3 font-serif text-lg leading-snug group-hover:text-marigold">{f.title[lang]}</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-mute-light">{f.idea[lang]}</p>
+              </Link>
             ))}
           </div>
         </section>

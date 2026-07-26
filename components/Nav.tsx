@@ -17,6 +17,7 @@ export function Nav() {
   const links = [
     { href: "/home", label: d.nav.home },
     { href: "/learn", label: d.nav.curriculum },
+    { href: "/methods", label: lang === "ar" ? "الطريقة" : "Method" },
     { href: "/sprint", label: d.sprint.title },
     { href: "/pricing", label: d.nav.pricing },
   ];

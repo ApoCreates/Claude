@@ -20,6 +20,7 @@ function cardText(card: NoteCard, lang: "en" | "ar"): string {
   const bits: string[] = [card.label[lang]];
   card.paras?.forEach((p) => bits.push(p[lang].replace(/\$[^$]+\$/g, "")));
   card.flow?.forEach((f) => bits.push(f.text[lang]));
+  card.techniques?.forEach((tq) => bits.push(`${tq.name[lang]}: ${tq.blurb[lang]}`));
   return bits.join(". ");
 }
 
@@ -101,6 +102,20 @@ export function StudyNotebook({ subject, level }: { subject: Subject; level: Lev
                       <div key={k} className="flex items-center gap-2">
                         <span className={clsx("border px-3 py-2 text-xs font-medium", TONE[node.tone])}>{node.text[lang]}</span>
                         {k < card.flow!.length - 1 && <span className="text-mute" aria-hidden>→</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {card.techniques && (
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    {card.techniques.map((tq, k) => (
+                      <div key={k} className="flex gap-2.5 border border-hairline bg-ink-panel/60 p-3">
+                        <span className="text-lg leading-none" aria-hidden>{tq.emoji}</span>
+                        <div>
+                          <p className="text-sm font-semibold text-paper/90">{tq.name[lang]}</p>
+                          <p className="mt-0.5 text-xs leading-relaxed text-mute-light">{tq.blurb[lang]}</p>
+                        </div>
                       </div>
                     ))}
                   </div>

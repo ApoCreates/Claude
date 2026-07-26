@@ -11,6 +11,7 @@ import { Footer } from "@/components/Footer";
 import { Guard } from "@/components/Guard";
 import { TutorChat } from "@/components/TutorChat";
 import { StudyNotebook } from "@/components/StudyNotebook";
+import { TakeawaySheet } from "@/components/TakeawaySheet";
 import { QuizArena } from "@/components/QuizArena";
 import { SpeakButton } from "@/components/SpeakButton";
 import { MathLab } from "@/components/MathLab";
@@ -76,15 +77,29 @@ function LevelView({ slug, n }: { slug: string; n: number }) {
               </div>
               <p className="font-serif text-xl leading-relaxed">{level.focus[lang]}</p>
               <div className="mt-6 border-t border-hairline pt-5">
-                <p className="eyebrow mb-4">{d.lesson.units}</p>
-                <ol className="space-y-3">
-                  {level.units.map((u, i) => (
-                    <li key={i} className="flex items-baseline gap-4">
-                      <span className="font-mono text-xs text-ochre">{String(i + 1).padStart(2, "0")}</span>
-                      <span className="text-paper/85">{u[lang]}</span>
-                    </li>
-                  ))}
-                </ol>
+                <p className="eyebrow mb-4">{d.lesson.units} · {lang === "ar" ? "فصلان دراسيان" : "two semesters"}</p>
+                {[0, 1].map((sem) => {
+                  const slice = level.units.slice(sem * 2, sem * 2 + 2);
+                  if (slice.length === 0) return null;
+                  return (
+                    <div key={sem} className={sem === 1 ? "mt-5" : ""}>
+                      <p className="mb-2 font-mono text-[11px] uppercase tracking-label text-marigold">
+                        {lang === "ar" ? `الفصل ${sem === 0 ? "الأول" : "الثاني"}` : `Semester ${sem + 1}`}
+                      </p>
+                      <ol className="space-y-3">
+                        {slice.map((u, i) => (
+                          <li key={i} className="flex items-baseline gap-4">
+                            <span className="font-mono text-xs text-ochre">{String(sem * 2 + i + 1).padStart(2, "0")}</span>
+                            <span className="text-paper/85">{u[lang]}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-6 border-t border-hairline pt-5">
+                <TakeawaySheet subject={subject} level={level} />
               </div>
             </div>
 
