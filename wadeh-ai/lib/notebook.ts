@@ -3287,7 +3287,98 @@ const GEOGRAPHY_2: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: AI · Year 2 · Giving Instructions ----
+const AI_2: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("A machine does what you SAY, not what you mean", "الآلة تفعل ما تقوله لا ما تقصده"),
+    paras: [
+      bi(
+        "Tell a friend ‘make me a sandwich' and they know what you mean. Tell a robot the same and nothing happens — it needs every step: **take the bread, open the jar, spread the jam, close the bread**.",
+        "قل لصديقك «اصنع لي شطيرة» فيفهم قصدك. وقل ذلك لروبوت فلا يحدث شيء — إذ يحتاج كل خطوة: **خذ الخبز، افتح المرطبان، وزّع المربّى، أغلِق الخبز**."
+      ),
+      bi(
+        "A list of steps exact enough for a machine to follow is called an **algorithm**. And machines are painfully honest: if you leave out ‘open the jar', the robot will try to spread jam through a closed lid — and it will be **your instruction** that was wrong, not the robot.",
+        "وقائمة الخطوات الدقيقة بما يكفي لتتبعها آلة تُسمّى **خوارزمية**. والآلات صادقة بشكل مؤلم: فإن أسقطت «افتح المرطبان» حاول الروبوت توزيع المربّى عبر غطاء مغلق — وستكون **تعليمتك** هي الخاطئة لا الروبوت."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Same words, wrong order", "الكلمات نفسها بترتيب خاطئ"),
+    flow: [
+      { text: bi("Say every step", "قل كل خطوة"), tone: "force" },
+      { text: bi("Put them in order", "رتّبها"), tone: "mass" },
+      { text: bi("Test and fix", "اختبر وأصلِح"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("You said", "قلتَ"), bi("The robot did", "فعل الروبوت"), bi("You meant", "قصدتَ")],
+      rows: [
+        [bi("‘Put on your shoes and socks'", "«البس حذاءك وجواربك»"), bi("Shoes first, socks on top", "الحذاء أولاً ثم الجوارب فوقه"), bi("Socks, then shoes", "الجوارب ثم الحذاء")],
+        [bi("‘Walk to the door'", "«امشِ إلى الباب»"), bi("Walked into the table", "اصطدم بالطاولة"), bi("Walk around things", "امشِ متجنّباً الأشياء")],
+        [bi("‘Add sugar'", "«أضف سكراً»"), bi("Poured the whole bag", "سكب الكيس كلّه"), bi("One spoon", "ملعقة واحدة")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Repeating without writing it twice", "التكرار دون كتابته مرّتين"),
+    paras: [
+      bi(
+        "When steps repeat, you don't write them again — you say **‘repeat this N times'**. That's a **loop**, and it saves you from copying the same line over and over. To know how far the robot travels, multiply:",
+        "حين تتكرّر الخطوات فلا تكتبها ثانية، بل تقول **«كرّر هذا N مرّة»**. وهذه **حلقة**، تُغنيك عن نسخ السطر نفسه مراراً. ولتعرف كم يقطع الروبوت، اضرب:"
+      ),
+    ],
+    math: ["\\text{total steps} = \\text{repeats} \\times \\text{steps each time}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Walking a robot round a square", "تسيير روبوت حول مربّع"),
+    paras: [
+      bi(
+        "You want the robot to walk a square. Write it long: forward 3, turn right, forward 3, turn right, forward 3, turn right, forward 3, turn right. Or write it short: **repeat 4 times (forward 3, turn right)**.",
+        "تريد للروبوت أن يمشي مربّعاً. اكتبها طويلة: تقدّم ٣، در يميناً، تقدّم ٣، در يميناً، تقدّم ٣، در يميناً، تقدّم ٣، در يميناً. أو اكتبها قصيرة: **كرّر ٤ مرّات (تقدّم ٣، در يميناً)**."
+      ),
+      bi(
+        "How many steps forward altogether? $4 \\times 3 = \\mathbf{12}$. And notice the loop is much shorter to write — and much easier to change: to make a bigger square you edit **one** number instead of four.",
+        "فكم خطوة إلى الأمام إجمالاً؟ $4 \\times 3 = \\mathbf{12}$. ولاحظ أن الحلقة أقصر كتابةً — وأسهل تعديلاً: فلتكبير المربّع تغيّر **رقماً واحداً** بدل أربعة."
+      ),
+      bi(
+        "Now the bug hunt: if you forget the last ‘turn right', the robot stops facing the wrong way. It followed you perfectly — which is exactly why **finding the bug means re-reading your own instructions**, not blaming the machine.",
+        "والآن مطاردة الخلل: إن نسيت «در يميناً» الأخيرة توقّف الروبوت في اتجاه خاطئ. وقد اتّبعك تماماً — ولهذا بالذات فإن **اكتشاف الخلل يعني إعادة قراءة تعليماتك أنت**، لا لوم الآلة."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "‘Repeat 5 times (forward 2)' — how many steps is that? And write three exact steps for brushing your teeth, in the right order.",
+        "«كرّر ٥ مرّات (تقدّم ٢)» — كم خطوة؟ واكتب ثلاث خطوات دقيقة لتنظيف أسنانك بالترتيب الصحيح."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Machines follow exactly what you wrote, in the order you wrote it — so spell out every step, use a repeat instead of copying, and when it goes wrong re-read your instructions first.",
+        "تتبع الآلات ما كتبته تماماً وبالترتيب الذي كتبته — فبيّن كل خطوة، واستخدم التكرار بدل النسخ، وإذا أخفق فأعد قراءة تعليماتك أولاً."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "ai-2": AI_2,
   "geography-2": GEOGRAPHY_2,
   "physics-1": PHYSICS_1,
   "math-1": MATH_1,
