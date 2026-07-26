@@ -7,6 +7,7 @@ import { withinBudget, recordSpend, estimateCostUsd } from "@/lib/budget";
 import { detectAbuse, civilityReply } from "@/lib/civility";
 import { solveMath } from "@/lib/solver";
 import { findKnowledge, findAdvancedOnly } from "@/lib/knowledge";
+import { askGemini } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -158,6 +159,17 @@ export async function POST(request: Request) {
   const key = cacheKey(req.subject, req.level, req.lang, lastQuestion);
   const cached = getCached(key);
   if (cached) return NextResponse.json({ reply: cached, live: true, source: "cache" });
+
+  //   5) FREE live tier — Google Gemini. Verified working on the free tier, so
+  //      genuinely new questions get a live answer at $0 before we ever pay.
+  //      Falls through silently on quota/error.
+  const gem = await askGemini(systemPrompt(req), req.messages);
+  if (gem) {
+    const { clean, category } = extractModelFlag(gem.reply);
+    if (category) await flag(category, "model", lastQuestion);
+    else setCached(key, clean);
+    return NextResponse.json({ reply: clean, live: true, model: gem.model, source: "gemini" });
+  }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
