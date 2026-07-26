@@ -785,7 +785,98 @@ const EQ_3: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Problem Solving · Year 7 · Deciding with Incomplete Information ----
+const PROBLEM_SOLVING_7: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("You will never have all the facts", "لن تملك كل الحقائق أبداً"),
+    paras: [
+      bi(
+        "Real decisions never wait for complete information. Waiting for certainty **is itself a decision** — usually the worst one, because the chance passes while you wait.",
+        "القرارات الحقيقية لا تنتظر اكتمال المعلومات. وانتظار اليقين **قرار بحدّ ذاته** — وغالباً أسوأ القرارات، لأن الفرصة تمرّ وأنت تنتظر."
+      ),
+      bi(
+        "So good thinkers do two things instead: they **estimate** what they can't measure, and they weigh each outcome by **how likely** it is — not just how big it is.",
+        "لذا يفعل المفكّر الجيّد أمرين: **يقدّر** ما لا يستطيع قياسه، ويزن كل نتيجة بمقدار **احتماليتها** — لا بحجمها فقط."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Weigh it before you choose it", "زِنها قبل أن تختارها"),
+    flow: [
+      { text: bi("List outcomes", "اسرد النتائج"), tone: "force" },
+      { text: bi("How likely? × How big?", "ما احتمالها؟ × ما حجمها؟"), tone: "mass" },
+      { text: bi("Add them up → decide", "اجمعها ← قرّر"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Situation", "الموقف"), bi("Chance", "الاحتمال"), bi("What you gain/lose", "ما تكسب/تخسر")],
+      rows: [
+        [bi("Win the raffle", "تربح السحب"), bi("1 in 200", "١ من ٢٠٠"), bi("+400", "+٤٠٠")],
+        [bi("Don't win", "لا تربح"), bi("199 in 200", "١٩٩ من ٢٠٠"), bi("0", "٠")],
+        [bi("Ticket cost", "ثمن التذكرة"), bi("Certain", "مؤكّد"), bi("−5", "−٥")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The exact wording exams expect", "الصياغة الدقيقة التي تطلبها الامتحانات"),
+    paras: [
+      bi(
+        "**Expected value** is the average result you'd get if you repeated a choice many times: each outcome's value multiplied by its probability, all added together.",
+        "**القيمة المتوقّعة** هي متوسّط النتيجة لو كرّرت الاختيار مرات كثيرة: قيمة كل نتيجة مضروبة في احتمالها، ثم تُجمع كلها."
+      ),
+    ],
+    math: ["E = \\sum_{i} p_i \\times v_i", "E_{\\text{ticket}} = \\left(\\tfrac{1}{200} \\times 400\\right) - 5"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("The same raffle, from two sides", "السحب نفسه من طرفين"),
+    paras: [
+      bi(
+        "Your school club sells **200 raffle tickets at 5** each, with one prize worth **400**. Should you buy a ticket — and should the club run it?",
+        "يبيع نادي مدرستك **200 تذكرة بـ5** لكل منها، والجائزة الوحيدة قيمتها **400**. هل تشتري تذكرة؟ وهل يُجري النادي السحب؟"
+      ),
+      bi(
+        "**As a buyer:** $E = \\frac{1}{200}\\times 400 - 5 = 2 - 5 = -3$. On average each ticket **loses 3**.",
+        "**كمشترٍ:** $E = \\frac{1}{200}\\times 400 - 5 = 2 - 5 = -3$. أي أن كل تذكرة **تخسر 3** في المتوسّط."
+      ),
+      bi(
+        "**As the club:** $200 \\times 5 - 400 = 600$ raised. Both answers are correct at once — which is the real lesson: *whose* expected value you compute changes the decision.",
+        "**كالنادي:** $200 \\times 5 - 400 = 600$ محصّلة. والإجابتان صحيحتان معاً — وهذا هو الدرس الحقيقي: *لمن* تحسب القيمة المتوقّعة يغيّر القرار."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "If the prize rose to 1200 with the same 200 tickets at 5, what is a buyer's expected value now — and does the club still raise money?",
+        "لو ارتفعت الجائزة إلى 1200 مع 200 تذكرة بـ5، فما القيمة المتوقّعة للمشتري الآن — وهل يظلّ النادي رابحاً؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Don't wait for certainty — estimate what you can't measure, weigh each outcome by its chance, and remember the answer depends on whose side you're computing.",
+        "لا تنتظر اليقين — قدّر ما لا تستطيع قياسه، وزِن كل نتيجة باحتمالها، وتذكّر أن الإجابة تتغيّر بحسب الطرف الذي تحسب له."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "problem-solving-7": PROBLEM_SOLVING_7,
   "emotional-intelligence-3": EQ_3,
   "entrepreneurship-5": ENTREPRENEURSHIP_5,
   "ai-5": AI_5,

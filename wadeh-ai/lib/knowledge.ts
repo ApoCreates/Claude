@@ -92,8 +92,18 @@ const BANK: Record<string, KEntry[]> = {
     e(6, ["what is leadership", "what makes a good leader", "ما هي القيادة", "صفات القائد"], "Leadership is **helping a group reach a goal together**. Good leaders listen before deciding, share the credit, and stay calm when things go wrong.", "القيادة **مساعدة مجموعة على بلوغ هدف معاً**. القائد الجيّد يستمع قبل أن يقرّر، ويشارك الفضل، ويبقى هادئاً عند الشدائد."),
   ],
   "problem-solving": [
+    // Levels follow lib/levels/problem-solving.ts: Y1 Puzzles & Curiosity ·
+    // Y2 Asking Good Questions · Y3 Step by Step · Y4 Creative Thinking ·
+    // Y5 Logic & Clues · Y6 Systems & Loops · Y7 Deciding with Incomplete
+    // Information · Y8 Experiments & Iteration · Y9 Solving Together ·
+    // Y10 The Solver's Toolkit.
+    e(2, ["what is a good question", "how to ask better questions", "السؤال الجيد", "كيف أسأل"], "A good question is **open and specific**: not ‘is this wrong?’ but ‘what exactly happens between step 2 and step 3?’ Questions that can be answered yes/no rarely teach you much.", "السؤال الجيّد **مفتوح ومحدّد**: ليس «هل هذا خطأ؟» بل «ما الذي يحدث تحديداً بين الخطوة ٢ والخطوة ٣؟». والأسئلة التي تُجاب بنعم/لا نادراً ما تعلّمك الكثير."),
     e(3, ["how do i solve a problem", "problem solving steps", "كيف احل مشكلة", "خطوات حل المشكلة"], "Four steps: **Understand** it in your own words → **Plan** a strategy → **Do** it step by step → **Check** the answer makes sense. If not, try another plan.", "أربع خطوات: **افهمها** بكلماتك ← **خطّط** لاستراتيجية ← **نفّذ** خطوة بخطوة ← **تحقّق** من منطقية الإجابة. وإن لم تكن، جرّب خطة أخرى."),
-    e(7, ["what is breaking down a problem", "decompose problem", "تجزئة المشكلة"], "Break a big problem into **smaller pieces you can solve one at a time**. Solve each piece, then combine — it turns ‘impossible’ into a list of ‘doable’.", "جزّئ المشكلة الكبيرة إلى **قطع أصغر تحلّها واحدة تلو الأخرى**. حُلّ كل قطعة ثم اجمعها — يحوّل «المستحيل» إلى قائمة «ممكن»."),
+    // Decomposition belongs with "Step by Step" (Y3), not Y7.
+    e(3, ["what is breaking down a problem", "decompose problem", "تجزئة المشكلة"], "Break a big problem into **smaller pieces you can solve one at a time**. Solve each piece, then combine — it turns ‘impossible’ into a list of ‘doable’.", "جزّئ المشكلة الكبيرة إلى **قطع أصغر تحلّها واحدة تلو الأخرى**. حُلّ كل قطعة ثم اجمعها — يحوّل «المستحيل» إلى قائمة «ممكن»."),
+    e(6, ["what is a feedback loop", "what is a system", "حلقة التغذية الراجعة", "ما هو النظام"], "A system is parts that affect each other. In a **feedback loop** the output comes back as input — like a thermostat: too cold turns the heat on, warmth turns it off. Find the loop and you can change the behaviour.", "النظام أجزاء يؤثّر بعضها في بعض. وفي **حلقة التغذية الراجعة** يعود الناتج مُدخلاً — كمنظّم الحرارة: البرد يُشغّل التدفئة والدفء يُطفئها. اكتشف الحلقة تستطع تغيير السلوك."),
+    e(7, ["what is expected value", "how do i decide without enough information", "القيمة المتوقعة", "كيف أقرر بمعلومات ناقصة"], "Weigh each outcome by **how likely** it is, not just how big: expected value = each result × its probability, all added. It's why a rare huge prize can still be a bad bet.", "زِن كل نتيجة بمقدار **احتماليتها** لا بحجمها فقط: القيمة المتوقّعة = كل نتيجة × احتمالها، ثم تُجمع. ولهذا قد تكون جائزة ضخمة نادرة رهاناً سيّئاً."),
+    e(8, ["what is iteration", "trial and error", "التكرار", "التجريب"], "Iteration means trying a small version, seeing what happens, and improving — on purpose. The goal of the first attempt isn't to succeed, it's to **learn the fastest thing you didn't know**.", "التكرار أن تجرّب نسخة صغيرة، وترى ما يحدث، ثم تحسّن — عن قصد. وهدف المحاولة الأولى ليس النجاح، بل **أن تتعلّم أسرع ما كنت تجهله**."),
   ],
   "emotional-intelligence": [
     // Levels follow lib/levels/emotional-intelligence.ts: Y1 Naming Feelings ·
