@@ -1712,7 +1712,102 @@ const EQ_6: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Entrepreneurship · Year 8 · Pitching & Storytelling ----
+const ENTREPRENEURSHIP_8: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Nobody buys a product; they buy a changed situation", "لا أحد يشتري منتجاً، بل يشتري وضعاً تغيّر"),
+    paras: [
+      bi(
+        "A weak pitch describes what you built. A strong one describes **someone's day before and after**: right now Salma queues twenty minutes for a bus that may not come; with this, her phone tells her to leave at 7:14.",
+        "العرض الضعيف يصف ما بنيتَه. أما القوي فيصف **يوم إنسان قبل وبعد**: سلمى الآن تنتظر عشرين دقيقة حافلةً قد لا تأتي؛ ومع هذا يخبرها هاتفها أن تخرج في السابعة و١٤ دقيقة."
+      ),
+      bi(
+        "Then comes the part beginners skip: **proof**. Not ‘people will love it', but what actually happened when real people tried it — how many, how often, what they said. A story without evidence is a wish.",
+        "ثم يأتي ما يتخطّاه المبتدئون: **الدليل**. لا «سيحبّه الناس»، بل ما حدث فعلاً حين جرّبه أناس حقيقيون — كم عددهم، وكم مرّة، وماذا قالوا. فالقصة بلا دليل أمنية."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("What the hard question is really asking", "ما الذي يسأل عنه السؤال الصعب فعلاً"),
+    flow: [
+      { text: bi("Whose problem, exactly", "مشكلة مَن بالتحديد"), tone: "force" },
+      { text: bi("What changes for them", "ما الذي يتغيّر لهم"), tone: "mass" },
+      { text: bi("Proof it already worked", "دليل أنه نجح فعلاً"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("They ask", "يسألون"), bi("They mean", "يقصدون"), bi("Answer with", "أجب بـ")],
+      rows: [
+        [bi("‘How big is the market?'", "«كم حجم السوق؟»"), bi("Can you actually reach anyone?", "أتستطيع الوصول إلى أحد فعلاً؟"), bi("Your reachable number, not the population", "عددك القابل للوصول لا عدد السكان")],
+        [bi("‘What if someone copies you?'", "«ماذا لو نسخك أحد؟»"), bi("What do you have that they don't?", "ماذا تملك ولا يملكون؟"), bi("A head start you can name", "سبقٌ تستطيع تسميته")],
+        [bi("‘Why hasn't this been done?'", "«لماذا لم يُفعل هذا؟»"), bi("Do you know your own field?", "أتعرف مجالك؟"), bi("Who tried, and what changed since", "من حاول، وما الذي تغيّر منذ ذلك")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The reachable number", "العدد القابل للوصول"),
+    paras: [
+      bi(
+        "The fastest way to lose a room is to open with ‘there are two billion people who…'. Nobody sells to a population. What matters is how many you can **reach** and how many of those will **act**:",
+        "أسرع طريقة لخسارة القاعة أن تبدأ بـ«هناك ملياران من الناس…». فلا أحد يبيع لسكّان. والمهم كم تستطيع **الوصول** إليهم وكم منهم **سيتحرّك**:"
+      ),
+      bi(
+        "Small and defensible beats large and imaginary — a judge trusts 250 real customers over two billion theoretical ones.",
+        "والصغير القابل للدفاع عنه يتفوّق على الكبير المتخيَّل — فالمحكّم يثق بـ٢٥٠ عميلاً حقيقياً أكثر من ملياري عميل نظري."
+      ),
+    ],
+    math: ["\\text{customers} = \\text{market} \\times \\text{reach} \\times \\text{conversion}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Two ways to answer ‘how big is this?'", "طريقتان للإجابة عن «كم حجم هذا؟»"),
+    paras: [
+      bi(
+        "Your city has **50,000 students**. Through school groups and two teachers who like the idea, you can realistically reach **10%** of them — 5,000. Of those who see it, about **5%** sign up.",
+        "في مدينتك **٥٠٬٠٠٠ طالب**. وعبر مجموعات المدارس ومعلّمَين أعجبتهما الفكرة تستطيع واقعياً الوصول إلى **١٠٪** منهم — أي ٥٬٠٠٠. ومن يراها يشترك منهم نحو **٥٪**."
+      ),
+      bi(
+        "$50{,}000 \\times 0.10 \\times 0.05 = \\mathbf{250}$ customers in year one. At 15 AED a month that's $250 \\times 15 = 3{,}750$ AED monthly — a real, checkable number.",
+        "$50{,}000 \\times 0.10 \\times 0.05 = \\mathbf{250}$ عميل في السنة الأولى. وبـ١٥ درهماً شهرياً يكون $250 \\times 15 = 3{,}750$ درهماً شهرياً — رقم حقيقي قابل للتحقّق."
+      ),
+      bi(
+        "Say that instead of ‘the education market is worth billions'. The second sentence tells the room you've never spoken to a customer; the first tells them exactly which 250 doors you'll knock on.",
+        "قل هذا بدل «سوق التعليم يساوي المليارات». فالجملة الثانية تخبر القاعة أنك لم تكلّم عميلاً قط، والأولى تخبرهم أي ٢٥٠ باباً ستطرق."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A neighbourhood has 8,000 households; you can reach 25% and 4% would buy. How many customers? And rewrite ‘my app is easy to use' as a before-and-after for one named person.",
+        "حيّ فيه ٨٬٠٠٠ أسرة؛ تصل إلى ٢٥٪ ويشتري ٤٪. كم عميلاً؟ وأعد صياغة «تطبيقي سهل الاستخدام» في صورة قبل وبعد لشخص واحد باسمه."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Tell one person's before-and-after, back it with what really happened when people tried it, and quote the number you can reach — never the population.",
+        "احكِ «قبل وبعد» لشخص واحد، وادعمها بما حدث فعلاً حين جرّبها الناس، واذكر العدد الذي تستطيع بلوغه — لا عدد السكان."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "entrepreneurship-8": ENTREPRENEURSHIP_8,
   "emotional-intelligence-6": EQ_6,
   "languages-6": LANGUAGES_6,
   "ai-8": AI_8,
