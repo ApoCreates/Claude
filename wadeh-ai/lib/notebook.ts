@@ -1622,7 +1622,98 @@ const LANGUAGES_6: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Emotional Intelligence · Year 6 · Stress & Resilience ----
+const EQ_6: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Stress isn't the enemy — never switching it off is", "التوتر ليس العدو، بل ألا ينطفئ أبداً"),
+    paras: [
+      bi(
+        "Before an exam your heart speeds up, your hands go cold, your stomach tightens. That isn't you failing — it's your body **preparing**: pushing blood to the muscles and sharpening attention for something that matters.",
+        "قبل الامتحان يتسارع قلبك، وتبرد يداك، وتنقبض معدتك. ليس هذا فشلاً منك، بل جسدك **يستعدّ**: يدفع الدم إلى العضلات ويشحذ الانتباه لأمر يهمّك."
+      ),
+      bi(
+        "Short bursts of that are useful — they sharpen you. The damage comes when the switch never flips back: weeks of alertness with no recovery, which is when sleep, mood and memory all start to slip.",
+        "ونوبات قصيرة منه نافعة تشحذك. أما الضرر فحين لا يعود المفتاح إلى وضعه: أسابيع من التأهّب دون تعافٍ، وعندها يبدأ النوم والمزاج والذاكرة بالانزلاق."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("What the signal is asking for", "ما الذي تطلبه الإشارة"),
+    flow: [
+      { text: bi("Notice the body signal", "لاحِظ إشارة الجسد"), tone: "force" },
+      { text: bi("Name the worry out loud", "سمِّ القلق بصوت مسموع"), tone: "mass" },
+      { text: bi("Do the one next thing", "افعل الخطوة التالية الواحدة"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("What you feel", "ما تشعر به"), bi("What it usually means", "ما يعنيه عادةً"), bi("What actually helps", "ما ينفع فعلاً")],
+      rows: [
+        [bi("Racing heart before a test", "خفقان قبل اختبار"), bi("Readiness, not danger", "استعداد لا خطر"), bi("Slow breathing out, longer than in", "زفير بطيء أطول من الشهيق")],
+        [bi("Can't start the work", "لا تستطيع البدء"), bi("The task is too big to picture", "المهمة أكبر من أن تُتخيّل"), bi("Shrink it to ten minutes", "قلّصها إلى عشر دقائق")],
+        [bi("Awake at 1 a.m., mind looping", "مستيقظ في الواحدة والعقل يدور"), bi("Unfinished worry with nowhere to go", "قلق معلّق بلا مخرج"), bi("Write it down; it stops circling", "اكتبه، فيكفّ عن الدوران")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Sleep debt — the cost you can't see", "دَين النوم — الكلفة التي لا تراها"),
+    paras: [
+      bi(
+        "**Resilience** is not feeling less; it's recovering faster. Recovery runs mostly on sleep, and teenagers need roughly **8–10 hours**. Missing an hour a night doesn't stay one hour — it accumulates:",
+        "**المرونة** ليست أن تشعر أقلّ، بل أن تتعافى أسرع. والتعافي يقوم أساساً على النوم، ويحتاج المراهقون نحو **٨–١٠ ساعات**. وساعة ناقصة كل ليلة لا تبقى ساعة واحدة، بل تتراكم:"
+      ),
+    ],
+    math: ["\\text{sleep debt} = (\\text{hours needed} - \\text{hours slept}) \\times \\text{nights}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("The weekend lie-in that doesn't work", "نومة نهاية الأسبوع التي لا تكفي"),
+    paras: [
+      bi(
+        "You need **9 hours** but get **6.5** on school nights — phone at midnight, alarm at 6:30. Over five nights: $(9 - 6.5) \\times 5 = \\mathbf{12.5}$ hours of debt by Friday.",
+        "تحتاج **٩ ساعات** لكنك تنام **٦٫٥** في ليالي الدراسة — الهاتف حتى منتصف الليل والمنبّه السادسة والنصف. وعلى خمس ليالٍ: $(9 - 6.5) \\times 5 = \\mathbf{12.5}$ ساعة دَيناً بحلول الجمعة."
+      ),
+      bi(
+        "You sleep in three extra hours each weekend day — 6 hours back. That still leaves **6.5 hours short**, and Monday starts already behind. Sleeping late also shifts your body clock, so Sunday night you can't fall asleep at all.",
+        "وتنام ثلاث ساعات إضافية في كلٍّ من يومي العطلة — أي ٦ ساعات مستردّة. ويبقى **نقص ٦٫٥ ساعة**، ويبدأ الاثنين وأنت متأخّر سلفاً. والنوم المتأخّر يزيح ساعتك البيولوجية أيضاً، فلا تستطيع النوم ليلة الأحد إطلاقاً."
+      ),
+      bi(
+        "Shifting bedtime **30 minutes earlier** on five nights returns 2.5 hours a week and costs almost nothing. Small and repeated beats heroic and occasional — that's the whole shape of resilience.",
+        "وتقديم موعد النوم **نصف ساعة** في خمس ليالٍ يعيد ٢٫٥ ساعة أسبوعياً بكلفة تكاد تكون معدومة. فالصغير المتكرّر يتفوّق على البطولي العارض — وهذا شكل المرونة كلّه."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "If you need 9 hours and sleep 7 across six nights, what's the debt? And name one body signal you get before something important — and what it's actually asking for.",
+        "إن كنت تحتاج ٩ ساعات وتنام ٧ على ست ليالٍ، فكم الدَّين؟ وسمِّ إشارة جسدية تأتيك قبل أمر مهم — وما الذي تطلبه فعلاً."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Stress is preparation, not failure — the harm is in never recovering, so protect sleep in small repeatable amounts and shrink what feels too big to start.",
+        "التوتر استعداد لا فشل — والضرر في انعدام التعافي، فاحمِ نومك بمقادير صغيرة متكرّرة، وقلّص ما يبدو أكبر من أن تبدأه."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "emotional-intelligence-6": EQ_6,
   "languages-6": LANGUAGES_6,
   "ai-8": AI_8,
   "geography-7": GEOGRAPHY_7,
