@@ -2642,7 +2642,98 @@ const EQ_9: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Entrepreneurship · Year 2 · Money Basics ----
+const ENTREPRENEURSHIP_2: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Money is a swap that always works", "المال مبادلة تنجح دائماً"),
+    paras: [
+      bi(
+        "Long ago people swapped things directly. But if you had dates and wanted a ball, you had to find someone who had a ball **and** wanted dates — that's hard! Money fixed it: everyone accepts it, so you can always swap.",
+        "قديماً كان الناس يتبادلون الأشياء مباشرةً. لكن إن كان عندك تمر وتريد كرة، فعليك أن تجد من عنده كرة **ويريد** تمراً — وهذا صعب! فحلّ المال المشكلة: الجميع يقبله، فتستطيع المبادلة دائماً."
+      ),
+      bi(
+        "And money is really **stored work**. Somebody did something useful, and the coins are the proof they can use later. That's why finding money feels different from earning it.",
+        "والمال في حقيقته **عملٌ مخزون**. فقد صنع أحدهم شيئاً نافعاً، والنقود دليلٌ يستعمله لاحقاً. ولهذا يختلف شعور العثور على المال عن شعور كسبه."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Need it, or want it?", "أتحتاجه أم تريده؟"),
+    flow: [
+      { text: bi("Earn it", "اكسبه"), tone: "force" },
+      { text: bi("Save some", "ادّخر بعضه"), tone: "mass" },
+      { text: bi("Choose carefully", "واختر بعناية"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Thing", "الشيء"), bi("Need or want?", "حاجة أم رغبة؟"), bi("How to tell", "كيف تعرف")],
+      rows: [
+        [bi("School shoes", "حذاء المدرسة"), bi("Need", "حاجة"), bi("Something goes wrong without it", "يسوء أمرٌ من دونه")],
+        [bi("A third toy car", "سيارة لعبة ثالثة"), bi("Want", "رغبة"), bi("Fun, but nothing breaks", "ممتع، ولا ينكسر شيء")],
+        [bi("A gift for your sister", "هدية لأختك"), bi("Want — a kind one", "رغبة طيّبة"), bi("Wants aren't bad, they're choices", "الرغبات ليست سيئة، بل خيارات")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Saving is just waiting on purpose", "الادّخار انتظارٌ عن قصد"),
+    paras: [
+      bi(
+        "**Saving** means keeping money now so you can buy something bigger later. To know how long you must wait, count how many weeks of saving fill up the price:",
+        "**الادّخار** أن تحتفظ بالمال الآن لتشتري شيئاً أكبر لاحقاً. ولتعرف كم تنتظر، عُدّ كم أسبوعاً من الادّخار تملأ الثمن:"
+      ),
+    ],
+    math: ["\\text{weeks} = \\frac{\\text{price}}{\\text{saved each week}}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Saving for a 60-dirham kite", "الادّخار لطائرة ورقية بستين درهماً"),
+    paras: [
+      bi(
+        "The kite costs **60**. You save **5** every week. Count up in fives: 5, 10, 15, 20… you reach 60 after **12 weeks**. That's about three months of waiting.",
+        "الطائرة بـ**٦٠**. وتدّخر **٥** كل أسبوع. عُدّ بالخمسات: ٥، ١٠، ١٥، ٢٠… تبلغ ٦٠ بعد **١٢ أسبوعاً**. أي نحو ثلاثة أشهر من الانتظار."
+      ),
+      bi(
+        "Save **10** a week instead and you count 10, 20, 30… reaching 60 in only **6 weeks**. Saving twice as much halves the wait.",
+        "وادّخر **١٠** أسبوعياً فتعدّ ١٠، ٢٠، ٣٠… وتبلغ ٦٠ في **٦ أسابيع** فقط. فمضاعفة الادّخار تنصّف الانتظار."
+      ),
+      bi(
+        "Here's the tricky part: if you spend 5 on sweets in week 8, you don't lose one week — you go **backwards** and have to earn it again. That's why savers keep their money somewhere they can't reach easily.",
+        "وإليك الجزء الصعب: إن أنفقت ٥ على الحلوى في الأسبوع الثامن، فلن تخسر أسبوعاً واحداً، بل ترجع **إلى الوراء** وعليك كسبها من جديد. ولهذا يضع المدّخرون مالهم في مكان لا تسهل الوصول إليه."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A book costs 30 and you save 10 a week — how many weeks? And name one thing you *need* and one thing you *want* from your own room.",
+        "كتاب ثمنه ٣٠ وتدّخر ١٠ أسبوعياً — كم أسبوعاً؟ وسمِّ شيئاً *تحتاجه* وشيئاً *تريده* من غرفتك."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Money is stored work that everyone accepts — earn it, save some each week, and know whether the thing you're buying is a need or a want.",
+        "المال عملٌ مخزون يقبله الجميع — اكسبه، وادّخر بعضه كل أسبوع، واعرف أما تشتريه حاجةٌ أم رغبة."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "entrepreneurship-2": ENTREPRENEURSHIP_2,
   "emotional-intelligence-9": EQ_9,
   "languages-9": LANGUAGES_9,
   "ai-10": AI_10,
