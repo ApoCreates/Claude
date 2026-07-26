@@ -1247,7 +1247,102 @@ const MATH_9: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Physics · Year 8 · Resistance & Ohm's Law ----
+const PHYSICS_8: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Three things, one relationship", "ثلاثة أشياء وعلاقة واحدة"),
+    paras: [
+      bi(
+        "Think of water in a pipe. The **pressure** pushing it is *voltage*. The **amount flowing** past you each second is *current*. A **narrow section** that holds the flow back is *resistance*.",
+        "تخيّل ماءً في أنبوب. **الضغط** الدافع هو *الجهد*، و**كمية التدفق** المارّة كل ثانية هي *التيار*، و**المقطع الضيّق** الذي يعيق التدفق هو *المقاومة*."
+      ),
+      bi(
+        "Raise the pressure and more flows. Narrow the pipe and less flows. That's the whole of Ohm's Law — and it holds in the charger on your desk exactly as it does in a lab.",
+        "ارفع الضغط يزدد التدفق، وضيّق الأنبوب يقلّ التدفق. هذا كل قانون أوم — ويصدق في الشاحن على مكتبك كما يصدق في المختبر."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("The water analogy, term by term", "تشبيه الماء، مصطلحاً مصطلحاً"),
+    flow: [
+      { text: bi("Voltage pushes", "الجهد يدفع"), tone: "force" },
+      { text: bi("Resistance holds back", "المقاومة تعيق"), tone: "mass" },
+      { text: bi("Current is what flows", "التيار هو المتدفّق"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Quantity", "الكمية"), bi("Unit", "الوحدة"), bi("In the water pipe", "في أنبوب الماء")],
+      rows: [
+        [bi("Voltage (V)", "الجهد (V)"), bi("volt", "فولت"), bi("The pressure pushing", "الضغط الدافع")],
+        [bi("Current (I)", "التيار (I)"), bi("amp", "أمبير"), bi("Litres flowing per second", "لترات تتدفق كل ثانية")],
+        [bi("Resistance (R)", "المقاومة (R)"), bi("ohm (Ω)", "أوم (Ω)"), bi("How narrow the pipe is", "مدى ضيق الأنبوب")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Ohm's Law and its rearrangements", "قانون أوم وصيغه"),
+    paras: [
+      bi(
+        "For a conductor at constant temperature, the current through it is **proportional to the voltage across it**. The constant of proportionality is its resistance:",
+        "في موصل عند درجة حرارة ثابتة، يتناسب التيار المارّ فيه **طردياً مع الجهد بين طرفيه**، وثابت التناسب هو مقاومته:"
+      ),
+      bi(
+        "Cover the one you want with your thumb and the other two show you the sum.",
+        "غطِّ بإبهامك المجهول، فيُظهر لك الآخران العملية المطلوبة."
+      ),
+    ],
+    math: ["V = IR", "I = \\frac{V}{R} \\qquad R = \\frac{V}{I}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Why the fan slows on a long cable", "لماذا يبطئ المروحة على كابل طويل"),
+    paras: [
+      bi(
+        "A small desk fan is marked **12 V** and draws **0.5 A** when it runs properly. Its resistance is $R = \\frac{V}{I} = \\frac{12}{0.5} = 24\\ \\Omega$.",
+        "مروحة مكتب صغيرة مكتوب عليها **١٢ فولت** وتسحب **٠٫٥ أمبير** عند تشغيلها بشكل صحيح. فمقاومتها $R = \\frac{V}{I} = \\frac{12}{0.5} = 24\\ \\Omega$."
+      ),
+      bi(
+        "Now you run it down the garden on a long thin cable that adds $6\\ \\Omega$ of its own. Total resistance becomes $24 + 6 = 30\\ \\Omega$, so the current drops to $I = \\frac{12}{30} = 0.4$ A.",
+        "والآن تشغّلها في الحديقة عبر كابل طويل رفيع يضيف $6\\ \\Omega$. فتصير المقاومة الكلية $24 + 6 = 30\\ \\Omega$، وينخفض التيار إلى $I = \\frac{12}{30} = 0.4$ أمبير."
+      ),
+      bi(
+        "Less current, slower fan — and the missing energy is heating the cable instead. That's exactly why thick cables are used for heavy appliances.",
+        "تيار أقل يعني مروحة أبطأ — والطاقة المفقودة تُسخّن الكابل بدلاً من ذلك. ولهذا تُستخدم الكابلات السميكة للأجهزة الثقيلة."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A lamp carries 0.25 A when connected to a 6 V battery. What is its resistance? And if you swapped in a 3 V battery, would the current be higher or lower?",
+        "مصباح يمرّ فيه ٠٫٢٥ أمبير عند وصله ببطارية ٦ فولت. ما مقاومته؟ ولو استبدلتها ببطارية ٣ فولت، أيكون التيار أعلى أم أقل؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Voltage pushes, resistance holds back, current is what actually flows — and $V = IR$ lets you find any one of the three from the other two.",
+        "الجهد يدفع، والمقاومة تعيق، والتيار هو المتدفّق فعلاً — و$V = IR$ يمنحك أيّاً من الثلاثة من الاثنين الآخرين."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "physics-8": PHYSICS_8,
   "math-9": MATH_9,
   "gaming-4": GAMING_4,
   "leadership-6": LEADERSHIP_6,
