@@ -2829,7 +2829,98 @@ const PROBLEM_SOLVING_10: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Gaming · Year 2 · Board & Story Games ----
+const GAMING_2: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("A game needs something in the way", "اللعبة تحتاج شيئاً يعترض الطريق"),
+    paras: [
+      bi(
+        "Draw a path of squares and race to the end — that isn't a game yet, it's a walk. A game appears the moment something **gets in the way**: a square that sends you back, a card that steals your turn, a bridge you can only cross with a six.",
+        "ارسم مساراً من المربّعات وتسابق إلى النهاية — لن تكون هذه لعبة بعد، بل مجرّد مشي. وتظهر اللعبة لحظة وجود شيء **يعترض الطريق**: مربّع يعيدك، أو بطاقة تسلبك دورك، أو جسر لا تعبره إلا بستّة."
+      ),
+      bi(
+        "So every game you design needs four things: a **goal** (how you win), **moves** (what you may do on your turn), **obstacles** (what makes it hard), and an **ending** (when it stops). Miss one and players get confused or bored.",
+        "فكل لعبة تصمّمها تحتاج أربعة أمور: **هدف** (كيف تفوز)، و**حركات** (ما يجوز لك في دورك)، و**عقبات** (ما يجعلها صعبة)، و**نهاية** (متى تتوقّف). وإن نقص واحد حار اللاعبون أو ملّوا."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("What happens if a part is missing", "ماذا يحدث إن نقص جزء"),
+    flow: [
+      { text: bi("Give it a goal", "اجعل لها هدفاً"), tone: "force" },
+      { text: bi("Say how to move", "بيّن كيف يُتحرّك"), tone: "mass" },
+      { text: bi("Put something in the way", "ضع ما يعترض"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Missing part", "الجزء الناقص"), bi("What players say", "ماذا يقول اللاعبون"), bi("Quick fix", "إصلاح سريع")],
+      rows: [
+        [bi("No goal", "بلا هدف"), bi("‘So… what are we doing?'", "«إذن… ماذا نفعل؟»"), bi("First to the palm tree wins", "من يبلغ النخلة أولاً يفوز")],
+        [bi("No obstacles", "بلا عقبات"), bi("‘This is boring'", "«هذه مملّة»"), bi("Add three go-back squares", "أضف ثلاثة مربّعات ترجعك")],
+        [bi("No ending", "بلا نهاية"), bi("‘Can we stop now?'", "«أنتوقّف الآن؟»"), bi("Ten rounds, then count points", "عشر جولات ثم عُدّ النقاط")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("How long will my game take?", "كم ستستغرق لعبتي؟"),
+    paras: [
+      bi(
+        "A game that lasts all afternoon never gets finished, and one that ends in a minute feels like nothing happened. You can guess the length before you play by counting how far a piece moves each turn:",
+        "اللعبة التي تستغرق العصر كلّه لا تُنهى أبداً، والتي تنتهي في دقيقة تبدو كأن شيئاً لم يحدث. وتستطيع تخمين طولها قبل اللعب بعدّ ما تقطعه القطعة كل دور:"
+      ),
+    ],
+    math: ["\\text{turns} = \\frac{\\text{squares on the board}}{\\text{squares moved each turn}}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Making the board the right size", "ضبط حجم اللوحة"),
+    paras: [
+      bi(
+        "Your board has **30 squares** and a piece moves about **3** each turn. Count up in threes: 3, 6, 9… you reach 30 after **10 turns** each. With a break of 15 minutes, that fits nicely.",
+        "لوحتك فيها **٣٠ مربّعاً**، وتتحرّك القطعة نحو **٣** كل دور. عُدّ بالثلاثات: ٣، ٦، ٩… تبلغ ٣٠ بعد **١٠ أدوار** لكل لاعب. ومع استراحة من ١٥ دقيقة يناسب ذلك تماماً."
+      ),
+      bi(
+        "Make the board **60 squares** and it becomes 20 turns each — twice as long, and friends start wandering off. Half the board, half the game.",
+        "واجعل اللوحة **٦٠ مربّعاً** فتصير ٢٠ دوراً لكل لاعب — ضِعف الطول، ويبدأ الأصدقاء بالانصراف. فنصف اللوحة نصف اللعبة."
+      ),
+      bi(
+        "Careful with go-back squares though: each one *adds* turns. Three of them can quietly turn your neat 10-turn game into a game nobody finishes — so test it with a friend before you decorate it.",
+        "لكن احذر مربّعات الرجوع: فكلٌّ منها *يضيف* أدواراً. وثلاثة منها قد تحوّل بهدوء لعبتك المرتّبة ذات العشرة أدوار إلى لعبة لا يُنهيها أحد — فجرّبها مع صديق قبل أن تزيّنها."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "A board has 20 squares and pieces move about 4 a turn — how many turns each? And name one obstacle you could add to a race game about camels.",
+        "لوحة فيها ٢٠ مربّعاً وتتحرّك القطع نحو ٤ في الدور — كم دوراً لكل لاعب؟ وسمِّ عقبة واحدة تضيفها إلى لعبة سباق عن الإبل."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Goal, moves, obstacles, ending — and count your board before you draw it, because the number of squares decides how long your friends stay.",
+        "هدف وحركات وعقبات ونهاية — وعُدّ لوحتك قبل رسمها، فعدد المربّعات يقرّر كم يبقى أصدقاؤك."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "gaming-2": GAMING_2,
   "problem-solving-10": PROBLEM_SOLVING_10,
   "entrepreneurship-2": ENTREPRENEURSHIP_2,
   "emotional-intelligence-9": EQ_9,
