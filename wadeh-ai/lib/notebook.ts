@@ -2454,7 +2454,102 @@ const AI_10: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Languages · Year 9 · Thinking in a New Language ----
+const LANGUAGES_9: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Translation is the bottleneck", "الترجمة هي عنق الزجاجة"),
+    paras: [
+      bi(
+        "If you build every sentence in Arabic and then convert it, you can only speak as fast as you can translate — and the conversation moves on without you. The goal of this year is to **stop routing through your first language**.",
+        "إن كنت تبني كل جملة بالعربية ثم تحوّلها، فلن تتكلّم أسرع مما تترجم — ويمضي الحوار من دونك. وهدف هذا العام أن **تكفّ عن المرور بلغتك الأولى**."
+      ),
+      bi(
+        "It starts quietly, in your head: name what you see, plan tomorrow, argue with yourself — directly in the new language, with nobody listening and nothing at stake. The public fluency everyone notices grows out of that private practice.",
+        "ويبدأ ذلك بهدوء في رأسك: سمِّ ما تراه، وخطّط ليومك التالي، وجادِل نفسك — مباشرةً باللغة الجديدة، بلا مستمع ولا مخاطرة. فالطلاقة العلنية التي يلاحظها الناس تنبت من ذلك التمرين الخاص."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("What to do instead of translating", "ماذا تفعل بدل الترجمة"),
+    flow: [
+      { text: bi("Think it directly", "فكّر بها مباشرة"), tone: "force" },
+      { text: bi("Describe round gaps", "التفّ حول الفجوات بالوصف"), tone: "mass" },
+      { text: bi("Keep the turn moving", "أبقِ الدور متحرّكاً"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Instead of…", "بدلاً من…"), bi("Do this", "افعل هذا"), bi("Why", "لماذا")],
+      rows: [
+        [bi("Freezing on a missing word", "التجمّد عند كلمة ناقصة"), bi("Describe it: ‘the thing you open tins with'", "صِفها: «الشيء الذي تفتح به العلب»"), bi("The conversation keeps its rhythm", "يحتفظ الحوار بإيقاعه")],
+        [bi("Translating a joke word for word", "ترجمة نكتة حرفياً"), bi("Find the situation that's funny to them", "ابحث عن الموقف المضحك عندهم"), bi("Humour lives in context, not words", "الطرافة في السياق لا في الكلمات")],
+        [bi("Apologising for your accent", "الاعتذار عن لكنتك"), bi("Say the next sentence", "قل الجملة التالية"), bi("Accent is not an error", "اللكنة ليست خطأ")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The cost of the extra step", "كلفة الخطوة الزائدة"),
+    paras: [
+      bi(
+        "Conversation researchers find that speakers across many languages hand over turns with only a **fraction of a second** of silence between them — we are extremely sensitive to that gap. Every sentence you route through translation adds delay on top of it:",
+        "يجد باحثو المحادثة أن المتحدثين في لغات كثيرة يتبادلون الأدوار بصمتٍ لا يتجاوز **جزءاً من الثانية** — ونحن شديدو الحساسية لتلك الفجوة. وكل جملة تمرّرها عبر الترجمة تضيف تأخيراً فوقها:"
+      ),
+      bi(
+        "**Code-switching** — sliding between languages mid-sentence, as people across our region do daily — isn't laziness or weakness. It's reaching for whichever word arrives fastest, which is exactly what fluent bilinguals do.",
+        "و**التنقّل بين اللغات** — الانزلاق بينها داخل الجملة كما يفعل الناس في منطقتنا يومياً — ليس كسلاً ولا ضعفاً. بل هو التقاط الكلمة الأسرع وصولاً، وهو تحديداً ما يفعله ثنائيّو اللغة الطليقون."
+      ),
+    ],
+    math: ["\\text{extra silence} = \\text{delay per turn} \\times \\text{number of turns}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Why people stop waiting for you", "لماذا يكفّ الناس عن انتظارك"),
+    paras: [
+      bi(
+        "You join a 30-turn conversation and each of your replies takes about **2 extra seconds** while you assemble it in Arabic and convert. Total: $2 \\times 30 = \\mathbf{60}$ seconds of added silence.",
+        "تدخل حواراً من ٣٠ دوراً، ويستغرق كل ردّ لك نحو **ثانيتين إضافيتين** بينما تركّب الجملة بالعربية ثم تحوّلها. المجموع: $2 \\times 30 = \\mathbf{60}$ ثانية صمت مضاف."
+      ),
+      bi(
+        "A full minute of gaps in one conversation. Long before that adds up, someone else has filled each pause — not to be rude, but because a pause is an invitation in every language.",
+        "دقيقة كاملة من الفجوات في حوار واحد. وقبل أن تتراكم بكثير يكون غيرك قد ملأ كل وقفة — لا لقلّة أدب، بل لأن الوقفة دعوةٌ في كل اللغات."
+      ),
+      bi(
+        "Halve the delay to 1 second and you save 30 seconds — but the real repair isn't speed, it's removing the step: think the sentence directly, and describe your way past the word you don't have.",
+        "خفّض التأخير إلى ثانية فتوفّر ٣٠ ثانية — لكن العلاج الحقيقي ليس السرعة بل حذف الخطوة: فكّر الجملة مباشرة، وصِف طريقك متجاوزاً الكلمة التي لا تملكها."
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "In a 45-turn conversation with a 3-second delay each turn, how much silence do you add? And describe ‘a stapler' in your new language without naming it.",
+        "في حوار من ٤٥ دوراً بتأخير ٣ ثوانٍ لكل دور، كم صمتاً تضيف؟ وصِف «الدبّاسة» بلغتك الجديدة دون أن تسمّيها."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Translating in your head costs seconds you don't have — think directly, describe your way round missing words, and treat code-switching as a fluent move rather than a failure.",
+        "الترجمة في رأسك تكلّفك ثوانيَ لا تملكها — ففكّر مباشرة، وصِف طريقك حول الكلمات الغائبة، واعتبر التنقّل بين اللغات مهارةً لا إخفاقاً."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "languages-9": LANGUAGES_9,
   "ai-10": AI_10,
   "geography-9": GEOGRAPHY_9,
   "physics-3": PHYSICS_3,
