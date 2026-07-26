@@ -1435,7 +1435,101 @@ const GEOGRAPHY_7: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: AI · Year 8 · Building AI Projects ----
+const AI_8: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Most AI projects fail before any code", "معظم مشاريع الذكاء الاصطناعي تفشل قبل أي كود"),
+    paras: [
+      bi(
+        "‘An app that helps students’ can never be finished — there's no moment where you know you're done. ‘Tells me which of my messages still need a reply today’ can be built this week and checked tomorrow.",
+        "«تطبيق يساعد الطلاب» لا يمكن إتمامه أبداً — إذ لا لحظة تعرف فيها أنك انتهيت. أما «يخبرني أي رسائلي ما تزال تحتاج رداً اليوم» فيمكن بناؤه هذا الأسبوع والتحقق منه غداً."
+      ),
+      bi(
+        "So scope first: **one user, one decision, one measure of success**. Only then ask what data that decision needs — the order matters, because data chosen before the question always fits the wrong question.",
+        "فابدأ بالنطاق: **مستخدم واحد، وقرار واحد، ومقياس نجاح واحد**. ثم اسأل بعدها أي بيانات يحتاجها ذلك القرار — والترتيب مهم، لأن بيانات تُختار قبل السؤال تناسب دائماً سؤالاً آخر."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Idea to shipped demo", "من الفكرة إلى نموذج منشور"),
+    flow: [
+      { text: bi("Scope one decision", "حدّد قراراً واحداً"), tone: "force" },
+      { text: bi("Get honest data", "احصل على بيانات صادقة"), tone: "mass" },
+      { text: bi("Ship, then measure", "أطلِق ثم قِس"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Vague project", "مشروع غامض"), bi("Scoped project", "مشروع محدّد"), bi("What made it buildable", "ما الذي جعله قابلاً للبناء")],
+      rows: [
+        [bi("‘AI for my school’", "«ذكاء اصطناعي لمدرستي»"), bi("‘Sorts lost-property photos into 6 bins’", "«يصنّف صور المفقودات إلى ٦ فئات»"), bi("One decision, countable", "قرار واحد قابل للعدّ")],
+        [bi("‘Understands Arabic’", "«يفهم العربية»"), bi("‘Tags 200 school notices as urgent or not’", "«يصنّف ٢٠٠ إعلان مدرسي عاجل أو لا»"), bi("A fixed set you can label", "مجموعة محدّدة يمكن وسمها")],
+        [bi("‘Better than a human’", "«أفضل من إنسان»"), bi("‘Beats always-guessing-the-common-answer’", "«يتفوّق على تخمين الإجابة الأشيع»"), bi("A baseline to beat", "خط أساس تتفوّق عليه")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Accuracy, and the baseline it must beat", "الدقة وخط الأساس الذي عليها تجاوزه"),
+    paras: [
+      bi(
+        "**Accuracy** is the share of predictions that were right. The **baseline** is what you'd score by always answering with the commonest class — a number your model must beat to have done anything at all.",
+        "**الدقة** نسبة التنبؤات الصحيحة. و**خط الأساس** ما ستحرزه لو أجبت دائماً بالفئة الأشيع — وهو رقم على نموذجك تجاوزه ليكون قد صنع شيئاً أصلاً."
+      ),
+    ],
+    math: [
+      "\\text{accuracy} = \\frac{\\text{correct}}{\\text{total}}",
+      "\\text{recall} = \\frac{\\text{caught}}{\\text{all that mattered}}",
+    ],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("The 92% that was worse than nothing", "الـ٩٢٪ التي كانت أسوأ من لا شيء"),
+    paras: [
+      bi(
+        "You build a spam filter and test it on **200 messages**, of which **180 are fine** and **20 are spam**. Your model scores $\\frac{184}{200} = 92\\%$ accuracy. Sounds strong.",
+        "تبني مرشّح رسائل مزعجة وتختبره على **٢٠٠ رسالة**، منها **١٨٠ سليمة** و**٢٠ مزعجة**. ويحرز نموذجك دقة $\\frac{184}{200} = 92\\%$. يبدو قوياً."
+      ),
+      bi(
+        "Now the baseline: a filter that simply says ‘never spam’ scores $\\frac{180}{200} = 90\\%$ without looking at anything. Your model bought you **2 points**.",
+        "والآن خط الأساس: مرشّح يقول «ليست مزعجة أبداً» يحرز $\\frac{180}{200} = 90\\%$ دون أن ينظر إلى شيء. فنموذجك كسب **نقطتين** فقط."
+      ),
+      bi(
+        "Ask the question that matters instead: of the 20 real spam messages, how many did it catch? If the answer is 4, recall is $\\frac{4}{20} = 20\\%$ — the filter misses four out of five. **Accuracy hid the failure; recall showed it.**",
+        "فاسأل السؤال المهم بدلاً من ذلك: من الرسائل المزعجة العشرين، كم أمسك؟ إن كان الجواب ٤، فالاستدعاء $\\frac{4}{20} = 20\\%$ — أي يفوته أربعة من كل خمسة. **أخفت الدقةُ الفشل، وأظهره الاستدعاء.**"
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "In a set of 500 photos, 450 show no cat. What accuracy does ‘there is never a cat’ score? And rewrite ‘an AI that helps my family’ as one user, one decision, one measure.",
+        "في مجموعة من ٥٠٠ صورة، ٤٥٠ منها بلا قطّة. ما دقّة «لا توجد قطّة أبداً»؟ وأعد صياغة «ذكاء اصطناعي يساعد عائلتي» بمستخدم واحد وقرار واحد ومقياس واحد."
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "Scope to one user, one decision and one measure, then judge the result against the baseline — a high accuracy that a coin-flip rule could match has told you nothing.",
+        "حدّد النطاق بمستخدم واحد وقرار واحد ومقياس واحد، ثم احكم على النتيجة مقارنةً بخط الأساس — فدقّةٌ عالية تبلغها قاعدةٌ ساذجة لم تخبرك بشيء."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "ai-8": AI_8,
   "geography-7": GEOGRAPHY_7,
   "physics-8": PHYSICS_8,
   "math-9": MATH_9,
