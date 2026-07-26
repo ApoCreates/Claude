@@ -3013,7 +3013,98 @@ const LEADERSHIP_4: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Math · Year 1 · Numbers & Patterns ----
+const MATH_1: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("The last number you say is how many", "آخر عدد تقوله هو الكم"),
+    paras: [
+      bi(
+        "Counting isn't saying ‘one, two, three' quickly. It's **touching one thing for each word you say** — one word, one thing, nothing missed and nothing counted twice.",
+        "العدّ ليس قول «واحد، اثنان، ثلاثة» بسرعة. بل **أن تلمس شيئاً واحداً مع كل كلمة تقولها** — كلمة لشيء، بلا نسيان ولا تكرار."
+      ),
+      bi(
+        "And here's the big secret: the **last word you say is how many there are**. Count your pencils forwards or backwards, start from the middle — you still get the same number. The amount doesn't change just because you counted differently.",
+        "وإليك السرّ الكبير: **آخر كلمة تقولها هي عددها**. عُدّ أقلامك من الأمام أو من الخلف أو من الوسط — يبقى العدد نفسه. فالكمّية لا تتغيّر لأنك عددت بطريقة أخرى."
+      ),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("Patterns tell you what comes next", "الأنماط تخبرك بما يأتي"),
+    flow: [
+      { text: bi("Touch each one", "المس كل واحد"), tone: "force" },
+      { text: bi("Say one word", "قل كلمة واحدة"), tone: "mass" },
+      { text: bi("The last word is the answer", "آخر كلمة هي الجواب"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Pattern", "النمط"), bi("What comes next?", "ما التالي؟"), bi("The rule", "القاعدة")],
+      rows: [
+        [bi("🔴 🔵 🔴 🔵 🔴 …", "🔴 🔵 🔴 🔵 🔴 …"), bi("🔵", "🔵"), bi("Two things taking turns", "شيئان يتناوبان")],
+        [bi("2, 4, 6, 8 …", "٢، ٤، ٦، ٨ …"), bi("10", "١٠"), bi("Add two each time", "أضف اثنين كل مرّة")],
+        [bi("△ △ ◻ △ △ ◻ …", "△ △ ◻ △ △ ◻ …"), bi("△", "△"), bi("A group of three repeating", "مجموعة من ثلاثة تتكرّر")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Making ten to add", "صنع العشرة للجمع"),
+    paras: [
+      bi(
+        "Ten is the easiest number to add to, because our whole way of writing numbers is built on it. So when a sum is hard, **fill up to ten first**, then add what's left over:",
+        "العشرة أسهل عدد نجمع إليه، لأن طريقتنا كلها في كتابة الأعداد مبنيّة عليها. فإذا صعبت مسألة، **أكمِل إلى عشرة أولاً** ثم أضف الباقي:"
+      ),
+    ],
+    math: ["8 + 5 = 8 + 2 + 3 = 10 + 3 = 13"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("Eight dates and five more", "ثماني تمرات وخمس أخرى"),
+    paras: [
+      bi(
+        "You have **8 dates** and your grandmother gives you **5** more. Counting them all one by one works, but it's slow and easy to lose your place.",
+        "معك **٨ تمرات** فتعطيك جدّتك **٥** أخرى. عدُّها واحدة واحدة ينجح، لكنه بطيء ويسهل أن تضيع فيه."
+      ),
+      bi(
+        "Instead, fill up to ten: 8 needs **2** more to make 10. Take 2 from the 5 — that leaves **3**. Now it's easy: $10 + 3 = \\mathbf{13}$.",
+        "بدلاً من ذلك أكمِل إلى عشرة: الثمانية تحتاج **٢** لتصير ١٠. خذ ٢ من الخمسة فيتبقّى **٣**. والآن الأمر سهل: $10 + 3 = \\mathbf{13}$."
+      ),
+      bi(
+        "It works every time because ten is a friendly number. Try $7 + 6$: 7 needs 3, leaving 3, so $10 + 3 = 13$ again!",
+        "وينجح دائماً لأن العشرة عدد ودود. جرّب $7 + 6$: السبعة تحتاج ٣، فيتبقّى ٣، فيكون $10 + 3 = 13$ ثانيةً!"
+      ),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("A small question to test yourself", "سؤال صغير لتختبر نفسك"),
+    paras: [
+      bi(
+        "Use the ten trick for 9 + 4. And look at this pattern: 5, 10, 15, 20 — what comes next, and what is the rule?",
+        "استخدم حيلة العشرة لـ ٩ + ٤. وانظر إلى هذا النمط: ٥، ١٠، ١٥، ٢٠ — ما التالي، وما القاعدة؟"
+      ),
+    ],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [
+      bi(
+        "One word for one thing, and the last word is how many — then use ten as your stepping stone, and look for the rule that says what comes next.",
+        "كلمة واحدة لشيء واحد، وآخر كلمة هي العدد — ثم اتّخذ العشرة درجةً تصعد عليها، وابحث عن القاعدة التي تقول ما التالي."
+      ),
+    ],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
+  "math-1": MATH_1,
   "leadership-4": LEADERSHIP_4,
   "gaming-2": GAMING_2,
   "problem-solving-10": PROBLEM_SOLVING_10,
