@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { MODEL_CASCADE } from "@/lib/models";
 import { screenMessage, extractModelFlag, reportFlag, redirectReply, type FlagCategory } from "@/lib/moderation";
-import { findLocalAnswer, cacheKey, getCached, setCached } from "@/lib/answers";
+import { cacheKey, getCached, setCached } from "@/lib/answers";
 import { withinBudget, recordSpend, estimateCostUsd } from "@/lib/budget";
 import { detectAbuse, civilityReply } from "@/lib/civility";
+import { solveMath } from "@/lib/solver";
+import { findKnowledge, findAdvancedOnly } from "@/lib/knowledge";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -124,12 +126,35 @@ export async function POST(request: Request) {
     });
   }
 
-  // Engine-first, cheapest-first. Most answers live inside the app for $0.
-  //   1) Curated library of common questions.
-  const local = findLocalAnswer(req.subject, req.lang, lastQuestion);
-  if (local) return NextResponse.json({ reply: local, live: true, source: "library" });
+  // Engine-first is the DEFAULT. The paid API is a last resort — only reached
+  // when nothing is baked at (or below) the learner's year, or they insist.
 
-  //   2) Cache of past live answers — identical repeats never re-bill.
+  //   1) Math solver — arithmetic ("5×6", "25% of 80", "144÷12") is computed
+  //      locally with a worked answer. Never hits the API.
+  const solved = solveMath(lastQuestion, req.level);
+  if (solved) return NextResponse.json({ reply: solved.reply[req.lang], live: true, source: "solver" });
+
+  //   2) Level-scoped knowledge bank — a Year-L learner gets answers pitched at
+  //      or below Year L, so Year 1 never gets a Year 7 answer.
+  const baked = findKnowledge(req.subject, req.level, req.lang, lastQuestion);
+  if (baked) return NextResponse.json({ reply: baked, live: true, source: "knowledge" });
+
+  //   3) Gate: the answer exists only ABOVE the learner's year. Nudge kindly
+  //      for free unless the learner insists — only then may the live AI run.
+  const advYear = findAdvancedOnly(req.subject, req.level, lastQuestion);
+  const insisting = /\b(anyway|just tell|explain it|please|go on|yes)\b/i.test(lastQuestion) || /على أي حال|فقط أخبرني|اشرح|نعم|أريد أن أعرف/.test(lastQuestion);
+  if (advYear && !insisting) {
+    return NextResponse.json({
+      reply:
+        req.lang === "ar"
+          ? `سؤال رائع! لكنّ هذا من محتوى السنة ${advYear}، وستصل إليه قريباً. إن أردت لمحة الآن، قل «اشرح على أي حال».`
+          : `Great question! That's Year ${advYear} material — you'll reach it soon. If you'd like a peek now, say "explain anyway".`,
+      live: true,
+      source: "gated",
+    });
+  }
+
+  //   4) Cache of past live answers — identical repeats never re-bill.
   const key = cacheKey(req.subject, req.level, req.lang, lastQuestion);
   const cached = getCached(key);
   if (cached) return NextResponse.json({ reply: cached, live: true, source: "cache" });

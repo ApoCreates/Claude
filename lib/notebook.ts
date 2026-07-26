@@ -168,9 +168,131 @@ const MATH_7: NoteCard[] = [
   },
 ];
 
+// ---- Flagship: Math · Year 4 · Fractions & Decimals ----
+const MATH_4: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Two ways to write a part", "طريقتان لكتابة الجزء"),
+    paras: [
+      bi("A fraction and a decimal are two ways to write the **same part of a whole**. Half a pizza is $\\frac{1}{2}$ — or $0.5$.", "الكسر والعدد العشري طريقتان لكتابة **الجزء نفسه من الكلّ**. نصف بيتزا هو $\\frac{1}{2}$ — أو $0.5$."),
+      bi("To turn a fraction into a decimal, just **divide the top by the bottom**: $\\frac{3}{4} = 3 \\div 4 = 0.75$.", "لتحويل الكسر إلى عدد عشري، **اقسم الأعلى على الأسفل**: $\\frac{3}{4} = 3 \\div 4 = 0.75$."),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("The same amount, three ways", "المقدار نفسه بثلاث صور"),
+    flow: [
+      { text: bi("Whole", "الكلّ"), tone: "force" },
+      { text: bi("Equal parts", "أجزاء متساوية"), tone: "mass" },
+      { text: bi("Part = fraction = decimal", "الجزء = كسر = عشري"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Fraction", "الكسر"), bi("Decimal", "العشري"), bi("Percent", "المئوية")],
+      rows: [
+        [bi("1/2", "١/٢"), bi("0.5", "٠٫٥"), bi("50%", "٥٠٪")],
+        [bi("1/4", "١/٤"), bi("0.25", "٠٫٢٥"), bi("25%", "٢٥٪")],
+        [bi("3/4", "٣/٤"), bi("0.75", "٠٫٧٥"), bi("75%", "٧٥٪")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("Fraction → decimal", "الكسر ← العشري"),
+    paras: [bi("Any fraction becomes a decimal by division:", "يصبح أي كسر عدداً عشرياً بالقسمة:")],
+    math: ["\\frac{a}{b} = a \\div b", "\\frac{3}{4} = 0.75"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("A real-life share", "قسمة من الحياة"),
+    paras: [
+      bi("A carton holds 200 ml of juice. You drink $\\frac{3}{4}$ of it. How much did you drink?", "علبة فيها 200 مل عصير. شربت $\\frac{3}{4}$ منها. كم شربت؟"),
+      bi("$\\frac{3}{4}$ of 200 $= 0.75 \\times 200 = 150$ ml.", "$\\frac{3}{4}$ من 200 $= 0.75 \\times 200 = 150$ مل."),
+      bi("Check: the quarter left is $0.25 \\times 200 = 50$ ml, and $150 + 50 = 200$ ✓.", "تحقّق: الربع المتبقّي $0.25 \\times 200 = 50$ مل، و$150 + 50 = 200$ ✓."),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("Try it yourself", "جرّب بنفسك"),
+    paras: [bi("Write $\\frac{1}{5}$ as a decimal, then as a percent. (Hint: $1 \\div 5$.)", "اكتب $\\frac{1}{5}$ عدداً عشرياً ثم نسبة مئوية. (تلميح: $1 \\div 5$.)")],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [bi("Fractions, decimals and percents are three costumes for the same part of a whole — divide top by bottom to switch.", "الكسور والأعداد العشرية والنسب المئوية ثلاثة أزياء للجزء نفسه — اقسم الأعلى على الأسفل للتبديل.")],
+  },
+];
+
+// ---- Flagship: Physics · Year 7 · Forces, Pressure & Density ----
+const PHYSICS_7: NoteCard[] = [
+  {
+    icon: "📖",
+    label: bi("Simple Explanation", "شرح مبسّط"),
+    sub: bi("Push, spread, pack", "دفع، توزيع، كثافة"),
+    paras: [
+      bi("A **force** is a push or pull. **Pressure** is how much that force is squeezed onto an area — a sharp pin has tiny area, so huge pressure.", "**القوة** دفع أو سحب. و**الضغط** مقدار تركّز تلك القوة على مساحة — الدبّوس الحادّ مساحته صغيرة، فضغطه هائل."),
+      bi("**Density** is how tightly matter is packed: mass in each unit of volume. The Dead Sea's water is so dense it pushes you up.", "**الكثافة** مدى تراصّ المادة: الكتلة في كل وحدة حجم. ماء البحر الميت كثيف جداً فيدفعك للأعلى."),
+    ],
+  },
+  {
+    icon: "🗺️",
+    label: bi("Visual Representation", "تمثيل بصري"),
+    sub: bi("How they connect", "كيف تترابط"),
+    flow: [
+      { text: bi("Force  F", "القوة  F"), tone: "force" },
+      { text: bi("Area  A", "المساحة  A"), tone: "mass" },
+      { text: bi("Pressure  P = F ⁄ A", "الضغط  P = F ⁄ A"), tone: "accel" },
+    ],
+    table: {
+      head: [bi("Quantity", "الكمية"), bi("Symbol", "الرمز"), bi("Unit", "الوحدة")],
+      rows: [
+        [bi("Pressure", "الضغط"), bi("P", "P"), bi("Pa (pascal)", "باسكال")],
+        [bi("Force", "القوة"), bi("F", "F"), bi("N", "نيوتن")],
+        [bi("Density", "الكثافة"), bi("ρ", "ρ"), bi("kg/m³", "كغم/م³")],
+      ],
+    },
+  },
+  {
+    icon: "🎯",
+    label: bi("Formal Definition", "التعريف الرسمي"),
+    sub: bi("The two key laws", "القانونان الأساسيان"),
+    paras: [bi("Pressure is force per area; density is mass per volume:", "الضغط قوة لكل مساحة، والكثافة كتلة لكل حجم:")],
+    math: ["P = \\frac{F}{A}", "\\rho = \\frac{m}{V}"],
+  },
+  {
+    icon: "✏️",
+    label: bi("Worked Example", "مثال محلول"),
+    sub: bi("One problem, solved", "مسألة محلولة"),
+    paras: [
+      bi("A box pushes down with 200 N over an area of 0.5 m². What pressure does it put on the floor?", "صندوق يضغط بقوة 200 نيوتن على مساحة 0.5 م². ما الضغط على الأرض؟"),
+      bi("$P = \\frac{F}{A} = \\frac{200}{0.5} = 400$ Pa.", "$P = \\frac{F}{A} = \\frac{200}{0.5} = 400$ باسكال."),
+      bi("Halving the area would double the pressure — that's why heels sink into sand.", "تنصيف المساحة يضاعف الضغط — لذا يغوص الكعب في الرمل."),
+    ],
+  },
+  {
+    icon: "🧩",
+    label: bi("Quick Check", "تحقّق سريع"),
+    sub: bi("Try it yourself", "جرّب بنفسك"),
+    paras: [bi("A bag pushes with 60 N on 0.2 m². Find the pressure. (Hint: $P = F/A$.)", "حقيبة تضغط بـ60 نيوتن على 0.2 م². أوجد الضغط. (تلميح: $P = F/A$.)")],
+  },
+  {
+    icon: "📌",
+    label: bi("One-Line Summary", "الخلاصة في سطر"),
+    sub: bi("The whole idea in one line", "الفكرة كلها في سطر"),
+    paras: [bi("Pressure concentrates a force onto an area ($P=F/A$); density packs mass into a volume ($\\rho=m/V$).", "الضغط يركّز القوة على مساحة ($P=F/A$)، والكثافة تحشر الكتلة في حجم ($\\rho=m/V$).")],
+  },
+];
+
 const FLAGSHIPS: Record<string, NoteCard[]> = {
   "physics-10": PHYSICS_10,
+  "physics-7": PHYSICS_7,
   "math-7": MATH_7,
+  "math-4": MATH_4,
 };
 
 // Auto-generated deck for every other lesson — built from the year's focus and

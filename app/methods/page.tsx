@@ -44,11 +44,12 @@ export default function MethodsPage() {
         <div className="mt-10 overflow-hidden border border-hairline">
           <Image src="/art/methods/hero.webp" alt={ar ? "عقل يتفتّح كالشروق" : "A mind opening like a sunrise"} width={1400} height={787} className="h-auto w-full" priority />
         </div>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { src: "/art/methods/music.webp", alt: ar ? "الغناء للتعلّم" : "Singing to learn" },
             { src: "/art/methods/senses.webp", alt: ar ? "الصنع باليد" : "Making by hand" },
             { src: "/art/methods/story.webp", alt: ar ? "القصة والدهشة" : "Story and wonder" },
+            { src: "/art/methods/play.webp", alt: ar ? "التعلّم باللعب" : "Learning through play" },
           ].map((im) => (
             <div key={im.src} className="overflow-hidden border border-hairline">
               <Image src={im.src} alt={im.alt} width={1400} height={1050} className="h-auto w-full" />
