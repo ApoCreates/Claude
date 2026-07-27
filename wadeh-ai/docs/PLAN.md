@@ -205,11 +205,10 @@ session re-opens it:
    only engine `minutes` recorded the denominator is unknown and the ratio is
    always 1. The new field is the non-doing half. Authors state it honestly;
    understating it to clear the ratio is itself a C1 failure.
-5. **Measured content counts differ from BRIEF.md** — 43 hand-authored /
-   57 placeholder, not 44 / 56. Founder confirms 43 is correct. **The cause of
-   the discrepancy is unknown**; an earlier claim that the brief predated recent
-   commits was inference and has been withdrawn. See `docs/AUDIT.md` §1 and
-   CLAUDE.md §4a.
+5. **Content counts are recorded in `docs/AUDIT.md` §1 only**, with the
+   reporting rule in CLAUDE.md §4a. Not duplicated here — a number kept in two
+   places drifts, and the audit is the one that gets re-measured each
+   maintenance cycle.
 6. **Making the repo private will break production.** The deploy clones the
    public repo unauthenticated. See `docs/PHASE0.md` §0 before flipping it.
 7. **The 57 placeholder lessons are gated, and `autoDeck()` is deleted**

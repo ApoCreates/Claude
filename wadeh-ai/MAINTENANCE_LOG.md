@@ -25,3 +25,22 @@ against.
 
 **Remains:** Phase 0 in full; founder decisions listed in `docs/PLAN.md`
 §Open questions, which block Phase 3 authoring.
+
+---
+
+## 2026-07-27 — placeholders gated (correction to the entry above)
+
+**Ran:** nothing scheduled. Recording a change that invalidates a figure in the
+baseline entry, since this log is append-only and that entry is not rewritten.
+
+**Changed:** the 57 placeholder lessons no longer render. `autoDeck()` is
+deleted and `buildDeck()` returns `null` without a hand-authored deck, so the
+line above reading "57 placeholder lessons rendering in production" is **no
+longer true** — they now show an honest "in authoring" state. Deployed to
+production and verified in the served bundle.
+
+**Effect on the ledger:** M2 moves from fail to pass. M9 still fails — zero
+lessons are `approved`.
+
+**Counts:** see `docs/AUDIT.md` §1, which is the single place content counts are
+recorded and the only one re-measured each cycle. Reporting rule: CLAUDE.md §4a.
