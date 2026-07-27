@@ -3905,48 +3905,6 @@ const FLAGSHIPS: Record<string, NoteCard[]> = {
   "geography-4": GEOGRAPHY_4,
 };
 
-// Auto-generated deck for every other lesson — built from the year's focus and
-// its four units, so the swipeable card format is consistent site-wide.
-function autoDeck(subject: Subject, level: Level): NoteCard[] {
-  const cards: NoteCard[] = [
-    {
-      icon: "📖",
-      label: bi("Simple Explanation", "شرح مبسّط"),
-      sub: bi("What this year is about", "عمّا تدور هذه السنة"),
-      paras: [level.focus],
-    },
-  ];
-  const icons = ["🧭", "🔎", "🧠", "🛠️"];
-  level.units.forEach((u, i) => {
-    cards.push({
-      icon: icons[i % icons.length],
-      label: u,
-      sub: bi(`Unit ${i + 1} of ${level.units.length}`, `الوحدة ${i + 1} من ${level.units.length}`),
-      paras: [
-        bi(
-          `In this unit we explore “${u.en}”. Ask the tutor for a worked example set in ${subject.name.en.toLowerCase()}, and try the lab and quiz below to lock it in.`,
-          `في هذه الوحدة نستكشف «${u.ar}». اطلب من المعلّم مثالاً محلولاً في ${subject.name.ar}، وجرّب المختبر والاختبار أدناه لترسيخها.`
-        ),
-      ],
-    });
-  });
-  cards.push({
-    icon: "📌",
-    label: bi("One-Line Summary", "الخلاصة في سطر"),
-    sub: bi("The whole year in one line", "السنة كلها في سطر"),
-    paras: [
-      bi(
-        `${level.title.en}: ${level.units.map((u) => u.en).join(" · ")}.`,
-        `${level.title.ar}: ${level.units.map((u) => u.ar).join(" · ")}.`
-      ),
-    ],
-  });
-  return cards;
-}
-
-// The six modes we spotlight on every lesson — drawing, singing, movement,
-// story, real-life relevance and a keepsake trophy. Pulled from the 150 so the
-// library and the lessons stay one system.
 const SPOTLIGHT_EMOJI: Record<string, string> = {
   "dual-coding": "✏️",
   "melody-mnemonic": "🎵",
@@ -3956,6 +3914,10 @@ const SPOTLIGHT_EMOJI: Record<string, string> = {
   "take-home-trophy": "🏆",
 };
 
+// The "Learn It Your Way" card. NOTE: this renders six rows from lib/methods.ts
+// as an emoji, a name and one sentence — the Catalog Trap described in
+// BRIEF.md Part 1. It survives only until the real engines land; Phase 2
+// deletes lib/methods.ts or demotes it to docs/research/learning-science.md.
 function methodsCard(): NoteCard {
   const byId = (id: string) => METHODS.find((m) => m.id === id) as Method;
   const picks = ["dual-coding", "melody-mnemonic", "act-it-out", "become-concept", "indirect-analogy", "take-home-trophy"].map(byId);
@@ -3967,16 +3929,29 @@ function methodsCard(): NoteCard {
   };
 }
 
-export function buildDeck(subject: Subject, level: Level): NoteCard[] {
-  const base = FLAGSHIPS[`${subject.slug}-${level.n}`] ?? autoDeck(subject, level);
-  // Weave the multi-modal card in before the closing summary card.
+export function buildDeck(subject: Subject, level: Level): NoteCard[] | null {
+  const base = FLAGSHIPS[`${subject.slug}-${level.n}`];
+  // No hand-authored deck means this lesson is NOT written yet. It must not
+  // render generated filler dressed as a lesson — callers show the honest
+  // "in authoring" state instead. See CLAUDE.md DO NOT #2.
+  if (!base) return null;
   const deck = [...base];
+  // Weave the multi-modal card in before the closing summary card.
   const insertAt = Math.max(0, deck.length - 1);
   deck.splice(insertAt, 0, methodsCard());
   return deck;
 }
 
-// Which lessons are fully hand-authored (used to badge them in the UI).
-export function isFlagship(subjectSlug: string, level: number): boolean {
+/**
+ * True when a real human-authored deck exists for this lesson. The 57 lessons
+ * without one are shown as "in authoring" rather than filled with placeholder
+ * text — they are a known gap (docs/AUDIT.md), not content.
+ */
+export function isAuthored(subjectSlug: string, level: number): boolean {
   return Boolean(FLAGSHIPS[`${subjectSlug}-${level}`]);
+}
+
+/** @deprecated Use `isAuthored`. Retained so existing callers keep compiling. */
+export function isFlagship(subjectSlug: string, level: number): boolean {
+  return isAuthored(subjectSlug, level);
 }

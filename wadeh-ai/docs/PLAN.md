@@ -186,10 +186,16 @@ session re-opens it:
    (`aigency-film-festival`, `product-studio`, `roblox-vfx-forge`,
    `wayout-quest`); a root-level `CLAUDE.md` would apply wadehAI's rules to all
    of them.
-2. **`BRIEF.md` was copied verbatim** from `wadehai-standalone` into
-   `wadeh-ai/BRIEF.md` (md5 `995c0760a12586fb52a37f1a5ac6304f`, unchanged). It
-   arrived on the mirror branch; the canonical branch needs it or the next
-   subtree split deletes it.
+2. **`BRIEF.md` is deduplicated to one canonical copy at `wadeh-ai/BRIEF.md`**
+   (md5 `995c0760a12586fb52a37f1a5ac6304f`, byte-identical to what the founder
+   uploaded). Two non-copies point at it:
+   - the **monorepo root** `/BRIEF.md` is a short pointer, because the root
+     holds five unrelated projects and a session told to "read BRIEF.md at the
+     repo root" found nothing and stalled;
+   - the **`wadehai-standalone` root** copy is not a second original at all — the
+     mirror is `wadeh-ai/` projected by `git subtree split`, so it reproduces
+     the canonical file automatically. **Editing it there is silently destroyed
+     by the next split.**
 3. **`zod@^3.25.76` was added** as a dependency. `tsconfig.json` includes
    `**/*.ts`, so `schemas/*.ts` is type-checked by `next build`; without zod
    installed the build breaks. This is the only dependency change of the
@@ -200,26 +206,78 @@ session re-opens it:
    always 1. The new field is the non-doing half. Authors state it honestly;
    understating it to clear the ratio is itself a C1 failure.
 5. **Measured content counts differ from BRIEF.md** — 43 hand-authored /
-   57 placeholder, not 44 / 56. See `docs/AUDIT.md` §1. Trust the command, not
-   the memory.
+   57 placeholder, not 44 / 56. Founder confirms 43 is correct. **The cause of
+   the discrepancy is unknown**; an earlier claim that the brief predated recent
+   commits was inference and has been withdrawn. See `docs/AUDIT.md` §1 and
+   CLAUDE.md §4a.
 6. **Making the repo private will break production.** The deploy clones the
    public repo unauthenticated. See `docs/PHASE0.md` §0 before flipping it.
+7. **The 57 placeholder lessons are gated, and `autoDeck()` is deleted**
+   (founder instruction, before Phase 1). `buildDeck()` now returns `null` for
+   any lesson without a hand-authored deck; `StudyNotebook` renders an honest
+   "in authoring / قيد التأليف" panel, `TakeawaySheet` hides itself rather than
+   printing filler, and `LevelPath` badges the level before a learner clicks in.
+   Verified: 43 render, 57 gate, zero leaks, and the phrase "ask the tutor for"
+   no longer appears anywhere in `lib/`, `app/` or `components/`.
+8. **`methodsCard()` survives on borrowed time.** It renders six rows from
+   `lib/methods.ts` as emoji + name + one sentence — the Catalog Trap itself. It
+   is now commented as such and is deleted in Phase 2 with the rest of
+   `lib/methods.ts`. It was not removed now because the instruction was to gate
+   the placeholders, and removing it is a separate, larger change.
+
+---
+
+## Phase 3 decisions — settled by the founder, 27 July 2026
+
+These are answers, not proposals. Do not re-open them.
+
+### Subject: **AI, grades 4–9**
+
+Not physics. **The choice is driven by the mandated curriculum and the published
+core areas, not by which subject has the most existing decks.** The 43
+hand-authored decks do not qualify as lessons under the schema anyway — none
+carries standards, misconceptions, engine bindings, an artifact, tutorScope,
+provenance or a11y paths — so "raw material available" was never a valid
+selection criterion. My earlier recommendation of physics used it and was wrong
+on that basis.
+
+### Authority: **UAE MoE**
+
+- **Arabic statements are canonical. English is the translation.** This inverts
+  the usual direction and it matters: when the two readings differ, the Arabic
+  governs. `curriculum-architect` records the Arabic `statement.ar` from the
+  official document and treats `statement.en` as derived.
+- **Do not proceed on press summaries of the seven core areas.** Secondary
+  reporting is not a framework. `curriculum-architect` is **blocked** from
+  emitting drafts for this subject until the official framework document is in
+  hand.
+- **The founder is sourcing the document.** Until it arrives, no AI-subject
+  lesson may be created, and no standard code may be written down from any other
+  source.
+
+### `arabicAuthoredBy`: **Abdullah Abudiak**
+
+- **Agents draft English only.** The founder writes every Arabic field.
+- **Never draft Arabic for approval** — not as a placeholder, not as a starting
+  point, not "for reference". See CLAUDE.md §5.
+- Consequence encoded in the schema: Arabic fields may be empty while a lesson
+  is `draft` or `authored`, and must be non-empty from `validated` onward. A
+  lesson therefore cannot pass the pedagogy gate until Abdullah has written its
+  Arabic.
+
+### Safety gate S6 (cultural and religious appropriateness): **pending-reviewer**
+
+- `safety-auditor` marks S6 `pending-reviewer` rather than failing it, and may
+  still issue `safety-cleared`.
+- **S6 blocks only at `approved`.** `creative-director` may not set `approved`
+  while S6 is `pending-reviewer`.
+- Named per-market reviewers are still required before any lesson ships; this
+  changes when the block bites, not whether it exists.
 
 ---
 
 ## Open questions for the founder
 
-These block work and cannot be resolved from the repository:
-
-1. **Which subject for the Phase 3 vertical slice?** Physics and math have the
-   most hand-authored material (6 decks each) and are the easiest to map to a
-   real authority. Recommendation: **physics, grades 4–9**.
-2. **Which curriculum authority first?** BRIEF.md says UAE MOE, then Jordan,
-   then KSA. Confirm, and say whether an official Arabic edition of the
-   framework is available — `curriculum-architect` must not translate standard
-   statements itself.
-3. **Who is the named human Arabic author?** `provenance.arabicAuthoredBy`
-   cannot be filled without a person. Until one is named, `lesson-author` is
-   blocked from writing any Arabic field.
-4. **Who are the per-market cultural reviewers** for GCC and Levant (safety gate
-   S6)? An unnamed reviewer is an automatic fail.
+1. **Who are the named per-market cultural reviewers** for GCC and Levant? Not
+   blocking until the `approved` gate, per the S6 decision above — but the first
+   lesson cannot reach `approved` without them.

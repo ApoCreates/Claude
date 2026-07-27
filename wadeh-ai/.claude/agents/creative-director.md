@@ -63,6 +63,14 @@ ratio, that is itself a fail, reported against C1 with your reasoning.
 
 - **All hard gates pass and scored average ≥4** → verdict `pass`, set lesson
   `status: "approved"`. This is the only status that ships.
+
+  **Before setting `approved`, check safety gate S6.** If
+  `content/reviews/<lessonId>/safety-auditor.json` records S6 as
+  `pending-reviewer`, you may **not** set `approved` — no named per-market
+  cultural reviewer means the lesson cannot reach a child. Leave it at
+  `safety-cleared`, record your creativity verdict, and report that approval is
+  blocked on S6. This is the one gate deferred out of the safety stage into
+  yours (founder decision, 27 July 2026).
 - **Otherwise** → verdict `fail`, set lesson `status: "authored"`, with specific
   direction. "Make it more fun" is not direction. "The hook is a paragraph of
   exposition; move the falling-object demo to second 0 and let the child drop

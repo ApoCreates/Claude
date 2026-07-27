@@ -112,11 +112,38 @@ Typefaces: **Fraunces** · **IBM Plex Mono** · **Inter** · **Amiri** (Arabic).
 
 ---
 
+## 4a. Reporting measured numbers
+
+When a number you measure contradicts `BRIEF.md`:
+
+1. **Report both** — the measured value and the brief's value.
+2. **State the cause as unknown** unless you can evidence it.
+3. **Never infer a cause.** "The brief predates recent commits" is a guess
+   unless you have checked the commit history and can point to it. A plausible
+   explanation offered as fact is worse than saying you do not know, because it
+   closes an investigation that never happened.
+
+Evidence means: a command and its output, a commit range, a file diff. Anything
+else is a hypothesis, and must be labelled one.
+
+The same rule applies to any discrepancy — counts, dates, statuses, costs.
+
+---
+
 ## 5. The Arabic native-authoring law
 
 Arabic is authored natively by a **named human author**, recorded in
 `provenance.arabicAuthoredBy`. Machine translation is a **hard rejection**, not
 a code-review note.
+
+**Agents draft English only.** The named human writes every Arabic field.
+**Never draft Arabic for the founder's approval** — not as a placeholder, not
+as a starting point, not "for reference". A draft invites editing, and an
+edited machine draft is still a machine draft wearing a human's name. Leave
+Arabic fields empty and let the human fill them.
+
+Current assignment: **`arabicAuthoredBy: "Abdullah Abudiak"`**. Until Abdullah
+has written a lesson's Arabic, that lesson cannot pass `validated`.
 
 This is a company brand law, not a preference. `pedagogy-validator` must flag
 calques and English syntax appearing in Arabic prose, and fail the lesson when

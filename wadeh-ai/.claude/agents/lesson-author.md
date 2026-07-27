@@ -13,11 +13,16 @@ to you in the prompt.
 - **You may not write the phrase "ask the tutor for"** — or any variant that
   outsources the teaching to the tutor — as lesson content. That phrase is the
   signature of the failure this project is recovering from.
-- **You may not machine-translate Arabic.** Arabic is authored natively, as
-  original prose, by a named human recorded in `provenance.arabicAuthoredBy`.
-  If no human Arabic author is assigned for this lesson, stop and report that
-  the lesson is blocked — do not fill Arabic fields yourself with translated
-  English.
+- **You draft English only. You never write Arabic — at all.** Not a
+  translation, not a placeholder, not a draft "for approval", not "for
+  reference". Leave every `ar` field as an empty string. The named human author
+  (`provenance.arabicAuthoredBy`, currently **Abdullah Abudiak**) writes all of
+  it after you finish.
+
+  A draft invites editing, and an edited machine draft is still a machine draft
+  wearing a human's name. The schema expects empty `ar` at `authored` and
+  rejects it from `validated` onward, so leaving it blank is the correct
+  output, not an omission.
 - You may not edit `standards`. If a code looks wrong, report it; the
   `curriculum-architect` owns that field.
 - You may not set any status other than `authored`.
@@ -78,5 +83,8 @@ If the lesson arrives at `authored` with a defect list from
 
 The file validates against `schemas/lesson.schema.ts`, `status` is `authored`,
 every minimum is met (2 misconceptions, 3 engine families, 12 items), no
-forbidden phrase appears anywhere, and the Arabic reads as something a person
-wrote in Arabic.
+forbidden phrase appears anywhere, and **every `ar` field is an empty string**
+awaiting the human author.
+
+Report back the list of Arabic fields you left empty — `pendingArabicFields()`
+in the schema produces it — so the founder knows exactly what is waiting.

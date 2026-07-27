@@ -25,7 +25,7 @@ rather than implying automation that is not there.
 | # | Task | Cadence | Last run | Next due | Exit criteria |
 |---|---|---|---|---|---|
 | M1 | **Coverage report** | Weekly | never | first run | Lessons counted by status; standards covered per authority; engine-binding coverage; orphaned items listed; **placeholder detection returns zero** |
-| M2 | **Placeholder sweep** | Weekly | never | first run | Zero occurrences of "ask the tutor for" in content; `autoDeck()` deleted; no lesson renders generated filler |
+| M2 | **Placeholder sweep** | Weekly | 2026-07-27 | first `/maintain` | **Now passing.** Zero occurrences of "ask the tutor for" in `lib/`, `app/`, `components/`; `autoDeck()` deleted; no lesson renders generated filler. Re-check every run — a regression here is the project's defining failure returning |
 | M3 | **i18n parity** | Weekly | never | first run | Every EN string has a natively-authored AR counterpart; zero suspected machine translations; every lesson names a human in `provenance.arabicAuthoredBy` |
 | M4 | **Cost report** | Weekly | never | first run | Tutor spend, cache hit rate, free-vs-paid ratio, per-tenant cost; spend persisted (not a module global) |
 | M5 | **Flag review** | Weekly | never | first run | Every moderation flag has a named human reviewer and an age; zero unresolved older than 7 days |
@@ -44,7 +44,8 @@ Measured 27 July 2026 — full detail in `docs/AUDIT.md`.
 |---|---:|---|
 | Lessons at `approved` | **0** | 6 for the pilot |
 | Hand-authored decks (raw material) | 43 | — |
-| **Placeholder lessons rendering today** | **57** | 0 |
+| **Placeholder lessons rendering** | **0** (was 57) | 0 ✓ |
+| Lessons showing "in authoring" | 57 | falls as lessons are authored |
 | Assessment items total | 93 | 72 for the pilot alone |
 | Misconceptions declared | 0 | ≥2 per lesson |
 | Engine bindings | 0 | ≥3 per lesson |
@@ -52,9 +53,11 @@ Measured 27 July 2026 — full detail in `docs/AUDIT.md`.
 | Working engines | 0 | 12 |
 | Phase 0 items closed | 0 / 6 | 6 / 6 |
 
-**M2 and M9 both fail today.** That is the honest starting position, and the
-first `/maintain` run should say so in its first line rather than reporting a
-clean sheet.
+**M2 now passes** — the placeholders were gated and `autoDeck()` deleted on
+27 July 2026, before Phase 1, on founder instruction. **M9 still fails**: zero
+lessons are `approved`, so no lesson may ship. That is the honest position, and
+the first `/maintain` run should lead with it rather than reporting a clean
+sheet.
 
 ---
 

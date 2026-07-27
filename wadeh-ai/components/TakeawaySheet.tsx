@@ -10,8 +10,13 @@ export function TakeawaySheet({ subject, level }: { subject: Subject; level: Lev
   const { lang } = usePrefs();
   const ar = lang === "ar";
 
+  // No authored deck means there is nothing honest to print. The button is
+  // hidden rather than producing a sheet of placeholder text a child takes home.
+  if (!buildDeck(subject, level)) return null;
+
   const make = () => {
     const deck = buildDeck(subject, level);
+    if (!deck) return;
     const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c] as string));
 
     const cards = deck

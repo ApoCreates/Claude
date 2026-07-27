@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePrefs } from "@/lib/prefs";
 import { t } from "@/lib/i18n";
 import { ROMAN, FREE_LEVELS, ageRange, type Subject } from "@/lib/curriculum";
+import { isAuthored } from "@/lib/notebook";
 import { SunMark } from "./SunMark";
 import clsx from "clsx";
 
@@ -56,6 +57,11 @@ export function LevelPath({ subject }: { subject: Subject }) {
                 </div>
                 <p className="eyebrow mt-1">
                   {d.subject.level} {n} · {d.subject.ages} {ageRange(n)}
+                  {!isAuthored(subject.slug, n) && (
+                    <span className="ms-2 text-dusk">
+                      · {lang === "ar" ? "قيد التأليف" : "in authoring"}
+                    </span>
+                  )}
                 </p>
               </div>
               <span className="shrink-0 font-mono text-[10px] uppercase tracking-label">

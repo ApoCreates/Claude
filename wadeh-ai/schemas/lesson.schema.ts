@@ -8,12 +8,42 @@
 
 import { z } from "zod";
 
-/** Bilingual string. Arabic is authored natively — never a translation of `en`. */
+/**
+ * Bilingual string. Arabic is authored natively — never a translation of `en`.
+ *
+ * `ar` may be empty **only** while a lesson is `draft` or `authored`, because
+ * agents draft English only and the named human writes every Arabic field
+ * afterwards (CLAUDE.md §5). From `validated` onward every `ar` must be
+ * non-empty — enforced by `requiresCompleteArabic` on the Lesson, not here,
+ * since this type has no view of the lesson's status.
+ */
 export const Bi = z.object({
   en: z.string().min(1),
-  ar: z.string().min(1),
+  ar: z.string(),
 });
 export type Bi = z.infer<typeof Bi>;
+
+/** Statuses at or beyond which every Arabic field must be written. */
+const ARABIC_REQUIRED_FROM: ReadonlySet<string> = new Set([
+  "validated",
+  "safety-cleared",
+  "approved",
+]);
+
+/** Walks any value and collects the paths of `Bi` objects with an empty `ar`. */
+function emptyArabicPaths(value: unknown, path: string[] = []): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((v, i) => emptyArabicPaths(v, [...path, String(i)]));
+  }
+  if (value && typeof value === "object") {
+    const o = value as Record<string, unknown>;
+    if (typeof o.en === "string" && typeof o.ar === "string") {
+      return (o.ar as string).trim() === "" ? [path.join(".")] : [];
+    }
+    return Object.entries(o).flatMap(([k, v]) => emptyArabicPaths(v, [...path, k]));
+  }
+  return [];
+}
 
 /** Lesson lifecycle. Only `approved` may ship. See CLAUDE.md §2. */
 export const LessonStatus = z.enum([
@@ -192,6 +222,21 @@ export const Lesson = z.object({
   .refine((l) => l.standards.every((s) => s.grade === l.grade), {
     message: "every standard's grade must match the lesson grade",
     path: ["standards"],
+  })
+  // Arabic is written by the named human between `authored` and `validated`.
+  // Before `validated` empty `ar` is expected; from `validated` it is a defect.
+  .superRefine((l, ctx) => {
+    if (!ARABIC_REQUIRED_FROM.has(l.status)) return;
+    for (const p of emptyArabicPaths(l)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: p.split("."),
+        message:
+          `Arabic is empty at "${p}" but status is "${l.status}". ` +
+          `Arabic must be written by ${l.provenance.arabicAuthoredBy || "the named human author"} ` +
+          `before this lesson can pass the pedagogy gate. Agents must not fill it.`,
+      });
+    }
   });
 
 export type Lesson = z.infer<typeof Lesson>;
@@ -204,6 +249,19 @@ export function isShippable(lesson: Lesson): boolean {
 /** Unaligned lessons never appear in a B2B tenant. */
 export function isAligned(lesson: Lesson): boolean {
   return lesson.standards.length > 0;
+}
+
+/**
+ * True once the named human has written every Arabic field. Agents draft
+ * English only; this is the check that says the human's pass has happened.
+ */
+export function arabicComplete(lesson: Lesson): boolean {
+  return emptyArabicPaths(lesson).length === 0;
+}
+
+/** Which Arabic fields are still waiting on the human author. */
+export function pendingArabicFields(lesson: Lesson): string[] {
+  return emptyArabicPaths(lesson);
 }
 
 /**

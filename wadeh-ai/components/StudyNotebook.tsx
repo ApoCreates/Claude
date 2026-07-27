@@ -24,6 +24,27 @@ function cardText(card: NoteCard, lang: "en" | "ar"): string {
   return bits.join(". ");
 }
 
+// Shown for a lesson that has not been written yet. We say so plainly rather
+// than generating filler that looks like a lesson — the failure this rebuild
+// exists to correct. See CLAUDE.md DO NOT #2 and docs/AUDIT.md.
+function InAuthoring({ ar }: { ar: boolean }) {
+  return (
+    <div className="card p-8" dir={ar ? "rtl" : "ltr"} style={{ textAlign: ar ? "right" : "left" }}>
+      <p className="eyebrow-accent">{ar ? "قيد التأليف" : "In authoring"}</p>
+      <p className="mt-4 font-serif text-xl leading-relaxed">
+        {ar
+          ? "هذا الدرس لم يُكتب بعد."
+          : "This lesson has not been written yet."}
+      </p>
+      <p className="mt-3 text-[15px] leading-relaxed text-paper/80">
+        {ar
+          ? "نُفضّل أن نقول ذلك بصراحة على أن نملأ الصفحة بنصّ يبدو درساً وليس بدرس. أمّا محاور السنة ووحداتها أدناه فهي مكتوبة فعلاً، والاختبار يعمل."
+          : "We would rather say so than fill the page with text that looks like a lesson and is not. The year focus and units below are genuinely written, and the quiz works."}
+      </p>
+    </div>
+  );
+}
+
 export function StudyNotebook({ subject, level }: { subject: Subject; level: Level }) {
   const { lang, access } = usePrefs();
   const ar = lang === "ar";
@@ -31,6 +52,9 @@ export function StudyNotebook({ subject, level }: { subject: Subject; level: Lev
   const [i, setI] = useState(0);
   const startX = useRef<number | null>(null);
   const flagship = isFlagship(subject.slug, level.n);
+
+  // 57 of 100 lessons have no authored deck. They render an honest state.
+  if (!deck) return <InAuthoring ar={ar} />;
 
   const go = (next: number) => {
     const clamped = Math.max(0, Math.min(deck.length - 1, next));

@@ -22,12 +22,33 @@ every other agent fills in. You never write teaching content.
   empty array is honest and a fake code is a false claim to a ministry.
 - Never set a status other than `draft`.
 
+## Current assignment (founder decision, 27 July 2026)
+
+**Subject: AI, grades 4–9. Authority: UAE MoE.**
+
+Two constraints specific to this assignment:
+
+- **Arabic is canonical; English is the translation.** For UAE MoE, record
+  `statement.ar` from the official Arabic document and treat `statement.en` as
+  derived from it. Where the two readings differ, **the Arabic governs.** This
+  is the reverse of the usual direction — do not normalise it away.
+- **You are blocked until the official framework document is in hand.** Press
+  summaries of the seven core areas are **not** a framework and must not be used
+  to emit a single draft or write down a single code. The founder is sourcing
+  the document. Until it arrives, report blocked and stop; do not substitute a
+  secondary source, however reputable.
+
+The subject choice is driven by the mandated curriculum and the published core
+areas — **not** by which subject has the most existing decks. Existing decks do
+not qualify as lessons and are not a selection criterion.
+
 ## Procedure
 
 1. **Source the standards.** For the requested authority, locate the official
    framework document. Record for every code: `authority`, `grade`, `code`,
    `statement` in both English and Arabic. Arabic statements come from the
-   Arabic edition of the framework where one exists — never translated by you.
+   Arabic edition of the framework — **never translated by you**, in either
+   direction.
 2. **Write `content/standards/<authority>.json`.** Include a `source` block
    with document title, publisher, edition/year, and URL if public. If a code
    was read from a PDF that is not publicly linkable, say so explicitly in
