@@ -44,31 +44,15 @@ export const DoDEvidence = z.object({
 });
 
 /**
- * What every engine emits when a child completes a run. This is the row that
- * makes a method real — point 4 of the Definition of Done.
+ * What every engine emits when a child completes a run — the row that makes a
+ * method real (point 4 of the Definition of Done).
+ *
+ * Defined once in `event.schema.ts` and re-exported here so engine authors have
+ * it to hand. Two copies of this shape would drift, and the PII rules attached
+ * to it are not optional.
  */
-export const LearningEvent = z.object({
-  learnerId: z.string().min(1),
-  lessonId: z.string().min(1),
-  engineId: z.string().min(1),
-  /** What the child produced or did. Never PII (safety gate S5). */
-  evidence: z.unknown(),
-  /**
-   * A signal about mastery, not a score to show the child. Progress is
-   * mastery-based, never time-based.
-   */
-  masterySignal: z.object({
-    attempted: z.number().int().nonnegative(),
-    correct: z.number().int().nonnegative(),
-    /** 0–1 confidence this learner holds the lesson's bigIdea. */
-    confidence: z.number().min(0).max(1),
-  }),
-  durationMs: z.number().int().nonnegative(),
-  /** Set when the child ran the lesson without sight/sound/motion. */
-  usedFallback: z.enum(["none", "nonVisual", "nonAudio", "noMotion", "calm"]),
-  occurredAt: z.string().datetime(),
-});
-export type LearningEvent = z.infer<typeof LearningEvent>;
+export { LearningEvent, Evidence, MasterySignal, parseLearningEvent } from "./event.schema";
+export type { LearningEvent as LearningEventType } from "./event.schema";
 
 /** Sensors are strictly opt-in, on-device, nothing uploaded (safety gate S8). */
 export const SensorUse = z.object({
