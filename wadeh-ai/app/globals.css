@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* wadehAI — set in daylight. Ink on paper, ochre accent, never #FFF, never #000. */
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f4efe5;
+  color: #15140f;
+}
+
+::selection {
+  background: #c4612a;
+  color: #f4efe5;
+}
+
+/* Arabic gets its own faces: Amiri for display serif, Plex Arabic for UI. */
+html[lang="ar"] .font-serif {
+  font-family: var(--font-amiri), var(--font-fraunces), serif;
+}
+html[lang="ar"] body,
+html[lang="ar"] .font-sans {
+  font-family: var(--font-plex-arabic), var(--font-inter-tight), sans-serif;
+}
+/* Mono eyebrows stay latin-flavoured but inherit Arabic gracefully. */
+html[lang="ar"] .eyebrow {
+  letter-spacing: 0.08em;
+}
+
+@layer components {
+  /* JetBrains Mono label — the design system's mono eyebrow. */
+  .eyebrow {
+    @apply font-mono text-[11px] font-medium uppercase tracking-label text-mute-light;
+  }
+  .eyebrow-accent {
+    @apply font-mono text-[11px] font-medium uppercase tracking-label text-ochre;
+  }
+
+  /* Card pattern — mono index, Fraunces title, hairline meta.
+     Hover lifts the border to marigold. Never a glow, never a shadow on type. */
+  .card {
+    @apply border border-hairline bg-ink-panel transition-colors duration-300;
+  }
+  .card-hover:hover {
+    @apply border-marigold/60;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-sans text-sm font-medium transition-colors duration-200;
+  }
+  .btn-primary {
+    @apply btn bg-marigold text-ink hover:bg-gold;
+  }
+  .btn-ghost {
+    @apply btn border border-hairline-strong text-paper hover:border-marigold/70;
+  }
+  .btn-paper {
+    @apply btn bg-paper text-ink hover:bg-paper-deep;
+  }
+
+  /* A nod to print: the cut line. Use to separate, fold, or detach. */
+  .cutline {
+    @apply relative border-t border-dashed border-hairline-strong;
+  }
+  .cutline-scissor::before {
+    content: "✂";
+    @apply absolute -top-3 text-gold text-sm;
+    inset-inline-start: 1.5rem;
+  }
+
+  .hairline-row {
+    @apply border-t border-hairline;
+  }
+}
+
+/* ---------------------------------------------------------- Accessibility */
+
+/* Larger text for low vision — everything scales with the root. */
+html.a11y-large {
+  font-size: 115%;
+}
+
+/* High contrast: deepen secondary text and strengthen hairlines.
+   Accessibility outranks the palette here. */
+html.a11y-contrast body {
+  color: #0d0c08;
+}
+html.a11y-contrast .text-mute-light,
+html.a11y-contrast .eyebrow {
+  color: #3f3b31 !important;
+}
+html.a11y-contrast .text-mute {
+  color: #55503f !important;
+}
+html.a11y-contrast .text-gold {
+  color: #7a5a1c !important;
+}
+html.a11y-contrast .card,
+html.a11y-contrast .border-hairline {
+  border-color: rgba(21, 20, 15, 0.55) !important;
+}
+
+/* Calm mode (autism-friendly): no animation, no motion pressure. */
+html.a11y-calm *,
+html.a11y-calm *::before,
+html.a11y-calm *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sun-rise {
+    animation: none;
+  }
+}
+
+/* Visible keyboard focus everywhere — never removed, only styled. */
+:focus-visible {
+  outline: 2px solid #c4612a;
+  outline-offset: 2px;
+}
+
+/* The sunrise — mastery celebration. A warm lift, never a glow. */
+@keyframes sun-rise {
+  from {
+    transform: translateY(26px) scale(0.4) rotate(-30deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-4px) scale(1.08) rotate(4deg);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+.sun-rise {
+  display: inline-block;
+  animation: sun-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Thin, quiet scrollbars for the tutor panel. */
+.tutor-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.tutor-scroll::-webkit-scrollbar-thumb {
+  background: rgba(21, 20, 15, 0.2);
+}
