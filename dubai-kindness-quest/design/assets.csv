@@ -1,0 +1,14 @@
+id,role,type,description,size/ratio,style_line_ref,source
+hero,player sprite (walk/swim),sprite,expat man walking top-down sky-blue shirt,1:1 -> 96px,STYLE FORMULA,generate
+car,drivable vehicle sprite,sprite,friendly compact car top-down,1:1 -> 96px,STYLE FORMULA,generate
+plane,flyable aircraft sprite,sprite,small white seaplane top-down,1:1 -> 120px,STYLE FORMULA,generate
+npc,helpable citizen sprite,sprite,kind Emirati local in white kandura waving top-down,1:1 -> 88px,STYLE FORMULA,generate
+burj,landmark prop,sprite,tall slender desert spire tower high top-down,1:1 -> 160px,STYLE FORMULA,generate
+shop,store building prop,sprite,small corner market stall with striped awning high top-down,1:1 -> 140px,STYLE FORMULA,generate
+palm,decoration prop,sprite,single green date palm top-down round crown,1:1 -> 72px,STYLE FORMULA,generate
+thumbnail,marketplace cover,card,promo cover expat waving before golden-hour Dubai skyline with title,16:9,STYLE FORMULA,generate
+favicon,marketplace icon,card,coral-pink heart over golden sun and palm on turquoise,1:1,STYLE FORMULA,generate
+sand_ground,base terrain,procedural,warm sand-beige tiled ground,code,STYLE FORMULA,code
+road,road surface,procedural,warm grey asphalt with dashed lines,code,STYLE FORMULA,code
+sea,water surface,procedural,calm turquoise sea with soft ripples,code,STYLE FORMULA,code
+heart_pickup,kindness pickup,procedural,coral-pink kindness heart with mint glow,code,STYLE FORMULA,code

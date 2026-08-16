@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Dubai Kindness Quest</title>
+<style>
+  :root { --sand:#e9d3a6; --ink:#3a2f1c; --gold:#d8a73a; --teal:#36c6c0; --coral:#ff6b8a; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; overflow:hidden; background:#0f1117;
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif; user-select:none; }
+  canvas { display:block; }
+
+  #hud { position:fixed; top:0; left:0; right:0; display:flex; gap:14px; flex-wrap:wrap;
+    align-items:center; padding:8px 14px; color:var(--ink);
+    background:linear-gradient(180deg,rgba(255,247,228,0.96),rgba(255,247,228,0.78));
+    font-size:15px; box-shadow:0 2px 10px rgba(0,0,0,0.15); z-index:5; }
+  #hud b { color:#7a4e12; } #hud .mode { margin-left:auto; padding:3px 12px; border-radius:20px;
+    background:var(--teal); color:#fff; font-weight:600; }
+
+  #prompt { position:fixed; left:50%; bottom:120px; transform:translateX(-50%);
+    background:rgba(58,47,28,0.9); color:#fff; padding:8px 18px; border-radius:22px;
+    font-size:15px; display:none; z-index:5; }
+  #toast { position:fixed; left:50%; top:54px; transform:translateX(-50%);
+    background:var(--gold); color:#3a2f1c; font-weight:700; padding:8px 20px; border-radius:24px;
+    opacity:0; transition:opacity .4s; z-index:6; box-shadow:0 4px 14px rgba(0,0,0,.2); }
+
+  /* touch controls */
+  #joy { position:fixed; width:120px; height:120px; border-radius:50%;
+    background:rgba(255,255,255,0.18); border:2px solid rgba(255,255,255,0.5);
+    display:none; z-index:4; pointer-events:none; }
+  #joyknob { position:absolute; left:35px; top:35px; width:50px; height:50px; border-radius:50%;
+    background:rgba(255,255,255,0.7); }
+  .tbtn { position:fixed; bottom:32px; width:78px; height:78px; border-radius:50%;
+    border:none; color:#fff; font-size:15px; font-weight:800; z-index:4; touch-action:none;
+    box-shadow:0 4px 12px rgba(0,0,0,.25); }
+  #btnA { right:24px; background:var(--coral); }
+  #btnE { right:118px; bottom:60px; width:64px; height:64px; background:#1f6dff; font-size:22px; }
+
+  .overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+    z-index:10; padding:18px; }
+  #intro { display:flex; flex-direction:column; text-align:center; color:#fff; cursor:pointer;
+    background:radial-gradient(circle at 50% 30%,#f3b65a,#e08b3a 45%,#2b6e6b 100%); }
+  #intro .t { font-size:40px; font-weight:900; letter-spacing:.5px; margin-bottom:4px;
+    text-shadow:0 3px 0 rgba(0,0,0,.18); }
+  #intro .tag { font-size:18px; opacity:.95; margin-bottom:26px; }
+  #intro p { margin:5px 0; font-size:16px; max-width:520px; }
+  #intro .start { margin-top:26px; font-size:18px; font-weight:800; background:#fff; color:#c9622f;
+    padding:12px 26px; border-radius:30px; }
+
+  #store { background:rgba(28,22,12,0.78); }
+  #store .panel { background:#fff7e4; color:var(--ink); border-radius:18px; padding:18px;
+    max-width:760px; width:100%; max-height:88vh; overflow:auto; box-shadow:0 12px 40px rgba(0,0,0,.4); }
+  #store h2 { margin:0 0 2px; font-size:26px; text-align:center; }
+  #store h2 small { display:block; font-size:13px; color:#8a7048; font-weight:500; }
+  #store .hint { text-align:center; color:#6a5a3c; font-size:14px; margin:6px 0 14px; }
+  #store .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  #store .item { background:#fff; border:1px solid #ecdcb8; border-radius:14px; padding:12px;
+    text-align:center; position:relative; }
+  #store .item .ar { font-size:30px; font-weight:800; direction:rtl; }
+  #store .item .tr { font-size:13px; color:#7a4e12; font-weight:600; margin-top:2px; }
+  #store .item .dsc { font-size:12px; color:#7d7060; margin:6px 0 10px; min-height:30px; }
+  #store .item button { width:100%; border:none; background:var(--gold); color:#3a2f1c;
+    font-weight:700; padding:9px; border-radius:10px; cursor:pointer; }
+  #store .item .own { position:absolute; top:8px; right:10px; font-weight:800; color:var(--coral); }
+  #store .close { display:block; margin:16px auto 2px; border:none; background:var(--ink); color:#fff;
+    padding:11px 30px; border-radius:24px; font-weight:700; cursor:pointer; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud"></div>
+<div id="prompt"></div>
+<div id="toast"></div>
+
+<div id="joy"><div id="joyknob"></div></div>
+<button id="btnE" class="tbtn">E</button>
+<button id="btnA" class="tbtn">♥</button>
+
+<div id="intro" class="overlay">
+  <div class="t"></div>
+  <div class="tag"></div>
+  <p class="l1"></p><p class="l2"></p><p class="l3"></p>
+  <div class="start"></div>
+</div>
+
+<div id="store" class="overlay">
+  <div class="panel">
+    <h2></h2>
+    <div class="hint"></div>
+    <div class="grid"></div>
+    <button class="close"></button>
+  </div>
+</div>
+
+<script type="module" src="./game.js"></script>
+</body>
+</html>

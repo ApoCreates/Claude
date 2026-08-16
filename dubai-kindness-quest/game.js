@@ -1,0 +1,573 @@
+import { STR } from "./strings.js";
+
+// ----------------------------------------------------------------------------
+// Dubai Kindness Quest — a calm, kindness-based open-world roam.
+// No weapons, no aggression: you walk, drive, fly and swim across Dubai and
+// help the people you meet. Fixed-timestep sim, seeded world, relative paths.
+// ----------------------------------------------------------------------------
+
+const CFG = {
+  WORLD_W: 3600, WORLD_H: 2700,
+  SEA_Y: 2120, BEACH: 70,
+  WALK: 1.75, WALK_FAST: 2.35, SWIM: 1.15, DRIVE: 3.3, DRIVE_ROAD: 4.7, FLY: 6.6,
+  HELP_R: 72, SHOP_R: 92, CAR_R: 72, PLANE_R: 96,
+  HEAL_RESPAWN: 1500,      // steps (~25s) before a helped person needs help again
+  DPR_CAP: 1.5,
+};
+
+// roads (axis-aligned strips) ------------------------------------------------
+const ROAD_W = 92;
+const HROADS = [700, 1300, 1850].map(y => ({ x: 0, y: y - ROAD_W / 2, w: CFG.WORLD_W, h: ROAD_W }));
+const VROADS = [600, 1500, 2400, 3100].map(x => ({ x: x - ROAD_W / 2, y: 0, w: ROAD_W, h: 2060 }));
+const ROADS = [...HROADS, ...VROADS];
+const RUNWAY = { x: 2700, y: 330, w: 760, h: 130 };
+
+// solid buildings (block foot + car, flying passes over) ---------------------
+const BUILDINGS = [
+  { x: 1500, y: 1000, r: 120, kind: "burj" },
+  { x: 920,  y: 470,  r: 56,  kind: "shop" },
+  { x: 2040, y: 1520, r: 56,  kind: "shop" },
+  { x: 2760, y: 1720, r: 56,  kind: "shop" },
+  { x: 470,  y: 1640, r: 56,  kind: "shop" },
+];
+const SHOPS = BUILDINGS.filter(b => b.kind === "shop");
+
+// ----------------------------------------------------------------------------
+// seeded RNG (deterministic world)
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rng = mulberry32(20260617);
+const rand = (a, b) => a + (b - a) * rng();
+
+// ----------------------------------------------------------------------------
+// terrain helpers
+function inRect(x, y, r) { return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h; }
+function onRoad(x, y) { return ROADS.some(r => inRect(x, y, r)) || inRect(x, y, RUNWAY); }
+function inSea(x, y) { return y >= CFG.SEA_Y; }
+function inBuilding(x, y, pad = 0) {
+  return BUILDINGS.some(b => Math.hypot(x - b.x, y - b.y) < b.r + pad);
+}
+
+// ----------------------------------------------------------------------------
+// world content: palms + citizens
+const PALMS = [];
+for (let i = 0; i < 70; i++) {
+  let x, y, tries = 0;
+  do { x = rand(60, CFG.WORLD_W - 60); y = rand(60, CFG.SEA_Y - 40); tries++; }
+  while ((onRoad(x, y) || inBuilding(x, y, 40)) && tries < 30);
+  PALMS.push({ x, y, s: rand(0.7, 1.15) });
+}
+
+const NPCS = [];
+for (let i = 0; i < 16; i++) {
+  let x, y, tries = 0;
+  do { x = rand(120, CFG.WORLD_W - 120); y = rand(120, CFG.SEA_Y - 120); tries++; }
+  while ((inBuilding(x, y, 50) || inSea(x, y)) && tries < 40);
+  NPCS.push({
+    x, y, helped: false, timer: 0,
+    need: Math.floor(rng() * STR.needs.length),
+    bob: rng() * Math.PI * 2,
+  });
+}
+
+// ----------------------------------------------------------------------------
+// player + vehicles
+const player = {
+  x: 720, y: 920, mode: "foot",   // foot | car | plane
+  heading: -Math.PI / 2,
+  kindness: 0, dirhams: 25, rank: 0,
+  inv: {}, hasMap: false, hasShoes: false,
+};
+const car = { x: 640, y: 760, heading: 0 };
+const plane = { x: 3080, y: 395, heading: 0 };
+
+// ----------------------------------------------------------------------------
+// assets. Strategy: prefer bundled, pre-keyed PNGs in ./assets/ (transparent).
+// If those are absent, fall back to the generated source images on the CDN and
+// key out the magenta background in-browser. If anything fails, drawSprite()
+// renders a clean procedural shape — the game always stays playable.
+const IMG = {};
+const NAMES = ["hero", "car", "plane", "npc", "burj", "shop", "palm"];
+const CDN = "https://d8j0ntlcm91z4.cloudfront.net/user_36Qu7m1QQeYKD3neBodMrYupmxc";
+const FALLBACK_URL = {
+  hero:  `${CDN}/hf_20260617_074750_99adc012-821f-4ec7-bfc3-3d54c7561b49.png`,
+  car:   `${CDN}/hf_20260617_074752_67d12649-da24-4951-8647-b61ec831b9e8.png`,
+  plane: `${CDN}/hf_20260617_074755_ab7fe412-99c6-4e6a-92e7-0879b1a9addf.png`,
+  npc:   `${CDN}/hf_20260617_074758_9f6215e1-51d1-44de-b8fe-e41a154d26dc.png`,
+  burj:  `${CDN}/hf_20260617_074801_92f5e040-15c7-474f-8357-861d83bc1fc4.png`,
+  shop:  `${CDN}/hf_20260617_074806_c7336fca-01e5-4113-9fd7-0b1af1553afd.png`,
+  palm:  `${CDN}/hf_20260617_074807_c53eadbf-eb79-4329-8945-1ff766b342f7.png`,
+};
+function keyMagenta(src, w, h) {
+  try {
+    const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+    const c = cv.getContext("2d"); c.drawImage(src, 0, 0, w, h);
+    const img = c.getImageData(0, 0, w, h), a = img.data;
+    for (let i = 0; i < a.length; i += 4) {
+      const r = a[i], g = a[i + 1], b = a[i + 2];
+      if (r > 135 && b > 115 && g < 115) a[i + 3] = 0;   // magenta key -> transparent
+    }
+    c.putImageData(img, 0, 0); return cv;
+  } catch (e) { return null; }   // CORS-tainted: fall back to procedural art, never magenta
+}
+function loadAsset(n) {
+  const local = new Image();
+  local.onload = () => { IMG[n] = local; };       // bundled PNG already has alpha
+  local.onerror = () => {
+    const url = FALLBACK_URL[n]; if (!url) return;
+    const im = new Image(); im.crossOrigin = "anonymous";
+    im.onload = () => { const k = keyMagenta(im, im.naturalWidth, im.naturalHeight); if (k) IMG[n] = k; };
+    im.src = url;
+  };
+  local.src = `./assets/${n}.png`;
+}
+NAMES.forEach(loadAsset);
+
+// Procedural, on-style fallbacks (drawn at origin, facing up). Used whenever the
+// generated sprite isn't available — keeps the game coherent with zero assets.
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); ctx.fill(); }
+function disc(x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); }
+function procShape(name, s) {
+  const u = s / 2;
+  ctx.strokeStyle = "rgba(90,60,30,0.55)"; ctx.lineWidth = Math.max(1, s * 0.02);
+  switch (name) {
+    case "hero":
+      ctx.fillStyle = "#2f8fd6"; rr(-u * 0.42, -u * 0.25, u * 0.84, u * 0.78, u * 0.28);
+      ctx.fillStyle = "#e8b98f"; disc(0, -u * 0.42, u * 0.32); break;
+    case "npc":
+      ctx.fillStyle = "#f4f1e8"; rr(-u * 0.4, -u * 0.3, u * 0.8, u * 0.85, u * 0.26);
+      ctx.fillStyle = "#cf9f74"; disc(0, -u * 0.45, u * 0.3);
+      ctx.fillStyle = "#e8e2d2"; disc(0, -u * 0.5, u * 0.34); break;
+    case "car":
+      ctx.fillStyle = "#e0633e"; rr(-u * 0.42, -u * 0.78, u * 0.84, u * 1.56, u * 0.3);
+      ctx.fillStyle = "#bfe3ec"; rr(-u * 0.32, -u * 0.5, u * 0.64, u * 0.5, u * 0.16);
+      rr(-u * 0.32, u * 0.06, u * 0.64, u * 0.4, u * 0.14); break;
+    case "plane":
+      ctx.fillStyle = "#f5f5f0"; rr(-u * 0.16, -u * 0.85, u * 0.32, u * 1.7, u * 0.16);
+      rr(-u * 0.85, -u * 0.12, u * 1.7, u * 0.24, u * 0.1);
+      ctx.fillStyle = "#2f8fd6"; rr(-u * 0.4, u * 0.5, u * 0.8, u * 0.16, u * 0.07); break;
+    case "burj":
+      ctx.fillStyle = "#d8a73a"; disc(0, 0, u * 0.92);
+      ctx.fillStyle = "#f0cf7a"; disc(0, 0, u * 0.6);
+      ctx.fillStyle = "#fff0c4"; disc(0, 0, u * 0.28); break;
+    case "shop":
+      ctx.fillStyle = "#caa46a"; rr(-u * 0.7, -u * 0.6, u * 1.4, u * 1.2, u * 0.12);
+      for (let i = 0; i < 5; i++) { ctx.fillStyle = i % 2 ? "#e0633e" : "#fff7e4";
+        rr(-u * 0.7 + i * u * 0.28, -u * 0.62, u * 0.28, u * 0.3, 2); } break;
+    case "palm":
+      ctx.fillStyle = "#8a5a2b"; disc(0, 0, u * 0.16);
+      ctx.fillStyle = "#3f9a52";
+      for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2;
+        ctx.save(); ctx.rotate(a); ctx.beginPath(); ctx.ellipse(0, -u * 0.5, u * 0.18, u * 0.5, 0, 0, 7); ctx.fill(); ctx.restore(); }
+      ctx.fillStyle = "#2f7a40"; disc(0, 0, u * 0.18); break;
+    default:
+      ctx.fillStyle = "#c98"; disc(0, 0, u);
+  }
+}
+
+// ----------------------------------------------------------------------------
+// canvas
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, CFG.DPR_CAP);
+  canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
+  canvas.style.width = innerWidth + "px"; canvas.style.height = innerHeight + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+addEventListener("resize", resize); addEventListener("orientationchange", resize); resize();
+
+// ----------------------------------------------------------------------------
+// input — keyboard (physical codes), touch joystick + buttons, gamepad
+const BIND = { KeyW: "up", KeyS: "down", KeyA: "left", KeyD: "right",
+  ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right" };
+const held = new Set();
+let kAction = false, kRide = false;
+addEventListener("keydown", e => {
+  if (BIND[e.code]) { held.add(BIND[e.code]); e.preventDefault(); }
+  if (e.code === "Space") { kAction = true; e.preventDefault(); }
+  if (e.code === "KeyE") { kRide = true; e.preventDefault(); }
+});
+addEventListener("keyup", e => { if (BIND[e.code]) held.delete(BIND[e.code]); });
+
+// touch joystick
+const joy = { active: false, id: null, bx: 0, by: 0, dx: 0, dy: 0 };
+let tAction = false, tRide = false;
+const joyEl = document.getElementById("joy"), joyKnob = document.getElementById("joyknob");
+function startJoy(t) {
+  joy.active = true; joy.id = t.identifier; joy.bx = t.clientX; joy.by = t.clientY;
+  joy.dx = 0; joy.dy = 0;
+  joyEl.style.display = "block"; joyEl.style.left = (t.clientX - 60) + "px"; joyEl.style.top = (t.clientY - 60) + "px";
+  joyKnob.style.transform = "translate(0px,0px)";
+}
+addEventListener("touchstart", e => {
+  for (const t of e.changedTouches) {
+    if (t.clientX < innerWidth * 0.55 && !joy.active) startJoy(t);
+  }
+}, { passive: true });
+addEventListener("touchmove", e => {
+  for (const t of e.changedTouches) {
+    if (t.identifier === joy.id) {
+      let dx = t.clientX - joy.bx, dy = t.clientY - joy.by;
+      const m = Math.hypot(dx, dy), max = 55;
+      if (m > max) { dx = dx / m * max; dy = dy / m * max; }
+      joy.dx = dx / max; joy.dy = dy / max;
+      joyKnob.style.transform = `translate(${dx}px,${dy}px)`;
+    }
+  }
+}, { passive: true });
+addEventListener("touchend", e => {
+  for (const t of e.changedTouches) {
+    if (t.identifier === joy.id) { joy.active = false; joy.id = null; joy.dx = joy.dy = 0; joyEl.style.display = "none"; }
+  }
+}, { passive: true });
+
+function bindBtn(id, set) {
+  const el = document.getElementById(id);
+  el.addEventListener("touchstart", e => { e.preventDefault(); set(true); }, { passive: false });
+}
+bindBtn("btnA", () => tAction = true);
+bindBtn("btnE", () => tRide = true);
+
+let padPrevA = false, padPrevX = false;
+function readInput() {
+  let x = 0, y = 0;
+  if (held.has("left")) x -= 1; if (held.has("right")) x += 1;
+  if (held.has("up")) y -= 1; if (held.has("down")) y += 1;
+  let action = kAction || tAction, ride = kRide || tRide;
+  // gamepad
+  for (const gp of (navigator.getGamepads?.() ?? [])) {
+    if (!gp) continue;
+    const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
+    if (Math.abs(ax) > 0.2) x += ax; if (Math.abs(ay) > 0.2) y += ay;
+    if (gp.buttons[14]?.pressed) x -= 1; if (gp.buttons[15]?.pressed) x += 1;
+    if (gp.buttons[12]?.pressed) y -= 1; if (gp.buttons[13]?.pressed) y += 1;
+    const a = gp.buttons[0]?.pressed, xb = gp.buttons[2]?.pressed;
+    if (a && !padPrevA) action = true; padPrevA = a;
+    if (xb && !padPrevX) ride = true; padPrevX = xb;
+  }
+  if (joy.active) { x += joy.dx; y += joy.dy; }
+  const m = Math.hypot(x, y);
+  if (m > 1) { x /= m; y /= m; }
+  const out = { x, y, action, ride };
+  kAction = tAction = kRide = tRide = false;   // consume edge presses
+  return out;
+}
+
+// ----------------------------------------------------------------------------
+// game state: intro / play / store
+let scene = "intro";
+const particles = [];   // hearts
+const floats = [];      // floating thank-you text
+
+function spawnHearts(x, y, n) {
+  for (let i = 0; i < n; i++)
+    particles.push({ x: x + rand(-14, 14), y, vy: rand(-0.9, -1.6), life: 70, max: 70 });
+}
+function pick(arr) { return arr[Math.floor(rng() * arr.length)]; }
+function floatText(x, y, ar, sub) { floats.push({ x, y, ar, sub, life: 110, max: 110 }); }
+
+function bestGift() {
+  let best = null;
+  for (const it of STR.store.items) {
+    if (it.kind_gift && (player.inv[it.id] || 0) > 0) {
+      if (!best || it.kind > best.kind) best = it;
+    }
+  }
+  return best;
+}
+
+function helpNPC(n) {
+  const g = bestGift();
+  let gain;
+  if (g) { player.inv[g.id]--; gain = g.kind + 1; floatText(n.x, n.y - 36, pick(STR.thanks).ar, `${STR.gaveGift}${g.en}`); }
+  else { gain = 1; floatText(n.x, n.y - 36, pick(STR.thanks).ar, STR.kindWord); }
+  player.kindness += gain;
+  player.dirhams += 10 + gain * 4;
+  n.helped = true; n.timer = CFG.HEAL_RESPAWN;
+  spawnHearts(n.x, n.y - 20, 5 + gain);
+  // reputation
+  let r = 0;
+  for (let i = 0; i < STR.ranks.length; i++) if (player.kindness >= STR.ranks[i].at) r = i;
+  if (r !== player.rank) { player.rank = r; const rk = STR.ranks[r]; toast(`${STR.rankUp}${rk.ar} — ${rk.en}`); }
+  refreshHUD();
+}
+
+// ----------------------------------------------------------------------------
+// movement
+function speedFor(onR) {
+  if (player.mode === "plane") return CFG.FLY;
+  if (player.mode === "car") return onR ? CFG.DRIVE_ROAD : CFG.DRIVE;
+  if (inSea(player.x, player.y)) return CFG.SWIM;
+  return player.hasShoes ? CFG.WALK_FAST : CFG.WALK;
+}
+function canStand(x, y) {
+  if (x < 16 || y < 16 || x > CFG.WORLD_W - 16 || y > CFG.WORLD_H - 16) return false;
+  if (player.mode === "plane") return true;            // flight ignores terrain
+  if (player.mode === "car") { if (inSea(x, y)) return false; if (inBuilding(x, y, 14)) return false; return true; }
+  if (inBuilding(x, y, 10)) return false;              // on foot: buildings solid, sea = swim (allowed)
+  return true;
+}
+
+function tryRide() {
+  if (player.mode === "car") { player.mode = "foot"; player.x = car.x + 30; return; }
+  if (player.mode === "plane") { player.mode = "foot"; plane.x = player.x; plane.y = player.y; return; }
+  if (Math.hypot(player.x - plane.x, player.y - plane.y) < CFG.PLANE_R) { player.mode = "plane"; return; }
+  if (Math.hypot(player.x - car.x, player.y - car.y) < CFG.CAR_R) { player.mode = "car"; player.x = car.x; player.y = car.y; return; }
+}
+
+function nearestNPC() {
+  let best = null, bd = CFG.HELP_R;
+  for (const n of NPCS) if (!n.helped) {
+    const d = Math.hypot(player.x - n.x, player.y - n.y);
+    if (d < bd) { bd = d; best = n; }
+  }
+  return best;
+}
+function nearShop() {
+  return SHOPS.some(s => Math.hypot(player.x - s.x, player.y - s.y) < CFG.SHOP_R) && player.mode === "foot";
+}
+
+function update(cmd) {
+  // npc respawn timers
+  for (const n of NPCS) if (n.helped && --n.timer <= 0) { n.helped = false; n.need = Math.floor(rng() * STR.needs.length); }
+  for (const n of NPCS) n.bob += 0.05;
+
+  if (scene !== "play") return;
+
+  if (cmd.ride) tryRide();
+
+  const onR = onRoad(player.x, player.y);
+  const sp = speedFor(onR);
+  if (cmd.x || cmd.y) {
+    player.heading = Math.atan2(cmd.y, cmd.x);
+    let nx = player.x + cmd.x * sp, ny = player.y + cmd.y * sp;
+    if (canStand(nx, player.y)) player.x = nx;          // slide along walls
+    if (canStand(player.x, ny)) player.y = ny;
+  }
+  if (player.mode === "car") { car.x = player.x; car.y = player.y; car.heading = player.heading; }
+  if (player.mode === "plane") { plane.x = player.x; plane.y = player.y; plane.heading = player.heading; }
+
+  if (cmd.action) {
+    const n = nearestNPC();
+    if (n) helpNPC(n);
+    else if (nearShop()) openStore();
+  }
+
+  for (let i = particles.length - 1; i >= 0; i--) { const p = particles[i]; p.y += p.vy; p.life--; if (p.life <= 0) particles.splice(i, 1); }
+  for (let i = floats.length - 1; i >= 0; i--) { floats[i].y -= 0.3; if (--floats[i].life <= 0) floats.splice(i, 1); }
+}
+
+// ----------------------------------------------------------------------------
+// rendering
+function drawSprite(name, x, y, size, angle) {
+  const im = IMG[name];
+  ctx.save(); ctx.translate(x, y);
+  if (angle != null) ctx.rotate(angle + Math.PI / 2);
+  if (im) ctx.drawImage(im, -size / 2, -size / 2, size, size);
+  else procShape(name, size);
+  ctx.restore();
+}
+
+let cam = { x: 0, y: 0 };
+function render() {
+  const vw = innerWidth, vh = innerHeight;
+  cam.x = Math.max(0, Math.min(CFG.WORLD_W - vw, player.x - vw / 2));
+  cam.y = Math.max(0, Math.min(CFG.WORLD_H - vh, player.y - vh / 2));
+  ctx.save(); ctx.translate(-cam.x, -cam.y);
+
+  // sand
+  ctx.fillStyle = "#e9d3a6"; ctx.fillRect(cam.x, cam.y, vw, vh);
+  // soft dune blobs
+  ctx.fillStyle = "rgba(214,184,130,0.45)";
+  for (let i = 0; i < 18; i++) {
+    const dx = ((i * 547) % CFG.WORLD_W), dy = ((i * 911) % CFG.SEA_Y);
+    if (dx > cam.x - 200 && dx < cam.x + vw + 200 && dy > cam.y - 200 && dy < cam.y + vh + 200) {
+      ctx.beginPath(); ctx.ellipse(dx, dy, 180, 90, 0, 0, 7); ctx.fill();
+    }
+  }
+  // beach + sea
+  ctx.fillStyle = "#f0e2bf"; ctx.fillRect(cam.x, CFG.SEA_Y - CFG.BEACH, vw, CFG.BEACH);
+  ctx.fillStyle = "#36c6c0"; ctx.fillRect(cam.x, CFG.SEA_Y, vw, CFG.WORLD_H - CFG.SEA_Y);
+  ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.lineWidth = 3;
+  for (let i = 0; i < 6; i++) { const yy = CFG.SEA_Y + 60 + i * 90 + Math.sin(t * 0.02 + i) * 6; ctx.beginPath(); ctx.moveTo(cam.x, yy); ctx.lineTo(cam.x + vw, yy); ctx.stroke(); }
+
+  // roads
+  ctx.fillStyle = "#9a9387";
+  for (const r of ROADS) ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.fillStyle = "#9a9387"; ctx.fillRect(RUNWAY.x, RUNWAY.y, RUNWAY.w, RUNWAY.h);
+  ctx.strokeStyle = "#fff3d0"; ctx.setLineDash([26, 22]); ctx.lineWidth = 5;
+  for (const r of HROADS) { ctx.beginPath(); ctx.moveTo(r.x, r.y + r.h / 2); ctx.lineTo(r.x + r.w, r.y + r.h / 2); ctx.stroke(); }
+  for (const r of VROADS) { ctx.beginPath(); ctx.moveTo(r.x + r.w / 2, r.y); ctx.lineTo(r.x + r.w / 2, r.y + r.h); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(RUNWAY.x, RUNWAY.y + RUNWAY.h / 2); ctx.lineTo(RUNWAY.x + RUNWAY.w, RUNWAY.y + RUNWAY.h / 2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // palms
+  for (const p of PALMS) drawSprite("palm", p.x, p.y, 70 * p.s, null);
+  // shops + burj
+  for (const b of BUILDINGS) drawSprite(b.kind, b.x, b.y, b.r * (b.kind === "burj" ? 2.6 : 2.4), null);
+
+  // npcs
+  for (const n of NPCS) {
+    const yo = Math.sin(n.bob) * 3;
+    if (!n.helped) {
+      ctx.fillStyle = "rgba(120,230,170,0.35)";
+      ctx.beginPath(); ctx.arc(n.x, n.y, 34, 0, 7); ctx.fill();
+    }
+    drawSprite("npc", n.x, n.y + yo, 80, null);
+    if (!n.helped) {
+      ctx.fillStyle = "#2a2a2a"; ctx.font = "bold 26px system-ui"; ctx.textAlign = "center";
+      ctx.fillText(STR.needs[n.need].icon, n.x, n.y - 44 + yo);
+    } else {
+      ctx.fillStyle = "#ff6b8a"; ctx.font = "22px system-ui"; ctx.textAlign = "center";
+      ctx.fillText("♥", n.x, n.y - 40 + yo);
+    }
+  }
+
+  // vehicles when not occupied
+  if (player.mode !== "car") drawSprite("car", car.x, car.y, 96, car.heading);
+  if (player.mode !== "plane") drawSprite("plane", plane.x, plane.y, 120, plane.heading);
+
+  // player
+  if (player.mode === "foot") {
+    if (inSea(player.x, player.y)) { ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.beginPath(); ctx.ellipse(player.x, player.y + 6, 32, 16, 0, 0, 7); ctx.fill(); }
+    drawSprite("hero", player.x, player.y, 84, player.heading);
+  } else if (player.mode === "car") drawSprite("car", player.x, player.y, 100, player.heading);
+  else { ctx.fillStyle = "rgba(0,0,0,0.12)"; ctx.beginPath(); ctx.ellipse(player.x + 18, player.y + 24, 60, 30, 0, 0, 7); ctx.fill(); drawSprite("plane", player.x, player.y, 128, player.heading); }
+
+  // hearts
+  for (const p of particles) { ctx.globalAlpha = p.life / p.max; ctx.fillStyle = "#ff6b8a"; ctx.font = "20px system-ui"; ctx.textAlign = "center"; ctx.fillText("♥", p.x, p.y); ctx.globalAlpha = 1; }
+  // floating thanks (Arabic + meaning)
+  for (const f of floats) {
+    ctx.globalAlpha = Math.min(1, f.life / 40);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#3a2f1c"; ctx.font = "bold 28px system-ui"; ctx.fillText(f.ar, f.x, f.y);
+    ctx.fillStyle = "#6a5a3c"; ctx.font = "14px system-ui"; ctx.fillText(f.sub, f.x, f.y + 18);
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+
+  drawContextPrompt();
+  drawMinimap(vw, vh);
+}
+
+function drawContextPrompt() {
+  let msg = null;
+  if (player.mode === "car" || player.mode === "plane") msg = STR.prompts.exit;
+  else if (nearestNPC()) msg = bestGift() ? STR.prompts.give : STR.prompts.help;
+  else if (nearShop()) msg = STR.prompts.shop;
+  else if (Math.hypot(player.x - plane.x, player.y - plane.y) < CFG.PLANE_R) msg = STR.prompts.fly;
+  else if (Math.hypot(player.x - car.x, player.y - car.y) < CFG.CAR_R) msg = STR.prompts.ride;
+  const el = document.getElementById("prompt");
+  if (msg) { el.textContent = msg; el.style.display = "block"; } else el.style.display = "none";
+}
+
+function drawMinimap(vw, vh) {
+  const mw = 150, mh = mw * CFG.WORLD_H / CFG.WORLD_W, mx = vw - mw - 12, my = vh - mh - 12;
+  ctx.save();
+  ctx.globalAlpha = 0.85; ctx.fillStyle = "#e9d3a6"; ctx.fillRect(mx, my, mw, mh);
+  ctx.fillStyle = "#36c6c0"; ctx.fillRect(mx, my + mh * CFG.SEA_Y / CFG.WORLD_H, mw, mh * (CFG.WORLD_H - CFG.SEA_Y) / CFG.WORLD_H);
+  const sx = mw / CFG.WORLD_W, sy = mh / CFG.WORLD_H;
+  ctx.fillStyle = "#7d8c46"; for (const s of SHOPS) { ctx.fillRect(mx + s.x * sx - 2, my + s.y * sy - 2, 4, 4); }
+  if (player.hasMap) { ctx.fillStyle = "#3fb56e"; for (const n of NPCS) if (!n.helped) ctx.fillRect(mx + n.x * sx - 1.5, my + n.y * sy - 1.5, 3, 3); }
+  ctx.fillStyle = "#1f6dff"; ctx.fillRect(mx + player.x * sx - 2.5, my + player.y * sy - 2.5, 5, 5);
+  ctx.globalAlpha = 1; ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.strokeRect(mx, my, mw, mh);
+  ctx.restore();
+}
+
+// ----------------------------------------------------------------------------
+// HUD + overlays (DOM, strings from STR)
+function rankLabel() { const r = STR.ranks[player.rank]; return `${r.ar} · ${r.en}`; }
+function modeLabel() { return player.mode === "car" ? STR.hud.driving : player.mode === "plane" ? STR.hud.flying : inSea(player.x, player.y) ? STR.hud.swimming : STR.hud.onFoot; }
+function refreshHUD() {
+  document.getElementById("hud").innerHTML =
+    `<span>♥ ${STR.hud.kindness}: <b>${player.kindness}</b></span>` +
+    `<span>﷼ ${STR.hud.dirhams}: <b>${player.dirhams}</b></span>` +
+    `<span>${STR.hud.reputation}: <b>${rankLabel()}</b></span>` +
+    `<span class="mode">${modeLabel()}</span>`;
+}
+
+let toastTimer = 0;
+function toast(msg) { const el = document.getElementById("toast"); el.textContent = msg; el.style.opacity = 1; toastTimer = 180; }
+
+// store overlay
+const storeEl = document.getElementById("store");
+function openStore() {
+  scene = "store";
+  const it = STR.store.items.map(item => {
+    const owned = item.util ? (item.util === "map" ? player.hasMap : player.hasShoes) : (player.inv[item.id] || 0);
+    const sub = item.util ? item.desc : `+${item.kind} kindness when given`;
+    const ownTxt = item.util ? (owned ? STR.store.owned : "") : (owned ? `×${owned}` : "");
+    return `<div class="item">
+      <div class="ar">${item.ar}</div>
+      <div class="tr">${item.tr} — ${item.en}</div>
+      <div class="dsc">${sub}</div>
+      <button data-id="${item.id}">${item.util && owned ? STR.store.owned : STR.store.buy + " · " + item.price + " ﷼"}</button>
+      <div class="own">${ownTxt}</div>
+    </div>`;
+  }).join("");
+  storeEl.querySelector(".grid").innerHTML = it;
+  storeEl.querySelectorAll("button[data-id]").forEach(b => b.onclick = () => buy(b.dataset.id));
+  storeEl.querySelector("h2").innerHTML = `${STR.store.title} <small>${STR.store.titleTr}</small>`;
+  storeEl.querySelector(".hint").textContent = STR.store.hint;
+  storeEl.querySelector(".close").textContent = STR.store.close;
+  storeEl.style.display = "flex";
+  refreshHUD();
+}
+function closeStore() { scene = "play"; storeEl.style.display = "none"; }
+function buy(id) {
+  const item = STR.store.items.find(i => i.id === id);
+  if (item.util === "map" && player.hasMap) return;
+  if (item.util === "speed" && player.hasShoes) return;
+  if (player.dirhams < item.price) { toast(STR.store.cantAfford); return; }
+  player.dirhams -= item.price;
+  if (item.util === "map") player.hasMap = true;
+  else if (item.util === "speed") player.hasShoes = true;
+  else player.inv[id] = (player.inv[id] || 0) + 1;
+  openStore();
+}
+storeEl.querySelector(".close").onclick = closeStore;
+
+// intro overlay
+const introEl = document.getElementById("intro");
+introEl.querySelector(".t").textContent = STR.title;
+introEl.querySelector(".tag").textContent = STR.tagline;
+introEl.querySelector(".l1").textContent = STR.intro.line1;
+introEl.querySelector(".l2").textContent = STR.intro.line2;
+introEl.querySelector(".l3").textContent = STR.intro.line3;
+introEl.querySelector(".start").textContent = STR.intro.start;
+function beginGame() { if (scene === "intro") { scene = "play"; introEl.style.display = "none"; refreshHUD(); } }
+introEl.onclick = beginGame;
+addEventListener("keydown", e => { if (e.code === "Space" && scene === "intro") beginGame(); });
+
+// ----------------------------------------------------------------------------
+// fixed-timestep loop
+const STEP = 1000 / 60;
+let acc = 0, last = performance.now(), t = 0, paused = false;
+addEventListener("blur", () => paused = true);
+addEventListener("focus", () => { paused = false; last = performance.now(); });
+refreshHUD();
+
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (paused) { last = now; return; }
+  acc += now - last; last = now;
+  let steps = 0;
+  while (acc >= STEP && steps < 5) {
+    const cmd = readInput();
+    if (scene === "store") { /* store paused: still let action close? no */ }
+    else update(cmd);
+    t++; acc -= STEP; steps++;
+    if (toastTimer > 0 && --toastTimer === 0) document.getElementById("toast").style.opacity = 0;
+  }
+  render();
+}
+requestAnimationFrame(frame);
