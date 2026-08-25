@@ -7,7 +7,7 @@
 
 ## التشغيل
 
-طريقتان، كلتاهما بلا تثبيت أي اعتمادية:
+ثلاث طرق، كلها بلا تثبيت أي اعتمادية:
 
 ```bash
 # 1) افتح الملف مباشرة
@@ -15,7 +15,18 @@ open index.html          # أو انقر عليه نقراً مزدوجاً
 
 # 2) أو شغّل خادماً محلياً (وحدة http المدمجة في Node — لا npm install)
 npm run dev              # http://localhost:5173
+
+# 3) أو ابنِ نسخة بملف واحد للمشاركة/الاستضافة
+npm run build:artifact   # dist/portal-artifact.html
 ```
+
+### نسخة الملف الواحد
+
+`npm run build:artifact` يجمع الـ CSS وكل وحدات الـ JS في صفحة واحدة مكتفية ذاتياً
+(بلا وسوم `html/head/body` خارجية، واتجاه RTL يُضبط على عنصر الجذر برمجياً) لتصلح
+للاستضافة في بيئات تقدّم صفحة واحدة فقط. الوظائف كاملة في النسختين؛ الفرق الوحيد أن
+التصدير يستخدم مسار الحفظ لدى المضيف حين يوفّره، ويسقط إلى رابط blob محلياً — مع
+«نسخ إلى الحافظة» كمسار يعمل في كل الحالات.
 
 لا يوجد `node_modules`، ولا خطوة بناء، ولا CDN. كل ملفات JS/CSS محلية، والخط عربي من النظام
 (`Cairo` → `IBM Plex Sans Arabic` → `Noto Sans Arabic` → `Dubai` → احتياطي النظام).
@@ -40,7 +51,9 @@ portal-catering/
 │   └── portal_logic.md                    المرجع الملزم
 ├── tools/
 │   ├── build-data.js          يولّد assets/data.js من ملف الـ JSON (npm run build:data)
+│   ├── build-artifact.js      يجمع كل شيء في ملف HTML واحد (npm run build:artifact)
 │   └── engine-check.js        فحص المحرك بلا متصفح (npm test)
+├── dist/portal-artifact.html  نسخة بملف واحد مكتفٍ ذاتياً (مولَّدة)
 ├── serve.js                   خادم ملفات ثابت بلا اعتماديات
 └── package.json
 ```

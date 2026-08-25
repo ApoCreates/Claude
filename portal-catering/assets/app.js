@@ -1310,21 +1310,115 @@
   /* ================================================================== *
    * الاستيراد والتصدير
    * ================================================================== */
+  function exportFileName() {
+    var d = new Date();
+    return 'catering_incidents_dataset_' + d.getFullYear() + '-' +
+           String(d.getMonth() + 1).padStart(2, '0') + '-' +
+           String(d.getDate()).padStart(2, '0') + '.json';
+  }
+
+  /**
+   * التصدير يعرض مسارين معاً لأن بعض بيئات العرض المضمّنة (iframe بصلاحيات محدودة)
+   * تمنع التنزيل الذي تبدأه الصفحة نفسها — فالنسخ إلى الحافظة يبقى مساراً يعمل دائماً.
+   */
   function downloadJson() {
     var text = S.exportJson();
-    var blob = new Blob([text], { type: 'application/json;charset=utf-8' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    var d = new Date();
-    var stamp = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                String(d.getDate()).padStart(2, '0');
-    a.href = url;
-    a.download = 'catering_incidents_dataset_' + stamp + '.json';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-    toast('صُدِّرت ' + S.all().length + ' فعالية بنفس المخطط الأصلي.', 'ok');
+    var count = S.all().length;
+
+    openModal({
+      title: 'تصدير البيانات — ' + count + ' فعالية',
+      body:
+        '<div class="alert alert-info mb">ملف JSON بنفس المخطط الأصلي حرفياً، جاهز لإعادة الاستيراد. ' +
+        'إن لم يبدأ التنزيل (بعض بيئات العرض تمنعه)، استخدم «نسخ إلى الحافظة».</div>' +
+        '<textarea id="export-text" readonly spellcheck="false" ' +
+        'style="min-height:260px;direction:ltr;text-align:left;font-family:monospace;font-size:.72rem">' +
+        esc(text) + '</textarea>',
+      foot:
+        '<button class="btn btn-primary" data-export-download="1">⬇ تنزيل الملف</button>' +
+        '<button class="btn" data-export-copy="1">نسخ إلى الحافظة</button>' +
+        '<button class="btn btn-ghost" data-modal-close="1">إغلاق</button>',
+      exportText: text
+    });
+  }
+
+  /* مسار الحفظ لدى المضيف (بيئات العرض المضمّنة) — يُحلّ لاحقاً وقد يكون غائباً */
+  var hostDownloads = null;
+
+  function initHostDownloads() {
+    if (!(window.claude && typeof window.claude.use === 'function')) return;
+    try {
+      window.claude.use('downloads').then(function (ns) { hostDownloads = ns || null; },
+                                          function () { hostDownloads = null; });
+    } catch (e) { hostDownloads = null; }
+  }
+
+  var DOWNLOAD_ERRORS = {
+    declined: 'أُلغي الحفظ.',
+    rate_limited: 'هناك طلب حفظ مفتوح بالفعل — أعد المحاولة بعد لحظات.',
+    too_large: 'الملف أكبر من الحد المسموح — استخدم «نسخ إلى الحافظة».',
+    bad_request: 'تعذّر تجهيز الملف — استخدم «نسخ إلى الحافظة».'
+  };
+
+  /** المسار الاحتياطي: رابط تنزيل من blob (يعمل عند فتح الملف محلياً) */
+  function blobDownload(text) {
+    try {
+      var blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = exportFileName();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      closeModal();   // اكتملت المهمة — لا داعي لإبقاء النافذة تحجب الواجهة
+      toast('بدأ تنزيل ' + exportFileName(), 'ok');
+    } catch (e) {
+      toast('تعذّر التنزيل في هذه البيئة — استخدم «نسخ إلى الحافظة».', 'err');
+    }
+  }
+
+  function triggerDownload(text) {
+    if (hostDownloads && typeof hostDownloads.save === 'function') {
+      hostDownloads.save({ filename: exportFileName(), data: text }).then(function () {
+        closeModal();
+        toast('حُفظ ' + exportFileName(), 'ok');
+      }, function (err) {
+        var code = err && err.code;
+        // أخطاء دورة الحياة تعني أن الحفظ غير متاح هنا — جرّب المسار الاحتياطي
+        if (code === 'unavailable' || code === 'not_granted' ||
+            code === 'capability_disabled' || code === 'capability_removed') {
+          hostDownloads = null;
+          blobDownload(text);
+          return;
+        }
+        toast(DOWNLOAD_ERRORS[code] || 'تعذّر الحفظ — استخدم «نسخ إلى الحافظة».',
+              code === 'declined' ? '' : 'err');
+      });
+      return;
+    }
+    blobDownload(text);
+  }
+
+  function copyExport(text) {
+    var area = el('export-text');
+    function fallback() {
+      if (!area) return false;
+      area.focus();
+      area.select();
+      try { return document.execCommand('copy'); } catch (e) { return false; }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        toast('نُسخت البيانات إلى الحافظة (' + S.all().length + ' فعالية).', 'ok');
+      }, function () {
+        toast(fallback() ? 'نُسخت البيانات إلى الحافظة.' : 'تعذّر النسخ — حدّد النص يدوياً وانسخه.',
+              fallback() ? 'ok' : 'err');
+      });
+    } else {
+      toast(fallback() ? 'نُسخت البيانات إلى الحافظة.' : 'تعذّر النسخ — حدّد النص يدوياً وانسخه.',
+            fallback() ? 'ok' : 'err');
+    }
   }
 
   function handleImportFile(file) {
@@ -1492,6 +1586,13 @@
           else render();
         } else toast('فشل الاستيراد.', 'err');
         return;
+      }
+
+      if (t.closest('[data-export-download]') && modalState && modalState.exportText) {
+        triggerDownload(modalState.exportText); return;
+      }
+      if (t.closest('[data-export-copy]') && modalState && modalState.exportText) {
+        copyExport(modalState.exportText); return;
       }
 
       /* ----- شريط الأدوات ----- */
@@ -1671,6 +1772,7 @@
     });
 
     el('data-badge').textContent = S.all().length + ' فعالية';
+    initHostDownloads();
     bindGlobalEvents();
     render();
   }
