@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Portal — منصة إدارة هدر التموين</title>
+  <meta name="description" content="بروتوتايب تشغيلي لإدارة هدر التموين وسلاسل الإمداد في الفعاليات: تصنيف سداسي، مصفوفة خطورة، ومحرك حتمي لتوليد الحلول.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1f36'/%3E%3Ctext x='16' y='23' font-size='19' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='%23c9971f'%3EP%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">P</div>
+        <div class="brand-text">
+          <b>Portal</b>
+          <span>منصة إدارة هدر التموين وسلاسل الإمداد</span>
+        </div>
+      </div>
+
+      <nav class="nav" id="nav" aria-label="التنقل الرئيسي"></nav>
+
+      <div class="toolbar">
+        <span class="chip" id="data-badge" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#c3d3e6">—</span>
+        <button class="btn btn-sm" id="btn-export" title="تصدير كل البيانات بنفس المخطط الأصلي">⬇ تصدير</button>
+        <button class="btn btn-sm" id="btn-template" title="نزّل ورقة Excel فيها أسئلة جاهزة للتعبئة">⬇ ورقة التعبئة</button>
+        <button class="btn btn-sm" id="btn-import" title="ارفع ورقة Excel أو CSV أو JSON — تُحلَّل داخل متصفحك">⬆ استيراد</button>
+        <button class="btn btn-sm" id="btn-reset" title="العودة إلى البيانات الأصلية العشرين">↺ إعادة تعيين</button>
+      </div>
+    </header>
+
+    <div id="storage-warn"></div>
+    <main class="main" id="view" role="main"></main>
+
+    <footer class="footer">
+      <span><b>Portal</b> — بروتوتايب تشغيلي يعمل بالكامل داخل المتصفح.</span>
+      <span class="muted">بلا باك-إند · بلا مفاتيح · بلا اتصال خارجي — مصدر الحقيقة هو <code>localStorage</code>.</span>
+      <span class="push muted">المنطق مطبَّق من <code>portal_logic.md</code> كوحدة قواعد حتمية.</span>
+    </footer>
+  </div>
+
+  <input type="file" id="file-input" accept=".xlsx,.csv,.json" hidden>
+  <div id="modal-host"></div>
+  <div class="toast-host" id="toasts" aria-live="polite"></div>
+
+  <!-- ترتيب التحميل مقصود: البيانات ← المنطق ← المحرك ← التخزين ← الرسوم ← الواجهة -->
+  <script src="assets/data.js"></script>
+  <script src="assets/logic.js"></script>
+  <script src="assets/rule-engine.js"></script>
+  <script src="assets/store.js"></script>
+  <script src="assets/charts.js"></script>
+  <script src="assets/xlsx.js"></script>
+  <script src="assets/workbook.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

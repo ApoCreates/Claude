@@ -1,0 +1,16 @@
+{
+  "name": "portal-catering-waste",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portal — منصة إدارة هدر التموين وسلاسل الإمداد في الفعاليات (بروتوتايب client-side بلا اعتماديات)",
+  "scripts": {
+    "dev": "node serve.js",
+    "start": "node serve.js",
+    "build:data": "node tools/build-data.js",
+    "build:artifact": "node tools/build-artifact.js",
+    "build:public": "node tools/sync-public.js",
+    "test": "node tools/engine-check.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
