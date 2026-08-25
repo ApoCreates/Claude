@@ -132,9 +132,15 @@ class TestSettings:
         assert settings.policy("funding").pass_score == 91.0
         assert settings.policy("funding").max_rounds == 5
 
+    def test_producer_and_auditor_default_to_different_models(self):
+        settings = load_settings()
+        assert settings.producer_model != settings.auditor_model, (
+            "an auditor sharing the producer's model shares its blind spots"
+        )
+
     def test_auditors_can_be_pointed_at_a_second_opinion_model(self, monkeypatch):
-        monkeypatch.setenv("AIGENCY_AUDITOR_MODEL", "anthropic/claude-opus-4-1")
-        assert load_settings().auditor_model == "anthropic/claude-opus-4-1"
+        monkeypatch.setenv("AIGENCY_AUDITOR_MODEL", "anthropic/claude-opus-5")
+        assert load_settings().auditor_model == "anthropic/claude-opus-5"
 
 
 class TestKnowledge:
@@ -151,3 +157,23 @@ class TestKnowledge:
 
     def test_settings_yaml_is_where_it_is_expected(self):
         assert (CONFIG_DIR / "settings.yaml").exists()
+
+
+class TestModelLimits:
+    """The provider's 4096 default truncates a full report into an empty
+    response, and the resulting error names neither tokens nor the task."""
+
+    def test_output_budgets_are_well_clear_of_the_provider_default(self):
+        settings = load_settings()
+        assert settings.producer_max_tokens > 4096
+        assert settings.auditor_max_tokens > 4096
+
+    def test_temperature_is_unset_by_default(self):
+        """The Anthropic SDK rejects it outright from 1.0.0 onward."""
+        settings = load_settings()
+        assert settings.producer_temperature is None
+        assert settings.auditor_temperature is None
+
+    def test_the_output_budget_can_be_raised_from_the_environment(self, monkeypatch):
+        monkeypatch.setenv("AIGENCY_MAX_TOKENS", "32000")
+        assert load_settings().producer_max_tokens == 32000

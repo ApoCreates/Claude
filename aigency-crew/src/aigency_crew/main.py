@@ -121,6 +121,22 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_serve(args: argparse.Namespace) -> int:
+    try:
+        from .portal.app import serve
+    except ImportError as exc:
+        print(
+            "The portal needs its extra dependencies:\n"
+            '  pip install -e ".[portal]"\n'
+            f"({exc})"
+        )
+        return 1
+
+    print(f"portal on http://{args.host}:{args.port}")
+    serve(host=args.host, port=args.port, reload=args.reload)
+    return 0
+
+
 def cmd_ledger(args: argparse.Namespace) -> int:
     ledger = Ledger.load(ledger_path())
 
@@ -190,6 +206,12 @@ def build_parser() -> argparse.ArgumentParser:
     report.add_argument("--out", default=None, help="write here instead of <run>/report.md")
     report.add_argument("--print", action="store_true", help="print to stdout as well")
     report.set_defaults(func=cmd_report)
+
+    serve_cmd = sub.add_parser("serve", help="run the portal: launch, gate and review runs")
+    serve_cmd.add_argument("--host", default="127.0.0.1")
+    serve_cmd.add_argument("--port", type=int, default=8000)
+    serve_cmd.add_argument("--reload", action="store_true", help="reload on code changes")
+    serve_cmd.set_defaults(func=cmd_serve)
 
     ledger = sub.add_parser("ledger", help="inspect or feed the engine's memory")
     ledger_sub = ledger.add_subparsers(dest="ledger_command", required=True)

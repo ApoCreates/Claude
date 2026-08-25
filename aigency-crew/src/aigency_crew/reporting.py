@@ -210,6 +210,52 @@ def _campaign_section(campaign: dict[str, Any]) -> list[str]:
     return lines
 
 
+def render_job(job: dict[str, Any]) -> str:
+    """Render a portal job — same sections, header built from the stage gates."""
+    stages = job.get("stages", {})
+    lines = [f"# {job.get('id', 'job')}", ""]
+    rows = []
+    for stage in ("funding", "clients", "outreach"):
+        state = stages.get(stage) or {}
+        chosen = next(
+            (
+                r
+                for r in state.get("rounds", [])
+                if r.get("number") == state.get("selected_round")
+            ),
+            None,
+        )
+        rows.append(
+            [
+                stage,
+                state.get("status", "pending"),
+                f"{chosen['score']:.0f}" if chosen else "—",
+                str(len(state.get("rounds", []))),
+                state.get("reason", "") or "—",
+            ]
+        )
+    lines += _table(["Stage", "Gate", "Score", "Rounds", "Why the loop stopped"], rows)
+
+    def artifact(stage: str) -> Optional[dict[str, Any]]:
+        state = stages.get(stage) or {}
+        return next(
+            (
+                r.get("artifact")
+                for r in state.get("rounds", [])
+                if r.get("number") == state.get("selected_round")
+            ),
+            None,
+        )
+
+    if artifact("funding"):
+        lines += _funding_section(artifact("funding"))
+    if artifact("clients"):
+        lines += _prospect_section(artifact("clients"))
+    if artifact("outreach"):
+        lines += _campaign_section(artifact("outreach"))
+    return "\n".join(lines) + "\n"
+
+
 def render_run(run_dir: Path) -> str:
     """Render one run directory as a markdown digest."""
     summary = _load(run_dir, "run") or {}

@@ -88,11 +88,44 @@ the fastest way to watch accept / revise / stall / escalate / recycle happen:
 Other commands:
 
 ```bash
+aigency-crew serve                  # the portal (see below)
 aigency-crew stage funding          # one workstream and its auditor only
 aigency-crew flow                   # same run, via the CrewAI Flow
 aigency-crew flow --plot            # write the flow diagram
 aigency-crew ledger show            # learnings, delivered ids, campaign results
 ```
+
+## The portal
+
+```bash
+pip install -e ".[portal]"
+aigency-crew serve            # http://127.0.0.1:8000
+```
+
+A browser front end for driving the agents, because a CLI is a poor place to
+read a campaign and a terrible place to approve one.
+
+- **Launch** a run with per-run overrides (region, targets, campaign goal), or
+  tick *scripted agents* to walk the whole portal with no API calls at all.
+- **Gates.** The run does funding and stops. Clients cannot start until you
+  approve funding; outreach cannot start until you approve the list. The API
+  refuses an out-of-order start with a 409, not just the UI.
+- **Every round is kept**, with the auditor's findings attached — score,
+  blockers, verdict, and the fix it asked for. **Revert** to an earlier round
+  and that becomes the version the next stage consumes.
+- **Send a stage back** with an instruction. It reaches the agent as feedback
+  that outranks its own judgement, and the re-run appends rounds rather than
+  erasing the first attempt.
+- **Evaluate** a stage 0–100 with a note. The note is written into the ledger
+  as a standing rule, so your review teaches the next run instead of
+  evaporating.
+- **Download** any stage, any individual round, or the whole run as markdown.
+- **Memory** page shows what the agents have learned and takes your real
+  campaign numbers (sent / replies / meetings / won).
+
+Everything is a plain form post over server-rendered HTML — no build step, no
+bundler. `state/jobs/*.json` holds the runs, one readable file each, written
+atomically so a background stage never corrupts what the browser is reading.
 
 ## Seeing the results
 
@@ -168,6 +201,9 @@ src/aigency_crew/
   engine.py              the three pairs, wired into each other
   flow.py                the same run as a CrewAI Flow
   reporting.py           a finished run, rendered as readable markdown
+  parsing.py             salvaging structured output from a prose answer
+  portal/jobs.py         the gated job state machine (no web framework in it)
+  portal/app.py          FastAPI routes + templates
   demo.py                scripted agents for --dry-run and tests
 knowledge/               studio profile and ICP — edit these
 state/ledger.json        what the engine remembers
@@ -192,10 +228,11 @@ the expensive layer on the cheap layer's job.
 ## Tests
 
 ```bash
-pytest            # 155 tests, ~4s
+pytest            # 219 tests, ~5s
 ```
 
-The logic modules — `loops`, `ledger`, `engine`, `inputs`, `tools.scoring` —
+The logic modules — `loops`, `ledger`, `engine`, `inputs`, `parsing`,
+`tools.scoring`, `portal.jobs` —
 import no CrewAI, so the stopping rules, the memory, and the orchestration are
 all tested with scripted agents and no model in the room. `test_config_contract.py`
 checks the YAML wiring: every task points at an agent that exists, every

@@ -45,6 +45,13 @@ def _env_float(name: str, fallback: float) -> float:
         return fallback
 
 
+def _optional_float(value: Any) -> Optional[float]:
+    """None stays None — an unset temperature must not become 0.0."""
+    if value is None or value == "":
+        return None
+    return float(value)
+
+
 @dataclass
 class Settings:
     region: str
@@ -57,8 +64,10 @@ class Settings:
     recycle_score_floor: float
     producer_model: str
     auditor_model: str
-    producer_temperature: float
-    auditor_temperature: float
+    producer_temperature: Optional[float]
+    auditor_temperature: Optional[float]
+    producer_max_tokens: int
+    auditor_max_tokens: int
     raw: dict[str, Any] = field(default_factory=dict)
 
     def policy(self, stage: str) -> LoopPolicy:
@@ -95,13 +104,19 @@ def load_settings(path: Optional[Path | str] = None) -> Settings:
         loop_policies=policies,
         max_cycles=int(_env_float("AIGENCY_MAX_CYCLES", flow.get("max_cycles", 2))),
         recycle_score_floor=float(flow.get("recycle_score_floor", 70)),
-        producer_model=os.getenv("AIGENCY_MODEL", models.get("producer", "anthropic/claude-sonnet-4-6")),
+        producer_model=os.getenv("AIGENCY_MODEL", models.get("producer", "anthropic/claude-sonnet-5")),
         auditor_model=os.getenv(
             "AIGENCY_AUDITOR_MODEL", models.get("auditor", models.get("producer", ""))
         )
-        or os.getenv("AIGENCY_MODEL", "anthropic/claude-sonnet-4-6"),
-        producer_temperature=float(models.get("producer_temperature", 0.4)),
-        auditor_temperature=float(models.get("auditor_temperature", 0.1)),
+        or os.getenv("AIGENCY_MODEL", "anthropic/claude-sonnet-5"),
+        producer_temperature=_optional_float(models.get("producer_temperature")),
+        auditor_temperature=_optional_float(models.get("auditor_temperature")),
+        producer_max_tokens=int(
+            _env_float("AIGENCY_MAX_TOKENS", models.get("producer_max_tokens", 16000))
+        ),
+        auditor_max_tokens=int(
+            _env_float("AIGENCY_AUDITOR_MAX_TOKENS", models.get("auditor_max_tokens", 12000))
+        ),
         raw=data,
     )
 

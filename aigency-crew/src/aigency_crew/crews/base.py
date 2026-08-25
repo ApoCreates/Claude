@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import Any, Optional, Type
+from typing import Any, Callable, Optional, Type
 
 from crewai import Agent, Crew, LLM, Process, Task
 from pydantic import BaseModel
@@ -27,6 +27,7 @@ from ..guardrails import Guardrail, require_audit_fixes
 from ..inputs import full_inputs as build_full_inputs
 from ..ledger import Ledger
 from ..models import AuditReport
+from ..parsing import coerce, repair_prompt
 from ..tools.crew_tools import SHARED_TOOLS, has_web_access, research_tools
 
 
@@ -70,26 +71,46 @@ class Workstream:
         settings: Settings,
         ledger: Ledger,
         verbose: bool = True,
+        reporter: Optional[Callable[[str], None]] = None,
     ) -> None:
         self.spec = spec
         self.stage = spec.stage
         self.settings = settings
         self.ledger = ledger
         self.verbose = verbose
+        self.report: Callable[[str], None] = reporter or (lambda msg: print(msg, flush=True))
         self._agents_yaml = load_yaml("agents.yaml")
         self._tasks_yaml = load_yaml("tasks.yaml")
 
     # -- construction ------------------------------------------------------
 
     def _llm(self, *, auditor: bool) -> LLM:
-        return LLM(
-            model=self.settings.auditor_model if auditor else self.settings.producer_model,
-            temperature=(
-                self.settings.auditor_temperature
-                if auditor
-                else self.settings.producer_temperature
-            ),
+        """Build the LLM, sending `temperature` only when one is configured.
+
+        The Anthropic SDK rejects `temperature` on Messages.create from 1.0.0
+        onward, so passing it unconditionally breaks every call. Settings
+        leaves it unset by default; give it a value only for a provider that
+        still accepts one.
+        """
+        temperature = (
+            self.settings.auditor_temperature
+            if auditor
+            else self.settings.producer_temperature
         )
+        kwargs: dict[str, Any] = {
+            "model": self.settings.auditor_model if auditor else self.settings.producer_model,
+            # The provider default of 4096 truncates a full report into an
+            # empty response, which surfaces as "Invalid response from LLM
+            # call" several frames away from the actual cause.
+            "max_tokens": (
+                self.settings.auditor_max_tokens
+                if auditor
+                else self.settings.producer_max_tokens
+            ),
+        }
+        if temperature is not None:
+            kwargs["temperature"] = temperature
+        return LLM(**kwargs)
 
     def _agent(self, key: str, *, auditor: bool, tools: list) -> Agent:
         config = self._agents_yaml[key]
@@ -119,6 +140,7 @@ class Workstream:
         output_model: Type[BaseModel],
         inputs: dict,
         guardrails: Optional[list[Guardrail]] = None,
+        auditor: bool = False,
     ) -> BaseModel:
         config = self._tasks_yaml[task_key]
         task = Task(
@@ -136,13 +158,52 @@ class Workstream:
             verbose=self.verbose,
         )
         result = crew.kickoff(inputs=self.full_inputs(inputs))
+        return self._as_model(result, output_model, task_key, auditor=auditor)
+
+    def _as_model(
+        self,
+        result: Any,
+        output_model: Type[BaseModel],
+        task_key: str,
+        *,
+        auditor: bool = False,
+    ) -> BaseModel:
+        """Get the structured object out of a task result, salvaging if needed.
+
+        A round that researched well but answered in markdown is worth
+        rescuing: the expensive part already happened. Order of attempts is
+        cheapest first, and the repair call is a last resort.
+        """
         artifact = getattr(result, "pydantic", None)
-        if artifact is None:
-            raise RuntimeError(
-                f"Task '{task_key}' did not return a {output_model.__name__}. "
-                f"Raw output began: {str(result)[:300]}"
+        if isinstance(artifact, output_model):
+            return artifact
+
+        for candidate in (artifact, getattr(result, "json_dict", None), getattr(result, "raw", None)):
+            salvaged = coerce(candidate, output_model)
+            if salvaged is not None:
+                self.report(
+                    f"[{self.stage}] '{task_key}' answered in prose; "
+                    f"recovered a {output_model.__name__} from its output"
+                )
+                return salvaged
+
+        raw = str(getattr(result, "raw", result) or "")
+        if raw.strip():
+            self.report(
+                f"[{self.stage}] '{task_key}' did not return a "
+                f"{output_model.__name__}; asking the model to restate it as JSON"
             )
-        return artifact
+            repaired = coerce(
+                self._llm(auditor=auditor).call(repair_prompt(raw, output_model)),
+                output_model,
+            )
+            if repaired is not None:
+                return repaired
+
+        raise RuntimeError(
+            f"Task '{task_key}' did not return a {output_model.__name__}, and the "
+            f"output could not be parsed as one. Raw output began: {raw[:300]}"
+        )
 
     # -- inputs ------------------------------------------------------------
 
@@ -195,6 +256,7 @@ class Workstream:
                 "previous_json": _json_snippet(artifact),
             },
             guardrails=[require_audit_fixes()],
+            auditor=True,
         )
         report.stage = self.stage
         report.round = round_number

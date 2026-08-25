@@ -29,7 +29,16 @@ flow:
   recycle_score_floor: 70
 
 models:
-  producer: "anthropic/claude-sonnet-4-6"
-  auditor: "anthropic/claude-opus-4-1"
-  producer_temperature: 0.4
-  auditor_temperature: 0.1
+  producer: "anthropic/claude-sonnet-5"
+  auditor: "anthropic/claude-opus-5"
+  # CrewAI's Anthropic provider defaults to 4096 output tokens, which a full
+  # funding report or campaign overruns — the call then comes back empty and
+  # the run dies with "Invalid response from LLM call". Keep these generous.
+  producer_max_tokens: 16000
+  auditor_max_tokens: 12000
+
+  # Left unset: the Anthropic SDK from 1.0.0 onward rejects `temperature` on
+  # Messages.create, so it is only sent when you give it a value here. Set one
+  # if you are pointing the crews at a provider that still takes it.
+  producer_temperature: null
+  auditor_temperature: null

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Memory{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>What the agents have learned</h1>
+  <p class="hint">
+    Written by the auditors and by your own evaluations. Every one of these is
+    replayed into the next run's prompts.
+  </p>
+  {% for stage, notes in learnings.items() %}
+    <h3>{{ stage }} <span class="dim">— {{ seen[stage] }} items delivered so far</span></h3>
+    {% if notes %}
+      <ul class="learnings">{% for note in notes %}<li>{{ note }}</li>{% endfor %}</ul>
+    {% else %}
+      <p class="empty">Nothing learned yet.</p>
+    {% endif %}
+  {% endfor %}
+</section>
+
+<section class="card">
+  <h2>Campaign results</h2>
+  <p class="hint">
+    The only number here that the agents cannot generate themselves. Feed it in
+    after you send, and the next prospecting round leans toward what converted.
+  </p>
+  <pre class="log">{{ performance }}</pre>
+  <form method="post" action="/ledger/outcome" class="grid">
+    <label>Campaign <input name="campaign" required placeholder="q3-launch"></label>
+    <label>Segment <input name="segment" placeholder="hospitality"></label>
+    <label>Sent <input name="sent" type="number" min="0" value="0"></label>
+    <label>Replies <input name="replies" type="number" min="0" value="0"></label>
+    <label>Meetings <input name="meetings" type="number" min="0" value="0"></label>
+    <label>Won <input name="won" type="number" min="0" value="0"></label>
+    <button class="btn primary" type="submit">Record</button>
+  </form>
+</section>
+{% endblock %}
