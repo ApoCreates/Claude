@@ -18,13 +18,25 @@ GuardrailResult = Tuple[bool, Any]
 Guardrail = Callable[[Any], GuardrailResult]
 
 
+def quality_only(guardrails: list[Guardrail]) -> list[Guardrail]:
+    """Everything except the count floors — the set a revision is held to."""
+    return [g for g in guardrails if not getattr(g, "counts_items", False)]
+
+
 def _artifact(result: Any) -> Any:
     """Pull the structured object out of a CrewAI TaskOutput."""
     return getattr(result, "pydantic", None) or result
 
 
 def require_min_items(collection: str, minimum: int) -> Guardrail:
-    """Fail when a list field came back shorter than the brief asked for."""
+    """Fail when a list field came back shorter than the brief asked for.
+
+    Count guardrails are marked so the revision pass can drop them. A first
+    draft that returns four items when eight were asked for has under-delivered;
+    a *revision* that returns four has usually just cut what it could not
+    evidence, which is exactly what the auditor told it to do. Enforcing a floor
+    there turns honest pruning into a hard failure.
+    """
 
     def check(result: Any) -> GuardrailResult:
         artifact = _artifact(result)
@@ -40,6 +52,7 @@ def require_min_items(collection: str, minimum: int) -> Guardrail:
             )
         return True, result
 
+    check.counts_items = True  # type: ignore[attr-defined]
     return check
 
 

@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from aigency_crew.demo import sample_campaign, sample_funding, sample_prospects
 from aigency_crew.guardrails import (
+    quality_only,
     require_audit_fixes,
     require_evidence,
     require_min_items,
@@ -162,3 +163,39 @@ class TestModels:
     def test_artifacts_expose_their_ids_for_deduplication(self):
         assert sample_funding().ids() == ["example-creative-ai-fund", "example-compute-credits"]
         assert "example-retail-co" in sample_prospects().ids()
+
+
+class TestRevisionRelaxesTheCountFloor:
+    """A live run died here: the auditor told the scout to drop everything it
+    could not evidence, the scout obeyed, and the count guardrail then failed
+    the round and threw away all of its work."""
+
+    def test_count_guardrails_are_marked_as_such(self):
+        assert getattr(require_min_items("opportunities", 4), "counts_items", False)
+
+    def test_quality_guardrails_are_not_marked(self):
+        for guardrail in (require_evidence("opportunities"), require_opt_out()):
+            assert not getattr(guardrail, "counts_items", False)
+
+    def test_quality_only_drops_the_floors_and_keeps_the_rest(self):
+        guardrails = [
+            require_min_items("opportunities", 8),
+            require_evidence("opportunities"),
+            require_opt_out(),
+        ]
+        kept = quality_only(guardrails)
+        assert len(kept) == 2
+        assert all(not getattr(g, "counts_items", False) for g in kept)
+
+    def test_a_pruned_revision_passes_the_relaxed_set(self):
+        report = sample_funding()
+        report.opportunities = report.opportunities[:1]
+        for guardrail in quality_only([require_min_items("opportunities", 8), require_evidence("opportunities")]):
+            ok, _ = guardrail(report)
+            assert ok, "pruning to what can be evidenced must not fail a revision"
+
+    def test_but_a_thin_first_draft_still_fails(self):
+        report = sample_funding()
+        report.opportunities = report.opportunities[:1]
+        ok, message = require_min_items("opportunities", 8)(report)
+        assert not ok and "at least 8" in message

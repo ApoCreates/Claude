@@ -23,7 +23,7 @@ from crewai import Agent, Crew, LLM, Process, Task
 from pydantic import BaseModel
 
 from ..settings import Settings, load_yaml
-from ..guardrails import Guardrail, require_audit_fixes
+from ..guardrails import Guardrail, quality_only, require_audit_fixes
 from ..inputs import full_inputs as build_full_inputs
 from ..ledger import Ledger
 from ..models import AuditReport
@@ -239,7 +239,10 @@ class Workstream:
                 "feedback": audit.feedback_brief(),
                 "previous_json": _json_snippet(previous),
             },
-            guardrails=self.spec.producer_guardrails,
+            # Quality checks still apply; the count floors do not. The revise
+            # brief tells the producer to cut what it cannot evidence, and a
+            # floor here would punish it for obeying.
+            guardrails=quality_only(self.spec.producer_guardrails),
         )
 
     # -- the Auditor protocol ---------------------------------------------

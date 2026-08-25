@@ -98,8 +98,12 @@ def load_settings(path: Optional[Path | str] = None) -> Settings:
     return Settings(
         region=os.getenv("AIGENCY_REGION", run.get("region", "United Arab Emirates")),
         horizon_months=int(run.get("horizon_months", 12)),
-        funding_target_count=int(run.get("funding_target_count", 8)),
-        prospect_target_count=int(run.get("prospect_target_count", 15)),
+        funding_target_count=int(
+            _env_float("AIGENCY_FUNDING_TARGET", run.get("funding_target_count", 8))
+        ),
+        prospect_target_count=int(
+            _env_float("AIGENCY_PROSPECT_TARGET", run.get("prospect_target_count", 15))
+        ),
         campaign_goal=os.getenv("AIGENCY_CAMPAIGN_GOAL", run.get("campaign_goal", "")),
         loop_policies=policies,
         max_cycles=int(_env_float("AIGENCY_MAX_CYCLES", flow.get("max_cycles", 2))),
