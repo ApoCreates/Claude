@@ -8,6 +8,7 @@
     "start": "node serve.js",
     "build:data": "node tools/build-data.js",
     "build:artifact": "node tools/build-artifact.js",
+    "build:public": "node tools/sync-public.js",
     "test": "node tools/engine-check.js"
   },
   "dependencies": {},

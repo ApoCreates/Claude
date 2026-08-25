@@ -3,50 +3,84 @@
 <style>
 /* =====================================================================
    Portal — منصة إدارة هدر التموين
-   نظام تصميم مؤسسي: خلفية فاتحة، كحلي داكن أساسي، ذهبي للمعتمد.
-   بلا أي مورد خارجي — الخطوط من النظام، والأيقونات SVG/رموز نصية.
+   ---------------------------------------------------------------------
+   نظام تصميم مؤسسي هادئ: أرضية باردة، حبر كحلي عميق، ذهبي مقيَّد للمعتمد،
+   وألوان دلالية للخطورة وحدها. الخط محلي بالكامل (woff2 داخل المستودع) —
+   لا CDN ولا اتصال خارجي وقت التشغيل.
    ===================================================================== */
 
+/* IBM Plex Sans Arabic — مقاطع عربية ولاتينية، مستضافة ذاتياً */
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("fonts/plex-arabic-400.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF,
+                 U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("fonts/plex-arabic-500.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF,
+                 U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("fonts/plex-arabic-600.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF,
+                 U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("fonts/plex-arabic-700.woff2") format("woff2");
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF,
+                 U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("fonts/plex-latin-400.woff2") format("woff2"); }
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("fonts/plex-latin-500.woff2") format("woff2"); }
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("fonts/plex-latin-600.woff2") format("woff2"); }
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("fonts/plex-latin-700.woff2") format("woff2"); }
+
 :root {
-  /* الهوية */
-  --navy-900: #0f1f36;
-  --navy-800: #16294a;
-  --navy-700: #1e3a5f;
-  --navy-600: #2b4f7e;
-  --navy-100: #e8eef6;
-  --navy-050: #f3f7fc;
-
-  --gold-600: #a8791b;
-  --gold-500: #c9971f;
-  --gold-100: #fbf1d8;
-
-  /* درجات الخطورة */
-  --sev-critical: #b91c1c;
-  --sev-high: #ea580c;
-  --sev-medium: #ca8a04;
-  --sev-low: #15803d;
-  --sev-critical-bg: #fdeaea;
-  --sev-high-bg: #fdf0e6;
-  --sev-medium-bg: #fdf6e0;
-  --sev-low-bg: #e9f6ed;
-
-  /* محايد */
-  --bg: #f5f7fa;
+  /* الحبر والأرضية — محايدات باردة مائلة قليلاً نحو الكحلي، لا رمادي ميت */
+  --bg: #f4f6f9;
   --surface: #ffffff;
-  --line: #dfe6ef;
-  --line-soft: #eef2f7;
-  --text: #14243c;
-  --text-soft: #55677f;
-  --text-mute: #8494a8;
+  --surface-sunk: #f8fafc;
+  --line: #e6ebf1;
+  --line-strong: #d3dbe5;
+  --text: #101c2e;
+  --text-soft: #4d5f76;
+  --text-mute: #8496ab;
 
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow-sm: 0 1px 2px rgba(15, 31, 54, .06);
-  --shadow: 0 2px 10px rgba(15, 31, 54, .07);
-  --shadow-lg: 0 12px 40px rgba(15, 31, 54, .18);
+  /* الهوية */
+  --navy-900: #0d1b2e;
+  --navy-800: #142742;
+  --navy-700: #1c3557;
+  --navy-600: #2c4d78;
+  --navy-100: #e4ebf4;
+  --navy-050: #f1f5fa;
 
-  --font: "Cairo", "IBM Plex Sans Arabic", "Noto Sans Arabic", "Dubai",
-          "Segoe UI", "Tahoma", "Arial", system-ui, sans-serif;
+  --gold-600: #8a6410;
+  --gold-500: #b8891d;
+  --gold-100: #fbf3de;
+
+  /* درجات الخطورة — دلالية، منفصلة عن لون الهوية */
+  --sev-critical: #b3261e;
+  --sev-high: #c2620d;
+  --sev-medium: #9a7209;
+  --sev-low: #17693f;
+  --sev-critical-bg: #fdeceb;
+  --sev-high-bg: #fdf1e7;
+  --sev-medium-bg: #fbf5e3;
+  --sev-low-bg: #e9f5ee;
+
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-xs: 6px;
+
+  /* ظلال ناعمة تحلّ محل الحدود الصلبة */
+  --shadow-xs: 0 1px 2px rgba(16, 28, 46, .04), 0 0 0 1px rgba(16, 28, 46, .045);
+  --shadow-sm: 0 2px 4px rgba(16, 28, 46, .05), 0 0 0 1px rgba(16, 28, 46, .05);
+  --shadow: 0 6px 16px -6px rgba(16, 28, 46, .14), 0 0 0 1px rgba(16, 28, 46, .05);
+  --shadow-lg: 0 24px 60px -18px rgba(13, 27, 46, .32);
+
+  --font: "Plex Arabic", "IBM Plex Sans Arabic", "Noto Sans Arabic", "Dubai",
+          "Segoe UI", system-ui, sans-serif;
+  --font-num: "Plex Arabic", ui-monospace, "SFMono-Regular", monospace;
 }
 
 * { box-sizing: border-box; }
@@ -57,12 +91,22 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
-  font-size: 15px;
-  line-height: 1.65;
+  font-size: 15.5px;
+  line-height: 1.7;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1;
 }
 
-h1, h2, h3, h4 { margin: 0; font-weight: 700; line-height: 1.4; }
+/* الأرقام تصطف في الأعمدة */
+.kpi-value, .stat b, td.num, .ch-value, .ch-axis, .ch-center-num,
+input[type="number"], input[type="date"] { font-variant-numeric: tabular-nums; }
+
+h1, h2, h3, h4 { margin: 0; font-weight: 600; line-height: 1.35; letter-spacing: -.011em; text-wrap: balance; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.02rem; }
+h4 { font-size: .92rem; }
 p { margin: 0 0 .6rem; }
 a { color: var(--navy-600); }
 button { font-family: inherit; }
@@ -73,12 +117,11 @@ button { font-family: inherit; }
 .topbar {
   background: var(--navy-900);
   color: #fff;
-  padding: .55rem 1.1rem;
+  padding: .7rem 1.4rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.1rem;
   flex-wrap: wrap;
-  box-shadow: var(--shadow);
   position: sticky;
   top: 0;
   z-index: 40;
@@ -86,37 +129,39 @@ button { font-family: inherit; }
 
 .brand { display: flex; align-items: center; gap: .6rem; margin-inline-end: auto; }
 .brand-mark {
-  width: 34px; height: 34px; border-radius: 9px;
-  background: linear-gradient(135deg, var(--gold-500), var(--gold-600));
-  color: var(--navy-900);
+  width: 32px; height: 32px; border-radius: 8px; flex: none;
+  background: var(--gold-500); color: var(--navy-900);
   display: grid; place-items: center;
-  font-weight: 800; font-size: 1.05rem; flex: none;
+  font-weight: 700; font-size: .98rem;
 }
-.brand-text b { display: block; font-size: 1rem; letter-spacing: .1px; }
-.brand-text span { display: block; font-size: .72rem; color: #a9bdd6; line-height: 1.3; }
+.brand-text b { display: block; font-size: 1rem; font-weight: 600; letter-spacing: -.01em; }
+.brand-text span { display: block; font-size: .74rem; color: #93a9c4; line-height: 1.35; font-weight: 400; }
 
 .nav { display: flex; gap: .2rem; flex-wrap: wrap; }
 .nav button {
-  background: transparent; border: 0; color: #c3d3e6;
-  padding: .42rem .72rem; border-radius: var(--radius-sm);
-  font-size: .84rem; font-weight: 600; cursor: pointer;
+  background: transparent; border: 0; color: #a9c0da;
+  padding: .44rem .8rem; border-radius: var(--radius-sm);
+  font-size: .875rem; font-weight: 500; cursor: pointer;
   transition: background .15s, color .15s;
 }
-.nav button:hover { background: rgba(255, 255, 255, .09); color: #fff; }
-.nav button.active { background: #fff; color: var(--navy-900); }
+.nav button:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+.nav button.active { background: rgba(255, 255, 255, .13); color: #fff; font-weight: 600; }
+.nav button:focus-visible, .btn:focus-visible, a:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+th.sortable:focus-visible { outline: 2px solid var(--gold-500); outline-offset: 2px; }
 
 .toolbar { display: flex; gap: .35rem; flex-wrap: wrap; }
 
-.main { flex: 1; padding: 1.1rem; max-width: 1400px; width: 100%; margin: 0 auto; }
+.main { flex: 1; padding: 1.6rem 1.4rem 2.4rem; max-width: 1360px; width: 100%; margin: 0 auto; }
 
 /* ------------------------------ أزرار ------------------------------ */
 .btn {
   display: inline-flex; align-items: center; gap: .4rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   background: var(--surface); color: var(--text);
-  padding: .42rem .8rem; border-radius: var(--radius-sm);
-  font-size: .82rem; font-weight: 600; cursor: pointer;
-  transition: background .15s, border-color .15s, transform .05s;
+  padding: .46rem .9rem; border-radius: var(--radius-sm);
+  font-size: .855rem; font-weight: 500; cursor: pointer;
+  transition: background .15s, border-color .15s, box-shadow .15s;
   white-space: nowrap;
 }
 .btn:hover { background: var(--navy-050); border-color: var(--navy-600); }
@@ -124,90 +169,91 @@ button { font-family: inherit; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn-primary { background: var(--navy-700); border-color: var(--navy-700); color: #fff; }
 .btn-primary:hover { background: var(--navy-800); border-color: var(--navy-800); }
-.btn-gold { background: var(--gold-500); border-color: var(--gold-600); color: #2c1f04; }
+.btn-gold { background: var(--gold-500); border-color: var(--gold-500); color: #fff; font-weight: 600; }
 .btn-gold:hover { background: var(--gold-600); color: #fff; }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--text-soft); }
 .btn-ghost:hover { background: var(--navy-100); color: var(--text); }
 .btn-danger { color: var(--sev-critical); border-color: #f1c9c9; }
 .btn-danger:hover { background: var(--sev-critical-bg); border-color: var(--sev-critical); }
-.btn-sm { padding: .26rem .55rem; font-size: .76rem; }
-.topbar .btn { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18); color: #dce7f3; }
-.topbar .btn:hover { background: rgba(255,255,255,.18); color: #fff; }
+.btn-sm { padding: .3rem .62rem; font-size: .8rem; }
+.topbar .btn { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); color: #cfdcea; }
+.topbar .btn:hover { background: rgba(255,255,255,.15); border-color: rgba(255,255,255,.28); color: #fff; }
 
 /* ------------------------------ بطاقات ------------------------------ */
 .card {
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
 }
 .card-head {
-  padding: .8rem 1rem;
-  border-bottom: 1px solid var(--line-soft);
-  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+  padding: 1rem 1.15rem .2rem;
+  display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap;
 }
-.card-head h3 { font-size: .95rem; }
-.card-head .hint { font-size: .76rem; color: var(--text-mute); font-weight: 500; }
-.card-body { padding: 1rem; }
+.card-head h3 { font-size: 1rem; font-weight: 600; }
+.card-head .hint { font-size: .8rem; color: var(--text-mute); font-weight: 400; }
+.card-body { padding: 1.15rem; }
 
 .section-title {
-  font-size: 1.05rem; margin: 1.4rem 0 .7rem;
-  display: flex; align-items: center; gap: .5rem;
+  font-size: 1.16rem; font-weight: 600; margin: 2rem 0 .9rem;
+  letter-spacing: -.014em;
 }
 .section-title:first-child { margin-top: 0; }
-.section-title::before {
-  content: ""; width: 4px; height: 1.05em; border-radius: 2px;
-  background: var(--gold-500); flex: none;
-}
 
-.grid { display: grid; gap: .85rem; }
-.grid-kpi { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
-.grid-2 { grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
-.grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grid { display: grid; gap: 1rem; }
+.grid-kpi { grid-template-columns: repeat(auto-fit, minmax(196px, 1fr)); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); }
 
 /* ------------------------------ KPI ------------------------------ */
 .kpi {
-  background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: .85rem .95rem;
-  box-shadow: var(--shadow-sm);
-  border-inline-start: 3px solid var(--navy-700);
+  background: var(--surface); border: 0;
+  border-radius: var(--radius); padding: 1.05rem 1.15rem 1.1rem;
+  box-shadow: var(--shadow-xs);
+  display: flex; flex-direction: column; gap: .12rem;
+  position: relative; overflow: hidden;
 }
-.kpi-label { font-size: .76rem; color: var(--text-soft); font-weight: 600; }
+/* شريط حالة رفيع أعلى البطاقة بدل حدّ جانبي سميك */
+.kpi::before {
+  content: ""; position: absolute; inset-block-start: 0; inset-inline: 0;
+  height: 3px; background: var(--navy-600); opacity: .75;
+}
+.kpi-label { font-size: .82rem; color: var(--text-soft); font-weight: 500; }
 .kpi-value {
-  font-size: 1.65rem; font-weight: 800; line-height: 1.25;
-  color: var(--navy-900); letter-spacing: -.4px;
+  font-size: 2rem; font-weight: 600; line-height: 1.15;
+  color: var(--navy-900); letter-spacing: -.028em; margin-top: .15rem;
 }
-.kpi-value small { font-size: .78rem; font-weight: 600; color: var(--text-soft); margin-inline-start: .2rem; }
-.kpi-sub { font-size: .74rem; color: var(--text-mute); }
-.kpi.is-alert { border-inline-start-color: var(--sev-critical); }
+.kpi-value small { font-size: .82rem; font-weight: 500; color: var(--text-mute); margin-inline-start: .25rem; letter-spacing: 0; }
+.kpi-sub { font-size: .79rem; color: var(--text-mute); margin-top: .1rem; }
+.kpi.is-alert::before { background: var(--sev-critical); }
 .kpi.is-alert .kpi-value { color: var(--sev-critical); }
-.kpi.is-good { border-inline-start-color: var(--sev-low); }
-.kpi.is-gold { border-inline-start-color: var(--gold-500); }
+.kpi.is-good::before { background: var(--sev-low); }
+.kpi.is-gold::before { background: var(--gold-500); }
 
 /* ------------------------------ شارات ------------------------------ */
 .badge {
   display: inline-flex; align-items: center; gap: .28rem;
-  padding: .12rem .5rem; border-radius: 999px;
-  font-size: .73rem; font-weight: 700; white-space: nowrap;
+  padding: .16rem .58rem; border-radius: 999px;
+  font-size: .775rem; font-weight: 500; white-space: nowrap;
   border: 1px solid transparent;
 }
-.badge-gold { background: var(--gold-100); color: var(--gold-600); border-color: #ecd8a4; }
+.badge-gold { background: var(--gold-100); color: var(--gold-600); border-color: #edddb4; font-weight: 600; }
 .badge-blue { background: var(--navy-100); color: var(--navy-700); border-color: #cfdcee; }
 .badge-gray { background: #f0f3f7; color: var(--text-mute); border-color: var(--line); }
 .badge-neutral { background: #f0f3f7; color: var(--text-soft); border-color: var(--line); }
 
-.sev { display: inline-flex; align-items: center; gap: .3rem; padding: .12rem .5rem;
-       border-radius: 999px; font-size: .73rem; font-weight: 700; white-space: nowrap; }
-.sev::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.sev { display: inline-flex; align-items: center; gap: .35rem; padding: .16rem .58rem;
+       border-radius: 999px; font-size: .775rem; font-weight: 500; white-space: nowrap; }
+.sev::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
 .sev-حرجة   { background: var(--sev-critical-bg); color: var(--sev-critical); }
 .sev-عالية  { background: var(--sev-high-bg); color: var(--sev-high); }
 .sev-متوسطة { background: var(--sev-medium-bg); color: var(--sev-medium); }
 .sev-منخفضة { background: var(--sev-low-bg); color: var(--sev-low); }
 
 .chip {
-  display: inline-block; padding: .1rem .45rem; border-radius: 6px;
-  background: var(--navy-050); border: 1px solid var(--line-soft);
-  font-size: .72rem; color: var(--text-soft); font-weight: 600;
+  display: inline-block; padding: .14rem .52rem; border-radius: var(--radius-xs);
+  background: var(--surface-sunk); border: 1px solid var(--line);
+  font-size: .78rem; color: var(--text-soft); font-weight: 400;
 }
 .type-وقائي  { background: #eef6ff; color: #1d4ed8; border-color: #d5e4fb; }
 .type-تشغيلي { background: #f0fbf3; color: #15803d; border-color: #cfead9; }
@@ -215,64 +261,65 @@ button { font-family: inherit; }
 
 /* ------------------------------ جداول ------------------------------ */
 .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-table.data { width: 100%; border-collapse: collapse; font-size: .84rem; min-width: 860px; }
-table.data th, table.data td {
-  padding: .55rem .7rem; text-align: right; border-bottom: 1px solid var(--line-soft);
-  vertical-align: middle;
-}
+table.data { width: 100%; border-collapse: collapse; font-size: .875rem; min-width: 880px; }
+table.data th, table.data td { padding: .78rem .85rem; text-align: right; vertical-align: middle; }
+table.data tbody td { border-top: 1px solid var(--line); }
 table.data thead th {
-  background: var(--navy-050); color: var(--navy-800);
-  font-size: .78rem; font-weight: 700; white-space: nowrap;
+  background: var(--surface); color: var(--text-mute);
+  font-size: .77rem; font-weight: 500; white-space: nowrap; letter-spacing: .02em;
   position: sticky; top: 0; z-index: 2;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-strong);
+  padding-top: .55rem; padding-bottom: .55rem;
 }
 table.data thead th.sortable { cursor: pointer; user-select: none; }
-table.data thead th.sortable:hover { background: var(--navy-100); }
-table.data thead th .arrow { color: var(--gold-600); font-size: .7rem; }
+table.data thead th.sortable:hover { color: var(--navy-700); }
+table.data thead th .arrow { color: var(--gold-600); font-size: .68rem; }
 table.data tbody tr { cursor: pointer; transition: background .12s; }
-table.data tbody tr:hover { background: var(--navy-050); }
-table.data td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
-table.data .name { font-weight: 700; color: var(--navy-800); }
-table.data .muted { color: var(--text-mute); font-size: .78rem; }
+table.data tbody tr:hover { background: var(--surface-sunk); }
+table.data td.num { white-space: nowrap; color: var(--text-soft); }
+table.data .name { font-weight: 600; color: var(--text); }
+table.data .muted { color: var(--text-mute); font-size: .8rem; }
 
 /* ------------------------------ مرشحات ------------------------------ */
 .filters { display: flex; gap: .5rem; flex-wrap: wrap; align-items: flex-start; }
 .field { display: flex; flex-direction: column; gap: .22rem; flex: 1 1 130px; min-width: 130px; }
 .field.grow { flex: 2 1 200px; }
-.field label { font-size: .74rem; font-weight: 700; color: var(--text-soft); }
+.field label { font-size: .8rem; font-weight: 500; color: var(--text-soft); }
 .field .req { color: var(--sev-critical); }
 input, select, textarea {
-  font-family: inherit; font-size: .84rem; color: var(--text);
-  background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius-sm); padding: .4rem .55rem; width: 100%;
+  font-family: inherit; font-size: .875rem; color: var(--text);
+  background: var(--surface); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm); padding: .52rem .68rem; width: 100%;
+  transition: border-color .15s, box-shadow .15s;
 }
+input::placeholder, textarea::placeholder { color: var(--text-mute); }
 input:focus, select:focus, textarea:focus {
   outline: none; border-color: var(--navy-600);
-  box-shadow: 0 0 0 3px rgba(43, 79, 126, .12);
+  box-shadow: 0 0 0 3px rgba(44, 77, 120, .13);
 }
 input.invalid, select.invalid, textarea.invalid {
   border-color: var(--sev-critical); background: #fffafa;
 }
 textarea { resize: vertical; min-height: 62px; line-height: 1.6; }
-.field-error { font-size: .73rem; color: var(--sev-critical); font-weight: 600; }
-.field-hint { font-size: .72rem; color: var(--text-mute); }
+.field-error { font-size: .79rem; color: var(--sev-critical); font-weight: 500; }
+.field-hint { font-size: .785rem; color: var(--text-mute); }
 
 /* ------------------------------ رسوم ------------------------------ */
 .chart { width: 100%; height: auto; display: block; overflow: visible; }
 .chart-donut { max-width: 210px; margin: 0 auto; }
-.ch-label { font-size: 2.6px; fill: var(--text); font-weight: 600; font-family: var(--font); }
-.ch-value { font-size: 2.6px; fill: var(--text-soft); font-weight: 700; font-family: var(--font);
+.ch-label { font-size: 2.7px; fill: var(--text); font-weight: 500; font-family: var(--font); }
+.ch-value { font-size: 2.7px; fill: var(--text-soft); font-weight: 600; font-family: var(--font);
             font-variant-numeric: tabular-nums; }
 .ch-axis { font-size: 2.5px; fill: var(--text-mute); font-family: var(--font); }
-.ch-track { fill: var(--line-soft); }
+.ch-track { fill: #eef1f5; }
 .ch-grid { stroke: var(--line-soft); stroke-width: .22; }
 .ch-trend { fill: none; stroke: var(--gold-500); stroke-width: .55; stroke-linejoin: round; }
 .ch-dot { fill: var(--gold-500); }
-.ch-center-num { font-size: 13px; font-weight: 800; fill: var(--navy-900); font-family: var(--font); }
+.ch-center-num { font-size: 13px; font-weight: 600; fill: var(--navy-900); font-family: var(--font); letter-spacing: -.02em; }
 .ch-center-lbl { font-size: 5px; fill: var(--text-mute); font-family: var(--font); }
 
 .legend { display: flex; flex-wrap: wrap; gap: .45rem .9rem; margin-top: .6rem; }
-.legend span { display: inline-flex; align-items: center; gap: .3rem; font-size: .76rem; color: var(--text-soft); }
+.legend span { display: inline-flex; align-items: center; gap: .38rem; font-size: .82rem; color: var(--text-soft); }
 .legend i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; flex: none; }
 
 /* ------------------------------ التفاصيل ------------------------------ */
@@ -283,51 +330,53 @@ textarea { resize: vertical; min-height: 62px; line-height: 1.6; }
 .detail-head h2 { font-size: 1.25rem; }
 .detail-meta { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .35rem; }
 
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .55rem; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: .6rem; }
 .stat {
-  background: var(--navy-050); border: 1px solid var(--line-soft);
-  border-radius: var(--radius-sm); padding: .5rem .6rem;
+  background: var(--surface-sunk); border: 0;
+  border-radius: var(--radius-sm); padding: .7rem .8rem;
 }
-.stat b { display: block; font-size: 1.05rem; color: var(--navy-800); font-variant-numeric: tabular-nums; }
-.stat span { font-size: .72rem; color: var(--text-soft); }
+.stat b { display: block; font-size: 1.18rem; font-weight: 600; color: var(--text); letter-spacing: -.018em; }
+.stat span { font-size: .78rem; color: var(--text-mute); }
 
 .kv { display: grid; grid-template-columns: max-content 1fr; gap: .35rem .8rem; font-size: .85rem; }
 .kv dt { color: var(--text-soft); font-weight: 700; font-size: .8rem; }
 .kv dd { margin: 0; }
 
 .issue {
-  border: 1px solid var(--line); border-radius: var(--radius-sm);
-  padding: .6rem .75rem; background: var(--surface);
+  border: 0; border-radius: var(--radius-sm);
+  padding: .8rem .95rem; background: var(--surface-sunk);
 }
 .issue + .issue { margin-top: .5rem; }
 .issue-head { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; margin-bottom: .3rem; }
-.issue p { margin: 0; font-size: .84rem; }
-.issue .effect { color: var(--text-soft); font-size: .8rem; margin-top: .2rem; }
+.issue p { margin: 0; font-size: .88rem; line-height: 1.7; }
+.issue .effect { color: var(--text-mute); font-size: .82rem; margin-top: .3rem; }
 
 .narrative {
-  background: var(--navy-050); border-inline-start: 3px solid var(--navy-600);
-  padding: .7rem .85rem; border-radius: var(--radius-sm);
-  font-size: .88rem; line-height: 1.85;
+  background: var(--surface); box-shadow: var(--shadow-xs);
+  padding: 1.1rem 1.25rem; border-radius: var(--radius);
+  font-size: .95rem; line-height: 1.95; color: var(--text-soft);
+  max-width: 78ch;
 }
 
 /* ------------------------------ الحل ------------------------------ */
 .solution { border-radius: var(--radius); overflow: hidden; }
-.solution.approved { border-color: #e5cd96; }
-.solution.approved .solution-head { background: var(--gold-100); border-bottom-color: #ecd8a4; }
+.solution.approved { box-shadow: 0 1px 2px rgba(16,28,46,.04), 0 0 0 1px #e8d5a6; }
+.solution.approved .solution-head { background: var(--gold-100); border-bottom-color: #edddb4; }
 .solution-head {
-  background: var(--navy-050); padding: .75rem 1rem;
-  border-bottom: 1px solid var(--line-soft);
-  display: flex; align-items: center; gap: .55rem; flex-wrap: wrap;
+  background: var(--surface-sunk); padding: .9rem 1.15rem;
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
 }
 .diagnosis {
-  background: #fff; border: 1px dashed var(--navy-100);
-  border-radius: var(--radius-sm); padding: .7rem .85rem;
-  font-size: .88rem; line-height: 1.85;
+  background: var(--surface-sunk); border: 0;
+  border-inline-start: 2px solid var(--navy-600);
+  border-radius: var(--radius-xs); padding: .9rem 1.05rem;
+  font-size: .93rem; line-height: 1.9;
 }
 
 .rec {
   border: 1px solid var(--line); border-radius: var(--radius-sm);
-  padding: .65rem .8rem; background: var(--surface);
+  padding: .9rem 1rem; background: var(--surface);
   border-inline-start: 3px solid var(--navy-600);
 }
 .rec + .rec { margin-top: .55rem; }
@@ -336,13 +385,13 @@ textarea { resize: vertical; min-height: 62px; line-height: 1.6; }
 .rec[data-priority="3"] { border-inline-start-color: var(--sev-medium); }
 .rec-head { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; margin-bottom: .35rem; }
 .rec-prio {
-  width: 21px; height: 21px; border-radius: 6px; flex: none;
+  width: 22px; height: 22px; border-radius: var(--radius-xs); flex: none;
   background: var(--navy-800); color: #fff;
-  display: grid; place-items: center; font-size: .75rem; font-weight: 800;
+  display: grid; place-items: center; font-size: .76rem; font-weight: 600;
 }
-.rec-action { font-size: .87rem; font-weight: 600; margin-bottom: .35rem; }
-.rec-foot { display: flex; gap: .35rem .9rem; flex-wrap: wrap; font-size: .76rem; color: var(--text-soft); }
-.rec-foot b { color: var(--text); font-weight: 700; }
+.rec-action { font-size: .93rem; font-weight: 500; line-height: 1.65; margin-bottom: .5rem; }
+.rec-foot { display: flex; gap: .3rem 1.1rem; flex-wrap: wrap; font-size: .8rem; color: var(--text-mute); }
+.rec-foot b { color: var(--text-soft); font-weight: 500; }
 
 .auto-flow {
   display: flex; align-items: stretch; gap: 0; flex-wrap: wrap;
@@ -350,57 +399,57 @@ textarea { resize: vertical; min-height: 62px; line-height: 1.6; }
 }
 .auto + .auto { margin-top: .55rem; }
 .auto-name {
-  font-size: .84rem; font-weight: 700; margin-bottom: .35rem;
-  display: flex; align-items: center; gap: .35rem;
+  font-size: .9rem; font-weight: 600; margin-bottom: .45rem;
+  display: flex; align-items: center; gap: .45rem; flex-wrap: wrap;
 }
-.auto-name::before { content: "⚙"; color: var(--navy-600); }
-.flow-step { flex: 1 1 150px; padding: .5rem .65rem; background: var(--surface); position: relative; }
+.flow-step { flex: 1 1 160px; padding: .65rem .8rem; background: var(--surface); position: relative; }
 .flow-step + .flow-step { border-inline-start: 1px solid var(--line-soft); }
-.flow-step small { display: block; font-size: .68rem; font-weight: 800; color: var(--text-mute);
-                   letter-spacing: .2px; margin-bottom: .12rem; }
-.flow-step span { font-size: .8rem; }
-.flow-step.trigger { background: var(--navy-050); }
+.flow-step small { display: block; font-size: .72rem; font-weight: 500; color: var(--text-mute);
+                   letter-spacing: .03em; margin-bottom: .18rem; }
+.flow-step span { font-size: .845rem; line-height: 1.6; }
+.flow-step.trigger { background: var(--surface-sunk); }
 .flow-step.action { background: #f5fbf7; }
 
 .kpi-row {
-  display: flex; align-items: center; justify-content: space-between; gap: .6rem;
-  padding: .45rem .65rem; border: 1px solid var(--line-soft);
-  border-radius: var(--radius-sm); background: var(--surface);
-  font-size: .83rem;
+  display: flex; align-items: center; justify-content: space-between; gap: .8rem;
+  padding: .68rem .85rem; border: 0;
+  border-radius: var(--radius-sm); background: var(--surface-sunk);
+  font-size: .88rem;
 }
-.kpi-row + .kpi-row { margin-top: .4rem; }
-.kpi-row b { color: var(--navy-700); font-weight: 700; white-space: nowrap; }
+.kpi-row + .kpi-row { margin-top: .45rem; }
+.kpi-row b { color: var(--navy-700); font-weight: 600; white-space: nowrap; }
 
 /* --------------------------- أثر المحرك --------------------------- */
-.trace { background: var(--navy-050); border: 1px solid var(--line); border-radius: var(--radius); }
+.trace { background: var(--surface); box-shadow: var(--shadow-xs); border-radius: var(--radius); }
 .trace-steps { display: grid; gap: .5rem; }
 .trace-step {
-  background: var(--surface); border: 1px solid var(--line-soft);
-  border-radius: var(--radius-sm); padding: .55rem .7rem;
-  display: flex; gap: .6rem; align-items: flex-start;
+  background: var(--surface-sunk); border: 0;
+  border-radius: var(--radius-sm); padding: .8rem .95rem;
+  display: flex; gap: .75rem; align-items: flex-start;
 }
 .trace-num {
-  width: 22px; height: 22px; border-radius: 50%; flex: none;
+  width: 23px; height: 23px; border-radius: 50%; flex: none;
   background: var(--navy-700); color: #fff;
-  display: grid; place-items: center; font-size: .74rem; font-weight: 800;
+  display: grid; place-items: center; font-size: .75rem; font-weight: 600;
 }
-.trace-step h4 { font-size: .82rem; margin-bottom: .1rem; }
-.trace-step p { font-size: .8rem; color: var(--text-soft); margin: 0; }
-.kw { display: inline-block; background: var(--gold-100); color: var(--gold-600);
-      border-radius: 4px; padding: 0 .28rem; font-size: .72rem; font-weight: 700; margin: .1rem .12rem 0 0; }
+.trace-step h4 { font-size: .88rem; margin-bottom: .18rem; }
+.trace-step p { font-size: .85rem; color: var(--text-soft); margin: 0; line-height: 1.7; }
+.kw { display: inline-block; background: var(--surface); color: var(--text-soft);
+      border: 1px solid var(--line); border-radius: var(--radius-xs);
+      padding: .08rem .4rem; font-size: .775rem; font-weight: 400; margin: .18rem .2rem 0 0; }
 
 .axis-row {
-  display: flex; align-items: center; gap: .55rem; flex-wrap: wrap;
-  padding: .4rem .6rem; border: 1px solid var(--line-soft);
-  border-radius: var(--radius-sm); background: var(--surface); font-size: .8rem;
+  display: flex; align-items: center; gap: .65rem; flex-wrap: wrap;
+  padding: .6rem .8rem; border: 0;
+  border-radius: var(--radius-sm); background: var(--surface-sunk); font-size: .86rem;
 }
 .axis-row + .axis-row { margin-top: .35rem; }
-.axis-row .axis-name { font-weight: 700; min-width: 108px; }
-.axis-row.is-driver { border-color: var(--navy-600); background: var(--navy-050); }
+.axis-row .axis-name { font-weight: 500; min-width: 116px; }
+.axis-row.is-driver { background: var(--navy-050); box-shadow: inset 0 0 0 1px var(--navy-100); }
 
 /* ------------------------------ نوافذ ------------------------------ */
 .modal-backdrop {
-  position: fixed; inset: 0; background: rgba(15, 31, 54, .5);
+  position: fixed; inset: 0; background: rgba(13, 27, 46, .48); backdrop-filter: blur(2px);
   display: flex; align-items: flex-start; justify-content: center;
   padding: 1.2rem; overflow-y: auto; z-index: 60;
 }
@@ -410,15 +459,15 @@ textarea { resize: vertical; min-height: 62px; line-height: 1.6; }
   margin: auto; overflow: hidden;
 }
 .modal-head {
-  padding: .8rem 1rem; border-bottom: 1px solid var(--line);
+  padding: 1rem 1.15rem; border-bottom: 1px solid var(--line);
   display: flex; align-items: center; gap: .6rem;
 }
 .modal-head h3 { font-size: 1rem; margin-inline-end: auto; }
-.modal-body { padding: 1rem; max-height: 68vh; overflow-y: auto; }
+.modal-body { padding: 1.15rem; max-height: 68vh; overflow-y: auto; }
 .modal-foot {
-  padding: .7rem 1rem; border-top: 1px solid var(--line);
-  display: flex; gap: .45rem; justify-content: flex-start; flex-wrap: wrap;
-  background: var(--navy-050);
+  padding: .85rem 1.15rem; border-top: 1px solid var(--line);
+  display: flex; gap: .5rem; justify-content: flex-start; flex-wrap: wrap;
+  background: var(--surface-sunk);
 }
 
 .toast-host {
@@ -436,12 +485,12 @@ textarea { resize: vertical; min-height: 62px; line-height: 1.6; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 .alert {
-  border-radius: var(--radius-sm); padding: .6rem .8rem;
-  font-size: .82rem; border: 1px solid;
+  border-radius: var(--radius-sm); padding: .8rem 1rem;
+  font-size: .87rem; line-height: 1.7; border: 1px solid;
 }
 .alert-error { background: var(--sev-critical-bg); border-color: #f1c9c9; color: #7f1d1d; }
 .alert-warn { background: var(--sev-medium-bg); border-color: #f0deae; color: #854d0e; }
-.alert-info { background: var(--navy-050); border-color: var(--line); color: var(--text-soft); }
+.alert-info { background: var(--surface-sunk); border-color: var(--line); color: var(--text-soft); }
 .alert ul { margin: .35rem 0 0; padding-inline-start: 1.1rem; }
 
 .empty { text-align: center; padding: 2.4rem 1rem; color: var(--text-mute); }
@@ -482,9 +531,9 @@ pre.schema {
 pre.schema .k { color: #f0c674; }
 
 .footer {
-  padding: 1rem 1.2rem; font-size: .76rem; color: var(--text-mute);
+  padding: 1.3rem 1.4rem; font-size: .81rem; color: var(--text-mute);
   border-top: 1px solid var(--line); background: var(--surface);
-  display: flex; gap: .8rem; flex-wrap: wrap; align-items: center;
+  display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;
 }
 
 .split { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
@@ -498,8 +547,10 @@ pre.schema .k { color: #f0c674; }
 
 /* ------------------------------ الموبايل ------------------------------ */
 @media (max-width: 780px) {
-  body { font-size: 14.5px; }
-  .main { padding: .8rem .7rem; }
+  body { font-size: 15px; }
+  .main { padding: 1rem .85rem 2rem; }
+  .kpi-value { font-size: 1.7rem; }
+  .section-title { font-size: 1.08rem; margin: 1.5rem 0 .7rem; }
   .brand-text span { display: none; }
   .nav { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: .15rem; }
   .nav button { flex: none; }
@@ -519,6 +570,82 @@ pre.schema .k { color: #f0c674; }
 
 /* عزل اتجاهي للقيم العربية داخل كتل الكود LTR */
 pre.schema bdi { unicode-bidi: isolate; }
+
+/* ==================================================================== *
+   تفاعل الرسوم وتعريفات المقاييس
+   ==================================================================== */
+
+/* عناصر الرسم القابلة للنقر: منطقة إصابة شفافة تضيء عند التحويم */
+.ch-hit { fill: transparent; }
+.ch-row.is-clickable { cursor: pointer; }
+.ch-row.is-clickable:hover .ch-hit { fill: rgba(28, 53, 87, .055); }
+.ch-row.is-clickable:hover .ch-bar,
+.ch-row.is-clickable:hover .ch-slice { filter: brightness(1.12); }
+.ch-row.is-clickable:focus { outline: none; }
+.ch-row.is-clickable:focus-visible .ch-hit {
+  fill: rgba(184, 137, 29, .12);
+  stroke: var(--gold-500); stroke-width: .35;
+}
+.ch-bar, .ch-slice { transition: filter .12s; }
+
+.kpi.is-clickable { cursor: pointer; transition: box-shadow .15s, transform .12s; }
+.kpi.is-clickable:hover { box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+
+/* زر التعريف «؟» بجوار كل رقم */
+.info-btn {
+  appearance: none; border: 1px solid var(--line-strong); background: var(--surface);
+  color: var(--text-mute); cursor: pointer;
+  width: 16px; height: 16px; border-radius: 50%; padding: 0;
+  font-size: .68rem; font-weight: 600; line-height: 1;
+  display: inline-grid; place-items: center;
+  margin-inline-start: .35rem; vertical-align: middle;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.info-btn:hover { background: var(--navy-700); border-color: var(--navy-700); color: #fff; }
+.card-head .info-btn { margin-inline-start: .1rem; }
+
+/* نافذة التعريف */
+.metric-def { display: grid; gap: .2rem .9rem; margin: 0; }
+.metric-def dt {
+  font-size: .78rem; font-weight: 600; color: var(--navy-700);
+  margin-top: .8rem; letter-spacing: .01em;
+}
+.metric-def dt:first-child { margin-top: 0; }
+.metric-def dd { margin: 0; font-size: .92rem; line-height: 1.8; color: var(--text-soft); }
+
+/* شريط الإرشاد أعلى الرسوم */
+.hint-bar {
+  display: flex; gap: .8rem; flex-wrap: wrap; align-items: center;
+  padding: .7rem 1rem; border-radius: var(--radius-sm);
+  background: var(--surface); box-shadow: var(--shadow-xs);
+  font-size: .84rem; color: var(--text-mute);
+}
+.hint-bar .push { color: var(--text-soft); }
+
+/* رقائق المرشّحات النشطة */
+.active-filters {
+  display: flex; gap: .45rem; flex-wrap: wrap; align-items: center;
+  padding: .6rem .8rem; border-radius: var(--radius-sm);
+  background: var(--navy-050); box-shadow: inset 0 0 0 1px var(--navy-100);
+}
+.active-filters .af-label { font-size: .8rem; color: var(--text-mute); }
+.af-chip {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--surface); border: 1px solid var(--line-strong);
+  border-radius: 999px; padding: .2rem .6rem;
+  font-family: inherit; font-size: .8rem; color: var(--text-soft);
+  transition: border-color .15s, color .15s;
+}
+.af-chip b { font-weight: 600; color: var(--text); }
+.af-chip span { color: var(--text-mute); font-size: .72rem; }
+.af-chip:hover { border-color: var(--sev-critical); color: var(--sev-critical); }
+.af-chip:hover span, .af-chip:hover b { color: var(--sev-critical); }
+
+@media (max-width: 780px) {
+  .hint-bar, .active-filters { font-size: .8rem; }
+  .hint-bar .push, .active-filters .push { margin-inline-start: 0; width: 100%; }
+}
 
 
 :root { color-scheme: light; }
@@ -1855,7 +1982,7 @@ window.PORTAL_SEED = {
       key: 'planning',
       name: 'التخطيط والتنبؤ',
       definition: 'خطأ في تقدير الكميات أو الحضور أو التوزيع قبل الفعالية',
-      color: '#2563eb',
+      color: '#2f5d8f',
       core: ['تقدير', 'توقع', 'تسجيل', 'حضور فعلي', 'إلغاء', 'هجين', 'طقس'],
       extra: ['المسجلين', 'مسجل', 'RSVP', 'توقّع', 'الإقبال', 'كثافة', 'التوزيع', 'معامل تحويل',
               'الإلغاءات', 'عدد نهائي', 'العدد النهائي', 'مسح مسبق', 'Site Survey', 'قائمة دعوات',
@@ -1866,7 +1993,7 @@ window.PORTAL_SEED = {
       key: 'supply',
       name: 'سلسلة الإمداد',
       definition: 'فشل في النقل أو الموردين أو الجدولة أو الاستيراد',
-      color: '#0891b2',
+      color: '#2b7f86',
       core: ['شاحنة', 'تبريد', 'تأخر', 'مورد', 'جمارك', 'مصعد', 'جدولة'],
       extra: ['الشاحنات', 'شاحنتان', 'مبردة', 'النقل', 'ETA', 'التخليص', 'الاستيراد', 'مستوردة',
               'المورّد', 'الموردين', 'اعتذر', 'سلسلة التبريد', 'فتحات زمنية', 'Dock', 'التسليم',
@@ -1877,7 +2004,7 @@ window.PORTAL_SEED = {
       key: 'intake',
       name: 'الاستلام والإدخال',
       definition: 'فشل عند نقطة دخول الطعام: فحص، وزن، توثيق، منصات',
-      color: '#7c3aed',
+      color: '#6b5b95',
       core: ['استلام', 'فحص', 'وزن', 'فاتورة', 'صلاحية', 'منصة', 'توقيع'],
       extra: ['الاستلام', 'الفحص', 'محاضر', 'الفواتير', 'مطابقة', 'دفاتر ورقية', 'توثيق',
               'قائمة فحص', 'الوزن', 'المنصات', 'منصة الاستلام', 'تدقيق التواريخ', 'Shrinkage',
@@ -1888,7 +2015,7 @@ window.PORTAL_SEED = {
       key: 'storage',
       name: 'التخزين بالموقع',
       definition: 'فشل في حفظ الطعام داخل موقع الفعالية',
-      color: '#dc2626',
+      color: '#b5484a',
       core: ['ثلاجة', 'مولد', 'سعة', 'رطوبة', 'تكدس', 'حرارة الموقع'],
       extra: ['ثلاجات', 'المولد', 'مولّد', 'وحدة التبريد', 'التبريد الميدانية', 'تخزين ليلي',
               'مخزن مؤقت', 'رُصّت', 'الصناديق', 'سعتها', 'Redundancy', 'بالموقع', 'الموقع الميداني',
@@ -1899,7 +2026,7 @@ window.PORTAL_SEED = {
       key: 'compliance',
       name: 'الامتثال والتعاقد',
       definition: 'ثغرة عقدية أو مخالفة إجراء أو التزام غير مُدار',
-      color: '#ea580c',
+      color: '#c07a3e',
       core: ['عقد', 'بند', 'غرامة', 'تغيير قائمة', 'إجراء', 'تدريب'],
       extra: ['تعاقدي', 'تعاقدية', 'بنود', 'العقود', 'الاستدامة', 'البروتوكول', 'بروتوكولات',
               'مخالف', 'مخالفة', 'إدارة التغيير', 'تغيير القائمة', 'Cut-off', 'قطع زمني',
@@ -1910,7 +2037,7 @@ window.PORTAL_SEED = {
       key: 'surplus',
       name: 'التصرف بالفائض',
       definition: 'فشل ما بعد الخدمة: تبرع، إعادة توجيه، إتلاف',
-      color: '#16a34a',
+      color: '#3f7d5a',
       core: ['فائض', 'تبرع', 'جمعية', 'نافذة أمان', 'إعادة توجيه', 'إتلاف'],
       extra: ['الفائض', 'التبرع', 'بنك طعام', 'حفظ نعمة', 'Redeploy', 'إعادة التوجيه', 'فرز',
               'المخلفات العضوية', 'نقاط التجميع', 'بعد الفعالية', 'صالح للأكل', 'سماد']
@@ -2190,6 +2317,104 @@ window.PORTAL_SEED = {
 
   var WASTE_TARGET_PCT = 8;
 
+  /* ------------------------------------------------------------------ *
+   * 10. تعريفات المقاييس — كل رقم في الواجهة يشرح نفسه
+   *     لا رقم بلا تعريف: ماذا يقيس، كيف يُحسب، ولماذا يهم.
+   * ------------------------------------------------------------------ */
+  var METRICS = {
+    events_count: {
+      label: 'عدد الفعاليات',
+      what: 'كل الفعاليات المسجَّلة حالياً في المنصة (الأصلية + ما أضفته أنت).',
+      how: 'عدّ صفوف السجل في التخزين المحلي.',
+      why: 'قاعدة كل نسبة أدناه — كلما اتسع السجل صارت المؤشرات أدل على الواقع.'
+    },
+    delivered: {
+      label: 'إجمالي المورَّد',
+      what: 'مجموع الطعام الذي دخل مواقع الفعاليات بالكيلوغرام.',
+      how: 'مجموع food_kg.delivered لكل الفعاليات.',
+      why: 'المقام في نسبة الهدر — وسقف ما يمكن أن يُهدر.'
+    },
+    wasted: {
+      label: 'إجمالي المتلف',
+      what: 'مجموع الطعام الذي لم يُستهلك وانتهى إلى الإتلاف.',
+      how: 'مجموع food_kg.wasted لكل الفعاليات.',
+      why: 'الرقم الظاهر للمشكلة — لكنه نتيجة لا سبب؛ المنصة تعالج الطبقة التي أنتجته.'
+    },
+    waste_pct: {
+      label: 'نسبة الهدر المرجحة',
+      what: 'حصة المتلف من إجمالي المورَّد عبر كل الفعاليات.',
+      how: 'إجمالي المتلف ÷ إجمالي المورَّد × 100 — مرجَّحة بالكمية، لا متوسط نِسَب الفعاليات (فعالية بـ 3 آلاف كغ لا تزن كفعالية بـ 30 كغ).',
+      why: 'المؤشر الأعلى في المنصة. الهدف الرسمي: من 18% إلى أقل من 8% خلال 12 شهراً.'
+    },
+    waste_cost: {
+      label: 'كلفة الهدر',
+      what: 'القيمة المالية للطعام المتلف بالدرهم.',
+      how: 'مجموع waste_cost_aed، وكل فعالية = المتلف (كغ) × متوسط كلفة الكيلو لتلك الفعالية.',
+      why: 'يحوّل الكيلوغرامات إلى لغة يفهمها قرار الميزانية.'
+    },
+    high_critical: {
+      label: 'حوادث عالية/حرجة',
+      what: 'عدد الفعاليات المصنَّفة «عالية» أو «حرجة» في مصفوفة الخطورة.',
+      how: 'الخطورة = أعلى المحاور الثلاثة (مالي، سلامة غذائية، سمعة/تعاقد) — لا متوسطها.',
+      why: 'حادثة صغيرة الكلفة قد تكون حرجة إن مسّت سلامة الغذاء؛ هذا العدّاد يمنع اختباءها خلف الأرقام المالية.'
+    },
+    by_category: {
+      label: 'الهدر حسب الفئات الست',
+      what: 'توزيع الكيلوغرامات المتلفة على طبقات الفشل الست.',
+      how: 'تُنسب كل فعالية إلى فئة مشكلتها الفرعية الأولى، وإلا فإلى تصنيف المحرك الآلي.',
+      why: 'يحدد أين تُصلح أولاً: الطبقة الأثقل هدراً هي أعلى عائد للإصلاح.'
+    },
+    cost_by_category: {
+      label: 'كلفة الهدر حسب الفئة',
+      what: 'الترتيب نفسه لكن بالدرهم بدل الكيلوغرام.',
+      how: 'مجموع waste_cost_aed لكل فئة.',
+      why: 'الترتيب بالكلفة قد يخالف الترتيب بالوزن — أصناف قليلة الوزن غالية الثمن تقلب الأولويات.'
+    },
+    over_time: {
+      label: 'الهدر عبر الزمن',
+      what: 'الكيلوغرامات المتلفة شهرياً، والخط الذهبي يوضح الاتجاه.',
+      how: 'تجميع المتلف حسب شهر تاريخ الفعالية، من الأقدم (يميناً) إلى الأحدث (يساراً).',
+      why: 'يكشف هل الإصلاحات تعمل فعلاً، ويبرز القمم الموسمية (رمضان، المهرجانات).'
+    },
+    severity_mix: {
+      label: 'توزيع الخطورة',
+      what: 'حصة كل درجة خطورة من إجمالي الفعاليات.',
+      how: 'تصنيف كل فعالية بأعلى محاورها الثلاثة.',
+      why: 'صحة المحفظة: تراجع الحرجة والعالية هو الدليل على أن الحوكمة تشتغل.'
+    },
+    by_emirate: {
+      label: 'الهدر حسب الإمارة',
+      what: 'الكيلوغرامات المتلفة موزَّعة جغرافياً.',
+      how: 'تجميع المتلف حسب حقل الإمارة.',
+      why: 'يوجّه الموارد الميدانية والتدريب إلى الجغرافيا الأكثر تضرراً.'
+    },
+    by_provider: {
+      label: 'الهدر حسب مزود التموين',
+      what: 'الكيلوغرامات المتلفة موزَّعة على المزودين.',
+      how: 'تجميع المتلف حسب حقل مزود التموين.',
+      why: 'مادة تفاوض تعاقدي: نمط متكرر لدى مزود واحد يبرر بنداً أو بطاقة أداء.'
+    },
+    solved: {
+      label: 'الفعاليات التي تحمل حلاً',
+      what: 'كم فعالية لديها حل موثق (مولَّد أو معتمد).',
+      how: 'عدّ الفعاليات التي حقل golden_solution فيها غير فارغ.',
+      why: 'فجوة التغطية: فعالية بلا حل هي درس لم يُلتقط بعد.'
+    },
+    approved: {
+      label: 'الحلول المعتمدة',
+      what: 'الحلول التي راجعها بشر واعتمدها، فصارت قوالب يتعلم منها المحرك.',
+      how: 'عدّ الحلول بحالة golden_approved.',
+      why: 'مقياس جودة المحرك نفسه — وكل اعتماد يوسّع مكتبة القوالب.'
+    },
+    recovery: {
+      label: 'القابل للاسترداد',
+      what: 'الكمية التي كانت ستُنقذ لو بلغت كل فعالية هدف الـ8%.',
+      how: 'مجموع (المتلف − 8% من المورَّد) للفعاليات التي تجاوزت الهدف.',
+      why: 'يترجم الفجوة إلى مكسب ملموس بالكيلو والدرهم.'
+    }
+  };
+
+
   global.PortalLogic = {
     GOVERNING_PRINCIPLE: GOVERNING_PRINCIPLE,
     PRINCIPLE_NOTE: PRINCIPLE_NOTE,
@@ -2215,7 +2440,8 @@ window.PORTAL_SEED = {
     GOLDEN_PROFILE: GOLDEN_PROFILE,
     ENGINE_STEPS: ENGINE_STEPS,
     TOP_KPIS: TOP_KPIS,
-    WASTE_TARGET_PCT: WASTE_TARGET_PCT
+    WASTE_TARGET_PCT: WASTE_TARGET_PCT,
+    METRICS: METRICS
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -3751,6 +3977,67 @@ window.PORTAL_SEED = {
     return { ok: true, added: state.events.length, updated: 0, total: state.events.length };
   }
 
+  /* ------------------------------------------------------------------ *
+   * ملف نموذجي للتعبئة — يُنزَّل، يُملأ في أي محرر، ثم يُستورد
+   * بنفس مخطط البيانات تماماً، مع صف واحد مشروح حقلاً حقلاً.
+   * ------------------------------------------------------------------ */
+  function sampleTemplate() {
+    var base = load();
+    return {
+      dataset_name: base.dataset_name,
+      purpose_ar: base.purpose_ar,
+      data_type: base.data_type,
+      locale: base.locale,
+      currency: base.currency,
+      problem_categories: base.problem_categories.slice(),
+      تعليمات_التعبئة: [
+        '1) هذا الملف نموذج جاهز للتعبئة — كرّر الكائن داخل events لكل فعالية جديدة.',
+        '2) event_id يجب أن يكون فريداً بصيغة EV-XXX ولا يكرر معرّفاً موجوداً لديك.',
+        '3) الحقول الكمية إلزامية: attendance و meals و food_kg و avg_cost_aed_per_kg.',
+        '4) المتلف والمستهلك معاً لا يتجاوزان المورَّد، والمقدَّم لا يتجاوز المطلوب.',
+        '5) waste_pct = المتلف ÷ المورَّد × 100، و waste_cost_aed = المتلف × كلفة الكيلو. ' +
+          'تُحسبان تلقائياً عند الإضافة من داخل المنصة، واحسبهما يدوياً هنا.',
+        '6) اترك severity فارغاً ("") ليحسبه المحرك من مصفوفة المحاور الثلاثة.',
+        '7) النصوص (supply_chain_issue / receiving_intake_issue / root_cause) هي ما يقرأه ' +
+          'المحرك للتصنيف وتحديد نمط الفشل — كن محدداً فيها، فهي مصدر جودة الحل.',
+        '8) اترك golden_solution = null ليولّد المحرك الحل بعد الاستيراد.',
+        '9) احذف هذا الحقل «تعليمات_التعبئة» قبل الاستيراد إن أردت، أو اتركه — المنصة تتجاهله.',
+        '10) بعد التعبئة: زر «استيراد» ← «دمج» لإضافتها إلى بياناتك الحالية.'
+      ],
+      events_count: 1,
+      events: [{
+        event_id: nextId(),
+        event_name: 'اكتب اسم الفعالية هنا',
+        date: '2026-01-01',
+        emirate: 'أبوظبي',
+        venue: 'اسم الموقع',
+        event_type: 'مؤتمر حكومي',
+        catering_provider: 'اسم مزود التموين',
+        attendance: { expected: 500, actual: 430, variance_pct: -14 },
+        meals: { ordered: 520, served: 415 },
+        food_kg: { delivered: 400, consumed: 300, wasted: 100, waste_pct: 25 },
+        avg_cost_aed_per_kg: 40,
+        waste_cost_aed: 4000,
+        supply_chain_issue: 'صف مشكلة النقل أو الموردين أو الجدولة — أو اكتب «سليمة» إن لم توجد.',
+        receiving_intake_issue: 'صف مشكلة الاستلام أو الفحص أو الوزن — أو «الاستلام سليم».',
+        root_cause: 'لماذا حدث ما حدث؟ اذهب لأبعد من العَرَض إلى الطبقة التي أنتجته.',
+        severity: '',
+        impact: 'ماذا كلّف هذا الفشل؟ كمية، مال، وقت، سمعة.',
+        narrative_ar: 'قصة الفعالية كما جرت في فقرة قصيرة.',
+        incidents: [{
+          category: 'التخطيط والتنبؤ',
+          stage: 'قبل الفعالية',
+          description: 'ماذا حدث بالضبط في هذه الطبقة؟',
+          direct_effect: 'ما النتيجة الفورية؟'
+        }],
+        portal_recommendation_required: true,
+        golden_solution: null
+      }],
+      golden_examples: [],
+      golden_note_ar: 'ملف نموذجي للتعبئة — ليس بيانات حقيقية.'
+    };
+  }
+
   function subscribe(fn) {
     listeners.push(fn);
     return function () { listeners = listeners.filter(function (f) { return f !== fn; }); };
@@ -3772,6 +4059,7 @@ window.PORTAL_SEED = {
     exportJson: exportJson,
     importJson: importJson,
     validateDataset: validateDataset,
+    sampleTemplate: sampleTemplate,
     subscribe: subscribe
   };
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -3834,6 +4122,17 @@ window.PORTAL_SEED = {
       var w = max > 0 ? (r.value / max) * barW : 0;
       if (r.value > 0 && w < 0.7) w = 0.7;
       var tip = barRight - w;
+      var clickable = !!r.filter;
+
+      // مجموعة واحدة لكل صف: تسمية + مسار + عمود + قيمة، ومنطقة نقر تغطيها
+      parts.push('<g class="ch-row' + (clickable ? ' is-clickable' : '') + '"' +
+                 (clickable ? ' data-chart-filter="' + esc(JSON.stringify(r.filter)) +
+                              '" role="button" tabindex="0"' : '') + '>');
+
+      if (clickable) {
+        parts.push('<rect class="ch-hit" x="0" y="' + (y - gap / 2).toFixed(2) +
+                   '" width="' + W + '" height="' + (rowH + gap).toFixed(2) + '" rx="1.6"/>');
+      }
 
       var label = r.sub ? r.label + ' • ' + r.sub : r.label;
       parts.push('<text class="ch-label" direction="rtl" text-anchor="start" x="' + (W - 0.6) +
@@ -3841,12 +4140,15 @@ window.PORTAL_SEED = {
 
       parts.push('<rect class="ch-track" x="' + valueW + '" y="' + y.toFixed(2) + '" width="' + barW +
                  '" height="' + rowH + '" rx="1.2"/>');
-      parts.push('<rect x="' + tip.toFixed(2) + '" y="' + y.toFixed(2) + '" width="' + w.toFixed(2) +
-                 '" height="' + rowH + '" rx="1.2" fill="' + (r.color || '#1e3a5f') + '"><title>' +
-                 esc(r.label + ': ' + fmt(r.value) + ' ' + unit) + '</title></rect>');
+      parts.push('<rect class="ch-bar" x="' + tip.toFixed(2) + '" y="' + y.toFixed(2) + '" width="' + w.toFixed(2) +
+                 '" height="' + rowH + '" rx="1.2" fill="' + (r.color || '#1c3557') + '"/>');
 
       parts.push('<text class="ch-value" direction="rtl" text-anchor="start" x="' + (tip - 1).toFixed(2) +
                  '" y="' + baseline.toFixed(2) + '">' + esc(fmt(r.value)) + '</text>');
+
+      parts.push('<title>' + esc(r.label + ': ' + fmt(r.value) + ' ' + unit +
+                 (clickable ? ' — انقر للتصفية' : '')) + '</title>');
+      parts.push('</g>');
     });
 
     parts.push('</svg>');
@@ -3891,9 +4193,22 @@ window.PORTAL_SEED = {
       var cx = W - padR - (i + 0.5) * slot;   // الأقدم يميناً
       var h = (p.value / top) * plotH;
       var y = padT + plotH - h;
-      parts.push('<rect x="' + (cx - barW / 2).toFixed(2) + '" y="' + y.toFixed(2) + '" width="' + barW.toFixed(2) +
-                 '" height="' + Math.max(h, 0.25).toFixed(2) + '" rx="0.7" fill="' + (p.color || '#1e3a5f') +
-                 '"><title>' + esc(p.label + ': ' + fmt(p.value) + ' ' + (opts.unit || '')) + '</title></rect>');
+      var clickable = !!p.filter;
+
+      parts.push('<g class="ch-row' + (clickable ? ' is-clickable' : '') + '"' +
+                 (clickable ? ' data-chart-filter="' + esc(JSON.stringify(p.filter)) +
+                              '" role="button" tabindex="0"' : '') + '>');
+      if (clickable) {
+        parts.push('<rect class="ch-hit" x="' + (cx - slot / 2).toFixed(2) + '" y="' + padT +
+                   '" width="' + slot.toFixed(2) + '" height="' + (plotH + padB - 1).toFixed(2) + '" rx="1"/>');
+      }
+      parts.push('<rect class="ch-bar" x="' + (cx - barW / 2).toFixed(2) + '" y="' + y.toFixed(2) +
+                 '" width="' + barW.toFixed(2) + '" height="' + Math.max(h, 0.25).toFixed(2) +
+                 '" rx="0.7" fill="' + (p.color || '#1c3557') + '"/>');
+      parts.push('<title>' + esc(p.label + ': ' + fmt(p.value) + ' ' + (opts.unit || '') +
+                 (clickable ? ' — انقر للتصفية' : '')) + '</title>');
+      parts.push('</g>');
+
       if (i % labelStep === 0) {
         parts.push('<text class="ch-axis" direction="rtl" text-anchor="middle" x="' + cx.toFixed(2) +
                    '" y="' + (H - 1.6) + '">' + esc(p.short || p.label) + '</text>');
@@ -3941,8 +4256,14 @@ window.PORTAL_SEED = {
         'A', r, r, 0, large, 0, (cx + r * Math.cos(a0)).toFixed(2), (cy + r * Math.sin(a0)).toFixed(2),
         'Z'
       ].join(' ');
-      parts.push('<path d="' + p + '" fill="' + s.color + '"><title>' +
-                 esc(s.label + ': ' + fmt(s.value)) + '</title></path>');
+      var clickable = !!s.filter;
+      parts.push('<g class="ch-row' + (clickable ? ' is-clickable' : '') + '"' +
+                 (clickable ? ' data-chart-filter="' + esc(JSON.stringify(s.filter)) +
+                              '" role="button" tabindex="0"' : '') + '>');
+      parts.push('<path class="ch-slice" d="' + p + '" fill="' + s.color + '"/>');
+      parts.push('<title>' + esc(s.label + ': ' + fmt(s.value) +
+                 (clickable ? ' — انقر للتصفية' : '')) + '</title>');
+      parts.push('</g>');
     });
 
     parts.push('<text class="ch-center-num" x="50" y="49" text-anchor="middle">' + esc(fmt(total)) + '</text>');
@@ -3992,6 +4313,28 @@ window.PORTAL_SEED = {
   }
 
   function sevClass(level) { return 'sev sev-' + level; }
+
+  /** زر تعريف بجوار أي رقم أو رسم — يفتح «ماذا يقيس / كيف يُحسب / لماذا يهم» */
+  function infoBtn(metricId) {
+    if (!L.METRICS[metricId]) return '';
+    return '<button class="info-btn" data-metric="' + esc(metricId) +
+           '" aria-label="تعريف المقياس" title="ما معنى هذا الرقم؟">؟</button>';
+  }
+
+  function openMetricModal(id) {
+    var m = L.METRICS[id];
+    if (!m) return;
+    openModal({
+      title: m.label,
+      body:
+        '<dl class="metric-def">' +
+          '<dt>ماذا يقيس</dt><dd>' + esc(m.what) + '</dd>' +
+          '<dt>كيف يُحسب</dt><dd>' + esc(m.how) + '</dd>' +
+          '<dt>لماذا يهم</dt><dd>' + esc(m.why) + '</dd>' +
+        '</dl>',
+      foot: '<button class="btn" data-modal-close="1">إغلاق</button>'
+    });
+  }
 
   function statusBadge(sol) {
     if (!sol) return '<span class="badge badge-gray">بلا حل</span>';
@@ -4109,9 +4452,32 @@ window.PORTAL_SEED = {
    * حالة سجل الفعاليات (فرز وتصفية)
    * ================================================================== */
   var listState = {
-    q: '', category: '', severity: '', emirate: '', provider: '', solution: '',
+    q: '', category: '', severity: '', emirate: '', provider: '', solution: '', month: '',
     sortBy: 'date', sortDir: 'desc'
   };
+
+  function clearFilters() {
+    listState.q = ''; listState.category = ''; listState.severity = '';
+    listState.emirate = ''; listState.provider = ''; listState.solution = ''; listState.month = '';
+  }
+
+  /* المرشّحات النشطة كرقائق قابلة للإزالة — حتى لا يحتار المستخدم لماذا القائمة قصيرة */
+  var FILTER_LABELS = {
+    q: 'بحث', category: 'الفئة', severity: 'الخطورة', emirate: 'الإمارة',
+    provider: 'المزود', solution: 'الحل', month: 'الشهر'
+  };
+  var SOLUTION_LABELS = { golden_approved: 'معتمد ذهبي', generated: 'مولَّد', none: 'بلا حل' };
+
+  function activeFilters() {
+    return Object.keys(FILTER_LABELS)
+      .filter(function (k) { return listState[k]; })
+      .map(function (k) {
+        var v = listState[k];
+        if (k === 'solution') v = SOLUTION_LABELS[v] || v;
+        if (k === 'month') v = monthLabel(v);
+        return { key: k, label: FILTER_LABELS[k], value: v };
+      });
+  }
 
   /* ================================================================== *
    * الحسابات الحية للوحة القيادة
@@ -4167,6 +4533,26 @@ window.PORTAL_SEED = {
     });
 
     m.wastePct = pct(m.wasted, m.delivered);
+
+    // الفئة الأثقل هدراً — تُعرض على بطاقة المتلف كإشارة «أين تُصلح أولاً»
+    var topCat = null;
+    Object.keys(m.byCategory).forEach(function (k) {
+      if (!topCat || m.byCategory[k].wasted > m.byCategory[topCat].wasted) topCat = k;
+    });
+    m.topCategory = topCat && m.byCategory[topCat].wasted > 0 ? topCat : null;
+
+    // ما كان يمكن إنقاذه لو بلغت كل فعالية هدف الـ8%
+    m.recoverableKg = 0; m.recoverableAed = 0;
+    events.forEach(function (ev) {
+      var d = Number(ev.food_kg.delivered) || 0, w = Number(ev.food_kg.wasted) || 0;
+      var over = w - d * (L.WASTE_TARGET_PCT / 100);
+      if (over > 0) {
+        m.recoverableKg += over;
+        m.recoverableAed += over * (Number(ev.avg_cost_aed_per_kg) || 0);
+      }
+    });
+    m.recoverableKg = Math.round(m.recoverableKg);
+    m.recoverableAed = Math.round(m.recoverableAed);
     return m;
   }
 
@@ -4185,27 +4571,32 @@ window.PORTAL_SEED = {
 
     var gap = m.wastePct - L.WASTE_TARGET_PCT;
 
+    var recoverKg = m.recoverableKg;
+    var recoverAed = Math.round(m.recoverableAed);
+
     var kpis = [
-      { label: 'عدد الفعاليات', value: fmt(m.count), unit: '',
-        sub: m.approved + ' معتمد • ' + m.generated + ' مولَّد • ' + m.unsolved + ' بلا حل', cls: '' },
-      { label: 'إجمالي المورد', value: fmt(m.delivered), unit: 'كغ',
-        sub: 'المستهلك ' + fmt(m.consumed) + ' كغ', cls: '' },
-      { label: 'إجمالي المتلف', value: fmt(m.wasted), unit: 'كغ',
-        sub: 'الفارق عن الهدف ' + fmt(Math.max(0, m.wasted - Math.round(m.delivered * L.WASTE_TARGET_PCT / 100))) + ' كغ',
-        cls: 'is-alert' },
-      { label: 'نسبة الهدر المرجحة', value: fmt1(m.wastePct), unit: '%',
+      { id: 'events_count', label: 'عدد الفعاليات', value: fmt(m.count), unit: '',
+        sub: m.approved + ' معتمد • ' + m.generated + ' مولَّد • ' + m.unsolved + ' بلا حل',
+        cls: '', go: '' },
+      { id: 'delivered', label: 'إجمالي المورَّد', value: fmt(m.delivered), unit: 'كغ',
+        sub: 'استُهلك منه ' + fmt(m.consumed) + ' كغ', cls: '' },
+      { id: 'wasted', label: 'إجمالي المتلف', value: fmt(m.wasted), unit: 'كغ',
+        sub: 'أعلى فئة: ' + esc(m.topCategory || '—'), cls: 'is-alert' },
+      { id: 'waste_pct', label: 'نسبة الهدر المرجحة', value: fmt1(m.wastePct), unit: '%',
         sub: 'الهدف < ' + L.WASTE_TARGET_PCT + '% — الفجوة ' + fmt1(gap) + ' نقطة',
         cls: m.wastePct > L.WASTE_TARGET_PCT ? 'is-alert' : 'is-good' },
-      { label: 'كلفة الهدر', value: fmt(m.cost), unit: 'د.إ',
+      { id: 'waste_cost', label: 'كلفة الهدر', value: fmt(m.cost), unit: 'د.إ',
         sub: 'متوسط ' + fmt(Math.round(m.cost / (m.count || 1))) + ' د.إ للفعالية', cls: 'is-gold' },
-      { label: 'حوادث عالية/حرجة', value: fmt(m.highOrCritical), unit: 'حادثة',
+      { id: 'high_critical', label: 'حوادث عالية/حرجة', value: fmt(m.highOrCritical), unit: 'حادثة',
         sub: m.severity['حرجة'] + ' حرجة • ' + m.severity['عالية'] + ' عالية',
-        cls: m.highOrCritical ? 'is-alert' : 'is-good' }
+        cls: m.highOrCritical ? 'is-alert' : 'is-good',
+        filter: { key: 'severity', value: 'عالية' } }
     ];
 
     var kpiHtml = kpis.map(function (k) {
-      return '<div class="kpi ' + k.cls + '">' +
-               '<div class="kpi-label">' + esc(k.label) + '</div>' +
+      var clickable = k.filter ? ' data-chart-filter="' + esc(JSON.stringify(k.filter)) + '"' : '';
+      return '<div class="kpi ' + k.cls + (k.filter ? ' is-clickable' : '') + '"' + clickable + '>' +
+               '<div class="kpi-label">' + esc(k.label) + infoBtn(k.id) + '</div>' +
                '<div class="kpi-value">' + esc(k.value) + (k.unit ? '<small>' + esc(k.unit) + '</small>' : '') + '</div>' +
                '<div class="kpi-sub">' + esc(k.sub) + '</div>' +
              '</div>';
@@ -4214,12 +4605,14 @@ window.PORTAL_SEED = {
     /* الهدر حسب الفئات الست */
     var catRows = L.CATEGORIES.map(function (c) {
       var b = m.byCategory[c.name] || { wasted: 0, cost: 0, count: 0 };
-      return { label: c.name, value: b.wasted, color: c.color, sub: b.count + ' حادثة' };
+      return { label: c.name, value: b.wasted, color: c.color, sub: b.count + ' حادثة',
+               filter: { key: 'category', value: c.name } };
     }).sort(function (a, b) { return b.value - a.value; });
 
     var catCostRows = L.CATEGORIES.map(function (c) {
       var b = m.byCategory[c.name] || { cost: 0 };
-      return { label: c.name, value: b.cost, color: c.color };
+      return { label: c.name, value: b.cost, color: c.color,
+               filter: { key: 'category', value: c.name } };
     }).sort(function (a, b) { return b.value - a.value; });
 
     /* عبر الزمن */
@@ -4230,23 +4623,25 @@ window.PORTAL_SEED = {
       var year = k.slice(0, 4);
       var short = monthShort(k) + (year !== lastYear ? ' ' + year.slice(2) : '');
       lastYear = year;
-      return { label: monthLabel(k), short: short, value: m.byMonth[k].wasted, color: '#1e3a5f' };
+      return { label: monthLabel(k), short: short, value: m.byMonth[k].wasted, color: '#1c3557',
+               filter: { key: 'month', value: k } };
     });
 
     /* الخطورة */
-    var sevColors = { 'حرجة': '#b91c1c', 'عالية': '#ea580c', 'متوسطة': '#ca8a04', 'منخفضة': '#15803d' };
+    var sevColors = { 'حرجة': '#b3261e', 'عالية': '#c2620d', 'متوسطة': '#9a7209', 'منخفضة': '#17693f' };
     var sevSlices = ['حرجة', 'عالية', 'متوسطة', 'منخفضة'].map(function (s) {
-      return { label: s, value: m.severity[s], color: sevColors[s] };
+      return { label: s, value: m.severity[s], color: sevColors[s],
+               filter: { key: 'severity', value: s } };
     });
 
     /* الإمارات والمزودون */
-    function bucketRows(bucket, palette) {
+    function bucketRows(bucket, palette, filterKey) {
       return Object.keys(bucket).map(function (k, i) {
         return { label: k, value: bucket[k].wasted, color: palette[i % palette.length],
-                 sub: bucket[k].count + ' حادثة' };
+                 sub: bucket[k].count + ' حادثة', filter: { key: filterKey, value: k } };
       }).sort(function (a, b) { return b.value - a.value; });
     }
-    var pal = ['#1e3a5f', '#2b4f7e', '#0891b2', '#7c3aed', '#a8791b', '#15803d'];
+    var pal = ['#1c3557', '#2c4d78', '#3f7796', '#6b5b95', '#a67c1a', '#2f7d55'];
 
     return '' +
       '<div class="split mb">' +
@@ -4258,20 +4653,26 @@ window.PORTAL_SEED = {
 
       '<div class="grid grid-kpi mb">' + kpiHtml + '</div>' +
 
+      '<div class="hint-bar mb">' +
+        '<span>انقر أي عمود أو شريحة للانتقال إلى الفعاليات التي كوّنته.</span>' +
+        '<span class="push">لو بلغت كل فعالية هدف الـ' + L.WASTE_TARGET_PCT + '%: توفير ' +
+        fmt(recoverKg) + ' كغ ≈ ' + fmt(recoverAed) + ' د.إ ' + infoBtn('recovery') + '</span>' +
+      '</div>' +
+
       '<div class="grid grid-2">' +
         '<div class="card">' +
-          '<div class="card-head"><h3>الهدر حسب الفئات الست</h3><span class="hint">كغ متلفة</span></div>' +
+          '<div class="card-head"><h3>الهدر حسب الفئات الست</h3><span class="hint">كغ متلفة</span>' + infoBtn('by_category') + '</div>' +
           '<div class="card-body">' + C.barsH(catRows, { unit: 'كغ', title: 'الهدر حسب الفئة' }) + '</div>' +
         '</div>' +
         '<div class="card">' +
-          '<div class="card-head"><h3>كلفة الهدر حسب الفئة</h3><span class="hint">درهم إماراتي</span></div>' +
+          '<div class="card-head"><h3>كلفة الهدر حسب الفئة</h3><span class="hint">درهم إماراتي</span>' + infoBtn('cost_by_category') + '</div>' +
           '<div class="card-body">' + C.barsH(catCostRows, { unit: 'د.إ', title: 'الكلفة حسب الفئة' }) + '</div>' +
         '</div>' +
       '</div>' +
 
       '<div class="grid grid-2 mt">' +
         '<div class="card">' +
-          '<div class="card-head"><h3>الهدر عبر الزمن</h3><span class="hint">كغ متلفة شهرياً • الخط الذهبي اتجاه</span></div>' +
+          '<div class="card-head"><h3>الهدر عبر الزمن</h3><span class="hint">كغ متلفة شهرياً • الخط الذهبي اتجاه</span>' + infoBtn('over_time') + '</div>' +
           '<div class="card-body">' +
             (monthPoints.length
               ? C.timeSeries(monthPoints, { unit: 'كغ', title: 'الهدر الشهري' })
@@ -4279,7 +4680,7 @@ window.PORTAL_SEED = {
           '</div>' +
         '</div>' +
         '<div class="card">' +
-          '<div class="card-head"><h3>توزيع الخطورة</h3><span class="hint">حسب مصفوفة المحاور الثلاثة</span></div>' +
+          '<div class="card-head"><h3>توزيع الخطورة</h3><span class="hint">حسب مصفوفة المحاور الثلاثة</span>' + infoBtn('severity_mix') + '</div>' +
           '<div class="card-body">' +
             C.donut(sevSlices, { centerLabel: 'حادثة', title: 'توزيع الخطورة' }) +
             '<div class="legend">' +
@@ -4293,12 +4694,12 @@ window.PORTAL_SEED = {
 
       '<div class="grid grid-2 mt">' +
         '<div class="card">' +
-          '<div class="card-head"><h3>الهدر حسب الإمارة</h3></div>' +
-          '<div class="card-body">' + C.barsH(bucketRows(m.byEmirate, pal), { unit: 'كغ' }) + '</div>' +
+          '<div class="card-head"><h3>الهدر حسب الإمارة</h3>' + infoBtn('by_emirate') + '</div>' +
+          '<div class="card-body">' + C.barsH(bucketRows(m.byEmirate, pal, 'emirate'), { unit: 'كغ' }) + '</div>' +
         '</div>' +
         '<div class="card">' +
-          '<div class="card-head"><h3>الهدر حسب مزود التموين</h3></div>' +
-          '<div class="card-body">' + C.barsH(bucketRows(m.byProvider, pal), { unit: 'كغ' }) + '</div>' +
+          '<div class="card-head"><h3>الهدر حسب مزود التموين</h3>' + infoBtn('by_provider') + '</div>' +
+          '<div class="card-body">' + C.barsH(bucketRows(m.byProvider, pal, 'provider'), { unit: 'كغ' }) + '</div>' +
         '</div>' +
       '</div>' +
 
@@ -4308,9 +4709,9 @@ window.PORTAL_SEED = {
           L.WASTE_TARGET_PCT + '%</b></div>' +
         '<div class="kpi-row"><span>كلفة الهدر التراكمية</span><b>' + fmt(m.cost) + ' د.إ</b></div>' +
         '<div class="kpi-row"><span>عدد الحوادث عالية/حرجة</span><b>' + m.highOrCritical + ' من ' + m.count + '</b></div>' +
-        '<div class="kpi-row"><span>الفعاليات التي تحمل حلاً</span><b>' + m.solved + ' من ' + m.count +
+        '<div class="kpi-row"><span>الفعاليات التي تحمل حلاً' + infoBtn('solved') + '</span><b>' + m.solved + ' من ' + m.count +
           ' (' + pct(m.solved, m.count) + '%)</b></div>' +
-        '<div class="kpi-row"><span>الحلول المولَّدة التي اعتُمدت</span><b>' + m.approved + ' معتمد • ' +
+        '<div class="kpi-row"><span>الحلول المولَّدة التي اعتُمدت' + infoBtn('approved') + '</span><b>' + m.approved + ' معتمد • ' +
           m.generated + ' بانتظار الاعتماد</b></div>' +
       '</div></div>';
   }
@@ -4339,6 +4740,7 @@ window.PORTAL_SEED = {
         return st === listState.solution;
       });
     }
+    if (listState.month) rows = rows.filter(function (ev) { return monthKey(ev.date) === listState.month; });
 
     var dir = listState.sortDir === 'asc' ? 1 : -1;
     var key = listState.sortBy;
@@ -4367,6 +4769,11 @@ window.PORTAL_SEED = {
   function viewEvents() {
     var all = S.all();
     var rows = filteredEvents();
+    var sel = rows.reduce(function (a, ev) {
+      a.wasted += Number(ev.food_kg.wasted) || 0;
+      a.cost += Number(ev.waste_cost_aed) || 0;
+      return a;
+    }, { wasted: 0, cost: 0 });
 
     function opts(list, selected, anyLabel) {
       return '<option value="">' + esc(anyLabel) + '</option>' +
@@ -4408,6 +4815,19 @@ window.PORTAL_SEED = {
         '<button class="btn btn-primary btn-sm" data-go="new">+ إضافة فعالية</button>' +
       '</div>' +
 
+      (activeFilters().length
+        ? '<div class="active-filters mb">' +
+            '<span class="af-label">مُصفّى حسب</span>' +
+            activeFilters().map(function (f) {
+              return '<button class="af-chip" data-drop-filter="' + esc(f.key) + '">' +
+                     esc(f.label) + ': <b>' + esc(f.value) + '</b><span aria-hidden="true">✕</span></button>';
+            }).join('') +
+            '<button class="btn btn-ghost btn-sm" id="f-clear">مسح الكل</button>' +
+            '<span class="push muted small">' + fmt(sel.wasted) + ' كغ متلفة • ' +
+            fmt(sel.cost) + ' د.إ في هذا التحديد</span>' +
+          '</div>'
+        : '') +
+
       '<div class="card mb"><div class="card-body">' +
         '<div class="filters">' +
           '<div class="field grow"><label for="f-q">بحث</label>' +
@@ -4426,8 +4846,11 @@ window.PORTAL_SEED = {
             '<option value="generated"' + (listState.solution === 'generated' ? ' selected' : '') + '>مولَّد</option>' +
             '<option value="none"' + (listState.solution === 'none' ? ' selected' : '') + '>بلا حل</option>' +
           '</select></div>' +
+          '<div class="field"><label for="f-month">الشهر</label><select id="f-month">' +
+            opts(uniq(all.map(function (e) { return monthKey(e.date); })).map(function (k) { return k; }),
+                 listState.month, 'كل الشهور') + '</select></div>' +
           '<div class="field" style="min-width:auto"><label>&nbsp;</label>' +
-            '<button class="btn" id="f-clear">مسح المرشحات</button></div>' +
+            '<button class="btn" id="f-clear-2">مسح المرشحات</button></div>' +
         '</div>' +
       '</div></div>' +
 
@@ -4883,7 +5306,14 @@ window.PORTAL_SEED = {
     return '' +
       '<div class="split mb">' +
         '<h2 class="section-title" style="margin:0">إضافة فعالية</h2>' +
-        '<span class="chip">تُحفظ في التخزين المحلي بنفس مخطط JSON الأصلي</span>' +
+        '<span class="push"></span>' +
+        '<button class="btn btn-sm" id="btn-template">⬇ نزّل ملفاً نموذجياً للتعبئة</button>' +
+      '</div>' +
+
+      '<div class="alert alert-info mb">' +
+        'لديك طريقان: املأ النموذج أدناه مباشرة، أو <b>نزّل الملف النموذجي</b> واملأه خارج المنصة ' +
+        '(مفيد لتجميع عدة فعاليات من فرق مختلفة) ثم أعده عبر <b>استيراد ← دمج</b>. ' +
+        'الطريقان يحفظان بنفس مخطط JSON الأصلي.' +
       '</div>' +
 
       '<form id="new-event-form" novalidate>' +
@@ -5270,6 +5700,7 @@ window.PORTAL_SEED = {
    * الاستيراد والتصدير
    * ================================================================== */
   function exportFileName() {
+    if (modalState && modalState.exportName) return modalState.exportName;
     var d = new Date();
     return 'catering_incidents_dataset_' + d.getFullYear() + '-' +
            String(d.getMonth() + 1).padStart(2, '0') + '-' +
@@ -5378,6 +5809,26 @@ window.PORTAL_SEED = {
       toast(fallback() ? 'نُسخت البيانات إلى الحافظة.' : 'تعذّر النسخ — حدّد النص يدوياً وانسخه.',
             fallback() ? 'ok' : 'err');
     }
+  }
+
+  function downloadTemplate() {
+    var text = JSON.stringify(S.sampleTemplate(), null, 2);
+    openModal({
+      title: 'ملف نموذجي للتعبئة',
+      body:
+        '<div class="alert alert-info mb">نزّل هذا الملف، املأه في أي محرر نصوص أو JSON، ' +
+        'ثم أعده عبر زر <b>استيراد ← دمج</b>. يحتوي فعالية واحدة مشروحة حقلاً حقلاً و10 أسطر ' +
+        'تعليمات، وبنيته مطابقة لمخطط البيانات تماماً.</div>' +
+        '<textarea id="export-text" readonly spellcheck="false" ' +
+        'style="min-height:240px;direction:ltr;text-align:left;font-family:monospace;font-size:.72rem">' +
+        esc(text) + '</textarea>',
+      foot:
+        '<button class="btn btn-primary" data-export-download="1">⬇ تنزيل النموذج</button>' +
+        '<button class="btn" data-export-copy="1">نسخ إلى الحافظة</button>' +
+        '<button class="btn btn-ghost" data-modal-close="1">إغلاق</button>',
+      exportText: text,
+      exportName: 'portal_event_template.json'
+    });
   }
 
   function handleImportFile(file) {
@@ -5555,6 +6006,7 @@ window.PORTAL_SEED = {
       }
 
       /* ----- شريط الأدوات ----- */
+      if (t.closest('#btn-template')) { downloadTemplate(); return; }
       if (t.closest('#btn-export')) { downloadJson(); return; }
       if (t.closest('#btn-import')) { el('file-input').click(); return; }
       if (t.closest('#btn-reset')) {
@@ -5577,6 +6029,29 @@ window.PORTAL_SEED = {
       var row = t.closest('[data-event]');
       if (row) { go('event/' + row.getAttribute('data-event')); return; }
 
+      // تعريف مقياس
+      var mBtn = t.closest('[data-metric]');
+      if (mBtn) { e.stopPropagation(); openMetricModal(mBtn.getAttribute('data-metric')); return; }
+
+      // نقر على رسم أو بطاقة ← انتقل للسجل مُصفّى
+      var chartHit = t.closest('[data-chart-filter]');
+      if (chartHit) {
+        var f;
+        try { f = JSON.parse(chartHit.getAttribute('data-chart-filter')); } catch (err) { f = null; }
+        if (f && f.key) {
+          clearFilters();
+          listState[f.key] = f.value;
+          listState.sortBy = 'wasted';
+          listState.sortDir = 'desc';
+          go('events');
+        }
+        return;
+      }
+
+      // إزالة مرشّح واحد
+      var dropF = t.closest('[data-drop-filter]');
+      if (dropF) { listState[dropF.getAttribute('data-drop-filter')] = ''; render(); return; }
+
       var sortTh = t.closest('th[data-sort]');
       if (sortTh) {
         var key = sortTh.getAttribute('data-sort');
@@ -5586,12 +6061,7 @@ window.PORTAL_SEED = {
         return;
       }
 
-      if (t.closest('#f-clear')) {
-        listState.q = ''; listState.category = ''; listState.severity = '';
-        listState.emirate = ''; listState.provider = ''; listState.solution = '';
-        render();
-        return;
-      }
+      if (t.closest('#f-clear') || t.closest('#f-clear-2')) { clearFilters(); render(); return; }
 
       /* ----- الحلول ----- */
       var gen = t.closest('[data-generate]');
@@ -5693,7 +6163,7 @@ window.PORTAL_SEED = {
 
     document.addEventListener('change', function (e) {
       var map = { 'f-cat': 'category', 'f-sev': 'severity', 'f-emi': 'emirate',
-                  'f-prov': 'provider', 'f-sol': 'solution' };
+                  'f-prov': 'provider', 'f-sol': 'solution', 'f-month': 'month' };
       if (map[e.target.id]) { listState[map[e.target.id]] = e.target.value; render(); return; }
 
       if (e.target.id === 'file-input' && e.target.files && e.target.files[0]) {
@@ -5703,7 +6173,13 @@ window.PORTAL_SEED = {
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && modalState) closeModal();
+      if (e.key === 'Escape' && modalState) { closeModal(); return; }
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.closest &&
+          e.target.closest('[data-chart-filter]')) {
+        e.preventDefault();
+        e.target.closest('[data-chart-filter]').dispatchEvent(
+          new MouseEvent('click', { bubbles: true }));
+      }
     });
 
     window.addEventListener('hashchange', render);
