@@ -18,45 +18,24 @@ const out = process.argv[2] || path.join(root, 'dist', 'portal-artifact.html');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 
 const css = read('assets/styles.css');
-const scripts = ['data', 'logic', 'rule-engine', 'store', 'charts', 'app']
-  .map((n) => read(`assets/${n}.js`));
 
-/* الهيكل نفسه الموجود في index.html، منزوعاً منه وسوم المستند الخارجية */
-const markup = `
-<div class="app">
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark" aria-hidden="true">P</div>
-      <div class="brand-text">
-        <b>Portal</b>
-        <span>منصة إدارة هدر التموين وسلاسل الإمداد</span>
-      </div>
-    </div>
+/* المصدر الوحيد للهيكل وترتيب السكربتات هو index.html — نستخرجهما منه بدل
+   الاحتفاظ بنسخة ثانية تتأخر عن الأصل عند كل تعديل. */
+const indexHtml = read('index.html');
 
-    <nav class="nav" id="nav" aria-label="التنقل الرئيسي"></nav>
+const bodyMatch = /<body[^>]*>([\s\S]*)<\/body>/i.exec(indexHtml);
+if (!bodyMatch) throw new Error('تعذّر العثور على <body> في index.html');
 
-    <div class="toolbar">
-      <span class="chip" id="data-badge" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#c3d3e6">—</span>
-      <button class="btn btn-sm" id="btn-export" title="تصدير كل البيانات بنفس المخطط الأصلي">⬇ تصدير</button>
-      <button class="btn btn-sm" id="btn-import" title="استيراد ملف JSON (دمج أو استبدال)">⬆ استيراد</button>
-      <button class="btn btn-sm" id="btn-reset" title="العودة إلى البيانات الأصلية العشرين">↺ إعادة تعيين</button>
-    </div>
-  </header>
+const scriptNames = [...indexHtml.matchAll(/<script src="assets\/([\w-]+)\.js"><\/script>/g)]
+  .map((m) => m[1]);
+if (!scriptNames.length) throw new Error('لم يُعثر على أي <script src="assets/…"> في index.html');
 
-  <div id="storage-warn"></div>
-  <main class="main" id="view" role="main"></main>
+const scripts = scriptNames.map((n) => read(`assets/${n}.js`));
 
-  <footer class="footer">
-    <span><b>Portal</b> — بروتوتايب تشغيلي يعمل بالكامل داخل المتصفح.</span>
-    <span class="muted">بلا باك-إند · بلا مفاتيح · بلا اتصال خارجي — مصدر الحقيقة هو <code>localStorage</code>.</span>
-    <span class="push muted">المنطق مطبَّق من <code>portal_logic.md</code> كوحدة قواعد حتمية.</span>
-  </footer>
-</div>
-
-<input type="file" id="file-input" accept="application/json,.json" hidden>
-<div id="modal-host"></div>
-<div class="toast-host" id="toasts" aria-live="polite"></div>
-`;
+/* الهيكل نفسه، منزوعاً منه وسوم <script> الخارجية (تُدمج مضمّنة أدناه) */
+const markup = bodyMatch[1]
+  .replace(/<script src="assets\/[\w-]+\.js"><\/script>\s*/g, '')
+  .trim();
 
 /* التصميم أحادي السمة عمداً (هوية مؤسسية فاتحة لعميل حكومي): الخلفية وكل لون
    مطليان صراحةً من الرموز، فتصمد الصفحة فوق أي أرضية يرسمها المضيف. */

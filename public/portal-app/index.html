@@ -25,8 +25,8 @@
       <div class="toolbar">
         <span class="chip" id="data-badge" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#c3d3e6">—</span>
         <button class="btn btn-sm" id="btn-export" title="تصدير كل البيانات بنفس المخطط الأصلي">⬇ تصدير</button>
-        <button class="btn btn-sm" id="btn-template" title="نزّل ملفاً نموذجياً لتعبئته خارج المنصة">⬇ نموذج</button>
-        <button class="btn btn-sm" id="btn-import" title="استيراد ملف JSON (دمج أو استبدال)">⬆ استيراد</button>
+        <button class="btn btn-sm" id="btn-template" title="نزّل ورقة Excel فيها أسئلة جاهزة للتعبئة">⬇ ورقة التعبئة</button>
+        <button class="btn btn-sm" id="btn-import" title="ارفع ورقة Excel أو CSV أو JSON — تُحلَّل داخل متصفحك">⬆ استيراد</button>
         <button class="btn btn-sm" id="btn-reset" title="العودة إلى البيانات الأصلية العشرين">↺ إعادة تعيين</button>
       </div>
     </header>
@@ -41,7 +41,7 @@
     </footer>
   </div>
 
-  <input type="file" id="file-input" accept="application/json,.json" hidden>
+  <input type="file" id="file-input" accept=".xlsx,.csv,.json" hidden>
   <div id="modal-host"></div>
   <div class="toast-host" id="toasts" aria-live="polite"></div>
 
@@ -51,6 +51,8 @@
   <script src="assets/rule-engine.js"></script>
   <script src="assets/store.js"></script>
   <script src="assets/charts.js"></script>
+  <script src="assets/xlsx.js"></script>
+  <script src="assets/workbook.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>

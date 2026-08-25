@@ -9,9 +9,12 @@
  *   4. الحتمية: نفس المدخل ⇒ نفس المخرَج حرفياً.
  *   5. معايير القبول: EV-008 ≈ EV-001، EV-019 ≈ EV-010، EV-002 يمزج EV-010 وEV-020.
  *   6. اتساق الخطورة المحسوبة مع المسجّلة في البيانات.
+ *   7. دورة كاملة لورقة التعبئة: بناء ملف xlsx ← قراءته ← تحويله إلى فعالية ← توليد حل.
  */
 require('../assets/logic.js');
 require('../assets/rule-engine.js');
+require('../assets/xlsx.js');
+require('../assets/workbook.js');
 
 const E = globalThis.RuleEngine;
 const data = require('../data/catering_incidents_dataset.json');
@@ -135,15 +138,239 @@ for (const ev of data.events) {
 }
 check('اتساق الخطورة ≥ 18/20', sevMatch >= 18, `${sevMatch}/20`);
 
+
+/** يبني xlsx كما يكتبه Excel: كل إدخال مضغوط deflate والنصوص في sharedStrings */
+async function excelLikeZip(rows) {
+  const enc = new TextEncoder();
+  const strings = [];
+  const index = new Map();
+  const si = (v) => {
+    if (!index.has(v)) { index.set(v, strings.length); strings.push(v); }
+    return index.get(v);
+  };
+  const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const colRef = (n) => {
+    let s = ''; n++;
+    while (n) { const r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = (n - r - 1) / 26; }
+    return s;
+  };
+
+  let sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
+  rows.forEach((row, r) => {
+    sheet += `<row r="${r + 1}">`;
+    row.forEach((v, c) => {
+      if (v === '' || v === null || v === undefined) return;
+      sheet += `<c r="${colRef(c)}${r + 1}" t="s"><v>${si(String(v))}</v></c>`;
+    });
+    sheet += '</row>';
+  });
+  sheet += '</sheetData></worksheet>';
+
+  const NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+  const entries = [
+    ['[Content_Types].xml',
+      '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+      + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+      + '<Default Extension="xml" ContentType="application/xml"/></Types>'],
+    ['_rels/.rels',
+      '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+    ['xl/workbook.xml',
+      `<?xml version="1.0"?><workbook xmlns="${NS}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">`
+      + `<sheets><sheet name="${W_SHEET_EVENTS}" sheetId="1" r:id="rId1"/></sheets></workbook>`],
+    ['xl/_rels/workbook.xml.rels',
+      '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'],
+    ['xl/sharedStrings.xml',
+      `<?xml version="1.0"?><sst xmlns="${NS}" count="${strings.length}" uniqueCount="${strings.length}">`
+      + strings.map((s) => `<si><t xml:space="preserve">${esc(s)}</t></si>`).join('') + '</sst>'],
+    ['xl/worksheets/sheet1.xml', sheet]
+  ];
+
+  async function deflateRaw(u8) {
+    const cs = new CompressionStream('deflate-raw');
+    const writer = cs.writable.getWriter();
+    writer.write(u8); writer.close();
+    const reader = cs.readable.getReader();
+    const parts = []; let len = 0;
+    for (;;) {
+      const step = await reader.read();
+      if (step.done) break;
+      parts.push(step.value); len += step.value.length;
+    }
+    const out = new Uint8Array(len); let at = 0;
+    parts.forEach((p) => { out.set(p, at); at += p.length; });
+    return out;
+  }
+
+  const crc32 = globalThis.Xlsx._crc32;
+  const local = [], central = [];
+  let offset = 0;
+  for (const [name, text] of entries) {
+    const data = enc.encode(text);
+    const comp = await deflateRaw(data);
+    const nameB = enc.encode(name);
+    const crc = crc32(data);
+
+    const lh = new Uint8Array(30 + nameB.length);
+    const dv = new DataView(lh.buffer);
+    dv.setUint32(0, 0x04034b50, true); dv.setUint16(4, 20, true);
+    dv.setUint16(6, 0x0800, true); dv.setUint16(8, 8, true);
+    dv.setUint32(14, crc, true); dv.setUint32(18, comp.length, true);
+    dv.setUint32(22, data.length, true); dv.setUint16(26, nameB.length, true);
+    lh.set(nameB, 30);
+    local.push(lh, comp);
+
+    const ch = new Uint8Array(46 + nameB.length);
+    const cv = new DataView(ch.buffer);
+    cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true); cv.setUint16(6, 20, true);
+    cv.setUint16(8, 0x0800, true); cv.setUint16(10, 8, true);
+    cv.setUint32(16, crc, true); cv.setUint32(20, comp.length, true);
+    cv.setUint32(24, data.length, true); cv.setUint16(28, nameB.length, true);
+    cv.setUint32(42, offset, true); ch.set(nameB, 46);
+    central.push(ch);
+
+    offset += lh.length + comp.length;
+  }
+
+  const cdSize = central.reduce((a, c) => a + c.length, 0);
+  const eocd = new Uint8Array(22);
+  const ev2 = new DataView(eocd.buffer);
+  ev2.setUint32(0, 0x06054b50, true); ev2.setUint16(8, entries.length, true);
+  ev2.setUint16(10, entries.length, true); ev2.setUint32(12, cdSize, true);
+  ev2.setUint32(16, offset, true);
+
+  const parts = [...local, ...central, eocd];
+  const zip = new Uint8Array(parts.reduce((a, p) => a + p.length, 0));
+  let at = 0;
+  parts.forEach((p) => { zip.set(p, at); at += p.length; });
+  return zip;
+}
+
+const W_SHEET_EVENTS = globalThis.Workbook.SHEET_EVENTS;
+
+/* ------------------- 7: دورة ورقة التعبئة ------------------- */
+async function workbookCheck() {
+  const X = globalThis.Xlsx;
+  const W = globalThis.Workbook;
+
+  const bytes = W.buildTemplate('EV-021');
+  check('ورقة التعبئة تُبنى', bytes instanceof Uint8Array && bytes.length > 2000);
+  check('توقيع ZIP صحيح', bytes[0] === 0x50 && bytes[1] === 0x4b);
+
+  const sheets = await X.read(bytes);
+  check('الأوراق الثلاث موجودة',
+    [W.SHEET_EVENTS, W.SHEET_ISSUES, W.SHEET_GUIDE].every((n) => sheets[n]),
+    Object.keys(sheets).join(' | '));
+
+  const rows = sheets[W.SHEET_EVENTS];
+  check('ترويسة الفعاليات كاملة', rows[0].length === W.EVENT_COLUMNS.length,
+    `${rows[0].length} من ${W.EVENT_COLUMNS.length}`);
+  W.EVENT_COLUMNS.forEach((c, i) => {
+    check(`الترويسة ${i + 1} تحمل السؤال`, rows[0][i].replace(/\s*\*$/, '') === c.q,
+      `${rows[0][i]} ≠ ${c.q}`);
+  });
+
+  // صف المثال يُتجاهل كما هو
+  const asIs = W.parseSheets({ [W.SHEET_EVENTS]: rows.map((r) => r.slice()) }, {});
+  check('صف المثال يُتجاهل', asIs.skipped === 1 && asIs.events.length === 0,
+    `skipped=${asIs.skipped} events=${asIs.events.length}`);
+
+  // نفس الصف بعد نزع كلمة «مثال:» يجب أن يمر كاملاً
+  const filled = rows.map((r) => r.slice());
+  filled[2][1] = filled[2][1].replace(/^مثال:\s*/, '');
+  const parsed = W.parseSheets(
+    { [W.SHEET_EVENTS]: filled, [W.SHEET_ISSUES]: sheets[W.SHEET_ISSUES] },
+    { existingIds: data.events.map((e) => e.event_id) }
+  );
+  check('لا أخطاء في الصف المكتمل', parsed.errors.length === 0, parsed.errors.join(' | '));
+  check('قُرئت فعالية واحدة', parsed.events.length === 1);
+
+  const ev = parsed.events[0];
+  check('الحقول المشتقة محسوبة',
+    ev.food_kg.waste_pct === 25 && ev.waste_cost_aed === 4000 && ev.attendance.variance_pct === -14,
+    `${ev.food_kg.waste_pct}% / ${ev.waste_cost_aed} د.إ / ${ev.attendance.variance_pct}%`);
+  check('الخطورة مُسندة آلياً',
+    globalThis.PortalLogic.SEVERITY_LEVELS.includes(ev.severity), ev.severity);
+  check('المشكلات الفرعية مربوطة بالمعرّف', ev.incidents.length === 2, `${ev.incidents.length}`);
+  check('التاريخ بصيغة ISO', /^\d{4}-\d{2}-\d{2}$/.test(ev.date), ev.date);
+
+  // الفعالية المقروءة تمر في محرك التوليد كأي فعالية أخرى
+  const sol = E.generate(ev, golden);
+  check('الفعالية المقروءة تولّد حلاً', keysAre(sol, SOL_KEYS));
+  check('الحل يذكر اسم الفعالية', sol.diagnosis_ar.includes(ev.event_name));
+
+  // التحقق يمسك الأخطاء التي يقع فيها البشر
+  const bad = rows.map((r) => r.slice());
+  bad[2][1] = 'فعالية بأرقام متناقضة';
+  bad[2][0] = 'EV21';                                   // معرّف بصيغة خاطئة
+  bad[2][W.EVENT_COLUMNS.findIndex((c) => c.key === 'food_kg.wasted')] = '900';
+  const badParsed = W.parseSheets({ [W.SHEET_EVENTS]: bad }, {});
+  check('يُرفض المعرّف المشوّه',
+    badParsed.errors.some((e) => e.includes('EV-XXX')), badParsed.errors.join(' | '));
+  check('يُمسك تجاوز المتلف للمورَّد',
+    badParsed.errors.some((e) => e.includes('أكبر من المورَّد')), badParsed.errors.join(' | '));
+
+  // ترويسة غير معروفة ⇒ رسالة واضحة لا انهيار
+  const unknown = W.parseSheets({ ورقة1: [['a', 'b'], ['c', 'd'], ['1', '2']] }, {});
+  check('ترويسة مجهولة تعطي رسالة مفهومة',
+    unknown.events.length === 0 && unknown.errors.length === 1, unknown.errors.join(' | '));
+
+  // مسار Excel الحقيقي: إدخالات مضغوطة deflate + sharedStrings.
+  // الملف الذي تولّده المنصة مخزَّن بلا ضغط، فلولا هذا الفحص لبقي فك الضغط
+  // وقراءة السلاسل المشتركة — وهما ما يصل من Excel فعلياً — بلا تغطية.
+  const excelLike = await excelLikeZip(filled);
+  const excelSheets = await X.read(excelLike);
+  const excelParsed = W.parseSheets(excelSheets, {});
+  check('ملف بأسلوب Excel (deflate + sharedStrings) يُقرأ',
+    excelParsed.events.length === 1 && excelParsed.errors.length === 0,
+    excelParsed.errors.join(' | '));
+  check('القيم تنجو من مسار السلاسل المشتركة',
+    excelParsed.events[0] && excelParsed.events[0].event_name === ev.event_name,
+    excelParsed.events[0] && excelParsed.events[0].event_name);
+
+  // «لا مشكلة» يجب ألا تشدّ التصنيف إلى طبقة لم يحدث فيها شيء
+  const benign = filled.map((r) => r.slice());
+  const ix = (k) => W.EVENT_COLUMNS.findIndex((c) => c.key === k);
+  benign[2][ix('supply_chain_issue')] = 'التوريد سليم';
+  benign[2][ix('receiving_intake_issue')] = 'الاستلام سليم';
+  benign[2][ix('root_cause')] = 'التقدير بُني على قوائم الدعوات لا على تأكيدات الحضور';
+  benign[2][ix('impact')] = 'فائض كبير بلا مسار تصريف';
+  const benignParsed = W.parseSheets({ [W.SHEET_EVENTS]: benign }, {});
+  const bev = benignParsed.events[0];
+  check('«سليم» تُطبَّع إلى عبارة محايدة',
+    bev && bev.receiving_intake_issue.indexOf('استلام') === -1, bev && bev.receiving_intake_issue);
+  check('«لا مشكلة» لا تُصنَّف في طبقة الاستلام',
+    bev && E.classify(bev).primary.name !== 'الاستلام والإدخال',
+    bev && E.classify(bev).primary.name);
+
+  // CSV: نفس المسار بصيغة أبسط
+  const csvRows = X.fromCsv(W.buildCsvTemplate('EV-021'));
+  check('CSV يحفظ عدد الأعمدة', csvRows[0].length === W.EVENT_COLUMNS.length,
+    `${csvRows[0].length}`);
+  csvRows[2][1] = csvRows[2][1].replace(/^مثال:\s*/, '');
+  const csvParsed = W.parseSheets({ [W.SHEET_EVENTS]: csvRows }, {});
+  check('CSV يُقرأ كفعالية', csvParsed.events.length === 1, csvParsed.errors.join(' | '));
+}
+
 /* ------------------- التقرير ------------------- */
-console.log(`\n✔ نجح ${pass} فحصاً`);
-if (sevGaps.length) {
-  console.log(`\nفروقات الخطورة (المصفوفة مقابل السجل اليدوي) — ${sevGaps.length}:`);
-  sevGaps.forEach((g) => console.log('  · ' + g));
+function report() {
+  console.log(`\n✔ نجح ${pass} فحصاً`);
+  if (sevGaps.length) {
+    console.log(`\nفروقات الخطورة (المصفوفة مقابل السجل اليدوي) — ${sevGaps.length}:`);
+    sevGaps.forEach((g) => console.log('  · ' + g));
+  }
+  if (failures.length) {
+    console.log(`\n✘ فشل ${failures.length} فحصاً:`);
+    failures.forEach((f) => console.log('  · ' + f));
+    process.exit(1);
+  }
+  console.log('\nكل الفحوص ناجحة.\n');
 }
-if (failures.length) {
-  console.log(`\n✘ فشل ${failures.length} فحصاً:`);
-  failures.forEach((f) => console.log('  · ' + f));
-  process.exit(1);
-}
-console.log('\nكل الفحوص ناجحة.\n');
+
+workbookCheck()
+  .then(report, (err) => {
+    failures.push('دورة ورقة التعبئة انهارت — ' + err.message);
+    report();
+  });

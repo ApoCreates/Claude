@@ -12,6 +12,7 @@
   var E = window.RuleEngine;
   var S = window.Store;
   var C = window.Charts;
+  var W = window.Workbook;
 
   var esc = C.esc;
   var fmt = C.fmt;
@@ -33,6 +34,7 @@
   }
 
   function sevClass(level) { return 'sev sev-' + level; }
+  function sevBadge(level) { return '<span class="' + sevClass(level) + '">' + esc(level) + '</span>'; }
 
   /** زر تعريف بجوار أي رقم أو رسم — يفتح «ماذا يقيس / كيف يُحسب / لماذا يهم» */
   function infoBtn(metricId) {
@@ -1027,13 +1029,14 @@
       '<div class="split mb">' +
         '<h2 class="section-title" style="margin:0">إضافة فعالية</h2>' +
         '<span class="push"></span>' +
-        '<button class="btn btn-sm" id="btn-template">⬇ نزّل ملفاً نموذجياً للتعبئة</button>' +
+        '<button class="btn btn-sm" id="btn-template">⬇ نزّل ورقة التعبئة (Excel)</button>' +
       '</div>' +
 
       '<div class="alert alert-info mb">' +
-        'لديك طريقان: املأ النموذج أدناه مباشرة، أو <b>نزّل الملف النموذجي</b> واملأه خارج المنصة ' +
-        '(مفيد لتجميع عدة فعاليات من فرق مختلفة) ثم أعده عبر <b>استيراد ← دمج</b>. ' +
-        'الطريقان يحفظان بنفس مخطط JSON الأصلي.' +
+        'لديك طريقان: املأ النموذج أدناه مباشرة، أو <b>نزّل ورقة التعبئة</b> — ملف Excel فيه ' +
+        'سؤال عربي في كل عمود يملؤه أي زميل بلا معرفة تقنية (مفيد لتجميع فعاليات من فرق مختلفة) — ' +
+        'ثم ارفعه عبر <b>استيراد ← دمج</b>. المنصة تقرأ الورقة وتحسب النسب والكلفة والخطورة ' +
+        'وتصنّف كل فعالية داخل متصفحك، بلا خادم وبلا مفاتيح.' +
       '</div>' +
 
       '<form id="new-event-form" novalidate>' +
@@ -1531,68 +1534,222 @@
     }
   }
 
+  /* ------------------------------------------------------------------ *
+   * ورقة التعبئة: أسئلة بالعربية يملؤها إنسان في Excel، لا JSON
+   * ------------------------------------------------------------------ */
+
+  /** حفظ ملف ثنائي (xlsx) — مسار blob لأنه يعمل في المتصفح وعند فتح الملف محلياً */
+  function saveBytes(bytes, filename, mime) {
+    try {
+      var blob = new Blob([bytes], { type: mime });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      closeModal();
+      toast('بدأ تنزيل ' + filename, 'ok');
+      return true;
+    } catch (e) {
+      toast('تعذّر التنزيل في هذه البيئة.', 'err');
+      return false;
+    }
+  }
+
+  function templateQuestionRows() {
+    return W.EVENT_COLUMNS.map(function (c) {
+      return '<tr>' +
+        '<td>' + esc(c.q) + (c.required ? ' <span class="req">*</span>' : '') + '</td>' +
+        '<td class="muted">' + esc(c.hint) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
   function downloadTemplate() {
-    var text = JSON.stringify(S.sampleTemplate(), null, 2);
+    var nextId = S.nextId();
+
     openModal({
-      title: 'ملف نموذجي للتعبئة',
+      title: 'ورقة التعبئة — ' + W.EVENT_COLUMNS.length + ' سؤالاً',
       body:
-        '<div class="alert alert-info mb">نزّل هذا الملف، املأه في أي محرر نصوص أو JSON، ' +
-        'ثم أعده عبر زر <b>استيراد ← دمج</b>. يحتوي فعالية واحدة مشروحة حقلاً حقلاً و10 أسطر ' +
-        'تعليمات، وبنيته مطابقة لمخطط البيانات تماماً.</div>' +
-        '<textarea id="export-text" readonly spellcheck="false" ' +
-        'style="min-height:240px;direction:ltr;text-align:left;font-family:monospace;font-size:.72rem">' +
-        esc(text) + '</textarea>',
+        '<div class="alert alert-info mb">' +
+          'ملف Excel فيه ثلاث أوراق: <b>' + esc(W.SHEET_EVENTS) + '</b> (سؤال في كل عمود، صف لكل فعالية)، ' +
+          '<b>' + esc(W.SHEET_ISSUES) + '</b> (صف لكل طبقة فشل)، و<b>' + esc(W.SHEET_GUIDE) + '</b>. ' +
+          'يفتح في Excel وNumbers وGoogle Sheets. املأه، ثم ارفعه عبر <b>استيراد</b> ' +
+          'فتقرأه المنصة وتحلّله داخل متصفحك — بلا خادم وبلا إنترنت.' +
+        '</div>' +
+        '<div class="alert alert-ok mb">' +
+          '<b>لا تحسب شيئاً بنفسك.</b> نسبة الهدر وكلفته وفرق الحضور ودرجة الخطورة تُحسب آلياً من ' +
+          'الأرقام التي تدخلها، والتصنيف والحل المقترح يُولَّدان بعد الرفع.' +
+        '</div>' +
+        '<h4 class="mb">الأسئلة التي ستملؤها</h4>' +
+        '<div class="table-wrap"><table class="table"><thead><tr>' +
+          '<th>السؤال</th><th>المطلوب</th>' +
+        '</tr></thead><tbody>' + templateQuestionRows() + '</tbody></table></div>',
       foot:
-        '<button class="btn btn-primary" data-export-download="1">⬇ تنزيل النموذج</button>' +
-        '<button class="btn" data-export-copy="1">نسخ إلى الحافظة</button>' +
+        '<button class="btn btn-primary" data-template-xlsx="1">⬇ تنزيل ورقة Excel (.xlsx)</button>' +
+        '<button class="btn" data-template-csv="1">⬇ نسخة CSV</button>' +
         '<button class="btn btn-ghost" data-modal-close="1">إغلاق</button>',
-      exportText: text,
-      exportName: 'portal_event_template.json'
+      templateId: nextId
+    });
+  }
+
+  function emitTemplateXlsx(nextId) {
+    try {
+      saveBytes(W.buildTemplate(nextId),
+                'portal_catering_form.xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    } catch (e) {
+      toast('تعذّر توليد ملف Excel: ' + e.message, 'err');
+    }
+  }
+
+  function emitTemplateCsv(nextId) {
+    try {
+      // BOM حتى يفتح Excel النص العربي بالترميز الصحيح دون سؤال
+      var text = '﻿' + W.buildCsvTemplate(nextId);
+      saveBytes(new Blob([text], { type: 'text/csv;charset=utf-8' }),
+                'portal_catering_form.csv', 'text/csv;charset=utf-8');
+    } catch (e) {
+      toast('تعذّر توليد ملف CSV: ' + e.message, 'err');
+    }
+  }
+
+  /* ------------------------------------------------------------------ *
+   * الاستيراد: xlsx / csv / json
+   * ------------------------------------------------------------------ */
+
+  /** الملاحظات التي لا تمنع الاستيراد (تنبيه فقط) تُفصل عن الأخطاء المانعة */
+  function isNoteOnly(msg) {
+    return msg.indexOf('سيُحدَّث عند الدمج') !== -1 ||
+           msg.indexOf('حُسبت آلياً بدلاً منها') !== -1;
+  }
+
+  function errorList(items, limit) {
+    limit = limit || 12;
+    return '<ul>' +
+      items.slice(0, limit).map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') +
+      (items.length > limit ? '<li>… و' + (items.length - limit) + ' أخرى</li>' : '') +
+      '</ul>';
+  }
+
+  function invalidFileModal(title, items) {
+    openModal({
+      title: title,
+      body: '<div class="alert alert-error"><b>لم يُستورد شيء.</b>' + errorList(items) + '</div>',
+      foot: '<button class="btn" data-modal-close="1">إغلاق</button>'
+    });
+  }
+
+  /** يبني حمولة استيراد كاملة: بيانات وصفية حالية + الفعاليات المقروءة */
+  function sheetPayload(events) {
+    var base = S.dataset();
+    var payload = {};
+    Object.keys(base).forEach(function (k) {
+      if (k !== 'events') payload[k] = JSON.parse(JSON.stringify(base[k]));
+    });
+    payload.events = events;
+    return payload;
+  }
+
+  function sheetPreviewRows(events) {
+    return events.slice(0, 25).map(function (ev) {
+      var fk = ev.food_kg || {};
+      return '<tr>' +
+        '<td class="mono">' + esc(ev.event_id) + '</td>' +
+        '<td>' + esc(ev.event_name) + '</td>' +
+        '<td>' + fmt(fk.wasted) + ' كغ (' + fmt(fk.waste_pct) + '%)</td>' +
+        '<td>' + fmt(ev.waste_cost_aed) + ' د.إ</td>' +
+        '<td>' + sevBadge(ev.severity) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function showSheetImport(parsed, fileName) {
+    var blocking = parsed.errors.filter(function (e) { return !isNoteOnly(e); });
+    var notes = parsed.errors.filter(isNoteOnly);
+
+    if (!parsed.events.length) {
+      invalidFileModal('لم نجد فعاليات في «' + fileName + '»',
+        blocking.length ? blocking
+                        : ['الورقة فارغة أو تحتوي على صف المثال وحده. املأ صفاً واحداً على الأقل تحت صف التلميحات.']);
+      return;
+    }
+    if (blocking.length) { invalidFileModal('راجع «' + fileName + '» قبل الرفع', blocking); return; }
+
+    var payload = sheetPayload(parsed.events);
+    var known = S.all().map(function (e) { return e.event_id; });
+    var overlap = parsed.events.filter(function (e) { return known.indexOf(e.event_id) !== -1; }).length;
+
+    openModal({
+      title: 'قراءة «' + fileName + '»',
+      body:
+        '<div class="alert alert-ok mb">' +
+          'قُرئت <b>' + parsed.events.length + '</b> فعالية' +
+          (parsed.skipped ? '، وتُجوهل <b>' + parsed.skipped + '</b> صف مثال' : '') +
+          (overlap ? '، منها <b>' + overlap + '</b> معرّف موجود لديك حالياً' : '') + '. ' +
+          'نسبة الهدر والكلفة ودرجة الخطورة حُسبت آلياً مما أدخلته.' +
+        '</div>' +
+        (notes.length ? '<div class="alert alert-warn mb"><b>ملاحظات:</b>' + errorList(notes, 6) + '</div>' : '') +
+        '<div class="table-wrap"><table class="table"><thead><tr>' +
+          '<th>المعرّف</th><th>الفعالية</th><th>الهدر</th><th>الكلفة</th><th>الخطورة</th>' +
+        '</tr></thead><tbody>' + sheetPreviewRows(parsed.events) + '</tbody></table></div>' +
+        (parsed.events.length > 25
+          ? '<p class="muted mt">تُعرض أول 25 فعالية فقط — ستُستورد كلها.</p>' : '') +
+        '<div class="stack mt">' +
+          '<div class="alert alert-info"><b>دمج:</b> يضيف الجديد ويحدّث المتطابق بالمعرّف — لا شيء يُحذف.</div>' +
+          '<div class="alert alert-warn"><b>استبدال:</b> يمسح كل بياناتك الحالية ويضع محتوى الملف مكانها.</div>' +
+        '</div>',
+      foot:
+        '<button class="btn btn-primary" data-import-mode="merge">دمج</button>' +
+        '<button class="btn btn-danger" data-import-mode="replace">استبدال كامل</button>' +
+        '<button class="btn btn-ghost" data-modal-close="1">إلغاء</button>',
+      importPayload: payload
+    });
+  }
+
+  function showJsonImport(obj) {
+    var errors = S.validateDataset(obj);
+    if (errors.length) { invalidFileModal('الملف غير صالح', errors); return; }
+
+    var incoming = obj.events.length;
+    var known = S.all().map(function (e) { return e.event_id; });
+    var overlap = obj.events.filter(function (e) { return known.indexOf(e.event_id) !== -1; }).length;
+
+    openModal({
+      title: 'استيراد البيانات',
+      body:
+        '<div class="alert alert-info">الملف يحتوي <b>' + incoming + '</b> فعالية، منها <b>' + overlap +
+          '</b> معرّفات موجودة لديك حالياً (' + S.all().length + ' فعالية).</div>' +
+        '<div class="stack mt">' +
+          '<div class="alert alert-info"><b>دمج:</b> يضيف الجديد ويحدّث المتطابق بالمعرّف — لا شيء يُحذف.</div>' +
+          '<div class="alert alert-warn"><b>استبدال:</b> يمسح كل بياناتك الحالية ويضع محتوى الملف مكانها.</div>' +
+        '</div>',
+      foot:
+        '<button class="btn btn-primary" data-import-mode="merge">دمج</button>' +
+        '<button class="btn btn-danger" data-import-mode="replace">استبدال كامل</button>' +
+        '<button class="btn btn-ghost" data-modal-close="1">إلغاء</button>',
+      importPayload: obj
     });
   }
 
   function handleImportFile(file) {
-    var reader = new FileReader();
-    reader.onerror = function () { toast('تعذّرت قراءة الملف.', 'err'); };
-    reader.onload = function () {
-      var obj;
-      try { obj = JSON.parse(String(reader.result)); }
-      catch (e) { toast('الملف ليس JSON صالحاً: ' + e.message, 'err'); return; }
+    var name = file.name || 'الملف';
+    toast('جارٍ قراءة ' + name + '…');
 
-      var errors = S.validateDataset(obj);
-      if (errors.length) {
-        openModal({
-          title: 'الملف غير صالح',
-          body: '<div class="alert alert-error"><b>لم يُستورد شيء.</b><ul>' +
-                  errors.slice(0, 12).map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') +
-                  (errors.length > 12 ? '<li>… و' + (errors.length - 12) + ' مشكلة أخرى</li>' : '') +
-                '</ul></div>',
-          foot: '<button class="btn" data-modal-close="1">إغلاق</button>'
-        });
-        return;
-      }
-
-      var incoming = obj.events.length;
-      var known = S.all().map(function (e) { return e.event_id; });
-      var overlap = obj.events.filter(function (e) { return known.indexOf(e.event_id) !== -1; }).length;
-
-      openModal({
-        title: 'استيراد البيانات',
-        body:
-          '<div class="alert alert-info">الملف يحتوي <b>' + incoming + '</b> فعالية، منها <b>' + overlap +
-            '</b> معرّفات موجودة لديك حالياً (' + S.all().length + ' فعالية).</div>' +
-          '<div class="stack mt">' +
-            '<div class="alert alert-info"><b>دمج:</b> يضيف الجديد ويحدّث المتطابق بالمعرّف — لا شيء يُحذف.</div>' +
-            '<div class="alert alert-warn"><b>استبدال:</b> يمسح كل بياناتك الحالية ويضع محتوى الملف مكانها.</div>' +
-          '</div>',
-        foot:
-          '<button class="btn btn-primary" data-import-mode="merge">دمج</button>' +
-          '<button class="btn btn-danger" data-import-mode="replace">استبدال كامل</button>' +
-          '<button class="btn btn-ghost" data-modal-close="1">إلغاء</button>',
-        importPayload: obj
+    W.readFile(file, { existingIds: S.all().map(function (e) { return e.event_id; }) })
+      .then(function (res) {
+        if (res.kind === 'json') showJsonImport(res.json);
+        else showSheetImport(res, name);
+      })
+      .catch(function (err) {
+        invalidFileModal('تعذّرت قراءة «' + name + '»', [
+          err && err.message ? err.message : 'خطأ غير معروف.',
+          'المقبول: ورقة Excel ‎.xlsx‎ أو ‎.csv‎ أو ملف ‎.json‎ مُصدَّر من المنصة.'
+        ]);
       });
-    };
-    reader.readAsText(file, 'utf-8');
   }
 
   /* ================================================================== *
@@ -1723,6 +1880,12 @@
       }
       if (t.closest('[data-export-copy]') && modalState && modalState.exportText) {
         copyExport(modalState.exportText); return;
+      }
+      if (t.closest('[data-template-xlsx]') && modalState && modalState.templateId) {
+        emitTemplateXlsx(modalState.templateId); return;
+      }
+      if (t.closest('[data-template-csv]') && modalState && modalState.templateId) {
+        emitTemplateCsv(modalState.templateId); return;
       }
 
       /* ----- شريط الأدوات ----- */

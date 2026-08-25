@@ -285,7 +285,8 @@ table.data .muted { color: var(--text-mute); font-size: .8rem; }
 .field { display: flex; flex-direction: column; gap: .22rem; flex: 1 1 130px; min-width: 130px; }
 .field.grow { flex: 2 1 200px; }
 .field label { font-size: .8rem; font-weight: 500; color: var(--text-soft); }
-.field .req { color: var(--sev-critical); }
+.field .req, .req { color: var(--sev-critical); }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; direction: ltr; }
 input, select, textarea {
   font-family: inherit; font-size: .875rem; color: var(--text);
   background: var(--surface); border: 1px solid var(--line-strong);
@@ -491,6 +492,7 @@ textarea { resize: vertical; min-height: 62px; line-height: 1.6; }
 .alert-error { background: var(--sev-critical-bg); border-color: #f1c9c9; color: #7f1d1d; }
 .alert-warn { background: var(--sev-medium-bg); border-color: #f0deae; color: #854d0e; }
 .alert-info { background: var(--surface-sunk); border-color: var(--line); color: var(--text-soft); }
+.alert-ok { background: var(--sev-low-bg); border-color: #bfe0cd; color: #14532d; }
 .alert ul { margin: .35rem 0 0; padding-inline-start: 1.1rem; }
 
 .empty { text-align: center; padding: 2.4rem 1rem; color: var(--text-mute); }
@@ -657,41 +659,42 @@ html[dir="rtl"] body { direction: rtl; }
 document.documentElement.setAttribute('lang', 'ar');
 document.documentElement.setAttribute('dir', 'rtl');
 </script>
-
 <div class="app">
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark" aria-hidden="true">P</div>
-      <div class="brand-text">
-        <b>Portal</b>
-        <span>منصة إدارة هدر التموين وسلاسل الإمداد</span>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">P</div>
+        <div class="brand-text">
+          <b>Portal</b>
+          <span>منصة إدارة هدر التموين وسلاسل الإمداد</span>
+        </div>
       </div>
-    </div>
 
-    <nav class="nav" id="nav" aria-label="التنقل الرئيسي"></nav>
+      <nav class="nav" id="nav" aria-label="التنقل الرئيسي"></nav>
 
-    <div class="toolbar">
-      <span class="chip" id="data-badge" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#c3d3e6">—</span>
-      <button class="btn btn-sm" id="btn-export" title="تصدير كل البيانات بنفس المخطط الأصلي">⬇ تصدير</button>
-      <button class="btn btn-sm" id="btn-import" title="استيراد ملف JSON (دمج أو استبدال)">⬆ استيراد</button>
-      <button class="btn btn-sm" id="btn-reset" title="العودة إلى البيانات الأصلية العشرين">↺ إعادة تعيين</button>
-    </div>
-  </header>
+      <div class="toolbar">
+        <span class="chip" id="data-badge" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#c3d3e6">—</span>
+        <button class="btn btn-sm" id="btn-export" title="تصدير كل البيانات بنفس المخطط الأصلي">⬇ تصدير</button>
+        <button class="btn btn-sm" id="btn-template" title="نزّل ورقة Excel فيها أسئلة جاهزة للتعبئة">⬇ ورقة التعبئة</button>
+        <button class="btn btn-sm" id="btn-import" title="ارفع ورقة Excel أو CSV أو JSON — تُحلَّل داخل متصفحك">⬆ استيراد</button>
+        <button class="btn btn-sm" id="btn-reset" title="العودة إلى البيانات الأصلية العشرين">↺ إعادة تعيين</button>
+      </div>
+    </header>
 
-  <div id="storage-warn"></div>
-  <main class="main" id="view" role="main"></main>
+    <div id="storage-warn"></div>
+    <main class="main" id="view" role="main"></main>
 
-  <footer class="footer">
-    <span><b>Portal</b> — بروتوتايب تشغيلي يعمل بالكامل داخل المتصفح.</span>
-    <span class="muted">بلا باك-إند · بلا مفاتيح · بلا اتصال خارجي — مصدر الحقيقة هو <code>localStorage</code>.</span>
-    <span class="push muted">المنطق مطبَّق من <code>portal_logic.md</code> كوحدة قواعد حتمية.</span>
-  </footer>
-</div>
+    <footer class="footer">
+      <span><b>Portal</b> — بروتوتايب تشغيلي يعمل بالكامل داخل المتصفح.</span>
+      <span class="muted">بلا باك-إند · بلا مفاتيح · بلا اتصال خارجي — مصدر الحقيقة هو <code>localStorage</code>.</span>
+      <span class="push muted">المنطق مطبَّق من <code>portal_logic.md</code> كوحدة قواعد حتمية.</span>
+    </footer>
+  </div>
 
-<input type="file" id="file-input" accept="application/json,.json" hidden>
-<div id="modal-host"></div>
-<div class="toast-host" id="toasts" aria-live="polite"></div>
+  <input type="file" id="file-input" accept=".xlsx,.csv,.json" hidden>
+  <div id="modal-host"></div>
+  <div class="toast-host" id="toasts" aria-live="polite"></div>
 
+  <!-- ترتيب التحميل مقصود: البيانات ← المنطق ← المحرك ← التخزين ← الرسوم ← الواجهة -->
 <script>
 /* eslint-disable */
 /**
@@ -3977,67 +3980,6 @@ window.PORTAL_SEED = {
     return { ok: true, added: state.events.length, updated: 0, total: state.events.length };
   }
 
-  /* ------------------------------------------------------------------ *
-   * ملف نموذجي للتعبئة — يُنزَّل، يُملأ في أي محرر، ثم يُستورد
-   * بنفس مخطط البيانات تماماً، مع صف واحد مشروح حقلاً حقلاً.
-   * ------------------------------------------------------------------ */
-  function sampleTemplate() {
-    var base = load();
-    return {
-      dataset_name: base.dataset_name,
-      purpose_ar: base.purpose_ar,
-      data_type: base.data_type,
-      locale: base.locale,
-      currency: base.currency,
-      problem_categories: base.problem_categories.slice(),
-      تعليمات_التعبئة: [
-        '1) هذا الملف نموذج جاهز للتعبئة — كرّر الكائن داخل events لكل فعالية جديدة.',
-        '2) event_id يجب أن يكون فريداً بصيغة EV-XXX ولا يكرر معرّفاً موجوداً لديك.',
-        '3) الحقول الكمية إلزامية: attendance و meals و food_kg و avg_cost_aed_per_kg.',
-        '4) المتلف والمستهلك معاً لا يتجاوزان المورَّد، والمقدَّم لا يتجاوز المطلوب.',
-        '5) waste_pct = المتلف ÷ المورَّد × 100، و waste_cost_aed = المتلف × كلفة الكيلو. ' +
-          'تُحسبان تلقائياً عند الإضافة من داخل المنصة، واحسبهما يدوياً هنا.',
-        '6) اترك severity فارغاً ("") ليحسبه المحرك من مصفوفة المحاور الثلاثة.',
-        '7) النصوص (supply_chain_issue / receiving_intake_issue / root_cause) هي ما يقرأه ' +
-          'المحرك للتصنيف وتحديد نمط الفشل — كن محدداً فيها، فهي مصدر جودة الحل.',
-        '8) اترك golden_solution = null ليولّد المحرك الحل بعد الاستيراد.',
-        '9) احذف هذا الحقل «تعليمات_التعبئة» قبل الاستيراد إن أردت، أو اتركه — المنصة تتجاهله.',
-        '10) بعد التعبئة: زر «استيراد» ← «دمج» لإضافتها إلى بياناتك الحالية.'
-      ],
-      events_count: 1,
-      events: [{
-        event_id: nextId(),
-        event_name: 'اكتب اسم الفعالية هنا',
-        date: '2026-01-01',
-        emirate: 'أبوظبي',
-        venue: 'اسم الموقع',
-        event_type: 'مؤتمر حكومي',
-        catering_provider: 'اسم مزود التموين',
-        attendance: { expected: 500, actual: 430, variance_pct: -14 },
-        meals: { ordered: 520, served: 415 },
-        food_kg: { delivered: 400, consumed: 300, wasted: 100, waste_pct: 25 },
-        avg_cost_aed_per_kg: 40,
-        waste_cost_aed: 4000,
-        supply_chain_issue: 'صف مشكلة النقل أو الموردين أو الجدولة — أو اكتب «سليمة» إن لم توجد.',
-        receiving_intake_issue: 'صف مشكلة الاستلام أو الفحص أو الوزن — أو «الاستلام سليم».',
-        root_cause: 'لماذا حدث ما حدث؟ اذهب لأبعد من العَرَض إلى الطبقة التي أنتجته.',
-        severity: '',
-        impact: 'ماذا كلّف هذا الفشل؟ كمية، مال، وقت، سمعة.',
-        narrative_ar: 'قصة الفعالية كما جرت في فقرة قصيرة.',
-        incidents: [{
-          category: 'التخطيط والتنبؤ',
-          stage: 'قبل الفعالية',
-          description: 'ماذا حدث بالضبط في هذه الطبقة؟',
-          direct_effect: 'ما النتيجة الفورية؟'
-        }],
-        portal_recommendation_required: true,
-        golden_solution: null
-      }],
-      golden_examples: [],
-      golden_note_ar: 'ملف نموذجي للتعبئة — ليس بيانات حقيقية.'
-    };
-  }
-
   function subscribe(fn) {
     listeners.push(fn);
     return function () { listeners = listeners.filter(function (f) { return f !== fn; }); };
@@ -4059,7 +4001,6 @@ window.PORTAL_SEED = {
     exportJson: exportJson,
     importJson: importJson,
     validateDataset: validateDataset,
-    sampleTemplate: sampleTemplate,
     subscribe: subscribe
   };
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -4280,6 +4221,985 @@ window.PORTAL_SEED = {
 <script>
 /* eslint-disable */
 /**
+ * assets/xlsx.js — قراءة وكتابة ملفات Excel داخل المتصفح، بلا أي مكتبة وبلا API
+ * =============================================================================
+ * ملف .xlsx هو أرشيف ZIP يحوي ملفات XML. لذلك نحتاج شيئين فقط:
+ *
+ *   الكتابة  → ZIP بلا ضغط (طريقة "store")، وهي صيغة يفتحها Excel وNumbers
+ *              وGoogle Sheets بلا مشكلة. نحسب CRC32 يدوياً ونركّب الترويسات.
+ *   القراءة  → فك ضغط DEFLATE عبر DecompressionStream('deflate-raw') المدمج
+ *              في المتصفح (وNode 18+)، فلا نحتاج مكتبة inflate إطلاقاً.
+ *
+ * المدى المدعوم مقصود ومحدود: أوراق عمل بخلايا نصية ورقمية وتواريخ — وهو
+ * كل ما يلزم لنموذج تعبئة بشري.
+ */
+(function (global) {
+  'use strict';
+
+  /* ================================================================== *
+   * أدوات بايت
+   * ================================================================== */
+  var enc = new TextEncoder();
+
+  function u8(str) { return enc.encode(str); }
+
+  function concat(parts) {
+    var len = parts.reduce(function (a, p) { return a + p.length; }, 0);
+    var out = new Uint8Array(len), at = 0;
+    parts.forEach(function (p) { out.set(p, at); at += p.length; });
+    return out;
+  }
+
+  function le16(n) { return new Uint8Array([n & 255, (n >>> 8) & 255]); }
+  function le32(n) {
+    return new Uint8Array([n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255]);
+  }
+
+  /* جدول CRC32 يُبنى مرة واحدة */
+  var CRC_TABLE = (function () {
+    var t = new Uint32Array(256);
+    for (var i = 0; i < 256; i++) {
+      var c = i;
+      for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[i] = c >>> 0;
+    }
+    return t;
+  })();
+
+  function crc32(bytes) {
+    var c = 0xFFFFFFFF;
+    for (var i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 255] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  /* ================================================================== *
+   * ZIP — كتابة بطريقة store (بلا ضغط)
+   * ================================================================== */
+  /* تاريخ DOS ثابت (1980-01-01، منتصف الليل) ليكون البناء حتمياً ويبقى التاريخ صالحاً:
+     الشهر 0 الذي ينتج عن ترك الحقل صفراً تاريخ غير قانوني تعترض عليه بعض الأدوات. */
+  var DOS_TIME = 0;
+  var DOS_DATE = (0 << 9) | (1 << 5) | 1;
+
+  function zipStore(files) {
+    var locals = [], centrals = [], offset = 0;
+
+    files.forEach(function (f) {
+      var name = u8(f.name);
+      var data = typeof f.data === 'string' ? u8(f.data) : f.data;
+      var crc = crc32(data);
+
+      var localHeader = concat([
+        le32(0x04034b50), le16(20), le16(0x0800), le16(0),   // 0x0800 = أسماء UTF-8
+        le16(DOS_TIME), le16(DOS_DATE),                       // وقت/تاريخ ثابتان (بناء حتمي)
+        le32(crc), le32(data.length), le32(data.length),
+        le16(name.length), le16(0), name
+      ]);
+      locals.push(localHeader, data);
+
+      centrals.push(concat([
+        le32(0x02014b50), le16(20), le16(20), le16(0x0800), le16(0),
+        le16(DOS_TIME), le16(DOS_DATE),
+        le32(crc), le32(data.length), le32(data.length),
+        le16(name.length), le16(0), le16(0), le16(0), le16(0), le32(0),
+        le32(offset), name
+      ]));
+
+      offset += localHeader.length + data.length;
+    });
+
+    var central = concat(centrals);
+    var end = concat([
+      le32(0x06054b50), le16(0), le16(0),
+      le16(files.length), le16(files.length),
+      le32(central.length), le32(offset), le16(0)
+    ]);
+
+    return concat([concat(locals), central, end]);
+  }
+
+  /* ================================================================== *
+   * ZIP — قراءة (store + deflate عبر DecompressionStream)
+   * ================================================================== */
+  async function unzip(bytes) {
+    var view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+
+    // ابحث عن سجل نهاية الدليل المركزي من آخر الملف
+    var eocd = -1;
+    for (var i = bytes.length - 22; i >= 0 && i >= bytes.length - 66000; i--) {
+      if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    }
+    if (eocd === -1) throw new Error('الملف ليس أرشيف ZIP صالحاً (لم يُعثر على دليله).');
+
+    var count = view.getUint16(eocd + 10, true);
+    var dirOffset = view.getUint32(eocd + 16, true);
+    var out = {};
+    var p = dirOffset;
+
+    for (var n = 0; n < count; n++) {
+      if (view.getUint32(p, true) !== 0x02014b50) break;
+      var method = view.getUint16(p + 10, true);
+      var compSize = view.getUint32(p + 20, true);
+      var nameLen = view.getUint16(p + 28, true);
+      var extraLen = view.getUint16(p + 30, true);
+      var commentLen = view.getUint16(p + 32, true);
+      var localOff = view.getUint32(p + 42, true);
+      var name = new TextDecoder('utf-8').decode(bytes.subarray(p + 46, p + 46 + nameLen));
+
+      // ترويسة الملف المحلي: الطول الفعلي للاسم/الإضافات قد يختلف عن المركزي
+      var lNameLen = view.getUint16(localOff + 26, true);
+      var lExtraLen = view.getUint16(localOff + 28, true);
+      var dataStart = localOff + 30 + lNameLen + lExtraLen;
+      var raw = bytes.subarray(dataStart, dataStart + compSize);
+
+      if (method === 0) {
+        out[name] = raw;
+      } else if (method === 8) {
+        out[name] = await inflateRaw(raw);
+      } else {
+        throw new Error('طريقة ضغط غير مدعومة داخل الملف: ' + method);
+      }
+
+      p += 46 + nameLen + extraLen + commentLen;
+    }
+    return out;
+  }
+
+  async function inflateRaw(bytes) {
+    if (typeof DecompressionStream !== 'function') {
+      throw new Error('هذا المتصفح لا يدعم فك ضغط الملفات — حدّثه أو استخدم صيغة CSV.');
+    }
+    var ds = new DecompressionStream('deflate-raw');
+    var writer = ds.writable.getWriter();
+    writer.write(bytes);
+    writer.close();
+
+    // نقرأ التدفّق يدوياً بدل Blob/Response ليعمل الكود في المتصفح وNode معاً
+    var reader = ds.readable.getReader();
+    var chunks = [], total = 0;
+    for (;;) {
+      var step = await reader.read();
+      if (step.done) break;
+      chunks.push(step.value);
+      total += step.value.length;
+    }
+    var out = new Uint8Array(total), at = 0;
+    chunks.forEach(function (c) { out.set(c, at); at += c.length; });
+    return out;
+  }
+
+  /* ================================================================== *
+   * XML
+   * ================================================================== */
+  function xmlEsc(v) {
+    return String(v === null || v === undefined ? '' : v)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&apos;')
+      // Excel يرفض محارف التحكم
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+  }
+
+  /** رقم العمود → حرفه (1 → A، 27 → AA) */
+  function colName(n) {
+    var s = '';
+    while (n > 0) { var m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = (n - m - 1) / 26; }
+    return s;
+  }
+
+  /* ================================================================== *
+   * الكتابة: مصنّف من أوراق بسيطة
+   * sheets = [{ name, rows: [[cell, ...], ...], widths: [n, ...], freeze: 1 }]
+   * الخلية إما قيمة مباشرة أو { v, style }
+   * ================================================================== */
+  var STYLE = { normal: 0, header: 1, title: 2, note: 3, example: 4 };
+
+  function buildSheetXml(sheet) {
+    var rows = sheet.rows.map(function (cells, r) {
+      var rowNum = r + 1;
+      var xml = cells.map(function (cell, c) {
+        var value = cell && typeof cell === 'object' && 'v' in cell ? cell.v : cell;
+        var style = cell && typeof cell === 'object' && cell.style ? cell.style : 0;
+        if (value === null || value === undefined || value === '') {
+          return style ? '<c r="' + colName(c + 1) + rowNum + '" s="' + style + '"/>' : '';
+        }
+        var ref = colName(c + 1) + rowNum;
+        var sAttr = style ? ' s="' + style + '"' : '';
+        if (typeof value === 'number' && isFinite(value)) {
+          return '<c r="' + ref + '"' + sAttr + '><v>' + value + '</v></c>';
+        }
+        // نص مضمّن (inlineStr) — يتجنّب جدول السلاسل المشتركة ويبقى الملف بسيطاً
+        return '<c r="' + ref + '" t="inlineStr"' + sAttr + '><is><t xml:space="preserve">' +
+               xmlEsc(value) + '</t></is></c>';
+      }).join('');
+      return '<row r="' + rowNum + '">' + xml + '</row>';
+    }).join('');
+
+    var cols = (sheet.widths || []).map(function (w, i) {
+      return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>';
+    }).join('');
+
+    var freeze = sheet.freeze
+      ? '<sheetViews><sheetView rightToLeft="1" workbookViewId="0">' +
+        '<pane ySplit="' + sheet.freeze + '" topLeftCell="A' + (sheet.freeze + 1) +
+        '" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+      : '<sheetViews><sheetView rightToLeft="1" workbookViewId="0"/></sheetViews>';
+
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      freeze +
+      (cols ? '<cols>' + cols + '</cols>' : '') +
+      '<sheetData>' + rows + '</sheetData></worksheet>';
+  }
+
+  /* أنماط: عادي، ترويسة، عنوان، ملاحظة، مثال */
+  var STYLES_XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+    '<fonts count="5">' +
+      '<font><sz val="11"/><name val="Calibri"/></font>' +
+      '<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>' +
+      '<font><b/><sz val="14"/><color rgb="FF0D1B2E"/><name val="Calibri"/></font>' +
+      '<font><i/><sz val="10"/><color rgb="FF64748B"/><name val="Calibri"/></font>' +
+      '<font><sz val="11"/><color rgb="FF4D5F76"/><name val="Calibri"/></font>' +
+    '</fonts>' +
+    '<fills count="4">' +
+      '<fill><patternFill patternType="none"/></fill>' +
+      '<fill><patternFill patternType="gray125"/></fill>' +
+      '<fill><patternFill patternType="solid"><fgColor rgb="FF1C3557"/><bgColor indexed="64"/></patternFill></fill>' +
+      '<fill><patternFill patternType="solid"><fgColor rgb="FFF1F5FA"/><bgColor indexed="64"/></patternFill></fill>' +
+    '</fills>' +
+    '<borders count="2">' +
+      '<border><left/><right/><top/><bottom/><diagonal/></border>' +
+      '<border><left style="thin"><color rgb="FFD3DBE5"/></left><right style="thin"><color rgb="FFD3DBE5"/></right>' +
+      '<top style="thin"><color rgb="FFD3DBE5"/></top><bottom style="thin"><color rgb="FFD3DBE5"/></bottom><diagonal/></border>' +
+    '</borders>' +
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+    '<cellXfs count="5">' +
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="center" wrapText="1" readingOrder="2"/></xf>' +
+      '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1" readingOrder="2"/></xf>' +
+      '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center" readingOrder="2"/></xf>' +
+      '<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center" wrapText="1" readingOrder="2"/></xf>' +
+      '<xf numFmtId="0" fontId="4" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1" readingOrder="2"/></xf>' +
+    '</cellXfs>' +
+    '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
+    '</styleSheet>';
+
+  function write(sheets) {
+    var sheetEntries = sheets.map(function (s, i) {
+      return { name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: buildSheetXml(s) };
+    });
+
+    var workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ' +
+      'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+      '<sheets>' + sheets.map(function (s, i) {
+        return '<sheet name="' + xmlEsc(s.name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>';
+      }).join('') + '</sheets></workbook>';
+
+    var wbRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      sheets.map(function (s, i) {
+        return '<Relationship Id="rId' + (i + 1) +
+               '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"' +
+               ' Target="worksheets/sheet' + (i + 1) + '.xml"/>';
+      }).join('') +
+      '<Relationship Id="rId' + (sheets.length + 1) +
+      '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
+      '</Relationships>';
+
+    var contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      sheets.map(function (s, i) {
+        return '<Override PartName="/xl/worksheets/sheet' + (i + 1) +
+               '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
+      }).join('') +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+      '</Types>';
+
+    var rootRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+      '</Relationships>';
+
+    return zipStore([
+      { name: '[Content_Types].xml', data: contentTypes },
+      { name: '_rels/.rels', data: rootRels },
+      { name: 'xl/workbook.xml', data: workbook },
+      { name: 'xl/_rels/workbook.xml.rels', data: wbRels },
+      { name: 'xl/styles.xml', data: STYLES_XML }
+    ].concat(sheetEntries));
+  }
+
+  /* ================================================================== *
+   * القراءة: مصنّف → { اسم الورقة: [[نص, ...], ...] }
+   * ================================================================== */
+  /**
+   * محلّل XML صغير مكتفٍ بذاته.
+   * السبب: DOMParser متاح في المتصفح فقط، ونريد للمحرك أن يُختبر في Node أيضاً.
+   * لا يدعم إلا ما يحتاجه مصنّف xlsx: عناصر، سمات، ونص.
+   */
+  var XML_ENTITIES = {
+    'lt': '<', 'gt': '>', 'amp': '&', 'quot': '"', 'apos': "'"
+  };
+
+  function xmlUnescape(s) {
+    return String(s).replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, function (m, ent) {
+      if (ent.charAt(0) === '#') {
+        var code = ent.charAt(1) === 'x' || ent.charAt(1) === 'X'
+          ? parseInt(ent.slice(2), 16) : parseInt(ent.slice(1), 10);
+        return isFinite(code) ? String.fromCodePoint(code) : m;
+      }
+      return XML_ENTITIES[ent] !== undefined ? XML_ENTITIES[ent] : m;
+    });
+  }
+
+  function XmlNode(tag, attrs) {
+    this.tag = tag;
+    this.attrs = attrs || {};
+    this.children = [];
+    this.text = '';
+  }
+
+  XmlNode.prototype.getAttribute = function (name) {
+    return this.attrs[name] !== undefined ? this.attrs[name] : null;
+  };
+
+  XmlNode.prototype.getElementsByTagName = function (name) {
+    var out = [];
+    (function walk(node) {
+      node.children.forEach(function (child) {
+        if (child.tag === name) out.push(child);
+        walk(child);
+      });
+    })(this);
+    return out;
+  };
+
+  Object.defineProperty(XmlNode.prototype, 'textContent', {
+    get: function () {
+      var s = this.text;
+      this.children.forEach(function (c) { s += c.textContent; });
+      return s;
+    }
+  });
+
+  var ATTR_RE = /([\w:.-]+)\s*=\s*"([^"]*)"|([\w:.-]+)\s*=\s*'([^']*)'/g;
+
+  function parseAttrs(src) {
+    var attrs = {}, m;
+    ATTR_RE.lastIndex = 0;
+    while ((m = ATTR_RE.exec(src))) {
+      if (m[1] !== undefined) attrs[m[1]] = xmlUnescape(m[2]);
+      else attrs[m[3]] = xmlUnescape(m[4]);
+    }
+    return attrs;
+  }
+
+  function parseXmlText(text) {
+    var root = new XmlNode('#document');
+    var stack = [root];
+    // <?…?> و<!--…--> و<![CDATA[…]]> والعناصر العادية
+    var re = /<!\[CDATA\[([\s\S]*?)\]\]>|<!--[\s\S]*?-->|<\?[\s\S]*?\?>|<\/\s*([\w:.-]+)\s*>|<\s*([\w:.-]+)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/g;
+    var last = 0, m;
+
+    function addText(chunk, raw) {
+      if (!chunk) return;
+      stack[stack.length - 1].text += raw ? chunk : xmlUnescape(chunk);
+    }
+
+    while ((m = re.exec(text))) {
+      addText(text.slice(last, m.index));
+      last = re.lastIndex;
+
+      if (m[1] !== undefined) { addText(m[1], true); continue; }   // CDATA
+      if (m[2] !== undefined) {                                     // إغلاق
+        for (var i = stack.length - 1; i > 0; i--) {
+          if (stack[i].tag === m[2]) { stack.length = i; break; }
+        }
+        continue;
+      }
+      if (m[3] !== undefined) {                                     // فتح
+        var node = new XmlNode(m[3], parseAttrs(m[4] || ''));
+        stack[stack.length - 1].children.push(node);
+        if (!m[5]) stack.push(node);
+        continue;
+      }
+      // تعليق أو تعليمة معالجة — تُتجاهل
+    }
+    addText(text.slice(last));
+    return root;
+  }
+
+  function parseXml(text) {
+    if (typeof global.DOMParser === 'function') {
+      return new global.DOMParser().parseFromString(text, 'application/xml');
+    }
+    return parseXmlText(text);
+  }
+
+  function decode(bytes) { return new TextDecoder('utf-8').decode(bytes); }
+
+  /** مرجع الخلية → فهرس العمود (A1 → 0) */
+  function colIndex(ref) {
+    var m = /^([A-Z]+)/.exec(ref || '');
+    if (!m) return 0;
+    var n = 0;
+    for (var i = 0; i < m[1].length; i++) n = n * 26 + (m[1].charCodeAt(i) - 64);
+    return n - 1;
+  }
+
+  async function read(bytes) {
+    var files = await unzip(bytes);
+
+    // السلاسل المشتركة (Excel يستعملها افتراضياً)
+    var shared = [];
+    if (files['xl/sharedStrings.xml']) {
+      var sdoc = parseXml(decode(files['xl/sharedStrings.xml']));
+      var sis = sdoc.getElementsByTagName('si');
+      for (var i = 0; i < sis.length; i++) {
+        // اجمع كل عقد <t> داخل العنصر (النص قد يكون مجزّأً على تنسيقات)
+        var ts = sis[i].getElementsByTagName('t');
+        var s = '';
+        for (var j = 0; j < ts.length; j++) s += ts[j].textContent;
+        shared.push(s);
+      }
+    }
+
+    // أسماء الأوراق بترتيبها
+    var names = [];
+    if (files['xl/workbook.xml']) {
+      var wdoc = parseXml(decode(files['xl/workbook.xml']));
+      var ns = wdoc.getElementsByTagName('sheet');
+      for (var k = 0; k < ns.length; k++) names.push(ns[k].getAttribute('name'));
+    }
+
+    var out = {};
+    Object.keys(files)
+      .filter(function (n) { return /^xl\/worksheets\/sheet\d+\.xml$/.test(n); })
+      .sort(function (a, b) {
+        return parseInt(/(\d+)/.exec(a)[1], 10) - parseInt(/(\d+)/.exec(b)[1], 10);
+      })
+      .forEach(function (path, idx) {
+        var doc = parseXml(decode(files[path]));
+        var rowsEl = doc.getElementsByTagName('row');
+        var rows = [];
+        for (var r = 0; r < rowsEl.length; r++) {
+          var cells = rowsEl[r].getElementsByTagName('c');
+          var row = [];
+          for (var c = 0; c < cells.length; c++) {
+            var cell = cells[c];
+            var at = colIndex(cell.getAttribute('r'));
+            var type = cell.getAttribute('t');
+            var value = '';
+            if (type === 'inlineStr') {
+              var its = cell.getElementsByTagName('t');
+              for (var q = 0; q < its.length; q++) value += its[q].textContent;
+            } else {
+              var vs = cell.getElementsByTagName('v');
+              var raw = vs.length ? vs[0].textContent : '';
+              if (type === 's') value = shared[parseInt(raw, 10)] || '';
+              else if (type === 'str') value = raw;
+              else value = raw;
+            }
+            while (row.length < at) row.push('');
+            row[at] = String(value).trim();
+          }
+          rows.push(row);
+        }
+        out[names[idx] || ('Sheet' + (idx + 1))] = rows;
+      });
+
+    return out;
+  }
+
+  /* ================================================================== *
+   * CSV — مسار احتياطي بسيط لمن يفضّله
+   * ================================================================== */
+  function toCsv(rows) {
+    return '﻿' + rows.map(function (r) {
+      return r.map(function (cell) {
+        var v = cell && typeof cell === 'object' && 'v' in cell ? cell.v : cell;
+        v = v === null || v === undefined ? '' : String(v);
+        return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+      }).join(',');
+    }).join('\r\n');
+  }
+
+  function fromCsv(text) {
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    var rows = [], row = [], cell = '', inQ = false;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (inQ) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') { cell += '"'; i++; } else inQ = false;
+        } else cell += ch;
+      } else if (ch === '"') inQ = true;
+      else if (ch === ',') { row.push(cell.trim()); cell = ''; }
+      else if (ch === '\n') { row.push(cell.trim()); rows.push(row); row = []; cell = ''; }
+      else if (ch !== '\r') cell += ch;
+    }
+    if (cell !== '' || row.length) { row.push(cell.trim()); rows.push(row); }
+    return rows;
+  }
+
+  global.Xlsx = {
+    write: write,
+    read: read,
+    toCsv: toCsv,
+    fromCsv: fromCsv,
+    STYLE: STYLE,
+    _zipStore: zipStore,
+    _unzip: unzip,
+    _crc32: crc32
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* eslint-disable */
+/**
+ * assets/workbook.js — جسر بين ورقة Excel التي يملؤها إنسان ومخطط بيانات المنصة
+ * ============================================================================
+ * الفكرة: المستخدم لا يرى JSON ولا حقولاً تقنية. يرى أسئلة بالعربية في جدول،
+ * يملؤها في Excel أو Numbers أو Google Sheets، ثم يرفع الملف فتقرأه المنصة
+ * وتحلّله بمحركها الداخلي — بلا API وبلا خادم.
+ *
+ * ما تسأله الورقة هو ما لا يستطيع الحاسوب استنتاجه فقط. أما نسبة الهدر وكلفته
+ * والخطورة فتُحسب هنا آلياً، فلا نطلب من المستخدم حساباً يمكن أن يخطئ فيه.
+ */
+(function (global) {
+  'use strict';
+
+  var X = global.Xlsx;
+  var L = global.PortalLogic;
+
+  var SHEET_EVENTS = 'الفعاليات';
+  var SHEET_ISSUES = 'المشكلات الفرعية';
+  var SHEET_GUIDE = 'التعليمات';
+
+  /* ------------------------------------------------------------------ *
+   * أعمدة ورقة الفعاليات — سؤال لكل عمود
+   *   key      المسار داخل مخطط البيانات
+   *   q        السؤال كما يقرأه المستخدم
+   *   hint     مثال أو توضيح يظهر تحت الترويسة
+   *   type     text | number | date
+   *   required إلزامي؟
+   * ------------------------------------------------------------------ */
+  var EVENT_COLUMNS = [
+    { key: 'event_id', q: 'معرّف الفعالية', hint: 'مثل EV-021 — فريد ولا يتكرر', type: 'text', required: true, width: 14 },
+    { key: 'event_name', q: 'اسم الفعالية', hint: 'مؤتمر حكومي لتجربة المتعاملين', type: 'text', required: true, width: 30 },
+    { key: 'date', q: 'تاريخ الفعالية', hint: 'بصيغة YYYY-MM-DD', type: 'date', required: true, width: 14 },
+    { key: 'emirate', q: 'الإمارة', hint: 'أبوظبي / دبي / الشارقة…', type: 'text', required: true, width: 14 },
+    { key: 'venue', q: 'الموقع', hint: 'مركز أدنيك للمعارض', type: 'text', required: true, width: 26 },
+    { key: 'event_type', q: 'نوع الفعالية', hint: 'مؤتمر حكومي / حفل زفاف / مهرجان…', type: 'text', required: true, width: 20 },
+    { key: 'catering_provider', q: 'مزود التموين', hint: 'اسم الشركة المنفذة', type: 'text', required: true, width: 20 },
+
+    { key: 'attendance.expected', q: 'الحضور المتوقع', hint: 'عدد الأشخاص المخطط لهم', type: 'number', required: true, width: 13 },
+    { key: 'attendance.actual', q: 'الحضور الفعلي', hint: 'من حضر فعلاً', type: 'number', required: true, width: 13 },
+    { key: 'meals.ordered', q: 'الوجبات المطلوبة', hint: 'عدد الوجبات في أمر الشراء', type: 'number', required: true, width: 14 },
+    { key: 'meals.served', q: 'الوجبات المقدَّمة', hint: 'ما قُدّم فعلاً', type: 'number', required: true, width: 14 },
+
+    { key: 'food_kg.delivered', q: 'الطعام المورَّد (كغ)', hint: 'ما دخل الموقع', type: 'number', required: true, width: 15 },
+    { key: 'food_kg.consumed', q: 'الطعام المستهلك (كغ)', hint: 'ما أُكل فعلاً', type: 'number', required: true, width: 16 },
+    { key: 'food_kg.wasted', q: 'الطعام المتلف (كغ)', hint: 'ما انتهى إلى الإتلاف', type: 'number', required: true, width: 15 },
+    { key: 'avg_cost_aed_per_kg', q: 'متوسط كلفة الكيلو (د.إ)', hint: 'تحسب المنصة الكلفة تلقائياً', type: 'number', required: true, width: 17 },
+
+    { key: 'supply_chain_issue', q: 'ما الذي حدث في النقل أو التوريد؟', hint: 'اكتب «لا مشكلة» إن لم يحدث شيء', type: 'text', required: true, width: 42, benignable: true },
+    { key: 'receiving_intake_issue', q: 'ما الذي حدث عند الاستلام والفحص؟', hint: 'اكتب «لا مشكلة» إن لم يحدث شيء', type: 'text', required: true, width: 42, benignable: true },
+    { key: 'root_cause', q: 'ما السبب الجذري؟', hint: 'لماذا حدث ما حدث — أبعد من العَرَض', type: 'text', required: true, width: 42 },
+    { key: 'impact', q: 'ما الأثر؟', hint: 'كمية، مال، وقت، سمعة', type: 'text', required: true, width: 34 },
+    { key: 'narrative_ar', q: 'سرد مختصر لما جرى', hint: 'اختياري لكنه يحسّن دقة التحليل', type: 'text', required: false, width: 46 },
+    { key: 'severity', q: 'درجة الخطورة', hint: 'اتركها فارغة ليحسبها النظام', type: 'text', required: false, width: 15 }
+  ];
+
+  var ISSUE_COLUMNS = [
+    { key: 'event_id', q: 'معرّف الفعالية', hint: 'نفس المعرّف في ورقة الفعاليات', type: 'text', required: true, width: 14 },
+    { key: 'category', q: 'الفئة (طبقة الفشل)', hint: 'واحدة من الفئات الست حرفياً', type: 'text', required: true, width: 22 },
+    { key: 'stage', q: 'المرحلة', hint: 'النقل / منصة الاستلام / بعد الفعالية…', type: 'text', required: true, width: 20 },
+    { key: 'description', q: 'ماذا حدث في هذه الطبقة؟', hint: 'وصف محدد', type: 'text', required: true, width: 46 },
+    { key: 'direct_effect', q: 'ما الأثر المباشر؟', hint: 'النتيجة الفورية', type: 'text', required: true, width: 34 }
+  ];
+
+  /* ------------------------------------------------------------------ *
+   * بناء الملف النموذجي
+   * ------------------------------------------------------------------ */
+  function headerRows(cols) {
+    return [
+      cols.map(function (c) {
+        return { v: c.q + (c.required ? ' *' : ''), style: X.STYLE.header };
+      }),
+      cols.map(function (c) { return { v: c.hint, style: X.STYLE.note }; })
+    ];
+  }
+
+  function exampleEventRow(nextId) {
+    var vals = {
+      'event_id': nextId,
+      'event_name': 'مثال: مؤتمر بلدي لتجربة المتعاملين',
+      'date': '2026-01-15',
+      'emirate': 'أبوظبي',
+      'venue': 'مركز المؤتمرات الرئيسي',
+      'event_type': 'مؤتمر حكومي',
+      'catering_provider': 'مزود التموين أ',
+      'attendance.expected': 500,
+      'attendance.actual': 430,
+      'meals.ordered': 520,
+      'meals.served': 415,
+      'food_kg.delivered': 400,
+      'food_kg.consumed': 300,
+      'food_kg.wasted': 100,
+      'avg_cost_aed_per_kg': 40,
+      'supply_chain_issue': 'تأخرت الشاحنة المبردة ساعتين ولا شاحنة احتياطية في خطة المزود',
+      'receiving_intake_issue': 'فحص الاستلام كشف تجاوز حرارة البروتينات ورُفضت الدفعة',
+      'root_cause': 'انكسار سلسلة التبريد أثناء النقل مع غياب بديل جاهز',
+      'impact': 'إتلاف 100 كغ وشراء طارئ بسعر مضاعف وتأخر الغداء 40 دقيقة',
+      'narrative_ar': 'اكتب هنا قصة الفعالية كما جرت. احذف هذا الصف المثال قبل الرفع أو اتركه — المنصة تتجاهل الصفوف المعلَّمة كمثال.',
+      'severity': ''
+    };
+    return EVENT_COLUMNS.map(function (c) {
+      return { v: vals[c.key], style: X.STYLE.example };
+    });
+  }
+
+  function exampleIssueRows(nextId) {
+    return [
+      [nextId, 'سلسلة الإمداد', 'النقل', 'تأخر الشاحنة المبردة وانكسار سلسلة التبريد', 'رفض دفعة البروتينات كاملة'],
+      [nextId, 'الاستلام والإدخال', 'منصة الاستلام', 'كشف الفحص التجاوز الحراري ولا بديل مؤهل', 'شراء طارئ وتأخر الخدمة']
+    ].map(function (r) {
+      return r.map(function (v) { return { v: v, style: X.STYLE.example }; });
+    });
+  }
+
+  function guideRows() {
+    var rows = [
+      [{ v: 'كيف تملأ هذا الملف', style: X.STYLE.title }],
+      [],
+      [{ v: '1) املأ ورقة «' + SHEET_EVENTS + '»: صف واحد لكل فعالية. الأعمدة المعلَّمة بنجمة * إلزامية.' }],
+      [{ v: '2) املأ ورقة «' + SHEET_ISSUES + '»: صف واحد لكل طبقة فشل في الفعالية، واربطه بمعرّف الفعالية نفسه.' }],
+      [{ v: '3) الصفوف الملوّنة أمثلة — عدّلها أو احذفها. المنصة تتجاهل أي صف يبدأ اسمه بـ «مثال:».' }],
+      [{ v: '4) لا تحسب نسبة الهدر ولا كلفته ولا الخطورة — المنصة تحسبها كلها تلقائياً من الأرقام التي أدخلتها.' }],
+      [{ v: '5) في عمودَي النقل والاستلام اكتب «لا مشكلة» إن لم يحدث شيء — لا تتركهما فارغين.' }],
+      [{ v: '6) احفظ الملف ثم ارفعه من زر «استيراد» في المنصة. يقبل .xlsx و .csv و .json.' }],
+      [],
+      [{ v: 'قواعد لا بد أن تتحقق', style: X.STYLE.title }],
+      [{ v: '• المتلف + المستهلك لا يتجاوزان المورَّد.' }],
+      [{ v: '• الوجبات المقدَّمة لا تتجاوز المطلوبة.' }],
+      [{ v: '• معرّف الفعالية فريد بصيغة EV-XXX ولا يكرر معرّفاً موجوداً في المنصة.' }],
+      [{ v: '• التاريخ بصيغة YYYY-MM-DD (مثال 2026-01-15).' }],
+      [],
+      [{ v: 'الفئات الست — انسخ القيمة حرفياً في عمود «الفئة»', style: X.STYLE.title }]
+    ];
+
+    L.CATEGORIES.forEach(function (c) {
+      rows.push([{ v: c.name, style: X.STYLE.example }, { v: c.definition, style: X.STYLE.note }]);
+    });
+
+    rows.push([]);
+    rows.push([{ v: 'كيف تُحسب الخطورة (إن تركتها فارغة)', style: X.STYLE.title }]);
+    rows.push([{ v: 'أعلى درجة من ثلاثة محاور — لا متوسطها: مالي (كلفة الهدر)، سلامة غذائية، سمعة/تعاقد.' }]);
+    rows.push([{ v: 'حادثة بكلفة صغيرة لكن فيها طعام خطر وصل للضيوف تبقى حرجة.' }]);
+    rows.push([]);
+    rows.push([{ v: 'ماذا يحدث بعد الرفع', style: X.STYLE.title }]);
+    rows.push([{ v: 'تصنّف المنصة كل فعالية في إحدى الطبقات الست، وتحدد نمط الفشل، وتحسب الخطورة،' }]);
+    rows.push([{ v: 'ثم تولّد حلاً مقترحاً (تشخيص + توصيات بأولوية ومالك وإطار زمني + أتمتة + مؤشرات قياس).' }]);
+    rows.push([{ v: 'كل ذلك يجري داخل متصفحك — بلا إنترنت وبلا إرسال بياناتك إلى أي جهة.' }]);
+
+    return rows;
+  }
+
+  /** يبني المصنّف النموذجي كاملاً (Uint8Array جاهز للحفظ) */
+  function buildTemplate(nextId) {
+    var eventRows = headerRows(EVENT_COLUMNS).concat([exampleEventRow(nextId)]);
+    var issueRows = headerRows(ISSUE_COLUMNS).concat(exampleIssueRows(nextId));
+
+    return X.write([
+      { name: SHEET_EVENTS, rows: eventRows, widths: EVENT_COLUMNS.map(function (c) { return c.width; }), freeze: 2 },
+      { name: SHEET_ISSUES, rows: issueRows, widths: ISSUE_COLUMNS.map(function (c) { return c.width; }), freeze: 2 },
+      { name: SHEET_GUIDE, rows: guideRows(), widths: [64, 52] }
+    ]);
+  }
+
+  /** نسخة CSV لورقة الفعاليات وحدها — لمن يفضّل أبسط صيغة */
+  function buildCsvTemplate(nextId) {
+    return X.toCsv(headerRows(EVENT_COLUMNS).concat([exampleEventRow(nextId)]));
+  }
+
+  /* ------------------------------------------------------------------ *
+   * القراءة: صفوف الورقة → فعاليات بمخطط المنصة
+   * ------------------------------------------------------------------ */
+  function setPath(obj, path, value) {
+    var parts = path.split('.'), cur = obj;
+    for (var i = 0; i < parts.length - 1; i++) {
+      if (!cur[parts[i]]) cur[parts[i]] = {};
+      cur = cur[parts[i]];
+    }
+    cur[parts[parts.length - 1]] = value;
+  }
+
+  function normalizeHeader(s) {
+    return String(s || '').replace(/\*/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  /** يطابق ترويسات الورقة مع الأعمدة المعرّفة، ويعيد خريطة فهرس→عمود */
+  function mapHeaders(headerRow, cols) {
+    var map = {};
+    headerRow.forEach(function (cell, i) {
+      var h = normalizeHeader(cell);
+      if (!h) return;
+      var col = cols.filter(function (c) { return normalizeHeader(c.q) === h; })[0];
+      if (col) map[i] = col;
+    });
+    return map;
+  }
+
+  function toNumber(v) {
+    if (v === '' || v === null || v === undefined) return null;
+    var n = Number(String(v).replace(/[,\s]/g, '').replace(/[٠-٩]/g, function (d) {
+      return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+    }));
+    return isFinite(n) ? n : null;
+  }
+
+  /** تاريخ Excel التسلسلي أو نص YYYY-MM-DD */
+  function toDate(v) {
+    var s = String(v || '').trim();
+    if (!s) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    var serial = Number(s);
+    if (isFinite(serial) && serial > 20000 && serial < 80000) {
+      var ms = (serial - 25569) * 86400000;      // 25569 = 1970-01-01 في تقويم Excel
+      return new Date(ms).toISOString().slice(0, 10);
+    }
+    var m = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/.exec(s);   // DD/MM/YYYY
+    if (m) return m[3] + '-' + String(m[2]).padStart(2, '0') + '-' + String(m[1]).padStart(2, '0');
+    return s;
+  }
+
+  /**
+   * إجابة «لا مشكلة» يجب ألا تحمل أي إشارة تصنيف.
+   * «الاستلام سليم» مثلاً تحتوي كلمة «استلام» وهي مفتاح فئة — فتشدّ التصنيف
+   * نحو طبقة لم يحدث فيها شيء. نطبّعها إلى عبارة محايدة قبل أن يراها المحرك.
+   */
+  var BENIGN_RE = /^(?:[^\S\n]|[\u0600-\u06FF\s])*?(?:لا\s*(?:يوجد|توجد|مشكلة|شيء|شيئ)|بلا\s*مشكلة|سليم(?:ة|ه)?|طبيعي(?:ة|ه)?|جيد(?:ة|ه)?|بخير|مطابق(?:ة|ه)?)\s*[.؟!]?$/;
+  var BENIGN_TEXT = 'لا مشكلة مسجّلة في هذه الطبقة';
+
+  function normalizeBenign(val) {
+    var s = String(val || '').trim();
+    if (!s) return s;
+    if (s === '-' || s === '—' || s === 'N/A' || s === 'na') return BENIGN_TEXT;
+    if (s.length <= 40 && BENIGN_RE.test(s)) return BENIGN_TEXT;
+    return s;
+  }
+
+  function isExampleRow(ev) {
+    return /^مثال\s*:/.test(String(ev.event_name || '').trim());
+  }
+
+  /**
+   * يحوّل أوراق المصنّف إلى فعاليات جاهزة للاستيراد.
+   * يعيد { events, errors, skipped }
+   */
+  function parseSheets(sheets, opts) {
+    opts = opts || {};
+    var errors = [];
+    var names = Object.keys(sheets);
+
+    // اقبل الورقة الأولى إن لم تُسمَّ كما في النموذج (المستخدمون يعيدون التسمية)
+    var evRows = sheets[SHEET_EVENTS] || sheets[names[0]] || [];
+    var isRows = sheets[SHEET_ISSUES] || [];
+
+    if (!evRows.length) {
+      return { events: [], errors: ['الملف لا يحتوي على أي صفوف في ورقة «' + SHEET_EVENTS + '».'], skipped: 0 };
+    }
+
+    var evMap = mapHeaders(evRows[0], EVENT_COLUMNS);
+    if (!Object.keys(evMap).length) {
+      return {
+        events: [],
+        errors: ['تعذّر التعرّف على ترويسات الأعمدة في ورقة «' + SHEET_EVENTS + '». ' +
+                 'استخدم الملف النموذجي دون تغيير أسماء الأعمدة في الصف الأول.'],
+        skipped: 0
+      };
+    }
+
+    // اجمع المشكلات الفرعية حسب معرّف الفعالية
+    var issuesById = {};
+    if (isRows.length) {
+      var isMap = mapHeaders(isRows[0], ISSUE_COLUMNS);
+      for (var r = 1; r < isRows.length; r++) {
+        var rec = {};
+        var any = false;
+        isRows[r].forEach(function (cell, i) {
+          var col = isMap[i];
+          if (!col) return;
+          var val = String(cell || '').trim();
+          if (val) any = true;
+          rec[col.key] = val;
+        });
+        if (!any || !rec.event_id) continue;
+        if (!issuesById[rec.event_id]) issuesById[rec.event_id] = [];
+        issuesById[rec.event_id].push({
+          category: rec.category || '',
+          stage: rec.stage || '',
+          description: rec.description || '',
+          direct_effect: rec.direct_effect || ''
+        });
+      }
+    }
+
+    var events = [], skipped = 0, seen = {};
+
+    for (var i = 2; i < evRows.length; i++) {
+      var row = evRows[i];
+      if (!row || !row.length) continue;
+
+      var raw = {};
+      var hasAny = false;
+      row.forEach(function (cell, ci) {
+        var col = evMap[ci];
+        if (!col) return;
+        var val = String(cell === null || cell === undefined ? '' : cell).trim();
+        if (val) hasAny = true;
+        raw[col.key] = val;
+      });
+      if (!hasAny) continue;
+
+      var ev = { event_id: '', event_name: '' };
+      var where = 'الصف ' + (i + 1);
+      var rowErrors = [];
+
+      EVENT_COLUMNS.forEach(function (col) {
+        var val = raw[col.key];
+        if (col.type === 'number') {
+          var n = toNumber(val);
+          if (n === null) {
+            if (col.required) rowErrors.push(where + ': «' + col.q + '» مطلوب ويجب أن يكون رقماً.');
+            setPath(ev, col.key, 0);
+          } else if (n < 0) {
+            rowErrors.push(where + ': «' + col.q + '» لا يمكن أن يكون سالباً.');
+            setPath(ev, col.key, 0);
+          } else setPath(ev, col.key, n);
+        } else if (col.type === 'date') {
+          var d = toDate(val);
+          if (!d && col.required) rowErrors.push(where + ': «' + col.q + '» مطلوب.');
+          setPath(ev, col.key, d);
+        } else {
+          if (!val && col.required) rowErrors.push(where + ': «' + col.q + '» مطلوب.');
+          setPath(ev, col.key, col.benignable ? normalizeBenign(val) : val);
+        }
+      });
+
+      if (isExampleRow(ev)) { skipped++; continue; }
+
+      // تحقق المعرّف
+      if (ev.event_id && !/^EV-\d{3,}$/.test(ev.event_id)) {
+        rowErrors.push(where + ': المعرّف «' + ev.event_id + '» يجب أن يكون بصيغة EV-XXX.');
+      }
+      if (ev.event_id && seen[ev.event_id]) {
+        rowErrors.push(where + ': المعرّف «' + ev.event_id + '» مكرر داخل الملف.');
+      }
+      seen[ev.event_id] = true;
+      if (ev.event_id && opts.existingIds && opts.existingIds.indexOf(ev.event_id) !== -1) {
+        rowErrors.push(where + ': المعرّف «' + ev.event_id + '» موجود لديك بالفعل — سيُحدَّث عند الدمج.');
+      }
+
+      var fk = ev.food_kg || {};
+      if (fk.wasted > fk.delivered) {
+        rowErrors.push(where + ': المتلف (' + fk.wasted + ') أكبر من المورَّد (' + fk.delivered + ').');
+      }
+      if (fk.consumed + fk.wasted > fk.delivered + 0.001) {
+        rowErrors.push(where + ': مجموع المستهلك والمتلف يتجاوز المورَّد.');
+      }
+      if ((ev.meals || {}).served > (ev.meals || {}).ordered) {
+        rowErrors.push(where + ': الوجبات المقدَّمة تتجاوز المطلوبة.');
+      }
+
+      // الحقول المشتقة — تُحسب ولا تُطلب من المستخدم
+      var delivered = fk.delivered || 0;
+      ev.food_kg.waste_pct = delivered ? Math.round((fk.wasted / delivered) * 1000) / 10 : 0;
+      ev.waste_cost_aed = Math.round((fk.wasted || 0) * (ev.avg_cost_aed_per_kg || 0));
+
+      var att = ev.attendance || {};
+      att.variance_pct = att.expected
+        ? Math.round(((att.actual - att.expected) / att.expected) * 1000) / 10 : 0;
+
+      ev.incidents = issuesById[ev.event_id] || [];
+      if (!ev.incidents.length) {
+        // بلا مشكلات فرعية مصرّحة، يصنّف المحرك من النصوص وحدها
+        ev.incidents = [];
+      } else {
+        ev.incidents.forEach(function (inc) {
+          if (inc.category && !L.CATEGORY_BY_NAME[inc.category]) {
+            rowErrors.push('المشكلات الفرعية لـ ' + ev.event_id + ': الفئة «' + inc.category +
+                           '» ليست من الفئات الست. راجع ورقة التعليمات.');
+          }
+        });
+      }
+
+      ev.portal_recommendation_required = true;
+      ev.golden_solution = null;
+      if (!ev.narrative_ar) ev.narrative_ar = ev.impact || ev.root_cause || '';
+
+      // الخطورة: احسبها إن تركها المستخدم فارغة
+      if (!ev.severity || L.SEVERITY_LEVELS.indexOf(ev.severity) === -1) {
+        if (ev.severity) {
+          rowErrors.push(where + ': «' + ev.severity + '» ليست درجة خطورة معروفة — حُسبت آلياً بدلاً منها.');
+        }
+        ev.severity = global.RuleEngine.assessSeverity(ev).level;
+      }
+
+      errors = errors.concat(rowErrors);
+      events.push(ev);
+    }
+
+    return { events: events, errors: errors, skipped: skipped };
+  }
+
+  /** يقرأ ملفاً مرفوعاً بأي صيغة مدعومة ويعيد نتيجة موحّدة */
+  async function readFile(file, opts) {
+    var name = (file.name || '').toLowerCase();
+
+    if (name.endsWith('.json')) {
+      var text = await file.text();
+      return { kind: 'json', json: JSON.parse(text) };
+    }
+
+    if (name.endsWith('.csv')) {
+      var csv = await file.text();
+      var rows = X.fromCsv(csv);
+      var obj = {};
+      obj[SHEET_EVENTS] = rows;
+      return Object.assign({ kind: 'sheet' }, parseSheets(obj, opts));
+    }
+
+    if (name.endsWith('.xlsx')) {
+      var buf = new Uint8Array(await file.arrayBuffer());
+      var sheets = await X.read(buf);
+      return Object.assign({ kind: 'sheet' }, parseSheets(sheets, opts));
+    }
+
+    throw new Error('صيغة غير مدعومة. المقبول: ‎.xlsx‎ أو ‎.csv‎ أو ‎.json');
+  }
+
+  global.Workbook = {
+    SHEET_EVENTS: SHEET_EVENTS,
+    SHEET_ISSUES: SHEET_ISSUES,
+    SHEET_GUIDE: SHEET_GUIDE,
+    EVENT_COLUMNS: EVENT_COLUMNS,
+    ISSUE_COLUMNS: ISSUE_COLUMNS,
+    buildTemplate: buildTemplate,
+    buildCsvTemplate: buildCsvTemplate,
+    parseSheets: parseSheets,
+    readFile: readFile
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* eslint-disable */
+/**
  * assets/app.js — واجهة Portal (عربية RTL، بلا إطار عمل وبلا شبكة)
  * ================================================================
  * ست شاشات: لوحة القيادة • سجل الفعاليات • تفاصيل الفعالية •
@@ -4292,6 +5212,7 @@ window.PORTAL_SEED = {
   var E = window.RuleEngine;
   var S = window.Store;
   var C = window.Charts;
+  var W = window.Workbook;
 
   var esc = C.esc;
   var fmt = C.fmt;
@@ -4313,6 +5234,7 @@ window.PORTAL_SEED = {
   }
 
   function sevClass(level) { return 'sev sev-' + level; }
+  function sevBadge(level) { return '<span class="' + sevClass(level) + '">' + esc(level) + '</span>'; }
 
   /** زر تعريف بجوار أي رقم أو رسم — يفتح «ماذا يقيس / كيف يُحسب / لماذا يهم» */
   function infoBtn(metricId) {
@@ -5307,13 +6229,14 @@ window.PORTAL_SEED = {
       '<div class="split mb">' +
         '<h2 class="section-title" style="margin:0">إضافة فعالية</h2>' +
         '<span class="push"></span>' +
-        '<button class="btn btn-sm" id="btn-template">⬇ نزّل ملفاً نموذجياً للتعبئة</button>' +
+        '<button class="btn btn-sm" id="btn-template">⬇ نزّل ورقة التعبئة (Excel)</button>' +
       '</div>' +
 
       '<div class="alert alert-info mb">' +
-        'لديك طريقان: املأ النموذج أدناه مباشرة، أو <b>نزّل الملف النموذجي</b> واملأه خارج المنصة ' +
-        '(مفيد لتجميع عدة فعاليات من فرق مختلفة) ثم أعده عبر <b>استيراد ← دمج</b>. ' +
-        'الطريقان يحفظان بنفس مخطط JSON الأصلي.' +
+        'لديك طريقان: املأ النموذج أدناه مباشرة، أو <b>نزّل ورقة التعبئة</b> — ملف Excel فيه ' +
+        'سؤال عربي في كل عمود يملؤه أي زميل بلا معرفة تقنية (مفيد لتجميع فعاليات من فرق مختلفة) — ' +
+        'ثم ارفعه عبر <b>استيراد ← دمج</b>. المنصة تقرأ الورقة وتحسب النسب والكلفة والخطورة ' +
+        'وتصنّف كل فعالية داخل متصفحك، بلا خادم وبلا مفاتيح.' +
       '</div>' +
 
       '<form id="new-event-form" novalidate>' +
@@ -5811,68 +6734,222 @@ window.PORTAL_SEED = {
     }
   }
 
+  /* ------------------------------------------------------------------ *
+   * ورقة التعبئة: أسئلة بالعربية يملؤها إنسان في Excel، لا JSON
+   * ------------------------------------------------------------------ */
+
+  /** حفظ ملف ثنائي (xlsx) — مسار blob لأنه يعمل في المتصفح وعند فتح الملف محلياً */
+  function saveBytes(bytes, filename, mime) {
+    try {
+      var blob = new Blob([bytes], { type: mime });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      closeModal();
+      toast('بدأ تنزيل ' + filename, 'ok');
+      return true;
+    } catch (e) {
+      toast('تعذّر التنزيل في هذه البيئة.', 'err');
+      return false;
+    }
+  }
+
+  function templateQuestionRows() {
+    return W.EVENT_COLUMNS.map(function (c) {
+      return '<tr>' +
+        '<td>' + esc(c.q) + (c.required ? ' <span class="req">*</span>' : '') + '</td>' +
+        '<td class="muted">' + esc(c.hint) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
   function downloadTemplate() {
-    var text = JSON.stringify(S.sampleTemplate(), null, 2);
+    var nextId = S.nextId();
+
     openModal({
-      title: 'ملف نموذجي للتعبئة',
+      title: 'ورقة التعبئة — ' + W.EVENT_COLUMNS.length + ' سؤالاً',
       body:
-        '<div class="alert alert-info mb">نزّل هذا الملف، املأه في أي محرر نصوص أو JSON، ' +
-        'ثم أعده عبر زر <b>استيراد ← دمج</b>. يحتوي فعالية واحدة مشروحة حقلاً حقلاً و10 أسطر ' +
-        'تعليمات، وبنيته مطابقة لمخطط البيانات تماماً.</div>' +
-        '<textarea id="export-text" readonly spellcheck="false" ' +
-        'style="min-height:240px;direction:ltr;text-align:left;font-family:monospace;font-size:.72rem">' +
-        esc(text) + '</textarea>',
+        '<div class="alert alert-info mb">' +
+          'ملف Excel فيه ثلاث أوراق: <b>' + esc(W.SHEET_EVENTS) + '</b> (سؤال في كل عمود، صف لكل فعالية)، ' +
+          '<b>' + esc(W.SHEET_ISSUES) + '</b> (صف لكل طبقة فشل)، و<b>' + esc(W.SHEET_GUIDE) + '</b>. ' +
+          'يفتح في Excel وNumbers وGoogle Sheets. املأه، ثم ارفعه عبر <b>استيراد</b> ' +
+          'فتقرأه المنصة وتحلّله داخل متصفحك — بلا خادم وبلا إنترنت.' +
+        '</div>' +
+        '<div class="alert alert-ok mb">' +
+          '<b>لا تحسب شيئاً بنفسك.</b> نسبة الهدر وكلفته وفرق الحضور ودرجة الخطورة تُحسب آلياً من ' +
+          'الأرقام التي تدخلها، والتصنيف والحل المقترح يُولَّدان بعد الرفع.' +
+        '</div>' +
+        '<h4 class="mb">الأسئلة التي ستملؤها</h4>' +
+        '<div class="table-wrap"><table class="table"><thead><tr>' +
+          '<th>السؤال</th><th>المطلوب</th>' +
+        '</tr></thead><tbody>' + templateQuestionRows() + '</tbody></table></div>',
       foot:
-        '<button class="btn btn-primary" data-export-download="1">⬇ تنزيل النموذج</button>' +
-        '<button class="btn" data-export-copy="1">نسخ إلى الحافظة</button>' +
+        '<button class="btn btn-primary" data-template-xlsx="1">⬇ تنزيل ورقة Excel (.xlsx)</button>' +
+        '<button class="btn" data-template-csv="1">⬇ نسخة CSV</button>' +
         '<button class="btn btn-ghost" data-modal-close="1">إغلاق</button>',
-      exportText: text,
-      exportName: 'portal_event_template.json'
+      templateId: nextId
+    });
+  }
+
+  function emitTemplateXlsx(nextId) {
+    try {
+      saveBytes(W.buildTemplate(nextId),
+                'portal_catering_form.xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    } catch (e) {
+      toast('تعذّر توليد ملف Excel: ' + e.message, 'err');
+    }
+  }
+
+  function emitTemplateCsv(nextId) {
+    try {
+      // BOM حتى يفتح Excel النص العربي بالترميز الصحيح دون سؤال
+      var text = '﻿' + W.buildCsvTemplate(nextId);
+      saveBytes(new Blob([text], { type: 'text/csv;charset=utf-8' }),
+                'portal_catering_form.csv', 'text/csv;charset=utf-8');
+    } catch (e) {
+      toast('تعذّر توليد ملف CSV: ' + e.message, 'err');
+    }
+  }
+
+  /* ------------------------------------------------------------------ *
+   * الاستيراد: xlsx / csv / json
+   * ------------------------------------------------------------------ */
+
+  /** الملاحظات التي لا تمنع الاستيراد (تنبيه فقط) تُفصل عن الأخطاء المانعة */
+  function isNoteOnly(msg) {
+    return msg.indexOf('سيُحدَّث عند الدمج') !== -1 ||
+           msg.indexOf('حُسبت آلياً بدلاً منها') !== -1;
+  }
+
+  function errorList(items, limit) {
+    limit = limit || 12;
+    return '<ul>' +
+      items.slice(0, limit).map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') +
+      (items.length > limit ? '<li>… و' + (items.length - limit) + ' أخرى</li>' : '') +
+      '</ul>';
+  }
+
+  function invalidFileModal(title, items) {
+    openModal({
+      title: title,
+      body: '<div class="alert alert-error"><b>لم يُستورد شيء.</b>' + errorList(items) + '</div>',
+      foot: '<button class="btn" data-modal-close="1">إغلاق</button>'
+    });
+  }
+
+  /** يبني حمولة استيراد كاملة: بيانات وصفية حالية + الفعاليات المقروءة */
+  function sheetPayload(events) {
+    var base = S.dataset();
+    var payload = {};
+    Object.keys(base).forEach(function (k) {
+      if (k !== 'events') payload[k] = JSON.parse(JSON.stringify(base[k]));
+    });
+    payload.events = events;
+    return payload;
+  }
+
+  function sheetPreviewRows(events) {
+    return events.slice(0, 25).map(function (ev) {
+      var fk = ev.food_kg || {};
+      return '<tr>' +
+        '<td class="mono">' + esc(ev.event_id) + '</td>' +
+        '<td>' + esc(ev.event_name) + '</td>' +
+        '<td>' + fmt(fk.wasted) + ' كغ (' + fmt(fk.waste_pct) + '%)</td>' +
+        '<td>' + fmt(ev.waste_cost_aed) + ' د.إ</td>' +
+        '<td>' + sevBadge(ev.severity) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function showSheetImport(parsed, fileName) {
+    var blocking = parsed.errors.filter(function (e) { return !isNoteOnly(e); });
+    var notes = parsed.errors.filter(isNoteOnly);
+
+    if (!parsed.events.length) {
+      invalidFileModal('لم نجد فعاليات في «' + fileName + '»',
+        blocking.length ? blocking
+                        : ['الورقة فارغة أو تحتوي على صف المثال وحده. املأ صفاً واحداً على الأقل تحت صف التلميحات.']);
+      return;
+    }
+    if (blocking.length) { invalidFileModal('راجع «' + fileName + '» قبل الرفع', blocking); return; }
+
+    var payload = sheetPayload(parsed.events);
+    var known = S.all().map(function (e) { return e.event_id; });
+    var overlap = parsed.events.filter(function (e) { return known.indexOf(e.event_id) !== -1; }).length;
+
+    openModal({
+      title: 'قراءة «' + fileName + '»',
+      body:
+        '<div class="alert alert-ok mb">' +
+          'قُرئت <b>' + parsed.events.length + '</b> فعالية' +
+          (parsed.skipped ? '، وتُجوهل <b>' + parsed.skipped + '</b> صف مثال' : '') +
+          (overlap ? '، منها <b>' + overlap + '</b> معرّف موجود لديك حالياً' : '') + '. ' +
+          'نسبة الهدر والكلفة ودرجة الخطورة حُسبت آلياً مما أدخلته.' +
+        '</div>' +
+        (notes.length ? '<div class="alert alert-warn mb"><b>ملاحظات:</b>' + errorList(notes, 6) + '</div>' : '') +
+        '<div class="table-wrap"><table class="table"><thead><tr>' +
+          '<th>المعرّف</th><th>الفعالية</th><th>الهدر</th><th>الكلفة</th><th>الخطورة</th>' +
+        '</tr></thead><tbody>' + sheetPreviewRows(parsed.events) + '</tbody></table></div>' +
+        (parsed.events.length > 25
+          ? '<p class="muted mt">تُعرض أول 25 فعالية فقط — ستُستورد كلها.</p>' : '') +
+        '<div class="stack mt">' +
+          '<div class="alert alert-info"><b>دمج:</b> يضيف الجديد ويحدّث المتطابق بالمعرّف — لا شيء يُحذف.</div>' +
+          '<div class="alert alert-warn"><b>استبدال:</b> يمسح كل بياناتك الحالية ويضع محتوى الملف مكانها.</div>' +
+        '</div>',
+      foot:
+        '<button class="btn btn-primary" data-import-mode="merge">دمج</button>' +
+        '<button class="btn btn-danger" data-import-mode="replace">استبدال كامل</button>' +
+        '<button class="btn btn-ghost" data-modal-close="1">إلغاء</button>',
+      importPayload: payload
+    });
+  }
+
+  function showJsonImport(obj) {
+    var errors = S.validateDataset(obj);
+    if (errors.length) { invalidFileModal('الملف غير صالح', errors); return; }
+
+    var incoming = obj.events.length;
+    var known = S.all().map(function (e) { return e.event_id; });
+    var overlap = obj.events.filter(function (e) { return known.indexOf(e.event_id) !== -1; }).length;
+
+    openModal({
+      title: 'استيراد البيانات',
+      body:
+        '<div class="alert alert-info">الملف يحتوي <b>' + incoming + '</b> فعالية، منها <b>' + overlap +
+          '</b> معرّفات موجودة لديك حالياً (' + S.all().length + ' فعالية).</div>' +
+        '<div class="stack mt">' +
+          '<div class="alert alert-info"><b>دمج:</b> يضيف الجديد ويحدّث المتطابق بالمعرّف — لا شيء يُحذف.</div>' +
+          '<div class="alert alert-warn"><b>استبدال:</b> يمسح كل بياناتك الحالية ويضع محتوى الملف مكانها.</div>' +
+        '</div>',
+      foot:
+        '<button class="btn btn-primary" data-import-mode="merge">دمج</button>' +
+        '<button class="btn btn-danger" data-import-mode="replace">استبدال كامل</button>' +
+        '<button class="btn btn-ghost" data-modal-close="1">إلغاء</button>',
+      importPayload: obj
     });
   }
 
   function handleImportFile(file) {
-    var reader = new FileReader();
-    reader.onerror = function () { toast('تعذّرت قراءة الملف.', 'err'); };
-    reader.onload = function () {
-      var obj;
-      try { obj = JSON.parse(String(reader.result)); }
-      catch (e) { toast('الملف ليس JSON صالحاً: ' + e.message, 'err'); return; }
+    var name = file.name || 'الملف';
+    toast('جارٍ قراءة ' + name + '…');
 
-      var errors = S.validateDataset(obj);
-      if (errors.length) {
-        openModal({
-          title: 'الملف غير صالح',
-          body: '<div class="alert alert-error"><b>لم يُستورد شيء.</b><ul>' +
-                  errors.slice(0, 12).map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') +
-                  (errors.length > 12 ? '<li>… و' + (errors.length - 12) + ' مشكلة أخرى</li>' : '') +
-                '</ul></div>',
-          foot: '<button class="btn" data-modal-close="1">إغلاق</button>'
-        });
-        return;
-      }
-
-      var incoming = obj.events.length;
-      var known = S.all().map(function (e) { return e.event_id; });
-      var overlap = obj.events.filter(function (e) { return known.indexOf(e.event_id) !== -1; }).length;
-
-      openModal({
-        title: 'استيراد البيانات',
-        body:
-          '<div class="alert alert-info">الملف يحتوي <b>' + incoming + '</b> فعالية، منها <b>' + overlap +
-            '</b> معرّفات موجودة لديك حالياً (' + S.all().length + ' فعالية).</div>' +
-          '<div class="stack mt">' +
-            '<div class="alert alert-info"><b>دمج:</b> يضيف الجديد ويحدّث المتطابق بالمعرّف — لا شيء يُحذف.</div>' +
-            '<div class="alert alert-warn"><b>استبدال:</b> يمسح كل بياناتك الحالية ويضع محتوى الملف مكانها.</div>' +
-          '</div>',
-        foot:
-          '<button class="btn btn-primary" data-import-mode="merge">دمج</button>' +
-          '<button class="btn btn-danger" data-import-mode="replace">استبدال كامل</button>' +
-          '<button class="btn btn-ghost" data-modal-close="1">إلغاء</button>',
-        importPayload: obj
+    W.readFile(file, { existingIds: S.all().map(function (e) { return e.event_id; }) })
+      .then(function (res) {
+        if (res.kind === 'json') showJsonImport(res.json);
+        else showSheetImport(res, name);
+      })
+      .catch(function (err) {
+        invalidFileModal('تعذّرت قراءة «' + name + '»', [
+          err && err.message ? err.message : 'خطأ غير معروف.',
+          'المقبول: ورقة Excel ‎.xlsx‎ أو ‎.csv‎ أو ملف ‎.json‎ مُصدَّر من المنصة.'
+        ]);
       });
-    };
-    reader.readAsText(file, 'utf-8');
   }
 
   /* ================================================================== *
@@ -6003,6 +7080,12 @@ window.PORTAL_SEED = {
       }
       if (t.closest('[data-export-copy]') && modalState && modalState.exportText) {
         copyExport(modalState.exportText); return;
+      }
+      if (t.closest('[data-template-xlsx]') && modalState && modalState.templateId) {
+        emitTemplateXlsx(modalState.templateId); return;
+      }
+      if (t.closest('[data-template-csv]') && modalState && modalState.templateId) {
+        emitTemplateCsv(modalState.templateId); return;
       }
 
       /* ----- شريط الأدوات ----- */

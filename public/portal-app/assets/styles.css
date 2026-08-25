@@ -282,7 +282,8 @@ table.data .muted { color: var(--text-mute); font-size: .8rem; }
 .field { display: flex; flex-direction: column; gap: .22rem; flex: 1 1 130px; min-width: 130px; }
 .field.grow { flex: 2 1 200px; }
 .field label { font-size: .8rem; font-weight: 500; color: var(--text-soft); }
-.field .req { color: var(--sev-critical); }
+.field .req, .req { color: var(--sev-critical); }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; direction: ltr; }
 input, select, textarea {
   font-family: inherit; font-size: .875rem; color: var(--text);
   background: var(--surface); border: 1px solid var(--line-strong);
@@ -488,6 +489,7 @@ textarea { resize: vertical; min-height: 62px; line-height: 1.6; }
 .alert-error { background: var(--sev-critical-bg); border-color: #f1c9c9; color: #7f1d1d; }
 .alert-warn { background: var(--sev-medium-bg); border-color: #f0deae; color: #854d0e; }
 .alert-info { background: var(--surface-sunk); border-color: var(--line); color: var(--text-soft); }
+.alert-ok { background: var(--sev-low-bg); border-color: #bfe0cd; color: #14532d; }
 .alert ul { margin: .35rem 0 0; padding-inline-start: 1.1rem; }
 
 .empty { text-align: center; padding: 2.4rem 1rem; color: var(--text-mute); }

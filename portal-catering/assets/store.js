@@ -179,67 +179,6 @@
     return { ok: true, added: state.events.length, updated: 0, total: state.events.length };
   }
 
-  /* ------------------------------------------------------------------ *
-   * ملف نموذجي للتعبئة — يُنزَّل، يُملأ في أي محرر، ثم يُستورد
-   * بنفس مخطط البيانات تماماً، مع صف واحد مشروح حقلاً حقلاً.
-   * ------------------------------------------------------------------ */
-  function sampleTemplate() {
-    var base = load();
-    return {
-      dataset_name: base.dataset_name,
-      purpose_ar: base.purpose_ar,
-      data_type: base.data_type,
-      locale: base.locale,
-      currency: base.currency,
-      problem_categories: base.problem_categories.slice(),
-      تعليمات_التعبئة: [
-        '1) هذا الملف نموذج جاهز للتعبئة — كرّر الكائن داخل events لكل فعالية جديدة.',
-        '2) event_id يجب أن يكون فريداً بصيغة EV-XXX ولا يكرر معرّفاً موجوداً لديك.',
-        '3) الحقول الكمية إلزامية: attendance و meals و food_kg و avg_cost_aed_per_kg.',
-        '4) المتلف والمستهلك معاً لا يتجاوزان المورَّد، والمقدَّم لا يتجاوز المطلوب.',
-        '5) waste_pct = المتلف ÷ المورَّد × 100، و waste_cost_aed = المتلف × كلفة الكيلو. ' +
-          'تُحسبان تلقائياً عند الإضافة من داخل المنصة، واحسبهما يدوياً هنا.',
-        '6) اترك severity فارغاً ("") ليحسبه المحرك من مصفوفة المحاور الثلاثة.',
-        '7) النصوص (supply_chain_issue / receiving_intake_issue / root_cause) هي ما يقرأه ' +
-          'المحرك للتصنيف وتحديد نمط الفشل — كن محدداً فيها، فهي مصدر جودة الحل.',
-        '8) اترك golden_solution = null ليولّد المحرك الحل بعد الاستيراد.',
-        '9) احذف هذا الحقل «تعليمات_التعبئة» قبل الاستيراد إن أردت، أو اتركه — المنصة تتجاهله.',
-        '10) بعد التعبئة: زر «استيراد» ← «دمج» لإضافتها إلى بياناتك الحالية.'
-      ],
-      events_count: 1,
-      events: [{
-        event_id: nextId(),
-        event_name: 'اكتب اسم الفعالية هنا',
-        date: '2026-01-01',
-        emirate: 'أبوظبي',
-        venue: 'اسم الموقع',
-        event_type: 'مؤتمر حكومي',
-        catering_provider: 'اسم مزود التموين',
-        attendance: { expected: 500, actual: 430, variance_pct: -14 },
-        meals: { ordered: 520, served: 415 },
-        food_kg: { delivered: 400, consumed: 300, wasted: 100, waste_pct: 25 },
-        avg_cost_aed_per_kg: 40,
-        waste_cost_aed: 4000,
-        supply_chain_issue: 'صف مشكلة النقل أو الموردين أو الجدولة — أو اكتب «سليمة» إن لم توجد.',
-        receiving_intake_issue: 'صف مشكلة الاستلام أو الفحص أو الوزن — أو «الاستلام سليم».',
-        root_cause: 'لماذا حدث ما حدث؟ اذهب لأبعد من العَرَض إلى الطبقة التي أنتجته.',
-        severity: '',
-        impact: 'ماذا كلّف هذا الفشل؟ كمية، مال، وقت، سمعة.',
-        narrative_ar: 'قصة الفعالية كما جرت في فقرة قصيرة.',
-        incidents: [{
-          category: 'التخطيط والتنبؤ',
-          stage: 'قبل الفعالية',
-          description: 'ماذا حدث بالضبط في هذه الطبقة؟',
-          direct_effect: 'ما النتيجة الفورية؟'
-        }],
-        portal_recommendation_required: true,
-        golden_solution: null
-      }],
-      golden_examples: [],
-      golden_note_ar: 'ملف نموذجي للتعبئة — ليس بيانات حقيقية.'
-    };
-  }
-
   function subscribe(fn) {
     listeners.push(fn);
     return function () { listeners = listeners.filter(function (f) { return f !== fn; }); };
@@ -261,7 +200,6 @@
     exportJson: exportJson,
     importJson: importJson,
     validateDataset: validateDataset,
-    sampleTemplate: sampleTemplate,
     subscribe: subscribe
   };
 })(typeof window !== 'undefined' ? window : globalThis);
