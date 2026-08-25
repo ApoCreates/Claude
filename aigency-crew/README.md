@@ -94,8 +94,25 @@ aigency-crew flow --plot            # write the flow diagram
 aigency-crew ledger show            # learnings, delivered ids, campaign results
 ```
 
-Artifacts land in `output/<run-id>/` as `funding.json`, `prospects.json`,
-`campaign.json` and `run.json`.
+## Seeing the results
+
+Raw artifacts land in `output/<run-id>/` as `funding.json`, `prospects.json`,
+`campaign.json` and `run.json` — that shape is what the next run reads back.
+For a human, render the digest:
+
+```bash
+aigency-crew report                 # writes output/<run-id>/report.md
+aigency-crew report --print         # ...and prints it
+aigency-crew report --run run-20260825-224755
+```
+
+The digest opens with each stage's score, how many rounds it took, and why the
+loop stopped — anything that escalated is called out at the top, before the
+work it produced. Then: funding ranked by probability-weighted value with the
+"why it's under the radar" and the source link for each; the pipeline ranked by
+fit with each account's dated why-now and who to contact; and the campaign as a
+day-by-day sequence with its opt-out lines and the source behind every
+personalised opener.
 
 ## Fill this in before the first real run
 
@@ -150,6 +167,7 @@ src/aigency_crew/
   ledger.py              cross-run memory
   engine.py              the three pairs, wired into each other
   flow.py                the same run as a CrewAI Flow
+  reporting.py           a finished run, rendered as readable markdown
   demo.py                scripted agents for --dry-run and tests
 knowledge/               studio profile and ICP — edit these
 state/ledger.json        what the engine remembers
@@ -174,7 +192,7 @@ the expensive layer on the cheap layer's job.
 ## Tests
 
 ```bash
-pytest            # 144 tests, ~4s
+pytest            # 155 tests, ~4s
 ```
 
 The logic modules — `loops`, `ledger`, `engine`, `inputs`, `tools.scoring` —

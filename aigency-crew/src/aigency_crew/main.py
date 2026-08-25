@@ -3,6 +3,7 @@
     python -m aigency_crew.main run --dry-run     # loop mechanics, no API calls
     python -m aigency_crew.main run               # the real thing
     python -m aigency_crew.main stage funding
+    python -m aigency_crew.main report
     python -m aigency_crew.main ledger show
     python -m aigency_crew.main ledger record --campaign q3-launch --sent 120 --replies 11
 
@@ -15,9 +16,11 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 from typing import Optional
 
-from .settings import ledger_path, load_settings
+from .reporting import latest_run, render_run
+from .settings import ledger_path, load_settings, output_dir
 from .demo import demo_workstreams
 from .engine import STAGES, GrowthEngine
 from .ledger import Ledger
@@ -101,6 +104,23 @@ def cmd_flow(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_report(args: argparse.Namespace) -> int:
+    run_dir = (output_dir() / args.run) if args.run else latest_run()
+    if run_dir is None or not run_dir.exists():
+        print("No runs found. Try: aigency-crew run --dry-run")
+        return 1
+
+    markdown = render_run(run_dir)
+    destination = Path(args.out) if args.out else run_dir / "report.md"
+    destination.write_text(markdown, encoding="utf-8")
+
+    if args.print:
+        print(markdown)
+    else:
+        print(f"wrote {destination}")
+    return 0
+
+
 def cmd_ledger(args: argparse.Namespace) -> int:
     ledger = Ledger.load(ledger_path())
 
@@ -164,6 +184,12 @@ def build_parser() -> argparse.ArgumentParser:
     flow = sub.add_parser("flow", parents=[common], help="run via the CrewAI Flow")
     flow.add_argument("--plot", action="store_true", help="write the flow diagram and exit")
     flow.set_defaults(func=cmd_flow)
+
+    report = sub.add_parser("report", help="render a finished run as readable markdown")
+    report.add_argument("--run", default=None, help="run id (default: the most recent)")
+    report.add_argument("--out", default=None, help="write here instead of <run>/report.md")
+    report.add_argument("--print", action="store_true", help="print to stdout as well")
+    report.set_defaults(func=cmd_report)
 
     ledger = sub.add_parser("ledger", help="inspect or feed the engine's memory")
     ledger_sub = ledger.add_subparsers(dest="ledger_command", required=True)
