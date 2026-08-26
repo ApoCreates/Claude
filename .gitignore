@@ -8,3 +8,6 @@ out
 .vercel
 tsconfig.tsbuildinfo
 *.tsbuildinfo
+
+# studio local state
+.aigency/studio-data.json
