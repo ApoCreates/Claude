@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ job.id }} — report{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="row between">
+    <h1>Report — {{ job.id }}</h1>
+    <a class="btn ghost" href="/jobs/{{ job.id }}/report.md">Download .md</a>
+  </div>
+  <pre class="report">{{ markdown }}</pre>
+</section>
+{% endblock %}

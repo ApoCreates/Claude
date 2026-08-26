@@ -1,0 +1,44 @@
+# Run-level defaults. Every value here can be overridden from the CLI or by
+# the matching AIGENCY_* environment variable.
+
+run:
+  region: "United Arab Emirates and the wider GCC"
+  horizon_months: 12
+  funding_target_count: 8
+  prospect_target_count: 15
+  campaign_goal: "Book 10 qualified discovery calls with in-profile accounts within 6 weeks"
+
+# Stopping rules for every produce/audit pair. See aigency_crew.loops for what
+# each one does and why grinding past a stall is a false economy.
+loops:
+  default:
+    max_rounds: 3
+    pass_score: 80
+    min_improvement: 3
+  # Outreach touches real inboxes and the studio's domain reputation, so it
+  # gets a higher bar and one more round to reach it.
+  outreach:
+    max_rounds: 4
+    pass_score: 85
+    min_improvement: 3
+
+# The outer loop: how many times the whole funding -> clients -> outreach
+# sequence may re-run itself when an audit says the input list was the problem.
+flow:
+  max_cycles: 2
+  recycle_score_floor: 70
+
+models:
+  producer: "anthropic/claude-sonnet-5"
+  auditor: "anthropic/claude-opus-5"
+  # CrewAI's Anthropic provider defaults to 4096 output tokens, which a full
+  # funding report or campaign overruns — the call then comes back empty and
+  # the run dies with "Invalid response from LLM call". Keep these generous.
+  producer_max_tokens: 16000
+  auditor_max_tokens: 12000
+
+  # Left unset: the Anthropic SDK from 1.0.0 onward rejects `temperature` on
+  # Messages.create, so it is only sent when you give it a value here. Set one
+  # if you are pointing the crews at a provider that still takes it.
+  producer_temperature: null
+  auditor_temperature: null

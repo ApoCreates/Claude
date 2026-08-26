@@ -1,0 +1,351 @@
+# Nine tasks: produce / audit / revise for each of the three workstreams.
+#
+# Interpolation note: CrewAI formats these strings with the inputs dict, so
+# curly braces are reserved for placeholders. Do not put literal JSON braces in
+# here — describe object shapes in prose instead. Every placeholder used below
+# is supplied by aigency_crew.crews.base.build_inputs.
+
+# --------------------------------------------------------------------------
+# Workstream 1 — funding and grants
+# --------------------------------------------------------------------------
+find_funding:
+  description: >
+    Today is {today}. Find funding the studio described below can realistically
+    win in the next {horizon_months} months, concentrating on {region} and any
+    international program that admits applicants based there.
+
+    RESEARCH ACCESS
+    {web_access}
+
+    STUDIO PROFILE
+    {company_profile}
+
+    STANDING RULES FROM PREVIOUS AUDITS — these were written by your auditor
+    after earlier cycles. Follow them; they are not suggestions.
+    {learnings}
+
+    ALREADY DELIVERED IN PREVIOUS CYCLES — do not return these again unless a
+    material fact has changed, and say what changed if you do:
+    {seen_ids}
+
+    Deliver at least {funding_target_count} opportunities. Weight your search
+    towards the non-obvious: newly announced programs, ones tagged under a
+    sector adjacent to ours, corporate and foundation innovation funds that do
+    not advertise, cultural and bilateral programs, in-kind compute and
+    software credits, sponsored R&D, residencies, prize money, and framework
+    or procurement routes that behave like funding. The three programs everyone
+    already knows about are worth one line each at most.
+
+    For every opportunity: confirm it is currently open, record the exact
+    eligibility conditions and every disqualifier that applies to us, estimate
+    the person-days a submission would honestly take, and use the Score funding
+    opportunity tool to rank it rather than assigning a number by feel. Every
+    factual claim needs an evidence entry with the URL you read it from. If you
+    could not open a source, set that evidence confidence low and say so in the
+    coverage notes — an honest gap scores better here than a confident guess.
+
+    Use the Check already seen tool before you finalise, and list what you
+    looked at and rejected in searched_but_rejected so the next cycle does not
+    repeat the walk.
+  expected_output: >
+    A FundingReport: opportunities each carrying id, name, funder, instrument,
+    geography, amounts, deadline or rolling flag, eligibility summary,
+    disqualifiers, why_hidden, fit_rationale, effort_days, win_probability,
+    next_action and evidence; plus searched_but_rejected and coverage_notes.
+  agent: funding_scout
+
+audit_funding:
+  description: >
+    Today is {today}. Audit the funding report your colleague just produced.
+    This is round {round}.
+
+    DRAFT UNDER REVIEW
+    {draft_json}
+
+    STUDIO PROFILE
+    {company_profile}
+
+    Check, item by item:
+    - Does the program exist and is it open today? An expired or closed
+      program is a blocker.
+    - Do the evidence URLs actually support the claim attached to them, and is
+      there more than one independent source for the important facts?
+    - Would this studio pass the eligibility conditions as written? Entity
+      type, domicile, size, sector, age, matching-funds requirement, prior
+      grant history. Anything that would disqualify us is a blocker.
+    - Are the award figures, deadlines and effort estimates plausible and
+      sourced, or are they round numbers with nothing behind them?
+    - Is this genuinely non-obvious, or is why_hidden dressing up a program on
+      the front page of every startup newsletter?
+    - Is it a duplicate of something delivered in a previous cycle?
+
+    Re-run the Score funding opportunity tool yourself on at least the top
+    items. If the producer's ranking does not match the tool's, that is a
+    finding.
+
+    Score the report out of 100 across these dimensions: evidence, eligibility,
+    novelty, feasibility, completeness. Set the verdict to pass only when there
+    are no blockers and the report is genuinely usable as it stands. Every
+    finding needs a fix precise enough to act on without asking you a question.
+
+    Finally, write learnings: durable rules that should shape future funding
+    research, not fixes for this draft. Only record a lesson that will still be
+    true next cycle.
+  expected_output: >
+    An AuditReport with verdict, score, dimension_scores, findings carrying
+    severity and fix, kept_ids, dropped_ids, learnings and a summary.
+  agent: funding_auditor
+
+revise_funding:
+  description: >
+    Today is {today}. Your auditor reviewed your funding report and returned
+    findings. This is revision round {round}.
+
+    THEIR FINDINGS
+    {feedback}
+
+    YOUR PREVIOUS REPORT
+    {previous_json}
+
+    Fix every blocker and every major finding. Remove what cannot be salvaged
+    rather than defending it — a shorter, verified report beats a long one with
+    holes. If you believe a finding is wrong, keep the item and answer the
+    objection explicitly in its fit_rationale with the evidence that settles
+    it. Where you dropped an item, add it to searched_but_rejected with the
+    reason so the loss is recorded.
+
+    Return the complete corrected report, not a diff.
+  expected_output: >
+    A corrected FundingReport, complete and standalone, with every blocker and
+    major finding resolved or explicitly answered.
+  agent: funding_scout
+
+# --------------------------------------------------------------------------
+# Workstream 2 — client pipeline
+# --------------------------------------------------------------------------
+build_client_list:
+  description: >
+    Today is {today}. Build a ranked list of at least {prospect_target_count}
+    organisations in {region} that need what this studio sells.
+
+    RESEARCH ACCESS
+    {web_access}
+
+    STUDIO PROFILE
+    {company_profile}
+
+    IDEAL CUSTOMER PROFILE (JSON)
+    {icp_json}
+
+    STANDING RULES FROM PREVIOUS AUDITS
+    {learnings}
+
+    WHAT ACTUALLY WORKED IN CAMPAIGNS SO FAR — real reply and meeting rates,
+    not projections. Bias this list towards the segments that converted:
+    {performance}
+
+    ALREADY DELIVERED IN PREVIOUS CYCLES — bring new names:
+    {seen_ids}
+
+    Every account needs a dated trigger event that explains why it is worth
+    contacting this month: funding raised, a relevant senior hire, a product or
+    market launch, a rebrand, a regulatory deadline, an event they are
+    sponsoring, a tender they won, an agency relationship that visibly ended.
+    An account with no trigger belongs in the excluded list, not the pipeline.
+
+    Contacts must be business contacts from public professional sources, with
+    the source URL recorded. Do not guess email patterns, and do not include
+    personal addresses or phone numbers. If the right person cannot be reached
+    without guessing, say so in the account's disqualifiers rather than
+    inventing a route in.
+
+    Use the Score prospect fit tool for every account, and the Check already
+    seen tool before finalising. Name which of our services each account needs
+    and why — a generic match is a weak match.
+  expected_output: >
+    A ProspectList: prospects each with id, company, website, country, sector,
+    size_band, services_matched, trigger_event and trigger_date, budget_band,
+    fit_score, contacts with source URLs, evidence and disqualifiers; plus an
+    excluded list with reasons and coverage_notes.
+  agent: client_prospector
+
+audit_client_list:
+  description: >
+    Today is {today}. Audit the prospect list just produced. This is round
+    {round}.
+
+    DRAFT UNDER REVIEW
+    {draft_json}
+
+    IDEAL CUSTOMER PROFILE (JSON)
+    {icp_json}
+
+    Check, account by account:
+    - Does the company exist, still trade, and still do what the row says?
+      A dead or misdescribed company is a blocker.
+    - Is the trigger event real, dated, sourced, and recent enough to justify
+      contact now? An undated or stale trigger is a major finding.
+    - Is the named contact a real person in that role, at a public source, with
+      a business route to reach them? A guessed email address is a blocker.
+    - Is the account genuinely in profile, or has the fit score been inflated?
+      Re-run the Score prospect fit tool and compare.
+    - Are two rows the same organisation under different names?
+    - Is there any reason this account should not be contacted at all —
+      existing client, active competitor, conflict with a current engagement,
+      or a market where our outreach method would not be lawful?
+
+    Score out of 100 across: data_integrity, icp_fit, trigger_quality,
+    contactability, compliance. List every account you would drop in
+    dropped_ids with the reason as a finding. Pass only if the list could go to
+    the outreach team untouched.
+
+    Write learnings that will make the next prospecting round tighter —
+    patterns in what keeps being wrong, not one-off corrections.
+  expected_output: >
+    An AuditReport with verdict, score, dimension_scores, findings with fixes,
+    kept_ids, dropped_ids, learnings and summary.
+  agent: prospect_auditor
+
+revise_client_list:
+  description: >
+    Today is {today}. Your auditor reviewed the prospect list. This is revision
+    round {round}.
+
+    THEIR FINDINGS
+    {feedback}
+
+    YOUR PREVIOUS LIST
+    {previous_json}
+
+    Fix every blocker and major finding. Drop the accounts that cannot be
+    verified and replace them with new ones that meet the bar, so the list does
+    not simply shrink each round. Move every dropped account into excluded with
+    its reason. Re-score everything you touched.
+
+    Return the complete corrected list.
+  expected_output: >
+    A corrected ProspectList, complete and standalone, at or above the
+    requested account count, with all blockers resolved.
+  agent: client_prospector
+
+# --------------------------------------------------------------------------
+# Workstream 3 — outreach and content
+# --------------------------------------------------------------------------
+build_campaign:
+  description: >
+    Today is {today}. Build the campaign that brings the approved accounts in.
+    The goal for this cycle is: {campaign_goal}
+
+    RESEARCH ACCESS
+    {web_access}
+
+    STUDIO PROFILE
+    {company_profile}
+
+    APPROVED PROSPECTS — these have already passed audit. Segment them and
+    build for the segment with the strongest shared trigger; do not write one
+    generic sequence for all of them.
+    {approved_prospects}
+
+    FUNDING ANGLES WORTH USING — approved opportunities from the funding
+    workstream. Some of these are reasons for a client to move now, or joint
+    application angles worth offering. Use them where they genuinely fit.
+    {approved_funding}
+
+    STANDING RULES FROM PREVIOUS AUDITS
+    {learnings}
+
+    WHAT ACTUALLY WORKED SO FAR
+    {performance}
+
+    Produce:
+    - A named campaign with a one-sentence thesis: the single bet it makes.
+    - An email sequence per segment, three to four steps, each step dated by
+      offset from day zero and each adding something new. The opening line of
+      the first email must come from that account's own evidence, and you must
+      name the source URL it came from. Every email carries a genuine opt-out
+      line and an honest subject that matches the body.
+    - A call script per priority account: objective, opener, at least three
+      discovery questions, objection handling for the three objections this
+      segment will actually raise, a close, and a voicemail.
+    - A social calendar: posts by channel with publish offsets, each tied to a
+      content pillar, written for people who have never heard of us, with a
+      brief for whatever asset the post needs.
+    - Success metrics: the reply rate, meeting rate and pipeline value you
+      expect. These get checked against reality next cycle, so make them
+      defensible rather than flattering.
+
+    Every claim about the studio's results, clients or capability must be one
+    we can prove. If you want to make a claim we cannot support, leave a
+    clearly marked placeholder for a human to fill instead of inventing it.
+  expected_output: >
+    A Campaign with name, thesis, segment, emails, calls, social posts,
+    success_metrics and compliance_notes, ready for a human to approve and
+    schedule.
+  agent: campaign_architect
+
+audit_campaign:
+  description: >
+    Today is {today}. Audit the campaign before anything reaches a real inbox.
+    This is round {round}.
+
+    DRAFT UNDER REVIEW
+    {draft_json}
+
+    STUDIO PROFILE — the voice and the provable facts
+    {company_profile}
+
+    APPROVED PROSPECTS — the source of truth for every personalised line
+    {approved_prospects}
+
+    Check:
+    - Claims: is every statement about the studio provable from the profile?
+      An invented client, metric or credential is a blocker.
+    - Personalisation: does each opening line trace to that account's actual
+      evidence, and does the source URL support it? Personalisation that would
+      read as wrong to the recipient is a blocker.
+    - Compliance: clear sender identity, honest subject lines, a working
+      opt-out in every email, call scripts that respect do-not-call and
+      consent expectations in the target market, and no contact obtained by a
+      method we could not defend. Missing opt-out is a blocker.
+    - Sequence hygiene: does every step add something new, or is step three
+      just step one with a nudge? Is the cadence humane?
+    - Deliverability: spam-trigger phrasing, link count, image-to-text
+      balance, over-long subject lines.
+    - Voice: does this sound like the studio, or like generic agency copy?
+    - Measurement: are the success metrics specific and checkable, and are the
+      targets grounded in the recorded performance rather than optimism?
+
+    Score out of 100 across: claim_integrity, personalisation, compliance,
+    sequence_quality, voice, measurability. Where you reject a line, supply
+    the rewrite in the fix — do not just flag it.
+
+    Write learnings about the copy patterns that keep failing so the next
+    campaign starts from a better draft.
+  expected_output: >
+    An AuditReport with verdict, score, dimension_scores, findings each
+    carrying a concrete rewrite, learnings and summary.
+  agent: campaign_auditor
+
+revise_campaign:
+  description: >
+    Today is {today}. Your auditor reviewed the campaign. This is revision
+    round {round}.
+
+    THEIR FINDINGS
+    {feedback}
+
+    YOUR PREVIOUS CAMPAIGN
+    {previous_json}
+
+    Apply every rewrite supplied. Fix every blocker and major finding. If a
+    claim cannot be substantiated, cut it or replace it with a clearly marked
+    placeholder for a human — never soften an invented claim into a vaguer
+    invented claim. Keep the campaign complete: same segments, same channels,
+    corrected content.
+
+    Return the complete corrected campaign.
+  expected_output: >
+    A corrected Campaign, complete and standalone, with every blocker resolved
+    and every supplied rewrite applied.
+  agent: campaign_architect

@@ -2,7 +2,9 @@
 
 An AI-powered command center for food & beverage executives. Built as a clickable demo with dummy data so the full UI flow and AI surfaces can be walked through with stakeholders before any real ingestion or deployment work is committed.
 
-> **Also in this repo:** [`product-studio/`](./product-studio) — a separate, standalone Next.js app (deploy it as its own Vercel project) that turns a product image into a publish-ready listing using Claude vision.
+> **Also in this repo:**
+> - [`product-studio/`](./product-studio) — a separate, standalone Next.js app (deploy it as its own Vercel project) that turns a product image into a publish-ready listing using Claude vision.
+> - [`aigency-crew/`](./aigency-crew) — a standalone Python/CrewAI project: six agents (three producing, three auditing) that research hidden-gem funding, build a client pipeline, and write the outreach campaigns to win both.
 
 ## What's in the demo
 

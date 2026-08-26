@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if not has_key %}
+<div class="banner warn">
+  <strong>No <code>ANTHROPIC_API_KEY</code> in the environment.</strong>
+  Live runs will fail. Start a run with <em>scripted agents</em> ticked to walk
+  the portal with no API calls.
+</div>
+{% endif %}
+{% if not has_search %}
+<div class="banner">
+  <strong>No <code>SERPER_API_KEY</code>.</strong> The agents cannot search, so
+  they are instructed to mark every claim unverified — and the auditors will
+  score that down hard. Expect the funding stage to escalate until a search key
+  is set.
+</div>
+{% endif %}
+
+<section class="card">
+  <h1>Start a run</h1>
+  <form method="post" action="/jobs" class="grid">
+    <label>Region
+      <input name="region" placeholder="{{ settings.region }}">
+    </label>
+    <label>Campaign goal
+      <input name="campaign_goal" placeholder="{{ settings.campaign_goal }}">
+    </label>
+    <label>Funding targets
+      <input name="funding_target_count" type="number" min="1" placeholder="{{ settings.funding_target_count }}">
+    </label>
+    <label>Prospect targets
+      <input name="prospect_target_count" type="number" min="1" placeholder="{{ settings.prospect_target_count }}">
+    </label>
+    <label class="check">
+      <input type="checkbox" name="dry_run" value="1">
+      Scripted agents (no API calls — for trying the portal)
+    </label>
+    <button type="submit">Launch funding stage</button>
+  </form>
+  <p class="hint">
+    The run starts with funding and stops there. Nothing else runs until you
+    approve it.
+  </p>
+</section>
+
+<section class="card">
+  <h2>Runs</h2>
+  {% if not jobs %}
+    <p class="empty">Nothing yet.</p>
+  {% else %}
+  <table>
+    <thead><tr><th>Run</th><th>Started</th><th>Stage</th><th>Gates</th><th></th></tr></thead>
+    <tbody>
+    {% for job in jobs %}
+      <tr>
+        <td><a href="/jobs/{{ job.id }}">{{ job.id }}</a>
+          {% if job.params.dry_run %}<span class="pill pill-demo">scripted</span>{% endif %}
+        </td>
+        <td class="dim">{{ job.created_at }}</td>
+        <td>{{ job.current_stage or "—" }}</td>
+        <td class="gates">
+          {% for stage, state in job.stages.items() %}
+            <span class="pill pill-{{ state.status }}" title="{{ stage }}: {{ state.status }}">{{ stage[:4] }}</span>
+          {% endfor %}
+        </td>
+        <td><a class="linky" href="/jobs/{{ job.id }}">open →</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+{% endblock %}

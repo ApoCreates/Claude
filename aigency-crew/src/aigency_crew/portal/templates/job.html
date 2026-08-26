@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}{{ job.id }}{% endblock %}
+{% block content %}
+
+<section class="card">
+  <div class="row between">
+    <h1>{{ job.id }}
+      {% if job.params.dry_run %}<span class="pill pill-demo">scripted</span>{% endif %}
+    </h1>
+    <div class="row gap">
+      <a class="btn ghost" href="/jobs/{{ job.id }}/report">Report</a>
+      <a class="btn ghost" href="/jobs/{{ job.id }}/report.md">Download .md</a>
+      <form method="post" action="/jobs/{{ job.id }}/delete"
+            onsubmit="return confirm('Delete this run and everything it produced?')">
+        <button class="btn danger" type="submit">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <ol class="pipeline">
+    {% for stage in stages %}
+      {% set state = job.stages[stage] %}
+      <li class="step step-{{ state.status }}">
+        <span class="step-name">{{ stage }}</span>
+        <span class="step-status">{{ state.status.replace('_', ' ') }}</span>
+        {% if state.selected %}<span class="step-score">{{ "%.0f"|format(state.score) }}</span>{% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+</section>
+
+{% for stage in stages %}
+  {% set state = job.stages[stage] %}
+  <section class="card stage" id="{{ stage }}">
+    <div class="row between">
+      <h2>{{ stage }}</h2>
+      <span class="pill pill-{{ state.status }}">{{ state.status.replace('_', ' ') }}</span>
+    </div>
+
+    {% if state.status == statuses.RUNNING %}
+      <p class="running">Working… this page refreshes itself.</p>
+    {% endif %}
+
+    {% if state.error %}
+      <pre class="error">{{ state.error }}</pre>
+      <form method="post" action="/jobs/{{ job.id }}/stages/{{ stage }}/run">
+        <button class="btn" type="submit">Try again</button>
+      </form>
+    {% endif %}
+
+    {% if state.escalated %}
+      <div class="banner warn">
+        <strong>The loop stopped short.</strong> {{ state.reason }} — read this
+        one properly before approving it.
+      </div>
+    {% elif state.reason %}
+      <p class="dim">{{ state.reason }}</p>
+    {% endif %}
+
+    {% if state.rounds %}
+      <table class="rounds">
+        <thead><tr><th>Round</th><th>Score</th><th>Blockers</th><th>Verdict</th><th>Auditor said</th><th></th></tr></thead>
+        <tbody>
+        {% for r in state.rounds %}
+          <tr class="{{ 'chosen' if r.number == state.selected_round }}">
+            <td>{{ r.number }}{% if r.number == state.selected_round %} <span class="pill pill-chosen">in use</span>{% endif %}</td>
+            <td>{{ "%.0f"|format(r.score) }}</td>
+            <td>{{ r.blockers or "—" }}</td>
+            <td>{{ r.verdict }}</td>
+            <td class="dim">{{ r.summary or "—" }}</td>
+            <td class="row gap">
+              <a class="linky" href="/jobs/{{ job.id }}/download/round/{{ stage }}/{{ r.number }}.json">json</a>
+              {% if r.number != state.selected_round %}
+              <form method="post" action="/jobs/{{ job.id }}/stages/{{ stage }}/revert">
+                <input type="hidden" name="round_number" value="{{ r.number }}">
+                <button class="linky" type="submit">revert to this</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% if r.findings %}
+          <tr class="findings-row"><td colspan="6">
+            <details>
+              <summary>{{ r.findings|length }} finding(s) from the auditor</summary>
+              <ul class="findings">
+                {% for f in r.findings %}
+                  <li class="sev-{{ f.severity }}">
+                    <span class="sev">{{ f.severity }}</span>
+                    <strong>{{ f.dimension }}</strong>
+                    {% if f.item_ref %}<code>{{ f.item_ref }}</code>{% endif %}
+                    — {{ f.issue }}
+                    <div class="fix">fix: {{ f.fix }}</div>
+                  </li>
+                {% endfor %}
+              </ul>
+            </details>
+          </td></tr>
+          {% endif %}
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty">Nothing produced yet.</p>
+    {% endif %}
+
+    {% if state.artifact %}
+      <details class="artifact">
+        <summary>What it produced (round {{ state.selected_round }})</summary>
+        <pre>{{ state.artifact | tojson(indent=2) }}</pre>
+      </details>
+      <a class="btn ghost" href="/jobs/{{ job.id }}/download/{{ stage }}.json">Download {{ stage }}.json</a>
+    {% endif %}
+
+    {% if state.notes %}
+      <div class="notes">
+        <h3>Conversation</h3>
+        {% for note in state.notes %}
+          <p class="note note-{{ note.kind }}"><span class="dim">{{ note.at }} · {{ note.kind }}</span><br>{{ note.note }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if state.status in [statuses.AWAITING, statuses.APPROVED] %}
+      <div class="gate">
+        <form method="post" action="/jobs/{{ job.id }}/stages/{{ stage }}/approve" class="gate-approve">
+          <input name="note" placeholder="Optional note for the record">
+          <label class="check"><input type="checkbox" name="hold" value="1"> approve but don't start the next stage yet</label>
+          <button class="btn primary" type="submit">
+            {% if state.status == statuses.APPROVED %}Re-approve{% else %}Approve{% endif %}
+          </button>
+        </form>
+
+        <form method="post" action="/jobs/{{ job.id }}/stages/{{ stage }}/reject" class="gate-reject">
+          <textarea name="note" required rows="3"
+            placeholder="Send it back — say what to change. This goes to the agent as an instruction that outranks its own judgement."></textarea>
+          <button class="btn" type="submit">Send back &amp; re-run</button>
+        </form>
+      </div>
+
+      <form method="post" action="/jobs/{{ job.id }}/stages/{{ stage }}/evaluate" class="evaluate">
+        <h3>Your evaluation</h3>
+        <div class="row gap">
+          <input name="score" type="number" min="0" max="100" step="1" placeholder="0–100"
+                 value="{{ state.evaluation.score if state.evaluation and state.evaluation.score is not none else '' }}">
+          <input name="notes" placeholder="What was actually wrong or right — this becomes a standing rule for future runs"
+                 value="{{ state.evaluation.notes if state.evaluation else '' }}">
+          <button class="btn ghost" type="submit">Save &amp; teach</button>
+        </div>
+      </form>
+    {% elif state.status == statuses.PENDING and job.next_runnable() == stage %}
+      <form method="post" action="/jobs/{{ job.id }}/stages/{{ stage }}/run">
+        <button class="btn primary" type="submit">Run {{ stage }}</button>
+      </form>
+    {% elif state.status == statuses.PENDING %}
+      <p class="dim">Waiting — {{ job.blocked_reason() }}.</p>
+    {% endif %}
+  </section>
+{% endfor %}
+
+<section class="card">
+  <h2>Progress</h2>
+  <pre class="log" id="log">{{ progress | join("\n") or "nothing logged yet" }}</pre>
+</section>
+
+<script>
+  const busy = {{ 'true' if job.is_busy else 'false' }};
+  if (busy) {
+    setTimeout(() => window.location.reload(), 5000);
+  }
+</script>
+{% endblock %}

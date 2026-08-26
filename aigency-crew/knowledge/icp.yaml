@@ -1,0 +1,64 @@
+# Ideal customer profile. Read by the prospecting agent, the auditor, and the
+# deterministic fit scorer in aigency_crew.tools.scoring, so keep the lists
+# lowercase and specific — the scorer matches on these strings.
+
+sectors:
+  - real estate
+  - hospitality
+  - retail
+  - food and beverage
+  - government
+  - tourism
+  - culture
+  - education
+  - financial services
+  - healthcare
+  - energy
+  - telecom
+  - sports
+  - automotive
+
+geographies:
+  - united arab emirates
+  - saudi arabia
+  - qatar
+  - bahrain
+  - kuwait
+  - oman
+
+size_bands:
+  - mid_market
+  - enterprise
+  - government
+
+services:
+  - ai content production
+  - video and film
+  - brand systems
+  - arabic localisation
+  - applied ai product
+  - agentic workflows
+  - creative operations
+  - ai enablement and training
+  - strategy and advisory
+
+# What makes an account worth contacting *this month*.
+triggers:
+  - raised funding in the last 6 months
+  - hired a new head of marketing, brand, or digital
+  - announced a product, venue, or market launch
+  - announced a rebrand or repositioning
+  - won or issued a tender with a content or digital component
+  - sponsoring a major regional event
+  - published an AI or digital transformation mandate
+  - visibly ended an agency relationship
+  - regulatory or compliance deadline requiring new communication
+
+# Reasons to exclude an account regardless of fit.
+exclusions:
+  - existing client or in an active engagement
+  - direct competitor to the studio
+  - conflicts with an exclusivity clause in a current contract
+  - no reachable decision maker via public professional sources
+  - a market where our outreach method would not be lawful
+  - gambling, adult content, tobacco, or weapons
