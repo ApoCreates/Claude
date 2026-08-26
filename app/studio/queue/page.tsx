@@ -3,6 +3,8 @@ import { blockedReason } from "@/lib/studio/queue";
 import { getConnector } from "@/lib/studio/connectors";
 import QueueActions from "@/components/studio/QueueActions";
 import TickButton from "@/components/studio/TickButton";
+import Composer from "@/components/studio/Composer";
+import ReviewButton from "@/components/studio/ReviewButton";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +20,11 @@ export default async function Queue() {
         real call, and it refuses when the credentials are absent or the review desk has
         not passed the post.
       </p>
+
+      <div className="s-section">
+        <div className="s-section-hd"><h2 className="s-h2">Compose</h2></div>
+        <Composer />
+      </div>
 
       <div className="s-section">
         <div className="s-section-hd"><h2 className="s-h2">Scheduler</h2></div>
@@ -45,7 +52,11 @@ export default async function Queue() {
                 <span className="s-tag mute">{post.kind}</span>
                 {post.runSlug && <span className="s-tag mute">run: {post.runSlug}</span>}
                 {why ? <span className="s-tag bad">{why}</span> : <span className="s-tag ok">review passed</span>}
+                {post.review.checkedAt && (
+                  <span className="s-tag mute">checked {new Date(post.review.checkedAt).toUTCString().slice(5, 17)}</span>
+                )}
               </div>
+              <div style={{ marginTop: 12 }}><ReviewButton postId={post.id} /></div>
             </div>
 
             {post.targets.map(t => {

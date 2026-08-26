@@ -5,7 +5,10 @@ export const dynamic = "force-dynamic";
 
 export default function Connectors() {
   const rows = connectorList.map(c => ({ c, s: c.status() }));
-  const env = rows.flatMap(({ c, s }) => s.missing.map(m => ({ platform: c.name, name: m })));
+  // One comment per platform, then its variables — not one comment per variable.
+  const env = rows
+    .filter(({ s }) => s.missing.length > 0)
+    .map(({ c, s }) => `# ${c.name}\n${s.missing.map(m => `${m}=`).join("\n")}`);
 
   return (
     <>
@@ -67,7 +70,7 @@ export default function Connectors() {
         </p>
         <pre className="s-pre">{env.length === 0
           ? "# Every connector is configured."
-          : env.map(e => `# ${e.platform}\n${e.name}=`).join("\n")}</pre>
+          : env.join("\n\n")}</pre>
         <p className="s-note"><b>Storage: {driver()}.</b> {persistenceNote()}</p>
       </section>
     </>
