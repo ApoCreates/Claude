@@ -2,6 +2,10 @@
 
 An AI-powered command center for food & beverage executives. Built as a clickable demo with dummy data so the full UI flow and AI surfaces can be walked through with stakeholders before any real ingestion or deployment work is committed.
 
+> **Also in this repo:** [`.claude/`](./.claude) — the Aigency studio floor: seven agents
+> (brief → research → words → design → build → Arabic → review) plus a runnable QC gate
+> script. See [`.claude/README.md`](./.claude/README.md).
+>
 > **Also in this repo:** [`product-studio/`](./product-studio) — a separate, standalone Next.js app (deploy it as its own Vercel project) that turns a product image into a publish-ready listing using Claude vision.
 
 ## What's in the demo
