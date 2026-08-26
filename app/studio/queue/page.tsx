@@ -30,9 +30,11 @@ export default async function Queue() {
         <div className="s-section-hd"><h2 className="s-h2">Scheduler</h2></div>
         <TickButton />
         <p className="s-note">
-          One tick publishes everything due that is cleared. Point a cron at
-          <code> POST /api/studio/tick</code> to make the queue self-driving; set
-          <code> STUDIO_TICK_SECRET</code> and send it as a bearer token when you do.
+          One tick publishes everything due that is cleared. A Vercel cron runs it
+          daily at 06:00 UTC — Vercel&rsquo;s Hobby plan allows one cron run per day, so
+          anything finer needs the Pro plan or an external scheduler. Any cron can drive
+          <code> POST /api/studio/tick</code>; set <code>STUDIO_TICK_SECRET</code> and
+          send it as a bearer token when you expose it.
         </p>
       </div>
 
