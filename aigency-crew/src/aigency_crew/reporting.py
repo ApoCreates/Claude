@@ -87,6 +87,26 @@ def _header(summary: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _nothing_survived(kind: str, rejected: list[str]) -> list[str]:
+    """Say plainly when the auditor emptied the list.
+
+    A live run ended exactly here: eleven programmes found, none of them
+    sourceable without web access, all of them dropped. That is an honest and
+    useful answer — but only if the report says so instead of rendering an
+    empty table.
+    """
+    lines = [
+        f"> **Nothing survived audit.** Every {kind} found this run was dropped "
+        "for failing the evidence or eligibility bar. That is a real result, not "
+        "an error: the reasons below are what to fix before re-running.",
+        "",
+    ]
+    if rejected:
+        lines += [f"**Dropped ({len(rejected)}):**", ""]
+        lines += [f"- {r}" for r in rejected] + [""]
+    return lines
+
+
 def _funding_section(report: dict[str, Any]) -> list[str]:
     opportunities = sorted(
         report.get("opportunities", []),
@@ -94,6 +114,10 @@ def _funding_section(report: dict[str, Any]) -> list[str]:
         reverse=True,
     )
     lines = ["## Funding", ""]
+    if not opportunities:
+        return lines + _nothing_survived(
+            "opportunity", report.get("searched_but_rejected", []) or []
+        )
     lines += _table(
         ["Opportunity", "Funder", "Type", "Amount", "Deadline", "Effort", "Win", "Next action"],
         [
@@ -131,6 +155,8 @@ def _prospect_section(listing: dict[str, Any]) -> list[str]:
         listing.get("prospects", []), key=lambda p: p.get("fit_score", 0), reverse=True
     )
     lines = ["## Client pipeline", ""]
+    if not prospects:
+        return lines + _nothing_survived("account", listing.get("excluded", []) or [])
     lines += _table(
         ["Company", "Sector", "Country", "Fit", "Why now", "Who to contact"],
         [

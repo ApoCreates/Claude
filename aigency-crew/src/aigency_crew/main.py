@@ -22,7 +22,7 @@ from typing import Optional
 from .reporting import latest_run, render_run
 from .settings import ledger_path, load_settings, output_dir
 from .demo import demo_workstreams
-from .engine import STAGES, GrowthEngine
+from .engine import STAGES, GrowthEngine, RunResult
 from .ledger import Ledger
 
 
@@ -76,11 +76,19 @@ def cmd_stage(args: argparse.Namespace) -> int:
     engine = _build_engine(args.dry_run, args.quiet, None)
     result = engine.run_stage(args.stage)
     engine.ledger.save()
+
+    # A stage run is as expensive as a third of a full run; it must not
+    # evaporate into the terminal scrollback.
+    run = RunResult(run_id=engine.run_id, cycles_run=1, outcomes=[result.outcome])
+    setattr(run, {"funding": "funding", "clients": "prospects", "outreach": "campaign"}[args.stage], result.artifact)
+    written = engine.write_outputs(run)
+
     print("\n" + json.dumps(result.outcome.model_dump(), indent=2, default=str))
-    artifact = result.artifact
-    dumper = getattr(artifact, "model_dump_json", None)
-    if dumper:
-        print("\n" + dumper(indent=2))
+    print("\nwritten:")
+    for name, path in written.items():
+        print(f"  {name}: {path}")
+    if result.outcome.escalated:
+        print("\nThis stage escalated — read it before acting on it.")
     return 0
 
 

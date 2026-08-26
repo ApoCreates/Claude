@@ -87,3 +87,34 @@ class TestLatestRun:
 
     def test_returns_none_before_anything_has_run(self, tmp_path):
         assert latest_run(tmp_path) is None
+
+
+class TestNothingSurvived:
+    """A live run produced exactly this: eleven programmes found, every one
+    dropped for want of a verifiable source. The report has to say so."""
+
+    def _emptied(self, run_dir, name, key, rejected_key, reasons):
+        payload = json.loads((run_dir / f"{name}.json").read_text(encoding="utf-8"))
+        payload[key] = []
+        payload[rejected_key] = reasons
+        (run_dir / f"{name}.json").write_text(json.dumps(payload), encoding="utf-8")
+
+    def test_an_emptied_funding_report_says_so_and_lists_why(self, run_dir):
+        self._emptied(
+            run_dir, "funding", "opportunities", "searched_but_rejected",
+            ["example-fund — no retrieval date on any source"],
+        )
+        report = render_run(run_dir)
+        assert "Nothing survived audit" in report
+        assert "no retrieval date" in report
+        assert "That is a real result, not an error" in report
+
+    def test_an_emptied_prospect_list_says_so_too(self, run_dir):
+        self._emptied(
+            run_dir, "prospects", "prospects", "excluded",
+            ["Example Co — trigger event could not be dated"],
+        )
+        assert "Nothing survived audit" in render_run(run_dir)
+
+    def test_a_populated_report_is_unaffected(self, run_dir):
+        assert "Nothing survived audit" not in render_run(run_dir)
