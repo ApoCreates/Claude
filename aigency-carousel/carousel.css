@@ -143,21 +143,22 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
 .org svg.wires{display:block;width:100%;height:100px}
 .org .desks{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
 .org .d{text-align:center;color:var(--accent)}
-.org .d svg{width:58px;height:58px}
+.org .d svg{width:58px;height:58px;stroke-width:2.4}
 .org .d b{display:block;margin-top:10px;font-family:var(--mono);font-weight:500;font-size:15px;letter-spacing:.12em;text-transform:uppercase}
 .swipe{margin-top:20px;text-align:center;font-family:var(--serif);font-style:italic;font-size:33px;color:var(--accent)}
 
-/* ---------- floor (frame 09) ---------- */
-.floorline{margin-top:22px;display:flex;flex-direction:column;gap:0;flex:1 1 auto;justify-content:center}
-.fl{display:grid;grid-template-columns:74px 1fr;align-items:center;gap:20px;border-bottom:1px solid var(--hair);padding:9px 0}
-.fl:last-child{border-bottom:0}
-.fl .n{font-family:var(--serif);font-variation-settings:"opsz" 144;font-size:36px;line-height:1.2;color:var(--accent)}
-.fl .t{font-family:var(--mono);font-weight:500;font-size:23px;letter-spacing:.14em;text-transform:uppercase}
-.fl .t em{display:block;font-family:var(--sans);font-style:normal;font-size:20px;letter-spacing:0;text-transform:none;color:var(--soft);margin-top:6px}
-.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px;flex:0 0 auto}
-.fact{border:1px solid var(--hair);border-radius:2px;padding:15px;text-align:center;background:var(--ground2)}
-.fact b{display:block;font-family:var(--serif);font-variation-settings:"opsz" 144;font-size:48px;line-height:1;color:var(--accent)}
-.fact span{display:block;margin-top:8px;font-family:var(--mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+/* ---------- the loop (frame 09) ---------- */
+.loop-head{margin-top:34px;text-align:center;flex:0 0 auto}
+.loop-head h2{margin-top:18px;font-size:76px}
+.loop{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0}
+.loop .row{width:722px;display:flex;align-items:center;gap:16px;background:var(--ground2);
+  border:1px solid var(--hair);border-radius:2px;padding:13px 24px}
+.loop .row svg{width:32px;height:32px;color:var(--accent);flex:0 0 auto;stroke-width:3.4}
+.loop .row b{font-weight:600;font-size:26px}
+.loop .row span{font-size:22px;color:var(--soft)}
+.loop .down{height:20px;display:flex;align-items:center;color:color-mix(in srgb, var(--type) 40%, transparent);font-size:17px}
+.loop .row.last{background:var(--ground);border-color:var(--accent)}
+.loop .row.last b,.loop .row.last span{color:var(--accent)}
 
 /* ---------- ask (frame 10) ---------- */
 .ask{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}

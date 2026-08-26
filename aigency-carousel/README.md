@@ -10,7 +10,7 @@ Frames are **1080 × 1350** (IG 4:5), rendered from HTML so the copy stays edita
 |---|---|---|
 | 01 | Cover — Triple Hook + the seven-desk org chart | night |
 | 02–08 | One desk each: Brief, Research, Words, Design, Build, Arabic, Review | paper |
-| 09 | The floor — all seven in one line | paper |
+| 09 | The loop — brief to ship, one row per desk | paper |
 | 10 | The ask — lockup, handle, contact | night |
 
 ## Build

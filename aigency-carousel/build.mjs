@@ -21,6 +21,7 @@ const GLYPH = {
   arabic: S(`<rect x="14" y="18" width="72" height="64"/><path d="M14 50h72"/>
     <path d="M74 34H30"/><path d="M40 25l-10 9 10 9"/>
     <path d="M26 66h44"/><path d="M60 57l10 9-10 9"/>`),
+  ship: S(`<path d="M50 14v52"/><path d="M34 50l16 16 16-16"/><path d="M14 78h72"/>`),
   review: S(`<path d="M14 20v48M26 20v48M38 20v48"/><path d="M10 76h80"/>
     <rect x="54" y="24" width="34" height="34"/><path d="M60 42l8 8 14-17"/>`),
 };
@@ -197,24 +198,24 @@ const desk = (d, i) => `
   ${foot(`${d.dept} · one job`)}
 </section>`;
 
-/* ---------- 09 · the floor ---------- */
+/* ---------- 09 · the loop ---------- */
 const floor = () => `
 <section class="frame" id="f09">
   ${head(9)}
-  <p class="kicker mono sm">The floor · brief to shipped</p>
-  <h2 class="display title">One line,<br>seven desks</h2>
-
-  <div class="floorline">${DESKS.map(d => `
-    <div class="fl"><div class="n">${d.n}</div>
-      <div class="t">${d.dept}<em>${d.sub}</em></div></div>`).join("")}
+  <div class="loop-head">
+    <p class="mono sm soft">How the work gets made</p>
+    <h2 class="display">The same line,<br><span class="accent">every time</span></h2>
   </div>
 
-  <div class="facts">
-    <div class="fact"><b>07</b><span>desks on the floor</span></div>
-    <div class="fact"><b>06</b><span>checks to pass</span></div>
-    <div class="fact"><b>02</b><span>languages, one care</span></div>
+  <div class="loop">
+    ${DESKS.map(d => `
+      <div class="row">${GLYPH[d.key]}<b>${d.dept.charAt(0) + d.dept.slice(1).toLowerCase()}</b>
+        <span>— ${d.name.toLowerCase()}</span></div>
+      <div class="down">↓</div>`).join("")}
+    <div class="row last">${GLYPH.ship}<b>Ship</b>
+      <span>— nothing leaves until it passes</span></div>
   </div>
-  ${foot("The studio floor")}
+  ${foot("Brief → review → ship")}
 </section>`;
 
 /* ---------- 10 · the ask ---------- */
