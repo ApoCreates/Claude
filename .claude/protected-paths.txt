@@ -1,0 +1,8 @@
+# One prefix per line. Edits under these paths are blocked by protect-paths.sh.
+supabase/migrations/
+aigency-film-festival/supabase/
+src/gen/
+package-lock.json
+product-studio/package-lock.json
+aigency-film-festival/package-lock.json
+.github/workflows/
